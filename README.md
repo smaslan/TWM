@@ -1,2 +1,2 @@
 # TWM
-Traceable Power Quality Wattmeter
+TracePQM Wattmeter
