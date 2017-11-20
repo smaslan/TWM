@@ -1,0 +1,13 @@
+Software User Licence Agreement
+
+Release 1.4 of the Calibration Curves Computing – CCC Software is provided as a collection of open
+source MATLAB codes intended for use by partners of the EMRP NEW04 project only, and to whom it will
+be made available through the JRP website (future versions of the software will be provided as an
+executable and will be made freely available for Users outside the EMRP project).
+
+The software is provided without warranty of any kind. INRIM will try to solve any reported problems
+found in running the software, but does not guarantee to fix any problems in the software or to
+provide any updates or solutions by a particular date.
+
+INRIM is not liable for any damages arising from the use of the software. The entire risk arising
+out of the use or performance of the Software and documentation remains with the User.

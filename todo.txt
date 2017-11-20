@@ -1,0 +1,10 @@
+- add ADC resolution attribute
+- QWTB result table filling failing at empty data!
+- disable display of DMMs to reduce noise (option)
+- corrections are stored to wrong folders
+
+Digitizers panel:
+ - hide selector of DMM idn - confusing
+
+RAW command config:
+ - fix the demo for Matlab

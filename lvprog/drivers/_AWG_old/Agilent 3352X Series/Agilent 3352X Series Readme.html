@@ -1,0 +1,138 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Agilent 3352X  Series Instrument Driver Readme</title>
+</head>
+<body>
+<h2>Agilent 3352X  Series Instrument Driver Readme</h2>
+<para>To rate this instrument driver, go to the driver download page on the <a
+ href="http://www.ni.com/idnet">Instrument Driver Network</a>.</para>
+<h4>1. Overview</h4>
+<para>
+Instrument Driver Technology: LabVIEW Plug and Play (project-style)<br>
+Manufacturer: Agilent
+<br>
+Supported Language(s): LabVIEW
+<br>
+Supported Model(s): 33521A, 33522A, 33522B, 33521B, 33520B, 33519B, 33512B, 33511B, 33510B, 33509B, 33611A, 33612A, 33621A, 33622A
+<br>
+Model(s) Tested: 33522A, 33522B, 33622A
+<br>
+Interface(s): Ethernet, USB
+<br>
+Firmware Revision(s) Tested: 1.10-1.19-8.88-45-00 (33522A), 2.03-1.19-2.00-52-00 (33522B), A.01.08-2.25-03-64-02 (33622A)<br>
+<br>
+Certified: Yes
+<br>
+NI Supported: Yes
+<br>
+Source Code Available: Yes
+<br>
+<br>
+Driver Revision: 1.2.2
+<br>
+Original Release Date: 08/23/2012<br>
+Current Revision Date: 04/2015
+
+</para>
+<h4>2. Required Software</h4>
+<para>Some software components need to be installed before using this
+instrument driver. The minimum versions of these components are listed
+below, and can be downloaded from the Download Site.
+<br>
+<br>
+VISA 5.0 or later
+<br><br>
+<b>Third-party installation</b> <a href="http://www.home.agilent.com/agilent/software.jspx?cc=US&lc=eng&nid=-33330.977662&id=1184883">Agilent IO Libraries</a>
+<br>
+<br>
+Refer to the <i>LabVIEW Help</i> for more information about software requirements. You access the <i>LabVIEW Help</i> by selecting <i>Help&raquo;Search the LabVIEW Help</i>.</para>
+<h4>3. Known Issues</h4>
+<para>
+To report issues or provide feedback about this instrument driver,
+please send an email to <a href="mailto:instrument.drivers@ni.com">instrument.drivers@ni.com</a>.</para>
+
+<h4>4. Revision History</h4>
+<para>The latest version of this and other LabVIEW and LabWindows/CVI
+instrument drivers can be downloaded at the <a
+ href="http://www.ni.com/idnet">Instrument Driver Network</a>.<br>
+<br>
+<br>
+REV 1.0, 01/25/2011<br></para>
+Created by: Xueting Tan, Shanghai, China.<br>
+<para>Original release.<br>
+<br>
+REV 1.0.1, 03/30/2011<br></para>
+Modified by: Xueting Tan, Shanghai, China.<br>
+<para>
+Modified VI:<br>
+	Create Arbitrary Waveform.vi: modified parsing of data from list of comma separated numbers to data represented in the "IEEE binary block" for arbitrary waveforms to support points over 65K<br>
+</para>
+<br>
+REV 1.0.2, 12/16/2011<br></para>
+Modified by: JP, Austin, Texas<br>
+<para>
+Modified: Continuous Initiate.vi
+	<br>Added a blank line and removed the %s string format specifier from the multi-line string constant in the Pick-Line function to correct the indexing and invalid character issue.
+	<br>Added a space before the true and false string constants in the Append True/False String function to address the missing space in SCPI command issue.
+</para>
+<br><br>
+REV 1.0.3, 08/23/2012<br></para>
+Modified by: Xueting Tan, Shanghai, China.<br>
+<para>
+Modified VI:<br>
+	Configure Standard Waveform.vi:
+	<br>Modified the logic for Phase Angle and Frequency to address issue of the commands not being set for the Pulse Waveform function.
+<br><br>
+REV 1.1.0, 10/30/2012<br></para>
+Modified by: Xueting Tan, Shanghai, China.<br>
+<para>
+Add following VIs to support 33522B, 33521B, 33520B, 33519B, 33512B, 33511B, 33510B and 33509B:<br>
+	Configure Arbitrary Waveform Frequency.vi</br>
+	Configure Arbitrary Waveform Skew.vi</br>
+	Configure Dual Arbitrary Waveform.vi</br>
+	Configure Marker.vi</br>
+	Create Arbitrary Waveform For Two Channels.vi</br>
+	</br>
+REV 1.1.1, 11/30/2012<br></para>
+Modified by: Xueting Tan, Shanghai, China.<br>	
+Modified:<br>
+Configure Sync Output - addressed bug that prevented CH1 from being selected on the instrument. Update included adding the decrement function to the Channel wire before the Pick Line function.
+<br><br>
+REV 1.2, 04/23/2014<br></para>
+Modified by: Xudong Yong, Shanghai, China.<br>
+<para>
+Add following VIs to support 33611A, 33612A, 33621A, 33622A:<br>
+    Configure Display Units.vi<br>
+    Configure Display View.vi<br>
+    Configure Modulation Input.vi<br>
+    Configure Modulation Phase Advanced.vi<br>
+    Configure Arbitrary Waveform Phase.vi<br>
+    Configure Trigger Advanced.vi<br>
+	Get Security Count.vi<br>
+	Agilent 3352X Series Arbitrary Waveform Phase.vi<br>
+Modified VIs:<br>
+    Configure Modulation (Binary-Phase-Shift Keying).vi - Modify the range of Modulation Phase Shift<br>
+    Configure PRBS Waveform.vi - Modify the range of Data Sequence and Edge Time<br>                            
+    Configure Standard Waveform Advanced (Pulse).vi - Modify the range of Pulse Width, Lead Edge and Trail Edge<br>                                                 
+    Configure Modulation (Pulse Width).vi - Modify the range of PWM Deviation Duty Cycle<br>
+    Configure Sample Rate Coupling.vi - Modify the range of Couple Offset<br>
+    Configure Modulation (SUM).vi - Add items for SUM Source<br>
+    Configure Burst.vi - Add notes in Burst Internal Period<br>
+    Configure Arbitrary Waveform Frequency.vi - Modify the range of Arbitrary Waveform Frequency<br>
+    Configure Arbitrary Waveform.vi - Modify the range of Sample Rate<br>
+    Confiugre Standard Waveform.vi - Modify the range of Frequency/Sample Rate/Bandwidth, and add item for Angle Unit
+<br><br>
+REV 1.2.1, 05/10/2014<br></para>
+Modified by: Zhifan Su, Shanghai, China.<br>
+<para>
+Fixed bug in Create Arbitrary Waveform Sequence.vi, added item "Once Wait Trig" to the "Play Control".
+<br>                            
+<br>
+REV 1.2.2, 04/2015<br>
+Modified by: National Instruments<br>
+Initialize - Updated to include Keysight Technologies along with Agilent as a Manufacturer
+<br>
+<br>
+</body>
+</html>

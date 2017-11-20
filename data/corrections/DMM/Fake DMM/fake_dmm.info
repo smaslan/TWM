@@ -1,0 +1,11 @@
+% type of the correction
+type:: channel
+
+% correction name string
+name:: Fake channel correction (testing purposes)
+
+% device/channel identification as it appears in the digitizer identification
+$ note: leave empty or remove if this correction should be independent of the instrument/channel
+channel identifier::
+
+

@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Instrument Driver Readme</title>
+</head>
+<body>
+<font face="Times New Roman" size="3">
+<h2>Agilent 33XXX Series Instrument Driver Readme</h2>
+<para>To rate this driver, go to the driver download page on the <a
+ href="http://www.ni.com/idnet">Instrument Driver Network</a>.</para>
+<h4>1. Overview</h4>
+<para>
+Instrument Driver Technology: LabVIEW Plug and Play (project-style)
+<br>
+Manufacturer: Agilent Technologies
+<br>
+Supported Language(s): LabVIEW
+<br>
+Supported Model(s): 33120A, 33220A, 33250A, 33210A
+<br>
+Model(s) Tested: 33120A, 33220A, 33250A, 33210A
+<br>
+Interface(s): GPIB
+<br>
+Firmware Revision Tested: 7.0-2.0-1.0
+<br>
+<br>
+Certified: Yes
+<br>
+NI Supported: Yes
+<br>
+Source Code Available: Yes
+<br>
+<br>
+Driver Revision: 2.1.4
+<br>
+Original Release Date: 07/06/2005
+<br>
+Current Revision Date: 08/12/2013
+</para>
+<h4>2. Required Software</h4>
+<para>Some software components need to be installed before using this
+instrument driver. The minimum versions of these components are listed
+below, and can be downloaded from the Download Site.
+<br>
+<br>
+ VISA 3.0 or later
+<br>
+<br>
+<br>
+For more details, refer to the <i>LabVIEW Help</i> under <i>Help
+&raquo; VI, Function, &amp; How-To Help</i>.</para>
+<h4>3. Known Issues</h4>
+<para>
+A delay has been included in Create Arbitrary Waveform in order to prevent Query Interrupted (-410) instrument error from
+occurring.  The error occurs when error query is called from Create Arbitrary Waveform when a small transfer
+(8-16 points) is sent over ther serial interface.
+<br>
+<br>
+A delay occurs on the instrument after writing multiple arbitrary waveforms to a 33220A.  The instrument has a limited amount of flash memory, and
+eventually must clean up the memory, this is when the delay occurs.
+</para>
+<para><br><br>
+To report issues or provide feedback about this instrument driver,
+please send an email to <a href="mailto:instrument.drivers@ni.com">instrument.drivers@ni.com</a>.</para></font><font
+ face="Times New Roman" size="3">
+<br>
+<font face="Times New Roman" size="3"><para></para>
+<h4>4. Revision History</h4>
+<para>The latest version of this and other LabVIEW and LabWindows/CVI
+instrument drivers can be downloaded at the <a
+ href="http://www.ni.com/idnet">Instrument Driver Network</a>.<br>
+<br>
+Revision 2.0, 07/6/2005
+<br>
+Modified by: Matt Gibson, Rob Hammond, Austin, TX.
+<br>
+Original release for LabVIEW 8.0 created from ag33xxx driver (v.1.0.1) in LV 7.0
+<br><br>
+Revision 2.0.1, 10/4/2006
+<br>
+Modified by Sandy Hermanwan, Austin, TX.
+<br>
+Documentation updates.
+<br><br>
+Revision 2.0.2, 01/21/2008
+<br>
+Modified by Berk Ozdogan, Austin, TX.
+<br>
+Configure Trigger VI is modified so that trigger delay is only passed in for 33250 models. Overall implementation of the VI is
+also revised to better comply with instrument driver standards.
+<br><br>
+Revision 2.1.0, 10/31/2008
+<br>
+Modified by Fan Chen, Shanghai, China.
+<br>
+Add support for Agilent 33210 model. Update the driver template.
+Add Configure Burst.vi to support 33210 model's burst function.
+<br><br>
+Revision 2.1.1, 1/26/2009
+<br>
+Modified by Nathan T., Austin, Texas.
+<br>
+Changed the format specifier in Configure Standard Waveform.vi Frequency Command string constant from "%g" to "%f" to correct a problem with frequency rounding.
+<br><br>
+Revision 2.1.2, 3/10/2010
+<br>
+Modified by Nathan T., Austin, Texas.
+<br>
+Fixed the scaling calculation in Scale Arbitrary Waveform.vi by negating the max value and using that for the calculations instead of the min value.
+<br><br>
+Revision 2.1.3, 9/24/2012<br>
+Modified by JP (NI), Wim T. (Phillps)<br>
+Modified Scale Arbitrary Waveform.vi to use real min instead of using inverted max value.
+<br><br>
+Revision 2.1.4, 8/12/2013
+<br>
+Modified by Stephen Schwahn, Austin, Texas.
+<br>
+Added the "BURS:STAT OFF" command in the Configure Burst VI to allow the burst to be disabled.
+</font></para></font>
+</body>
+</html>

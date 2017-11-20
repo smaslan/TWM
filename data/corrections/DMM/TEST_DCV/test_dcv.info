@@ -1,0 +1,71 @@
+% correction type
+type:: digitizer
+
+% description of the digitizer corrections setup
+name:: Demonstration corrections for 3458A setup
+
+% names of the channels as they appear in the digitizer identification
+#startmatrix:: channel identifiers
+	HP3458A, sn. 2823A23288;
+	HP3458A, sn. MY45053104;
+	HP3458A, sn. MY45053095;
+#endmatrix:: channel identifiers
+
+% links to the channel corrections of particular channels
+#startmatrix:: channel correction paths
+	..\Fake DMM\fake_dmm.info;
+	..\Keysight_3458A_MY45053104\Keysight_3458A_MY45053104.info;
+	..\Fake DMM\fake_dmm.info;
+#endmatrix:: channel correction paths
+
+
+
+#startsection:: interchannel timeshift
+
+  % list of supported values of a primary parameter
+  % eg.: synchronization modes
+  #startmatrix:: synchronization mode
+    MASTER-SLAVE, MASTER clocked by TIMER;
+    MASTER-SLAVE, MASTER clocked by AWG;
+    ALL clocked by AWG;
+  #endmatrix:: synchronization mode
+
+  % 2D array with the list of values of the correction
+  %  rows: vectors of correction values, eg. relative timeshifts to the first channel
+  %  columns: primary parameter
+  #startmatrix:: interchannel timeshift
+    0.0; 0.1; 0.2;
+    0.0; 0.1; 0.2;
+    0.0; 0.01; 0.02;
+  #endmatrix:: interchannel timeshift
+  
+  
+  % this is the list of channel specific attributes for which the correction is valid
+  % anything put here will be checked with the digitizer setup stored in the header file
+  % of the measurement and if it does not match, it will return and error
+  #startmatrix:: valid for attributes
+    sampling mode;
+  #endmatrix:: valid for attributes
+                                       
+  % list of allowed values of attribute 1
+  % eg.: sampling mode
+  #startmatrix:: sampling mode
+    DCV;
+  #endmatrix:: sampling mode
+  
+  % name of the primary and secondary parameter on which this correction is dependent
+  % note: it must be exact name of the parameter that appears in measurement header
+  % note: remove secondary or both if additional dependence on the parameter is not needed
+  primary parameter:: synchronization mode
+
+  % interpolability of the parameter
+  primary is interpolable:: 0
+  
+  % types of the parameters {real: real number, string: string}
+  primary type:: string
+
+  % type of the value of the correction 
+  %  vector: array of row vectors of real or complex values (only primary parameter supported)
+  format:: vector
+
+#endsection:: interchannel timeshift

@@ -1,0 +1,87 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <title>Instrument Driver Readme</title>
+</head>
+<body>
+<h2> Agilent 3458 </font> Instrument Driver Readme</h2>
+<para>To rate this instrument driver, go to the driver download page on the <a
+ href="http://www.ni.com/idnet">Instrument Driver Network</a>.</para>
+<h4>1. Overview</h4>
+<para>
+Instrument Driver Technology: LabVIEW Plug and Play (project-style)
+<br>
+Manufacturer: Agilent</font>
+<br>
+Supported Language(s): LabVIEW</font>
+<br>
+Supported Model(s): 3458A</font>
+<br>
+Model(s) Tested: 3458A</font>
+<br>
+Interface(s): GPIB</font>
+<br>
+Firmware Revision(s) Tested: Master Processor Firmware Revision 7.0, Slave Processor Firmware Revision 2.0</font>
+<br>
+<br>
+Certified: Yes</font>
+<br>
+NI Supported: Yes</font>
+<br>
+Source Code Available: Yes</font>
+<br>
+<br>
+Driver Revision: 1.0.2</font>
+<br>
+Original Release Date: 08/01/2007</font>
+<br>
+Current Revision Date: 08/17/2012</font>
+</para>
+<h4>2. Required Software</h4>
+<para>Some software components need to be installed before using this
+instrument driver. The minimum versions of these components are listed
+below, and can be downloaded from the Download Site.
+<br>
+<br>
+VISA 3.0 or later</font>
+<br>
+<br>
+For more details, refer to the <i>LabVIEW Help</i> under <i>Help
+&raquo; Search the LabVIEW Help</i>.</para>
+<h4>3. Known Issues</h4>
+<para>
+To report issues or provide feedback about this instrument driver,
+please send an email to <a href="mailto:instrument.drivers@ni.com">instrument.drivers@ni.com</a>.</para></font>
+<br>
+<br>
+Setting the number of PLCs to 0 when measuring values below 1 Volt when autoranging is enabled will 
+cause the instrument to return incorrect values when the resolution is higher than 4.5 digits.  If 8.5 
+digits of resolution are desired, the NPLCs must be 10 or greater.
+<br>
+</font><br>
+<para></para>
+<h4>4. Revision History</h4>
+<para>The latest version of this and other LabVIEW and LabWindows/CVI
+instrument drivers can be downloaded at the <a
+ href="http://www.ni.com/idnet">Instrument Driver Network</a>.<br>
+<br>
+REV 1.0, 08/01/2007<br></font></para></font>
+Modified by: Phil Nwoha, Austin,TX.<br></font></font>
+<para>Original release.<br>
+<br>
+<br>
+REV 1.0.1, 09/03/2008<br></font></para></font>
+Modified by: Nathan T., Austin,TX.<br></font></font>
+<para>Changed Default Instrument Setup - changed the number of integration cycles from 0 to 10.  This is a fix for a problem that occured 
+when measuring values below 1 Volt with Autoranging enabled<br>
+<br>
+<br>
+REV 1.0.2, 08/17/2012<br></font></para></font>
+Modified by: Kartik H., Austin,TX.<br></font></font>
+<para>Changed Read Measurement (Single Point) - Removed RMEM,1 from the command string.  This is to fix the problem that it 
+always returns repeated copies of the first measurement.
+<br>
+<br>
+</font></para></font>
+</body>
+</html>
