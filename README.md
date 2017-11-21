@@ -18,6 +18,9 @@ The TWM concept is modular, so it can be simply extended by various digitizer dr
 
 Modularity of the Power and PQ calculation algorithms used by the TWM is ensured by the [QWTB](https://qwtb.github.io/qwtb/) toolbox. 
 
+![![](/imgz/gui_v2_small.jpg)](/imgz/gui_v2.png)
+
+
 ## Status
 
 The project is still under development! In current version it can do following:
