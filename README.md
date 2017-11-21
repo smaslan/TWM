@@ -1,4 +1,4 @@
-[TracePQM](./imgz/logo_final_male_v1.png)
+![TracePQM](./imgz/logo_final_male_v1.png)
 
 # TWM - TracePQM Wattmeter
 
