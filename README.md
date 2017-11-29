@@ -38,7 +38,7 @@ Current version does not support correction files for the digitizers nor transdu
 
 Here you can download build only:
 
-[Current build, V1.0.0.0, 2017.11.20 (ZIP file)](./builds/TWM.zip)
+[Current build, V1.0.1.0, 2017.11.29 (ZIP file)](./builds/TWM.zip)
 
 ## License
 The TWM is distributed under [MIT license](./LICENSE.txt). Note the algorithms in the QWTB toolbox may have different licenses. 
