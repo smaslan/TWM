@@ -755,6 +755,7 @@
 			<Item Name="Assist" Type="Folder">
 				<Item Name="Assist Sampling Setup.ctl" Type="VI" URL="../measure/Assist/Assist Sampling Setup.ctl"/>
 				<Item Name="Assist Coherent Sampling Finder Setup.ctl" Type="VI" URL="../measure/Assist/Assist Coherent Sampling Finder Setup.ctl"/>
+				<Item Name="Assist Panel Setup.ctl" Type="VI" URL="../measure/Assist/Assist Panel Setup.ctl"/>
 				<Item Name="Assist Sampling Setup Panel.vi" Type="VI" URL="../measure/Assist/Assist Sampling Setup Panel.vi"/>
 				<Item Name="Assist Sampling Setup Calculate Coherent.vi" Type="VI" URL="../measure/Assist/Assist Sampling Setup Calculate Coherent.vi"/>
 			</Item>
@@ -835,8 +836,8 @@
 		<Item Name="doc" Type="Folder" URL="../../doc">
 			<Property Name="NI.DISK" Type="Bool">true</Property>
 		</Item>
-		<Item Name="par_test.vi" Type="VI" URL="../par_test.vi"/>
 		<Item Name="main.vi" Type="VI" URL="../main.vi"/>
+		<Item Name="par_test.vi" Type="VI" URL="../par_test.vi"/>
 		<Item Name="info_test.vi" Type="VI" URL="../info_test.vi"/>
 		<Item Name="config.ini" Type="Document" URL="../config.ini"/>
 		<Item Name="LICENSE.txt" Type="Document" URL="../../LICENSE.txt"/>
