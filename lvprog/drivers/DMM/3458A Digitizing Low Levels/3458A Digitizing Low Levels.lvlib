@@ -41,6 +41,8 @@ Keysight 3458A multimeter for measurements of power and PQ parameters. The 3458A
 	</Item>
 	<Item Name="Utility" Type="Folder">
 		<Item Name="Get Serial Number.vi" Type="VI" URL="../../3458A Basic Driver/Public/Utility/Get Serial Number.vi"/>
+		<Item Name="Get Exclusive Access.vi" Type="VI" URL="../Utility/Get Exclusive Access.vi"/>
+		<Item Name="Release Exclusive Access.vi" Type="VI" URL="../Utility/Release Exclusive Access.vi"/>
 	</Item>
 	<Item Name="Close 3458A.vi" Type="VI" URL="../Close 3458A.vi"/>
 	<Item Name="Initialize 3458A.vi" Type="VI" URL="../Initialize 3458A.vi"/>
