@@ -70,6 +70,14 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
     % store variable size
     ovar = infosetmatrix(ovar, 'dimensions', size(variable.v));
     
+    % if the MAT file already exists, we will just append the new var
+    % ###note: this is because of Matlab, Octave's save('-append') works even with nonexistent file  
+    if exist(result_mat,'file')
+      app_mat = '-append';
+    else
+      app_mat = '';
+    end
+    
     if numel(variable.v) > limits.max_array
       % the variable is some badass array - it is tooo big to store it in text file, it goes to MAT file insted
            
@@ -83,9 +91,9 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
         ovar = infosettext(ovar, 'MAT file variable - value', var_name);
         
         % numeric - save
-        eval(sprintf('%s = variable.v;', var_name));
-        save(result_mat, '-v4', '-append', var_name);
-        delete(var_name);
+        eval(sprintf('%s = variable.v;', var_name));        
+        save(result_mat, '-V4', app_mat, var_name);
+        clear(var_name);
         
       else
         % non numeric output???
@@ -105,8 +113,8 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
         
         % numeric - save
         eval(sprintf('%s = variable.u;', var_name));
-        save(result_mat, '-v4', '-append', var_name);
-        delete(var_name);
+        save(result_mat, '-V4', app_mat, var_name);
+        clear(var_name);
         
       end
       

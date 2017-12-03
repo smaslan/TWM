@@ -58,4 +58,4 @@ function [full_str,val_str,unc_str,unit_str] = qwtb_result_unc2str(value,index,c
     error(sprintf('QWTB number formatter: Number format ''%s'' not recognized!',val.num_format));
   end
 
-endfunction
+end

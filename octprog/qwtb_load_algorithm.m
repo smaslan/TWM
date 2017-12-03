@@ -1,8 +1,8 @@
 %% -----------------------------------------------------------------------------
-%% QWTB TracePQM:
+%% QWTB TracePQM: Returns info for selected algorithm.
 %% -----------------------------------------------------------------------------
 function [alginfo,ptab,unc_list,input_params] = qwtb_load_algorithm(alg_id)
-
+  
   % fetch information struct of the QWTB algorithm
   alginfo = qwtb(alg_id,'info');
   
@@ -20,7 +20,8 @@ function [alginfo,ptab,unc_list,input_params] = qwtb_load_algorithm(alg_id)
   row{1,2} = 'value';
   
   % merge table row(s) to single string
-  ptab = [ptab [cellfun('strcat',row(:),{fmt{1+[1:size(row,2) == size(row,2)]}}.','UniformOutput',false){:}]]; 
+  tmp = cellfun(@strcat,row(:),{fmt{1+[1:size(row,2) == size(row,2)]}}.','UniformOutput',false);
+  ptab = [ptab [tmp{:}]]; 
       
   % --- build parameters table  ---
   for k = 1:numel(inps)
@@ -49,7 +50,8 @@ function [alginfo,ptab,unc_list,input_params] = qwtb_load_algorithm(alg_id)
     row{1,1} = name;
 
     % merge table row(s) to single string
-    ptab = [ptab [cellfun('strcat',row(:),{fmt{1+[1:size(row,2) == size(row,2)]}}.','UniformOutput',false){:}]];
+    tmp = cellfun(@strcat,row(:),{fmt{1+[1:size(row,2) == size(row,2)]}}.','UniformOutput',false);
+    ptab = [ptab [tmp{:}]];
             
   end
   
@@ -59,10 +61,12 @@ function [alginfo,ptab,unc_list,input_params] = qwtb_load_algorithm(alg_id)
     unc{end+1} = 'Calculate by GUF';
   elseif alginfo.providesMCM
     unc{end+1} = 'Calculate by Monte Carlo';
-  endif
-  unc_list = [cellfun('strcat',unc(:),{tab},'UniformOutput',false){:}];
+  end
+  tmp = cellfun(@strcat,unc(:),{tab},'UniformOutput',false);
+  unc_list = [tmp{:}];
   
   % return description of the parameters
-  input_params = [cellfun('strcat',{inps.desc},{tab},'UniformOutput',false){:}];
+  tmp = cellfun(@strcat,{inps.desc},repmat({tab},size({inps.desc})),'UniformOutput',false);
+  input_params = [tmp{:}];
   
 end

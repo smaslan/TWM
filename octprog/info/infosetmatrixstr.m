@@ -1,4 +1,4 @@
-function infostr = infosetmatrix(varargin)%<<<1
+function infostr = infosetmatrixstr(varargin)%<<<1
 % -- Function File: INFOSTR = infosetmatrix (KEY, VAL)
 % -- Function File: INFOSTR = infosetmatrix (INFOSTR, KEY, VAL)
 % -- Function File: INFOSTR = infosetmatrix (INFOSTR, KEY, VAL, SCELL)
@@ -104,9 +104,10 @@ function infostr = infosetmatrix(varargin)%<<<1
         % format values
         %newlines = sprintf([repmat(' %s;', 1, size(val, 2)) NL], val');
         
-        newlines = [];
+        newlines = '';
         for k = 1:size(val,1)
-          newlines = [newlines sprintf('%s; ', val{k,:})(1:end-1) NL];
+          %newlines = [newlines sprintf('%s; ', val{k,:})(1:end-1) NL];
+          newlines = [newlines sprintf('%s;', val{k,:}) NL];
         end
 
         % add newline to beginning:

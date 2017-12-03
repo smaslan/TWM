@@ -1,7 +1,7 @@
 %% -----------------------------------------------------------------------------
 %% TracePQM: Plots result from measurement folder. This function will read one
 %% or more results, perform averaging if requested and plots the graph
-%% of the selected quantity. 
+%% of the selected quantity.
 %%
 %%   inputs:
 %%     meas_root - root folder of the measurement
@@ -17,9 +17,6 @@
 %%                          0: only scalars
 %%                          1: scalars, vectors
 %%                          2: scalars, vectors, matrices
-%%           cfg.max_array - maximum array elements to be displayed
-%%                           if exeeded, function will write 'graph' insted of
-%%                           the values into the results table
 %%           cfg.unc_mode - uncertainty display mode:
 %%                           0: display none
 %%                           1: value ± uncertainty
@@ -37,7 +34,7 @@
 %%                plot_cfg.grid - show plot grid?
 %%                plot_cfg.legend - plot legend position, empty string to disable 
 %% -----------------------------------------------------------------------------
-function [] = qwtb_plot_results(meas_root, res_id, alg_id, chn_id, cfg, var_name, plot_cfg)
+function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name, plot_cfg)
 
   if ~exist('cfg','var') || ~isstruct(cfg)
     % --- default configuration
@@ -57,10 +54,10 @@ function [] = qwtb_plot_results(meas_root, res_id, alg_id, chn_id, cfg, var_name
     % uncertainty mode (0: none, 1: plusminus, 2: alternate (qunat1, unc1, qunat2, unc2))
     cfg.unc_mode = 0;
   end
-  if ~isfield(cfg,'max_array')
+  %if ~isfield(cfg,'max_array')
     % maximum array size for displaying
     cfg.max_array = 10e6;
-  end
+  %end
   if ~isfield(cfg,'phi_mode')
     % default phase display mode
     cfg.phi_mode = 0;

@@ -254,14 +254,17 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
   eol = sprintf('\n');  
   txt = '';
   for k = 1:size(csv,1)
-    txt = [txt [cellfun('strcat',csv(k,:),{tab},'UniformOutput',false){:}] eol];
+    row = cellfun(@strcat,csv(k,:),repmat({tab},size(csv(k,:))),'UniformOutput',false);
+    txt = [txt [row{:}] eol];
   end
   txt = char(txt);
   
   % --- convert table descriptions to CSV data ---
-  desc = char([cellfun('strcat',desc,{tab},'UniformOutput',false){:}]);
+  row = cellfun(@strcat,desc,repmat({tab},size(desc)),'UniformOutput',false);
+  desc = char([row{:}]);
   
   % --- convert returned variable names to CSV data ---
-  var_names = char([cellfun('strcat',var_names,{tab},'UniformOutput',false){:}]);
+  row = cellfun(@strcat,var_names,repmat({tab},size(var_names)),'UniformOutput',false);
+  var_names = char([row{:}]);
     
 end

@@ -26,12 +26,12 @@ function [str,str_val,str_unc,str_int] = unc2str(val,uncv,unit,cfg)
     unc = max(abs(uncv));
   else
     unc = uncv;
-  endif
+  end
   
   % limit uncertainty by absolute minimum
   if abs(unc) < cfg.min_unc_abs
     unc = cfg.min_unc_abs;
-  endif
+  end
   
   % limit uncertainty by relative minimum
   if abs(unc) < abs(val)*cfg.min_unc_rel 
@@ -57,7 +57,7 @@ function [str,str_val,str_unc,str_int] = unc2str(val,uncv,unit,cfg)
       str_int = [str_int unit];
     else
       str = [str_val ' - ' str_unc{1} ' + ' str_unc{2}];
-    endif
+    end
     
     str_unc{1} = ['-' str_unc{1}];     
         
@@ -68,7 +68,7 @@ function [str,str_val,str_unc,str_int] = unc2str(val,uncv,unit,cfg)
       str = ['(' str_val ' +- ' str_unc ')' unit];
     else
       str = [str_val ' +- ' str_unc];
-    endif
-  endif
+    end
+  end
 
-endfunction
+end

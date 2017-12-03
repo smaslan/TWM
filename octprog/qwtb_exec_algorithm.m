@@ -4,15 +4,22 @@
 %%   meas_file - full path of the measurement header
 %%   calc_unc - uncertainty calculation mode {0: no, 1: estimate, 2: MCM}
 %%   is_last_avg - 1 if last averaging cycle was measured, 0 otherwise
+%%   avg_id - id of the repetition cycle to process (optional)
+%%          - use 0 or leave empty to use last available 
 %%
 %% -----------------------------------------------------------------------------
-function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg)
+function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
 
   % load measurement file header
   inf = infoload(meas_file);
   
   % measuremet root path 
   meas_root = [fileparts(meas_file) filesep()];
+  
+  % default repetition cycle id
+  if ~exist('avg_id','var')
+    avg_id = -1;
+  end
   
   % try to load QWTB processing info
   try
@@ -105,11 +112,8 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg)
   if proc_all
     % process all averages at once
     avg_id = 0;
-  else
-    % process last averaging record
-    avg_id = -1;
   end
-
+  
   % load last measurement group
   data = tpq_load_record(meas_file,-1,avg_id);
     
@@ -138,18 +142,20 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg)
   
   % build result folder path
   result_folder = 'RESULTS';
-  
-  % try make result folder 
-  mkdir(meas_root, result_folder);
+    
+  % try make result folder
+  if ~exist([meas_root result_folder],'file') 
+    mkdir(meas_root, result_folder);
+  end
   
   % build result file path base (no extension)
   result_rel_path = [result_folder filesep() alg_id '-' result_name];
   result_path = [meas_root result_rel_path];
   
   % try to remove eventual existing results
-  delete([result_path '.mat']);
-  delete([result_path '.info']);
-  
+  if exist([result_path '.mat'],'file') delete([result_path '.mat']); end
+  if exist([result_path '.info'],'file') delete([result_path '.info']); end
+    
   % insert copy of QWTB parameters to the result
   rinf = infosetsection('QWTB parameters', qinf);
   
@@ -223,7 +229,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg)
       di = inputs;
       
       % store time vector
-      di.t.v = data.t;
+      di.Ts.v = data.Ts;
       
       % store voltage or current vector
       di.y.v = data.y(:,p:data.channels_count:end);

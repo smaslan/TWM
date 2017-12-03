@@ -26,7 +26,6 @@
 %%     data.timestamp - relative timestamps in [s], row vector, one per channel
 %%                    - note for multiple repet. they are merged as data.y
 %%     data.Ts - sampling period [s]
-%%     data.t - time vector [s], column vector 
 %%     data.corr - structure of correction data containing:
 %%       corr.phase_indexes - phase ID of each digitizer channel
 %%                          - used to assign U and I channels to phases
@@ -161,10 +160,21 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     
     if strcmpi(data_format,'mat-v4')      
       % load sample binary data
-      smpl = load('-v4',sample_data_file,data_var_name);
+      if isOctave()
+        smpl = load('-v4',sample_data_file,data_var_name);
+      else
+        smpl = load('-mat',sample_data_file,data_var_name);
+      end
       
+      % --- scale the binary data
+      % ###note the bsxfun() is needed because Matlab introduced auto broadcasting in 2016b!
+      % apply gain
+      y = bsxfun(@times,getfield(smpl,data_var_name).',sample_gains(ids(r),:));
+      % apply offset
+      y = bsxfun(@plus,y,sample_offsets(ids(r),:));
+            
       % store it into output array
-      data.y(:,1 + (r-1)*data.channels_count:r*data.channels_count) = sample_offsets(ids(r),:) + sample_gains(ids(r),:).*getfield(smpl,data_var_name).';    
+      data.y(:,1 + (r-1)*data.channels_count:r*data.channels_count) = y;    
     end
   
   end
@@ -175,10 +185,9 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
   % return sampling period
   data.Ts = mean(time_incerements(ids));
   
-  % return time vector
-  data.t(:,1) = [0:data.sample_count-1]*data.Ts;
-  
-  
+  % return time vector (###note: I think it is useless, just eats memory...)
+  %data.t(:,1) = [0:data.sample_count-1]*data.Ts;
+    
   
   % ====== CORRECTIONS SECTION ======
   

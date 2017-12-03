@@ -142,9 +142,9 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
     error('QWTB results viewer: Index of the result out of range of the available results!');  
   end
   
-  
+    
   % build absolute paths of the results
-  res_files = cellfun('strcat',{[meas_root filesep()]},res_files,'UniformOutput',false);
+  res_files = cellfun(@strcat,repmat({[meas_root filesep()]},size(res_files)),res_files,'UniformOutput',false);
   
 
   
@@ -198,7 +198,9 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
     if (are_scalar || is_avg) && numel(results) < numel(res_files)
     
       % find id of the next result to load
-      temp_res_id = setxor(result_ids,1:numel(res_files))(1);
+      temp_res_id = setxor(result_ids,1:numel(res_files));
+      temp_res_id = temp_res_id(1);
+      
       
     else
       % all results loaded, or not more needed for the mode of display
@@ -210,7 +212,7 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
   % sort the results
   [result_ids, ids] = sort(result_ids);  
   results = results(ids);
-  
+    
   % find the reference result in the loaded list
   res_id = find(result_ids == res_id, 1);
   

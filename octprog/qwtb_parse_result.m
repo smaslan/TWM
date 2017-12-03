@@ -106,6 +106,13 @@ function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
   list = infogetmatrixstr(inf, 'list');
   L = numel(list);
   
+  % decide MAT file format (Octave sometimes needs explicit definition)
+  if isOctave
+    mat_fmt = '-v4';
+  else
+    mat_fmt = '-mat';
+  end
+  
   % --- for each phase/channel:
   for k = 1:L
     % get section
@@ -212,9 +219,10 @@ function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
           value_var = infogettext(vinf, 'MAT file variable - value');
           
           % try to load the variable from MAT file
-          value = load(result_mat, '-v4', value_var);
+          value = load(result_mat, mat_fmt, value_var);
           if isstruct(value)
-            value = struct2cell(value){:};
+            value = struct2cell(value);
+            value = value{:};
           end
           
           
@@ -238,9 +246,10 @@ function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
             unc_var = infogettext(vinf, 'MAT file variable - uncertainty');
             
             % try to load the variable from MAT file
-            unc = load(result_mat, '-v4', unc_var);
+            unc = load(result_mat, mat_fmt, unc_var);
             if isstruct(unc)
-              unc = struct2cell(unc){:};
+              unc = struct2cell(unc);
+              unc = unc{:};
             end
                         
           catch

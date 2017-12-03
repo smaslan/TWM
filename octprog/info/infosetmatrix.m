@@ -81,7 +81,7 @@ function infostr = infosetmatrix(varargin)%<<<1
         if (~ischar(infostr) || ~ischar(key))
                 error('infosetmatrix: infostr and key must be strings')
         end
-        if (~ismatrix(val) || ~isnumeric(val))
+        if (ndims(val) > 2 || ~isnumeric(val))
                 error('infosetmatrix: val must be a numeric matrix')
         end
         if (~iscell(scell))

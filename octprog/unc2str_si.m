@@ -4,7 +4,7 @@
 % for asymetric uncertainties the uncv is vector: [left_unc right_unc]
 % automatic generation of SI prefix
 
-function [str,str_val,str_unc,str_int,si] = unc2str_si(val,unc,unit='',cfg)
+function [str,str_val,str_unc,str_int,si] = unc2str_si(val,unc,unit,cfg)
 
   if ~exist('unit','var')
     unit= '';
@@ -26,15 +26,15 @@ function [str,str_val,str_unc,str_int,si] = unc2str_si(val,unc,unit='',cfg)
   spc = '';
   if(numel(unit) && unit(1) == ' ')
     spc = unit(1);
-  endif
+  end
   if(numel(unit)>1 && unit(1) == ' ')
     unit = unit(2:end);
   else
     unit = unit;
-  endif
+  end
     
   [str,str_val,str_unc,str_int] = unc2str(val/mul,unc/mul,'',cfg);  
   str = ['(' str ')' spc si unit];
   str_int = [str_int spc si unit];   
 
-endfunction
+end
