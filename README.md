@@ -27,12 +27,20 @@ The project is still under development! In current version it can do following:
 - Digitize waveforms using one of the supported digitizers in given configuration.
 - Store the digitized waveforms in unified format independent of the digitizer.
 - Display measured waveforms.
-- Load the measured data and execute m-script on them using GNU Octave (Matlab support will come soon):
+- Load the measured data and execute m-script on them using GNU Octave or Matlab:
   - Direct call of the user m-code,
   - or call of the algorithm from the QWTB toolbox.
 - Display calculated results.
 
 Current version does not support correction files for the digitizers nor transducers. All algorithms in the attached working copy of the QWTB toolbox are just plain low level algorithms with no corrections implemented!
+
+
+## News
+
+Important changes and news:
+- 2017-11-20: First release.
+- 2017-12-08: Matlab support.
+
 
 ## Download
 

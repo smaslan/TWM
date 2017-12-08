@@ -31,12 +31,8 @@ function [ids, names] = qwtb_load_algorithms(list_file)
     allowed_index = [1:numel(algs)];
   end
   
-  % pack the filtered list to '\t' separated string 
-  names = {algs(allowed_index).name};
-  names = cellfun(@strcat,names,repmat({sprintf('\t')},size(names)),'UniformOutput',false);
-  names = [names{:}];
-  ids = {algs(allowed_index).id};
-  ids = cellfun(@strcat,ids,repmat({sprintf('\t')},size(ids)),'UniformOutput',false);
-  ids = [ids{:}];  
+  % pack the filtered list to '\t' separated string
+  names = catcellcsv({algs(allowed_index).name});
+  ids = catcellcsv({algs(allowed_index).id}); 
 
 end

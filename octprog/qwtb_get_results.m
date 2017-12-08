@@ -250,21 +250,12 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
   end
   
   % --- convert results table to CSV data ---
-  tab = sprintf('\t');
-  eol = sprintf('\n');  
-  txt = '';
-  for k = 1:size(csv,1)
-    row = cellfun(@strcat,csv(k,:),repmat({tab},size(csv(k,:))),'UniformOutput',false);
-    txt = [txt [row{:}] eol];
-  end
-  txt = char(txt);
+  txt = char(catcellcsv(csv));
   
   % --- convert table descriptions to CSV data ---
-  row = cellfun(@strcat,desc,repmat({tab},size(desc)),'UniformOutput',false);
-  desc = char([row{:}]);
-  
+  desc = char(catcellcsv(desc(:)'));
+
   % --- convert returned variable names to CSV data ---
-  row = cellfun(@strcat,var_names,repmat({tab},size(var_names)),'UniformOutput',false);
-  var_names = char([row{:}]);
+  var_names = char(catcellcsv(var_names(:)'));
     
 end

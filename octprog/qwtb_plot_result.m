@@ -83,6 +83,7 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
   % plot colors set
   colors = {'b','r','k','m','y','c'};
   
+  leg_text = {};
   if are_scalar
     % --- Scalar quantities - show history ---
   
@@ -134,7 +135,6 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
   
   else
     % --- Vector quantities - show plot for each phase/channel ---
-    leg_text = {};
     for p = 1:numel(data)
       % select channel/phase
       chn = data{p};

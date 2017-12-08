@@ -59,8 +59,6 @@ function [res_files, res_exist] = qwtb_get_results_info(meas_root, alg_id)
   res_exist = 1;
   
   % convert list of result to CSV file 
-  tab = sprintf('\t');
-  res_files = [cellfun('strcat',res_files,{tab},'UniformOutput',false){:}];
-  res_files = strtrim(res_files);
+  res_files = catcellcsv(res_files(:)');
   
 end

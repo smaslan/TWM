@@ -26,6 +26,7 @@
 				<Item Name="infosetsection.m" Type="Document" URL="../../octprog/info/infosetsection.m"/>
 				<Item Name="infosettext.m" Type="Document" URL="../../octprog/info/infosettext.m"/>
 				<Item Name="__readme__.txt" Type="Document" URL="../../octprog/info/__readme__.txt"/>
+				<Item Name="strsplit.m" Type="Document" URL="../../octprog/info/strsplit.m"/>
 			</Item>
 			<Item Name="qwtb" Type="Folder">
 				<Item Name="alg_ADEV" Type="Folder">
@@ -36,17 +37,6 @@
 					<Item Name="allan.m" Type="Document" URL="../../octprog/qwtb/alg_ADEV/allan.m"/>
 					<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_ADEV/LICENSE.txt"/>
 					<Item Name="README.txt" Type="Document" URL="../../octprog/qwtb/alg_ADEV/README.txt"/>
-				</Item>
-				<Item Name="alg_CCC" Type="Folder">
-					<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_example.m"/>
-					<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_info.m"/>
-					<Item Name="alg_test.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_test.m"/>
-					<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_wrapper.m"/>
-					<Item Name="CCC_SoftwareNoGUI" Type="Document" URL="../../octprog/qwtb/alg_CCC/CCC_SoftwareNoGUI"/>
-					<Item Name="CCC_SoftwareNoGUI.exe" Type="Document" URL="../../octprog/qwtb/alg_CCC/CCC_SoftwareNoGUI.exe"/>
-					<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_CCC/LICENSE.txt"/>
-					<Item Name="path_to_matlab_runtime.txt" Type="Document" URL="../../octprog/qwtb/alg_CCC/path_to_matlab_runtime.txt"/>
-					<Item Name="run_CCC_SoftwareNoGUI.sh" Type="Document" URL="../../octprog/qwtb/alg_CCC/run_CCC_SoftwareNoGUI.sh"/>
 				</Item>
 				<Item Name="alg_FourPSF" Type="Folder">
 					<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_FourPSF/alg_example.m"/>
@@ -172,35 +162,6 @@
 					<Item Name="welchwin.m" Type="Document" URL="../../octprog/qwtb/alg_SP-WFFT/welchwin.m"/>
 					<Item Name="window_coeff.m" Type="Document" URL="../../octprog/qwtb/alg_SP-WFFT/window_coeff.m"/>
 				</Item>
-				<Item Name="alg_testG" Type="Folder">
-					<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testG/alg_example.m"/>
-					<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testG/alg_info.m"/>
-					<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testG/alg_wrapper.m"/>
-					<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testG/LICENSE.txt"/>
-					<Item Name="testG.m" Type="Document" URL="../../octprog/qwtb/alg_testG/testG.m"/>
-				</Item>
-				<Item Name="alg_testGM" Type="Folder">
-					<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/alg_example.m"/>
-					<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/alg_info.m"/>
-					<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/alg_wrapper.m"/>
-					<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testGM/LICENSE.txt"/>
-					<Item Name="testGM.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/testGM.m"/>
-				</Item>
-				<Item Name="alg_testM" Type="Folder">
-					<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_example.m"/>
-					<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_info.m"/>
-					<Item Name="alg_test.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_test.m"/>
-					<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_wrapper.m"/>
-					<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testM/LICENSE.txt"/>
-					<Item Name="testM.m" Type="Document" URL="../../octprog/qwtb/alg_testM/testM.m"/>
-				</Item>
-				<Item Name="alg_testQ" Type="Folder">
-					<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/alg_example.m"/>
-					<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/alg_info.m"/>
-					<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/alg_wrapper.m"/>
-					<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testQ/LICENSE.txt"/>
-					<Item Name="reflect.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/reflect.m"/>
-				</Item>
 				<Item Name="alg_ThreePSF" Type="Folder">
 					<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_ThreePSF/alg_example.m"/>
 					<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_ThreePSF/alg_info.m"/>
@@ -256,6 +217,10 @@
 			<Item Name="qwtb_load_results.m" Type="Document" URL="../../octprog/qwtb_load_results.m"/>
 			<Item Name="qwtb_plot_result.m" Type="Document" URL="../../octprog/qwtb_plot_result.m"/>
 			<Item Name="twm_find_coherent.m" Type="Document" URL="../../octprog/twm_find_coherent.m"/>
+			<Item Name="catcellcsv.m" Type="Document" URL="../../octprog/catcellcsv.m"/>
+			<Item Name="correction_expand_tables.m" Type="Document" URL="../../octprog/correction_expand_tables.m"/>
+			<Item Name="correction_load_table.m" Type="Document" URL="../../octprog/correction_load_table.m"/>
+			<Item Name="isOctave.m" Type="Document" URL="../../octprog/isOctave.m"/>
 		</Item>
 		<Item Name="ADC" Type="Folder">
 			<Item Name="Utilities" Type="Folder">
@@ -506,12 +471,18 @@
 							<Item Name="Bitstream to Bytes.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Bitstream/Bitstream to Bytes.vi"/>
 						</Item>
 						<Item Name="Get Variable - auxiliary" Type="Folder">
+							<Item Name="Struct" Type="Folder">
+								<Item Name="Struct Fill Cluster By Items Record.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Struct/Struct Fill Cluster By Items Record.vi"/>
+								<Item Name="Struct Parse Binary.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Struct/Struct Parse Binary.vi"/>
+								<Item Name="Struct Parse Variable Type.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Struct/Struct Parse Variable Type.vi"/>
+							</Item>
 							<Item Name="Check and Get Sizes.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Check and Get Sizes.vi"/>
 							<Item Name="Get Matrix - bitstream.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Get Matrix - bitstream.vi"/>
 							<Item Name="Get Matrix - file.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Get Matrix - file.vi"/>
 							<Item Name="Get Matrix - stdout.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Get Matrix - stdout.vi"/>
 						</Item>
 						<Item Name="Get Variable - polymorph parts" Type="Folder">
+							<Item Name="Get Struct.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get Struct.vi"/>
 							<Item Name="Get String.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get String.vi"/>
 							<Item Name="Get Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get Double.vi"/>
 							<Item Name="Get Double Complex.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get Double Complex.vi"/>
@@ -545,28 +516,21 @@
 							<Item Name="Set 2D Array Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - polymorph parts/Set 2D Array Double.vi"/>
 							<Item Name="Set 2D Array Double Complex.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - polymorph parts/Set 2D Array Double Complex.vi"/>
 						</Item>
-						<Item Name="Struct" Type="Folder">
-							<Item Name="Struct Data Types.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/Struct Data Types.ctl"/>
-							<Item Name="Struct Item Record.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/Struct Item Record.ctl"/>
-							<Item Name="Struct Item Types.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/Struct Item Types.ctl"/>
-							<Item Name="Struct Fill Cluster By Items Record.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/Struct Fill Cluster By Items Record.vi"/>
-							<Item Name="Struct Get.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/Struct Get.vi"/>
-							<Item Name="Struct Parse Binary.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/Struct Parse Binary.vi"/>
-							<Item Name="Struct Parse Variable Type.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/Struct Parse Variable Type.vi"/>
-							<Item Name="golpi_struct_assign_test.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/golpi_struct_assign_test.vi"/>
-							<Item Name="golpi_struct_test2.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/golpi_struct_test2.vi"/>
-						</Item>
 						<Item Name="testing" Type="Folder">
+							<Item Name="GOLPI full test - part structure.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI full test - part structure.vi"/>
 							<Item Name="GOLPI full test - part test vector complex.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI full test - part test vector complex.vi"/>
 							<Item Name="GOLPI full test - part test vector double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI full test - part test vector double.vi"/>
 							<Item Name="GOLPI full test.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI full test.vi"/>
 							<Item Name="GOLPI simple testing.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI simple testing.vi"/>
-							<Item Name="GOLPI struct test.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI struct test.vi"/>
+							<Item Name="Test golpi Package Installation.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/Test golpi Package Installation.vi"/>
 						</Item>
 						<Item Name="Type Definitions" Type="Folder">
 							<Item Name="Bitstream Data Type.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Bitstream Data Type.ctl"/>
 							<Item Name="Bitstream Data.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Bitstream Data.ctl"/>
 							<Item Name="Custom Error Codes Enum Type Def.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Custom Error Codes Enum Type Def.vi"/>
+							<Item Name="Struct Data Types.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Struct Data Types.ctl"/>
+							<Item Name="Struct Item Record.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Struct Item Record.ctl"/>
+							<Item Name="Struct Item Types.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Struct Item Types.ctl"/>
 						</Item>
 						<Item Name="Utilities" Type="Folder">
 							<Item Name="Burst String to Lines.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Burst String to Lines.vi"/>
@@ -577,6 +541,8 @@
 							<Item Name="ASCII numbers to String.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/ASCII numbers to String.vi"/>
 							<Item Name="Check and Generate Path to Octave Executable.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Check and Generate Path to Octave Executable.vi"/>
 							<Item Name="Is Variable Name Part of Struct.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Is Variable Name Part of Struct.vi"/>
+							<Item Name="Install Octave Package golpi.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Install Octave Package golpi.vi"/>
+							<Item Name="Check Matlab Mode Error.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Check Matlab Mode Error.vi"/>
 						</Item>
 					</Item>
 					<Item Name="Public" Type="Folder">
@@ -585,6 +551,7 @@
 							<Item Name="Set Variable.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Data/Set Variable.vi"/>
 						</Item>
 						<Item Name="Examples" Type="Folder">
+							<Item Name="Demo - Transfer Modes.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Examples/Demo - Transfer Modes.vi"/>
 							<Item Name="Demo - GNU Octave Terminal.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Examples/Demo - GNU Octave Terminal.vi"/>
 							<Item Name="Demo - Simple Use.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Examples/Demo - Simple Use.vi"/>
 							<Item Name="Demo - Advanced Use.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Examples/Demo - Advanced Use.vi"/>
@@ -628,6 +595,7 @@
 					<Item Name="Error Code Database.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Error Code Database.vi"/>
 					<Item Name="ErrWarn.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/ErrWarn.ctl"/>
 					<Item Name="eventvkey.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/event_ctls.llb/eventvkey.ctl"/>
+					<Item Name="ex_CorrectErrorChain.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/express/express shared/ex_CorrectErrorChain.vi"/>
 					<Item Name="Find Tag.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Find Tag.vi"/>
 					<Item Name="Format Message String.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Format Message String.vi"/>
 					<Item Name="General Error Handler CORE.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/General Error Handler CORE.vi"/>
@@ -637,6 +605,7 @@
 					<Item Name="GetHelpDir.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/GetHelpDir.vi"/>
 					<Item Name="GetRTHostConnectedProp.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/GetRTHostConnectedProp.vi"/>
 					<Item Name="imagedata.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/picture/picture.llb/imagedata.ctl"/>
+					<Item Name="List Directory and LLBs.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/List Directory and LLBs.vi"/>
 					<Item Name="Longest Line Length in Pixels.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Longest Line Length in Pixels.vi"/>
 					<Item Name="LV Process library.lvlib" Type="Library" URL="../octave/golpi/GOLPI Library.lvlibp/LV Process source distribution/LV Process library.lvlib"/>
 					<Item Name="LVBoundsTypeDef.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/miscctls.llb/LVBoundsTypeDef.ctl"/>
@@ -645,11 +614,13 @@
 					<Item Name="Not Found Dialog.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Not Found Dialog.vi"/>
 					<Item Name="Open_Create_Replace File.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/_oldvers/_oldvers.llb/Open_Create_Replace File.vi"/>
 					<Item Name="Read PNG File.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/picture/png.llb/Read PNG File.vi"/>
+					<Item Name="Recursive File List.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/Recursive File List.vi"/>
 					<Item Name="Search and Replace Pattern.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Search and Replace Pattern.vi"/>
 					<Item Name="Set Bold Text.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Set Bold Text.vi"/>
 					<Item Name="Set String Value.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Set String Value.vi"/>
 					<Item Name="Simple Error Handler.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Simple Error Handler.vi"/>
 					<Item Name="Space Constant.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/dlg_ctls.llb/Space Constant.vi"/>
+					<Item Name="subFile Dialog.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/express/express input/FileDialogBlock.llb/subFile Dialog.vi"/>
 					<Item Name="TagReturnType.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/TagReturnType.ctl"/>
 					<Item Name="Three Button Dialog CORE.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Three Button Dialog CORE.vi"/>
 					<Item Name="Three Button Dialog.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Three Button Dialog.vi"/>
@@ -835,6 +806,46 @@
 		</Item>
 		<Item Name="doc" Type="Folder" URL="../../doc">
 			<Property Name="NI.DISK" Type="Bool">true</Property>
+		</Item>
+		<Item Name="alg_CCC" Type="Folder">
+			<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_example.m"/>
+			<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_info.m"/>
+			<Item Name="alg_test.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_test.m"/>
+			<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_wrapper.m"/>
+			<Item Name="CCC_SoftwareNoGUI" Type="Document" URL="../../octprog/qwtb/alg_CCC/CCC_SoftwareNoGUI"/>
+			<Item Name="CCC_SoftwareNoGUI.exe" Type="Document" URL="../../octprog/qwtb/alg_CCC/CCC_SoftwareNoGUI.exe"/>
+			<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_CCC/LICENSE.txt"/>
+			<Item Name="path_to_matlab_runtime.txt" Type="Document" URL="../../octprog/qwtb/alg_CCC/path_to_matlab_runtime.txt"/>
+			<Item Name="run_CCC_SoftwareNoGUI.sh" Type="Document" URL="../../octprog/qwtb/alg_CCC/run_CCC_SoftwareNoGUI.sh"/>
+		</Item>
+		<Item Name="alg_testG" Type="Folder">
+			<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testG/alg_example.m"/>
+			<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testG/alg_info.m"/>
+			<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testG/alg_wrapper.m"/>
+			<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testG/LICENSE.txt"/>
+			<Item Name="testG.m" Type="Document" URL="../../octprog/qwtb/alg_testG/testG.m"/>
+		</Item>
+		<Item Name="alg_testGM" Type="Folder">
+			<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/alg_example.m"/>
+			<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/alg_info.m"/>
+			<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/alg_wrapper.m"/>
+			<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testGM/LICENSE.txt"/>
+			<Item Name="testGM.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/testGM.m"/>
+		</Item>
+		<Item Name="alg_testM" Type="Folder">
+			<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_example.m"/>
+			<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_info.m"/>
+			<Item Name="alg_test.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_test.m"/>
+			<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_wrapper.m"/>
+			<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testM/LICENSE.txt"/>
+			<Item Name="testM.m" Type="Document" URL="../../octprog/qwtb/alg_testM/testM.m"/>
+		</Item>
+		<Item Name="alg_testQ" Type="Folder">
+			<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/alg_example.m"/>
+			<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/alg_info.m"/>
+			<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/alg_wrapper.m"/>
+			<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testQ/LICENSE.txt"/>
+			<Item Name="reflect.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/reflect.m"/>
 		</Item>
 		<Item Name="main.vi" Type="VI" URL="../main.vi"/>
 		<Item Name="par_test.vi" Type="VI" URL="../par_test.vi"/>
