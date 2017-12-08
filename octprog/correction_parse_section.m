@@ -23,6 +23,7 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
   end
   
   % --- read and apply attribute filter ---
+  % for each attrobute in the filter:
   for a = 1:numel(attr_filter)
   
     % current attribute name
@@ -34,7 +35,7 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
       attr_meas_value = infogetmatrixstr(meas_inf, attr_name);
       attr_channel_type = 1;
     catch
-      % is no matrix, may scalar?
+      % is no matrix, may be scalar?
       attr_meas_value = infogettext(meas_inf, attr_name);
       attr_channel_type = 0;
       % if it failes it is not found in the measurement file, therefore we are outahere      
@@ -43,7 +44,7 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
     if attr_channel_type
       if size(attr_meas_value,2) == 1 && channel_id > 1 
         % attribute X-dim too small for desired channel id 
-        %  - possibly it is channel independent attribute afterall             
+        %  - possibly it is channel independent attribute            
         attr_meas_value = attr_meas_value{1,1};
       elseif channel_id <= size(attr_meas_value,2)
         % channel dependent attribute - select channel

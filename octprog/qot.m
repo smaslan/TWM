@@ -10,48 +10,46 @@ addpath([mfld filesep() 'info']);
 addpath([mfld filesep() 'qwtb']);
 
 
-meas_file = [mfld filesep() '..' filesep() 'data' filesep() 'session.info'];
+%meas_file = [mfld filesep() '..' filesep() 'data' filesep() 'session.info'];
 
 
-%qwtb_exec_algorithm(meas_file);
+tr_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\shunt_100mA_313'];
 
-meas_root = fileparts(meas_file);
+%tab_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\fdep.csv'];
+%tab_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\fdep_2D_no_f.csv'];
+%tab_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\fdep_2D_no_a.csv'];
+%tab_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\fdep_2D_no_fa.csv'];
+%tab_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\fdep_1D.csv'];
+%tab_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\fdep_1D_no_f.csv'];
+%tbl = correction_load_table(tab_path,'',{'f';'gain';'U_gain'})
 
-qwtb_get_results(meas_root, 0)
-
-
-
-
-%data = tpq_load_record(meas_file);
-
-
-
-
-%inf = qwtb('ADEV','info');
-%N = 10000;
-%di.y.v = randn(N,1);
-%di.Ts.v = 1;
-%dout = qwtb('ADEV',di);
+%correction_load_transducer(tr_path)
 
 
 
+ta.rms = [1 2 3];
+ta.axis_x = 'rms';
+ta.has_x = 1;
+ta.f = [1;2;3];
+ta.axis_y = 'f';
+ta.has_y = 1;
+ta.Z = [1 1 1;2 2 2;3 3 3];
+ta.quant_names = {'Z'};
+
+tb.rms = [1 2];
+tb.axis_x = 'rms';
+tb.has_x = 0;
+tb.f = [1;2];
+tb.axis_y = 'f';
+tb.has_y = 0;
+tb.Z = [1];
+tb.quant_names = {'Z'};
+
+tlst = correction_expand_tables({ta,tb});
+tlst{1}
+tlst{2}
 
 
 
-
-
-%qwtb_list_file = 'qwtb_list.info';
-
-%qwtb_test(qwtb_list_file);
-
-%[ids, names] = qwtb_load_algorithms(qwtb_list_file);
-
-%qwtb_load_algorithm('iDFT2p');
-
-%file = 'f:\data\LVprog\TracePQM\temp\sim\session.info';
-
-%meas = tpq_load_record(file);
-
-%correction_parse_section()
 
 
