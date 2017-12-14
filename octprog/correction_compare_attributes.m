@@ -1,6 +1,7 @@
-% compares two variables in following way:
+function [ret, higher] = correction_compare_attributes(a, b, prec, ceps)
+% Compares two variables in following way:
 %  a: scalar numeric or string
-%  b: 1D cell array or numeric or string
+%  b: 1D cell array or numeric or strings
 %  prec: allowed relative deviation of the comparison
 %  ceps: allowed absolute deviation of the comparison (prec has prefference) 
 %
@@ -13,7 +14,6 @@
 %
 %  The 'higher' value is true if the 'a' is higher than all 'b'.
 %
-function [ret, higher] = correction_compare_attributes(a, b, prec, ceps)
 
   if nargin < 4
     % use default numeric precison
@@ -34,7 +34,7 @@ function [ret, higher] = correction_compare_attributes(a, b, prec, ceps)
     b_is_num = all(cellfun('isnumeric',b));
     
     if ~b_is_num
-      % try to covnert 'b' to numeric
+      % try to convert 'b' to numeric
       try
         b = cellfun('str2num',b,'UniformOutput',true);
         b_is_num = 1;
@@ -51,7 +51,7 @@ function [ret, higher] = correction_compare_attributes(a, b, prec, ceps)
         b = b_num;
       end
       
-      % convert a to numeric if not done yet 
+      % convert 'a' to numeric if not done yet 
       if ~isnumeric(a)
         a = str2num(a);
       end

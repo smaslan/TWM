@@ -3,11 +3,51 @@
 %%
 %% Note: INVALID - OLD VERSION, WILL BE FIXED
 %% -----------------------------------------------------------------------------
-function [] = correction_parse_section(root_path, inf, meas_inf, correction_name, channel_id)
+function [] = correction_parse_section(root_path, inf, meas_inf, correction_name, table_cfg, channel_id, rep_id, group_id)
+% meas_inf            - measurements info file
+% channel_id          - is of the virtual channel for which the correction is being loaded
+% rep_id              - measurement repetition id
+% rep_id              - measurement group id
+% inf                 - correction info file
+% root_path           - correction root folder
+% correction_name     - correction section name in the 'inf'
+% table_cfg           - configuration of the output table (structure)
+%  .primary_ax  - name of the primary dependence axis (rows)
+%  .second_ax   - name of the secondary dependence axis (columns)
+%  .quant_names - list of quantities that are expected to be loaded from the tables
+%
+% Note: If the correction data are not CSV files, the 'table_cfg' will be used
+% to create a fake table where 'value' of the correction will be placed to 'quant_names{1}',
+% and 'uncertainty' will be placed to 'quant_names{2}'.
+% If the correction data not scalar, then the returned table will have fake axes [1,2,3,...].
+%
   
-  if nargin < 5
+  % default optional parameters
+  if ~exist('group_id','var')
+    group_id = 0;
+  end
+  if ~exist('rep_id','var')
+    rep_id = 0;
+  end
+  if ~exist('channel_id','var')
     channel_id = 1;
   end
+  
+  if group_id < 1
+    % work with last available group, if not defined explicitly
+    group_id = infogetnumber(meas_inf,'groups count');
+  end
+  % measurement group section name in the meas. file
+  group_sec_name = ['measurement group ' str2num(group_id,0)];
+  
+  if ~rep_id
+    % work with last available repetition cycle, if not defined explicitly
+    rep_id = infogetnumber(meas_inf,'repetitions count',{group_sec_name});
+  end
+  
+  % merge selected measurement group section with global meas. info file for easier search
+  group_sec = infogetsection(meas_inf,group_sec_name);
+  meas_inf = [group_sec sprintf('\n') meas_inf];
   
   % get correction section from header 
   cinf = infogetsection(inf, correction_name);
@@ -33,26 +73,37 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
     try     
       % is matrix? in that case it is most likely channel dependent attribute
       attr_meas_value = infogetmatrixstr(meas_inf, attr_name);
-      attr_channel_type = 1;
     catch
       % is no matrix, may be scalar?
       attr_meas_value = infogettext(meas_inf, attr_name);
-      attr_channel_type = 0;
       % if it failes it is not found in the measurement file, therefore we are outahere      
     end
     
-    if attr_channel_type
+    if iscell(attr_meas_value)
       if size(attr_meas_value,2) == 1 && channel_id > 1 
         % attribute X-dim too small for desired channel id 
         %  - possibly it is channel independent attribute            
-        attr_meas_value = attr_meas_value{1,1};
+        attr_meas_value = attr_meas_value(:,1);
       elseif channel_id <= size(attr_meas_value,2)
         % channel dependent attribute - select channel
-        attr_meas_value = attr_meas_value{1,channel_id};
+        attr_meas_value = attr_meas_value(:,channel_id);
       else
         error('Correction parser: Filter attribute ''%s'' of correction ''%s'' has smaller columns count the requested correction channel id!',attr_name,correction_name);
       end
+      
+      if size(attr_meas_value,1) == 1
+        % we have scalar, get rid of cell array
+        attr_meas_value = attr_meas_value{1};
+      elseif rep_id <= size(attr_meas_value,1)
+        % the attribute has more than one row
+        %  - most likely one row for each repetition
+        attr_meas_value = attr_meas_value{rep_id};
+      else
+        error('Correction parser: Filter attribute ''%s'' of correction ''%s'' has smaller rows count than requested by repetition id parameter! Possibly inconsistent measurement INFO file.',attr_name,correction_name);        
+      end            
     end
+    % at this point we shall have value of the attribute from meas. file loaded and it is scalar...
+       
     
     % fetch allowed values of the filter attribute
     attr_values = infogetmatrixstr(cinf, attr_name);
@@ -67,74 +118,106 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
   
 
   % --- now read correction dependencies ---
-  % note: loading the primary and secondary parameter in the loop to get rid of duplicity in the code
+  % note: I'm loading the primary and secondary parameter in the loop to get rid of duplicity in the code
    
-  % list of parameters
+  % list of dependency parameters (axes of dependence)
   par = {};
-  % list of parameter prefixes in the correction file
-  par_name_list = {'primary';'secondary'};
+  % list of parameter names (info section names)
+  par_name_list = {'primary parameter';'secondary parameter'};
     
   for p = 1:numel(par_name_list)
     
     % parameter prefix (primary or secondary)
     par_name = par_name_list{p};
-  
+        
     % try to fetch parameter of the dependence from correction section
-    try
+    try      
+      % get section for the parameter
+      pinf = infogetsection(cinf,par_name);
+    catch
+      % section does not exist - parameter not used
+      par{p}.name = '';
+      continue        
+    end
+    
+    if exist('pinf','var')
+      
       % get name of the parameter
-      par{p}.name = infogettext(cinf,[par_name ' parameter']);
+      par{p}.name = infogettext(pinf,'parameter');
       
       % is the parameter interpolable? 
       try
-        par{p}.interp = infogetnumber(cinf,[par_name ' is interpolable']);
+        par{p}.interp = infogetnumber(pinf,'interpolable');
       catch
         % default - nope
         par{p}.interp = 0;     
       end
       
       % try to load listed values of the parameter
-      if numel(par{p}.name) 
-        par{p}.values = infogetmatrixstr(cinf,par{p}.name);
+      par{p}.values = infogetmatrixstr(pinf,'value');
+
+      % try to convert values to numeric
+      try
+        num_values = num2cell(cellfun(@str2num,par.values));        
+        par{p}.is_numeric = 1;
+      catch
+        % failed, so the values are string types 
+        par{p}.is_numeric = 0;        
       end
+      
+      if par{p}.interp && ~par{p}.is_numeric
+        % failed - interpolate enabled but parameter values nto numeric???
+        error('Correction parser: %s dependence ''%s'' of correction ''%s'' is not numeric, but ''interpolable'' flag is set!',par_name,par{p}.name,correction_name);
+      end 
       
       % try to fetch the parameter's value from the measurement header
-      if numel(par{p}.name)
-      
-        try
-          % channel dependent parameter? (matrix?)
-          par{p}.meas_value = infogetmatrixstr(meas_inf, par{p}.name);
-          channel_type = 1;
-        catch
-          % nope - scalar parameter?
-          par{p}.meas_value = infogettext(meas_inf, par{p}.name);
-          channel_type = 0;
-          % if it failed here the parameter is not there and we are outahere, because something is wrong with the correction...
-        end     
-            
+      try
+        % channel dependent parameter? (matrix?)
+        par{p}.meas_value = infogetmatrixstr(meas_inf, par{p}.name);
+      catch
+        % nope - so is it scalar parameter?
+        par{p}.meas_value = infogettext(meas_inf, par{p}.name);
+        % if it failed here the parameter is not there and we are outahere, because something is wrong with the correction data or meas. header...
       end
       
-    catch
-      % primary dependence not exit 
-      par{p}.name = '';
-      par{p}.interp = 0;
-      par{p}.values = {};
-      par{p}.meas_value = '';
-    end
-    
-    if numel(par{p}.name) && channel_type
-      % paramter was not scalar - possibly channel dependent?
+      if iscell(par{p}.meas_value)
+      % parameter was not scalar - possibly channel dependent?
       
-      if size(par{p}.meas_value,2) == 1 && channel_id > 1 
-        % parameter's matrix X-dim too small for desired channel id 
-        %  - possibly it is channel independent parameter afterall             
-        par{p}.meas_value = par{p}.meas_value{1,1};
-      elseif channel_id <= size(par{p}.meas_value,2)
-        % channel dependent parameter - select channel
-        par{p}.meas_value = par{p}.meas_value{1,channel_id};
+        if size(par{p}.meas_value,2) == 1 && channel_id > 1 
+          % parameter's matrix X-dim too small for desired channel id 
+          %  - possibly it is channel independent parameter afterall             
+          par{p}.meas_value = par{p}.meas_value(:,1);
+        elseif channel_id <= size(par{p}.meas_value,2)
+          % channel dependent parameter - select channel
+          par{p}.meas_value = par{p}.meas_value(:,channel_id);
+        else
+          error('Correction parser: %s dependence ''%s'' of correction ''%s'' has smaller columns count than id of desired channel!',par_name,par{p}.name,correction_name);
+        end
+        
+        if size(par{p}.meas_value,1) == 1
+          % param. has just one item, get rid of cell array
+          par{p}.meas_value = par{p}.meas_value{1};
+        elseif rep_id <= size(par{p}.meas_value,1)
+          % parameter has more rows
+          %  - most likely one row per repetition cycle, select repetition
+          par{p}.meas_value = par{p}.meas_value{rep_id};
+        else
+          error('Correction parser: %s dependence ''%s'' of correction ''%s'' has smaller rows count than id of desired repetition! Most likely inconsistent data in the measurement header.',par_name,par{p}.name,correction_name);
+        end
+        
+      end
+      
+      % try to convert meas. header value of the parameter to numeric
+      meas_num = str2num(par{p}.meas_value);
+      if numel(meas_num) && par{p}.is_numeric
+        % success, both parameter values and meas header value are numeric, change data type to numeric
+        par{p}.meas_value = meas_num;
+        par{p}.values = num_values;
       else
-        error('Correction parser: %s dependence parameter ''%s'' of correction ''%s'' has smaller columns count than id of desired channel!',par_name,par{p}.name,correction_name);
-      end
-      
+        % failed, either parameter values or meas. header values are not numeric, assume they are all text
+        par{p}.is_numeric = 0;
+      end     
+
     end
     
   end  
@@ -145,33 +228,46 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
 
 
   % try to read the matrix with the correction data values
-  values = infogetmatrixstr(cinf, correction_name);
+  values = infogetmatrixstr(cinf, 'value');
   
-  % are those values CSV files?
+  % try to read the matrix with the uncertainties
+  try
+    uncerts = infogetmatrix(cinf, 'uncertainty');
+  catch
+    % not exist, do nothing as it is optional 
+  end
+  
+  if exist('uncerts','var') && any(size(values) ~= size(uncerts))
+    % sizes of value and uncertainty matrix does not match
+    error(sprintf('Correction parser: Size of value and uncertainty matrix for correction ''%s'' does not match!',correction_name));
+  end
+  
+   
+  
+  % are the 'values' CSV files or numeric data?
   try 
-    % try to convert to numeric
-    values_num = reshape(cellfun('str2num',values(:),'UniformOutput',false),size(values));
+    % try to convert values to numeric
+    values_num = reshape(cellfun(@str2num,values(:)),size(values));
     
-    % values were actually CSV files? 
-    is_csv = ~all(cellfun('numel',values_num(:)));
-    
-    % replace the values matrix by its numeric conversion? 
-    if ~is_csv
-      values = values_num;
+    % try to convert uncertainties as well
+    if exist('uncerts','var')
+      uncerts = reshape(cellfun(@str2num,uncerts(:)),size(uncerts));
     end
+    
+    % so far no error - values are numeric
+    values = values_num;
+    is_csv = 0;
       
   catch
-    % conversion failed, so clearly the values were CSV files
+    % conversion failed, so clearly the values were CSV files (or some other rubbish)
     is_csv = 1;    
   end
   
   if is_csv
-    % --- CSV
-    
-    % load values of the correction
-    values = infogetmatrixstr(cinf, correction_name);
+    % --- 'value' is matrix of CSV files with 1D or 2D dependencies
     
     % build initial interpolation/selection weights
+    % one item for each cell of the 'value' matrix
     w = ones(size(values));
     
     if numel(par{1}.name)
@@ -183,26 +279,27 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
     end
         
     if numel(par{2}.name)
-      % secondary parameter present and not vector
+      % secondary parameter present
       
       % interpolate/select by secondary parameter
       [values, w] = correction_interp_parameter(values, w, par{2}, 2, correction_name);
             
-    end
+    end    
+    % at this point the 'w' matrix should contain non-zero values for
+    % CSV files that will be used for interpolation/selection
     
+        
     % build full paths of the CSV files with the correction data
     values = strcat([root_path filesep()], values);
     
-    correction_interp_parameter_csv(values, w, numel(par{2}.name))
+    % interpolate the CSV files
+    data = correction_interp_parameter_csv(values, w, table_cfg, correction_name);
         
     
     
   else
-    % --- scalar or vector
-    
-    % load values of the correction
-    values = infogetmatrix(cinf, correction_name);
-    
+    % --- 'value' is matrix of numerics
+                                                          
     if numel(par{1}.name)
       % primary dependence present
       
@@ -212,12 +309,18 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
     end
         
     if numel(par{2}.name)
-      % secondary parameter present and not vector
+      % secondary parameter present
       
       % interpolate/select by secondary parameter
       values = correction_interp_parameter(values, [], par{2}, 2, correction_name);
             
     end
+    
+    if exist('uncerts','var') && numel(table_cfg.quant_names) ~= 2
+      error(sprintf('Correction parser: Output table configuration does not match correction data for correction ''%s''! If there is ''value'' and ''uncertainty'' in the correction section, the ''table_cfg'' must contain two quantities.',correction_name)); 
+    end
+    
+    %correction_load_table({},)
   
   end
   

@@ -119,7 +119,7 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
       end
     end
     
-    % check consitency of the table data and desired quantities count
+    % check consistency of the table data and desired quantities count
     Q = numel(quant_names);
     if Q < 2
       error('Correction table loader: not enough dependence quantities!');
