@@ -807,46 +807,6 @@
 		<Item Name="doc" Type="Folder" URL="../../doc">
 			<Property Name="NI.DISK" Type="Bool">true</Property>
 		</Item>
-		<Item Name="alg_CCC" Type="Folder">
-			<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_example.m"/>
-			<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_info.m"/>
-			<Item Name="alg_test.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_test.m"/>
-			<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_CCC/alg_wrapper.m"/>
-			<Item Name="CCC_SoftwareNoGUI" Type="Document" URL="../../octprog/qwtb/alg_CCC/CCC_SoftwareNoGUI"/>
-			<Item Name="CCC_SoftwareNoGUI.exe" Type="Document" URL="../../octprog/qwtb/alg_CCC/CCC_SoftwareNoGUI.exe"/>
-			<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_CCC/LICENSE.txt"/>
-			<Item Name="path_to_matlab_runtime.txt" Type="Document" URL="../../octprog/qwtb/alg_CCC/path_to_matlab_runtime.txt"/>
-			<Item Name="run_CCC_SoftwareNoGUI.sh" Type="Document" URL="../../octprog/qwtb/alg_CCC/run_CCC_SoftwareNoGUI.sh"/>
-		</Item>
-		<Item Name="alg_testG" Type="Folder">
-			<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testG/alg_example.m"/>
-			<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testG/alg_info.m"/>
-			<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testG/alg_wrapper.m"/>
-			<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testG/LICENSE.txt"/>
-			<Item Name="testG.m" Type="Document" URL="../../octprog/qwtb/alg_testG/testG.m"/>
-		</Item>
-		<Item Name="alg_testGM" Type="Folder">
-			<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/alg_example.m"/>
-			<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/alg_info.m"/>
-			<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/alg_wrapper.m"/>
-			<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testGM/LICENSE.txt"/>
-			<Item Name="testGM.m" Type="Document" URL="../../octprog/qwtb/alg_testGM/testGM.m"/>
-		</Item>
-		<Item Name="alg_testM" Type="Folder">
-			<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_example.m"/>
-			<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_info.m"/>
-			<Item Name="alg_test.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_test.m"/>
-			<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testM/alg_wrapper.m"/>
-			<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testM/LICENSE.txt"/>
-			<Item Name="testM.m" Type="Document" URL="../../octprog/qwtb/alg_testM/testM.m"/>
-		</Item>
-		<Item Name="alg_testQ" Type="Folder">
-			<Item Name="alg_example.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/alg_example.m"/>
-			<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/alg_info.m"/>
-			<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/alg_wrapper.m"/>
-			<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_testQ/LICENSE.txt"/>
-			<Item Name="reflect.m" Type="Document" URL="../../octprog/qwtb/alg_testQ/reflect.m"/>
-		</Item>
 		<Item Name="main.vi" Type="VI" URL="../main.vi"/>
 		<Item Name="par_test.vi" Type="VI" URL="../par_test.vi"/>
 		<Item Name="info_test.vi" Type="VI" URL="../info_test.vi"/>
@@ -1099,6 +1059,8 @@
 			<Item Name="Advapi32.dll" Type="Document" URL="Advapi32.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
+			<Item Name="GOLPI struct test.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI struct test.vi"/>
+			<Item Name="Struct Get.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/Struct Get.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM" Type="EXE">

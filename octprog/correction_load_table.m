@@ -84,20 +84,39 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
   if iscell(file)
     % fake table
     
-    if numel(file) ~= numel(quant_names)-1
+    % which axes are there?
+    has_primary = ~isempty(quant_names{1});
+    has_second = ~isempty(second_ax_name);
+    
+    % data quantities count
+    quant_N = numel(quant_names) - has_primary - has_second;
+    
+    if numel(file) ~= quant_N + has_primary + has_second
       error('Correction table loader: Number of data quantities does not match number of fake values to assign! Note the primary axis quantity is used even for faking table, so valid example is: quant_names = {''f'',''Rs'',''Xs''}, file = {0, 0}.');
     end
     
     % fake table content
     tbl.name = 'fake table';
-    tbl = setfield(tbl,quant_names{1},[]);
-    if ~isempty(second_ax_name)
-      tbl = setfield(tbl,second_ax_name,[]);
-    end
-    for k = 1:numel(file)
-      tbl = setfield(tbl,quant_names{k+1},file{k});
-    end
     
+    fpos = 1;
+    
+    % store primary axis
+    if has_primary
+      tbl = setfield(tbl,quant_names{1},file{fpos});
+      fpos++;
+    else
+      tbl = setfield(tbl,'fake_primary',[]);
+    end
+    % store secondary axis
+    if has_second
+      tbl = setfield(tbl,second_ax_name,file{fpos});
+      fpos++;
+    end
+    % store quantities 
+    for k = 1:numel(file)
+      tbl = setfield(tbl,quant_names{k+1},file{fpos});
+      fpos++;
+    end
     
   else
   

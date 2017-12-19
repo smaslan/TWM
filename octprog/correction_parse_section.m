@@ -233,11 +233,13 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
   % try to read the matrix with the uncertainties
   try
     uncerts = infogetmatrix(cinf, 'uncertainty');
+    has_unc = 1;
   catch
-    % not exist, do nothing as it is optional 
+    % not exist, do nothing as it is optional
+    has_unc = 0; 
   end
   
-  if exist('uncerts','var') && any(size(values) ~= size(uncerts))
+  if has_unc && any(size(values) ~= size(uncerts))
     % sizes of value and uncertainty matrix does not match
     error(sprintf('Correction parser: Size of value and uncertainty matrix for correction ''%s'' does not match!',correction_name));
   end
@@ -250,7 +252,7 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
     values_num = reshape(cellfun(@str2num,values(:)),size(values));
     
     % try to convert uncertainties as well
-    if exist('uncerts','var')
+    if has_unc
       uncerts = reshape(cellfun(@str2num,uncerts(:)),size(uncerts));
     end
     
@@ -305,7 +307,10 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
       
       % interpolate/select by primary parameter
       values = correction_interp_parameter(values, [], par{1}, 1, correction_name);
-    
+      if has_unc
+        uncert = correction_interp_parameter(uncert, [], par{1}, 1, correction_name);
+      end
+      
     end
         
     if numel(par{2}.name)
@@ -313,23 +318,52 @@ function [] = correction_parse_section(root_path, inf, meas_inf, correction_name
       
       % interpolate/select by secondary parameter
       values = correction_interp_parameter(values, [], par{2}, 2, correction_name);
+      if has_unc
+        uncert = correction_interp_parameter(uncert, [], par{1}, 1, correction_name);
+      end
             
     end
     
-    if exist('uncerts','var') && numel(table_cfg.quant_names) ~= 2
+    if has_unc && numel(table_cfg.quant_names) ~= 2
       error(sprintf('Correction parser: Output table configuration does not match correction data for correction ''%s''! If there is ''value'' and ''uncertainty'' in the correction section, the ''table_cfg'' must contain two quantities.',correction_name)); 
     end
     
-    %correction_load_table({},)
+    csv = {};
+    % generate main axis
+    if size(values,1) > 1
+      csv{end+1} = [1:size(values,1)].';
+    else
+      csv{end+1} = []; 
+    end
+    if isfield(table_cfg,'primary_ax')
+      primary_ax = table_cfg.primary_ax;
+    else
+      primary_ax = '';
+    end 
+    % generate secondary axis
+    if size(values,2) > 1 && isfield(table_cfg,'second_ax')
+      csv{end+1} = [1:size(values,2)];       
+    elseif isfield(table_cfg,'second_ax')
+      csv{end+1} = [];
+    elseif size(values,2) > 1
+      error(sprintf('Correction parser: Output table configuration does not contain secondary axis but correction data for correction ''%s'' have more than one column! Inconsitent correction data.',correction_name));    
+    end
+    if isfield(table_cfg,'second_ax')
+      second_ax = table_cfg.second_ax;
+    else
+      second_ax = '';
+    end
+    % insert data and uncertainty
+    csv = {values};
+    % insert uncertainty data
+    if has_unc
+      csv{end+1} = uncert;
+    end
+    csv_quantities = {primary_ax;table_cfg.quant_names(:)}
+        
+    % generate the table with values and uncertainties
+    data = correction_load_table(csv,second_ax,csv_quantities);
   
   end
-  
-  values
-  
-  
-  
-  
-  
-  
-  
+ 
 end
