@@ -204,6 +204,8 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     error('Transducers count does not match channel count!');
   end
   
+  disp('loading transducers')
+  
   % load tranducer correction files
   tran = {struct()};
   if numel(transducer_paths)
@@ -234,14 +236,24 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
   % get digitizer path
   digitizer_path = infogettext(cinf, 'digitizer path');
   
+  disp('loading digitizer')
+  
   % TODO: digitizer loader
+  
+  correction_load_digitizer(inf,meas_folder, 1, group_id);
   
   %sinf = infogetsection(inf, 'corrections');  
   %cor_name = infogettext(sinf, 'digitizer path');  
-  %cor_path = [records_folder filesep() cor_name];  
+  %cor_path = [meas_folder filesep() cor_name];  
   %cinf = infoload(cor_path);
-  %correction_parse_section(fileparts(cor_path), cinf, inf, 'interchannel timeshift',2)
     
+  %table_cfg.primary_ax = 'f';
+  %table_cfg.second_ax = 'rms';
+  %table_cfg.quant_names = {'gain','unc'};
+  
+  %tbl = correction_parse_section(fileparts(cor_path), cinf, inf, 'test2d', table_cfg, 1, 1, group_id);
+  
+  %tbl
   
   % return corrections
   data.corr = corr;

@@ -10,6 +10,7 @@ function [values,w] = correction_interp_parameter(values, w, par, dim, correctio
   % note: the selected/inerpolated dimension will be always row
   if dim == 2
     values = values.';
+    w = w.';
   end
 
   if par.interp
@@ -77,7 +78,7 @@ function [values,w] = correction_interp_parameter(values, w, par, dim, correctio
             
             % now apply interpolation to the remaining rows
             w(id + 0,:) .*= (1 - wei); 
-            w(id + 1,:) .*= wei;       
+            w(id + 1,:) .*= wei;
           
           end
                       
@@ -116,6 +117,7 @@ function [values,w] = correction_interp_parameter(values, w, par, dim, correctio
   % restore original orientation of the 
   if dim == 2
     values = values.';
+    w = w.';
   end
   
 end

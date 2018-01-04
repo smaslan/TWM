@@ -9,12 +9,19 @@ cd(mfld);
 addpath([mfld filesep() 'info']);
 addpath([mfld filesep() 'qwtb']);
 
+meas = [mfld '\..\temp\sim\session_doc'];
+
+data = tpq_load_record(meas);
+
+
+
+return
+
 
 %meas_file = [mfld filesep() '..' filesep() 'data' filesep() 'session.info'];
 
 
-tr_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\shunt_100mA_313'];
-
+%tr_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\shunt_100mA_313'];
 %tab_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\fdep.csv'];
 %tab_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\fdep_2D_no_f.csv'];
 %tab_path = [mfld() '\..\data\corrections\transducers\shunt_100mA\fdep_2D_no_a.csv'];

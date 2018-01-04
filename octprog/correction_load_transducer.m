@@ -46,7 +46,7 @@ function [tran] = correction_load_transducer(file)
     fdep_file = [root_fld infogettext(inf,'amplitude transfer path')];
   catch
     % default (gain, unc.) 
-    fdep_file = {1.0,0.0};         
+    fdep_file = {[],[],1.0,0.0};         
   end
   tfer_gain = correction_load_table(fdep_file,'rms',{'f','gain','u_gain'});
   
@@ -55,7 +55,7 @@ function [tran] = correction_load_transducer(file)
     fdep_file = [root_fld infogettext(inf,'phase transfer path')];
   catch
     % default (phase, unc.) 
-    fdep_file = {0.0,0.0};         
+    fdep_file = {[],[],0.0,0.0};         
   end
   tran.tfer_phi = correction_load_table(fdep_file,'rms',{'f','phi','u_phi'});
     
@@ -72,7 +72,7 @@ function [tran] = correction_load_transducer(file)
     Zca_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals series impedance path')];
   catch
     % default value {0 Ohm, 0 H}
-    Zca_file = {0.0, 0.0, 0.0, 0.0};         
+    Zca_file = {[], 0.0, 0.0, 0.0, 0.0};         
   end
   tran.Zca = correction_load_table(Zca_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
   % load output terminal shunting admittance (optional):
@@ -80,7 +80,7 @@ function [tran] = correction_load_transducer(file)
     Yca_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals shunting admittance path')];
   catch
     % default value {0 S, 0 D}
-    Yca_file = {0.0, 0.0, 0.0, 0.0};         
+    Yca_file = {[], 0.0, 0.0, 0.0, 0.0};         
   end
   tran.Yca = correction_load_table(Yca_file,'',{'f','Cp','D','u_Cp','u_D'});
   
@@ -89,7 +89,7 @@ function [tran] = correction_load_transducer(file)
     Zcb_file = [root_fld correction_load_transducer_get_file_key(inf,'output cable series impedance path')];
   catch
     % default value {0 Ohm, 0 H}
-    Zcb_file = {0.0, 0.0, 0.0, 0.0};         
+    Zcb_file = {[], 0.0, 0.0, 0.0, 0.0};         
   end
   tran.Zcb = correction_load_table(Zcb_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
   % load cable shunting admittance (optional):
@@ -97,7 +97,7 @@ function [tran] = correction_load_transducer(file)
     Ycb_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals shunting admittance path')];
   catch
     % default value {0 S, 0 D}
-    Ycb_file = {0.0, 0.0, 0.0, 0.0};         
+    Ycb_file = {[], 0.0, 0.0, 0.0, 0.0};         
   end
   tran.Ycb = correction_load_table(Ycb_file,'',{'f','Cp','D','u_Cp','u_D'});
   
@@ -106,7 +106,7 @@ function [tran] = correction_load_transducer(file)
     Zlo_file = [root_fld correction_load_transducer_get_file_key(inf,'rvd low side impedance path')];
   catch
     % default value {0 Ohm, 0 Ohm}
-    Zlo_file = {0.0, 0.0, 0.0, 0.0};         
+    Zlo_file = {[], 0.0, 0.0, 0.0, 0.0};         
   end
   tran.Zlo = correction_load_table(Zlo_file,'',{'f','Rs','Xs','u_Rs','u_Xs'});
   

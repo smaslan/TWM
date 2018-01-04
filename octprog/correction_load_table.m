@@ -87,12 +87,12 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
     % which axes are there?
     has_primary = ~isempty(quant_names{1});
     has_second = ~isempty(second_ax_name);
-    
+
     % data quantities count
-    quant_N = numel(quant_names) - has_primary - has_second;
+    quant_N = numel(quant_names) - 1;
     
     if numel(file) ~= quant_N + has_primary + has_second
-      error('Correction table loader: Number of data quantities does not match number of fake values to assign! Note the primary axis quantity is used even for faking table, so valid example is: quant_names = {''f'',''Rs'',''Xs''}, file = {0, 0}.');
+      error('Correction table loader: Number of data quantities does not match number of fake values to assign! Note the primary axis quantity is used even for faking table, so valid example is: quant_names = {''f'',''Rs'',''Xs''}, file = {[], 0, 0}.');
     end
     
     % fake table content
@@ -113,7 +113,7 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
       fpos++;
     end
     % store quantities 
-    for k = 1:numel(file)
+    for k = 1:quant_N
       tbl = setfield(tbl,quant_names{k+1},file{fpos});
       fpos++;
     end
@@ -247,11 +247,19 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
   if ~isempty(second_ax_name)
     tbl.axis_x = second_ax_name;
     tbl.has_x = ~~numel(getfield(tbl,second_ax_name));
+    tbl.size_x = numel(getfield(tbl,second_ax_name));
   else
-    tlb.has_x = 0; 
+    tbl.has_x = 0;
+    tbl.size_x = 0; 
   end  
   tbl.axis_y = quant_names{1};
-  tbl.has_y = ~~numel(prim);
+  if ~isempty(quant_names{1})
+    tbl.has_y = ~~numel(getfield(tbl,quant_names{1}));
+    tbl.size_y = numel(getfield(tbl,quant_names{1}));
+  else
+    tbl.has_y = 0;
+    tbl.size_y = 0;
+  end
   
   % store quantities names
   tbl.quant_names = quant_names(2:end);
