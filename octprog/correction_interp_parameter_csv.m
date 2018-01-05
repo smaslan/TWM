@@ -5,9 +5,6 @@
 %% -----------------------------------------------------------------------------
 function [data] = correction_interp_parameter_csv(files, w, csvcfg, correction_name)
   
-  w
-  files
-  
   % get rid of elements with zero weights and convert inputs to vector
   files = files(w ~= 0);
   w = w(w ~= 0);  

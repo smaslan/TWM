@@ -33,6 +33,9 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
     channel_id = 1;
   end
   
+  % the section is optional?
+  is_optional = isfield(table_cfg,'default');
+  
   if group_id < 1
     % work with last available group, if not defined explicitly
     group_id = infogetnumber(meas_inf,'groups count');
@@ -50,7 +53,37 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
   meas_inf = [group_sec sprintf('\n') meas_inf];
 
   % get this correction's section from correction file header 
-  cinf = infogetsection(inf, correction_name);
+  try
+    cinf = infogetsection(inf, correction_name);
+  catch
+    % section not found, but it may be optional correction
+    
+    if is_optional
+      % is optional, build default result
+      
+      % generate main axis
+      if isfield(table_cfg,'primary_ax')
+        primary_ax = table_cfg.primary_ax;
+      else
+        primary_ax = '';
+      end     
+      % generate secondary axis
+      if isfield(table_cfg,'second_ax')
+        second_ax = table_cfg.second_ax;
+      else
+        second_ax = '';
+      end
+      csv_quantities = {primary_ax,table_cfg.quant_names{:}};
+      % build the default table
+      data = correction_load_table(table_cfg.default,second_ax,csv_quantities);
+      
+      return
+      
+    else
+      error(sprintf('Correction parser: Correction ''%s'' not found!',correction_name));
+    end
+    
+  end
   
   % try get list of the filter attributes
   try    
@@ -92,7 +125,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
         % channel dependent attribute - select channel (column of the matrix)
         attr_meas_value = attr_meas_value(:,channel_id);
       else
-        error('Correction parser: Filter attribute ''%s'' of correction ''%s'' has smaller columns count the requested correction channel id!',attr_name,correction_name);
+        error(sprintf('Correction parser: Filter attribute ''%s'' of correction ''%s'' has smaller columns count the requested correction channel id!',attr_name,correction_name));
       end
       % at this point we should have either scalar or vertical vector...
       
@@ -105,7 +138,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
         %  - most likely one row for each repetition
         attr_meas_value = attr_meas_value{rep_id};
       else
-        error('Correction parser: Filter attribute ''%s'' of correction ''%s'' has smaller rows count than requested by repetition id parameter! Possibly inconsistent measurement INFO file.',attr_name,correction_name);        
+        error(sprintf('Correction parser: Filter attribute ''%s'' of correction ''%s'' has smaller rows count than requested by repetition id parameter! Possibly inconsistent measurement INFO file.',attr_name,correction_name));        
       end            
     end
     % at this point we shall have value of the attribute from meas. header loaded and it is scalar...
@@ -177,7 +210,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
       
       if par{p}.interp && ~par{p}.is_numeric
         % failed - interpolate enabled but parameter values not numeric???
-        error('Correction parser: %s dependence ''%s'' of correction ''%s'' is not numeric, but ''interpolable'' flag is set!',par_name,par{p}.name,correction_name);
+        error(sprintf('Correction parser: %s dependence ''%s'' of correction ''%s'' is not numeric, but ''interpolable'' flag is set!',par_name,par{p}.name,correction_name));
       end 
       
       % try to fetch the parameter's value from the measurement header
@@ -204,7 +237,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
           % channel dependent parameter - select channel
           par{p}.meas_value = par{p}.meas_value(:,channel_id);
         else
-          error('Correction parser: %s dependence ''%s'' of correction ''%s'' has smaller columns count than id of desired channel!',par_name,par{p}.name,correction_name);
+          error(sprintf('Correction parser: %s dependence ''%s'' of correction ''%s'' has smaller columns count than id of desired channel!',par_name,par{p}.name,correction_name));
         end
         
         % next, select row by repetition cycle
@@ -216,7 +249,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
           %  - most likely one row per repetition cycle, select repetition
           par{p}.meas_value = par{p}.meas_value{rep_id};
         else
-          error('Correction parser: %s dependence ''%s'' of correction ''%s'' has smaller rows count than id of desired repetition! Most likely inconsistent data in the measurement header.',par_name,par{p}.name,correction_name);
+          error(sprintf('Correction parser: %s dependence ''%s'' of correction ''%s'' has smaller rows count than id of desired repetition! Most likely inconsistent data in the measurement header.',par_name,par{p}.name,correction_name));
         end
         
       end

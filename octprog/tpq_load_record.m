@@ -97,7 +97,9 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
   % is temperature available? 
   data.is_temperature = infogetnumber(inf, 'temperature available') > 0;
   
-  
+  % get names of the digitizer channels
+  data.channel_names = infogetmatrixstr(inf, 'channel descriptors');
+    
   
   % ====== GROUP SECTION ======
   
@@ -105,7 +107,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
   data.sample_count = infogetnumber(ginf, 'samples count');
     
   % get measurement root folder
-  meas_folder = fileparts(header);
+  data.meas_folder = fileparts(header);
   
   % get record file names
   record_names = infogetmatrixstr(ginf, 'record sample data files');
@@ -152,7 +154,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
   for r = 1:numel(ids)
   
     % sample data file path
-    sample_data_file = [meas_folder filesep() record_names{ids(r)}];
+    sample_data_file = [data.meas_folder filesep() record_names{ids(r)}];
     
     % store record file name
     [fld, data.record_filenames{r}] = fileparts(sample_data_file);
@@ -212,7 +214,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     for t = 1:numel(transducer_paths)
       
       % build absolute transducer correction path
-      t_file = [meas_folder filesep() transducer_paths{t}];
+      t_file = [data.meas_folder filesep() transducer_paths{t}];
       
       % try to load the correction
       tran{t} = correction_load_transducer(t_file);
@@ -240,7 +242,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
   
   % TODO: digitizer loader
   
-  correction_load_digitizer(inf,meas_folder, 1, group_id);
+  correction_load_digitizer(inf, data, 1, group_id);
   
   %sinf = infogetsection(inf, 'corrections');  
   %cor_name = infogettext(sinf, 'digitizer path');  
