@@ -10,7 +10,7 @@ function [] = correction_load_digitizer(minf, meas, rep_id, group_id)
 % Returns:
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2017, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
@@ -29,10 +29,8 @@ function [] = correction_load_digitizer(minf, meas, rep_id, group_id)
     % load corrections info file:
     dinf = infoload(cor_path);
     
-    % check correction file validity:
-    tic()
-    ctype = infogettext(dinf, 'type');
-    toc()
+    % check correction file validity:    
+    ctype = infogettext(dinf, 'type');    
     if ~strcmpi(ctype,'digitizer')
         error(sprintf('Digitizer correction loader: Invalid correction type ''%s''!',ctype));
     end
@@ -59,6 +57,9 @@ function [] = correction_load_digitizer(minf, meas, rep_id, group_id)
     table_cfg.quant_names = {'its','u_its'};
     table_cfg.default = {[1:meas.channels_count],zeros(1,meas.channels_count),zeros(1,meas.channels_count)};
     time_shifts = correction_parse_section(meas_root, dinf, minf, 'interchannel timeshift', table_cfg, 1, rep_id, group_id);
+    
+    % --- try to load crosstalk
+    % ###TODO: todo
 
     % --- LOAD CHANNEL CORRECTIONS ---
     for c = 1:meas.channels_count
@@ -117,6 +118,14 @@ function [] = correction_load_digitizer(minf, meas, rep_id, group_id)
         table_cfg.quant_names = {'Cp','Gp','u_Cp','u_Gp'};
         table_cfg.default = {[],0.0,0.0,0.0,0.0};
         inp_y = correction_parse_section(meas_root, dinf, minf, 'input admittance', table_cfg, 1, rep_id, group_id);
+        
+        % --- try to load SFDR
+        table_cfg = struct();
+        table_cfg.primary_ax = 'f';
+        table_cfg.second_ax = 'amp';
+        table_cfg.quant_names = {'sfdr'};
+        table_cfg.default = {[],[],180.0};
+        sfdr = correction_parse_section(meas_root, dinf, minf, 'sfdr', table_cfg, 1, rep_id, group_id);
 
     end
 

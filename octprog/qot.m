@@ -9,9 +9,20 @@ cd(mfld);
 addpath([mfld filesep() 'info']);
 addpath([mfld filesep() 'qwtb']);
 
-meas = [mfld '\..\temp\sim\session_doc'];
 
-data = tpq_load_record(meas);
+%meas = [mfld '\..\temp\sim\DIGITIZER\HP3458_demo'];
+meas = [mfld '\..\temp\sim\session_doc'];
+inf = infoload(meas);
+
+
+
+tic();
+idata = infoparse(inf,'all');
+toc()
+
+
+%meas = [mfld '\..\temp\sim\session_doc'];
+%data = tpq_load_record(meas);
 
 
 
