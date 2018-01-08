@@ -10,8 +10,8 @@ addpath([mfld filesep() 'info']);
 addpath([mfld filesep() 'qwtb']);
 
 
-%meas = [mfld '\..\temp\sim\DIGITIZER\HP3458_demo'];
-meas = [mfld '\..\temp\sim\session_doc'];
+meas = [mfld '\..\temp\sim\DIGITIZER\HP3458_demo'];
+%meas = [mfld '\..\temp\sim\session_doc'];
 inf = infoload(meas);
 
 
@@ -19,6 +19,8 @@ inf = infoload(meas);
 tic();
 idata = infoparse(inf,'all');
 toc()
+
+tran = correction_load_transducer()
 
 
 %meas = [mfld '\..\temp\sim\session_doc'];

@@ -1,8 +1,11 @@
 function [tran] = correction_load_transducer(file)
-% TWM: Loader of the tranducer correction file.
+% TWM: Loader of the transducer correction file. 
+% It will always return all transducer parameters even if they are not found.
+% In that case it will load 'neutral' defaults (unity gain, no phase error, ...).
 %
 % Inputs:
 %   file - absolute file path to the transducers header INFO file.
+%          Set '' or not assigned to load default 'blank' correction.
 %
 % Outputs:
 %   tran.type - string defining transducer type 'shunt', 'divider' 
@@ -10,7 +13,7 @@ function [tran] = correction_load_transducer(file)
 %   tran.sn - string with transducer's serial
 %   tran.nominal - transducer's nominal ratio (Ohms or Vin/Vout)
 %   tran.u_nominal - transducer's nominal ratio uncertainty (Ohms or Vin/Vout)
-%   tran.sfdr - 2D table of SFDR values
+%   tran.SFDR - 2D table of SFDR values
 %   tran.tfer_gain - 2D table of absolute gain values (nominal gain combined with relative transfer)
 %   tran.tfer_phi - 2D table of phase shifts
 %   tran.Zca - 1D table of output terminals series Z
@@ -24,34 +27,57 @@ function [tran] = correction_load_transducer(file)
 % (c) 2018, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
-
-    % root folder of the correction
-    root_fld = [fileparts(file) filesep()];
     
-    % try to load the correction file
-    inf = infoload(file);
-      
-    % get correction type id
-    t_type = infogettext(inf, 'type');
+    % load default values only?
+    is_default = ~exist('file','var') || isempty(file);
     
-    % try to identify correction type
-    id = find(strcmpi(t_type,{'shunt','divider'}),1);
-    if ~numel(id)
-        error(sprintf('Transducer correction loader: Correction type ''%s'' not recognized!'),t_type);
+    if ~is_default
+    
+        % root folder of the correction
+        root_fld = [fileparts(file) filesep()];
+        
+        % try to load the correction file
+        inf = infoload(file);
+          
+        % get correction type id
+        t_type = infogettext(inf, 'type');
+        
+        % try to identify correction type
+        id = find(strcmpi(t_type,{'shunt','divider'}),1);
+        if ~numel(id)
+            error(sprintf('Transducer correction loader: Correction type ''%s'' not recognized!'),t_type);
+        end
+    
+    else
+        % defaults:
+        t_type = 'divider';
     end
     
     % store transducer type
     tran.type = t_type;
     
-    % transducer correction name
-    tran.name = infogettext(inf,'name');
     
-    % transducer serial number
-    tran.sn = infogettext(inf,'serial number');
+    if ~is_default
+        % transducer correction name
+        tran.name = infogettext(inf,'name');
+        
+        % transducer serial number
+        tran.sn = infogettext(inf,'serial number');
+    else
+        % defaults:
+        tran.name = 'blank divider';
+        tran.sn = 'n/a';
+    end
     
     % load nominal ratio of the transducer
-    tran.nominal = infogetnumber(inf,'nominal ratio');
-    tran.u_nominal = infogetnumber(inf,'nominal ratio uncertainty');
+    if ~is_default            
+        tran.nominal = infogetnumber(inf,'nominal ratio');
+        tran.u_nominal = infogetnumber(inf,'nominal ratio uncertainty');
+    else
+        % defaults:
+        tran.nominal = 1.0;
+        tran.u_nominal = 0.0;        
+    end
       
     % load relative frequency/rms dependence (gain):
     try
@@ -129,7 +155,7 @@ function [tran] = correction_load_transducer(file)
         % default value {180 dB}
         sfdr_file = {[], [], 180};         
     end
-    tran.sfdr = correction_load_table(sfdr_file,'rms',{'f','sfdr'});
+    tran.SFDR = correction_load_table(sfdr_file,'rms',{'f','sfdr'});
     
 end
 
