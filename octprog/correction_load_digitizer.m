@@ -144,7 +144,7 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         table_cfg.primary_ax = 'f';
         table_cfg.quant_names = {'Cp','Gp','u_Cp','u_Gp'};
         table_cfg.default = {[],0.0,0.0,0.0,0.0};
-        chn{c}.inp_Y = correction_parse_section(meas_root, dinf, minf, 'input admittance', table_cfg, 1, rep_id, group_id);
+        chn{c}.Yin = correction_parse_section(meas_root, dinf, minf, 'input admittance', table_cfg, 1, rep_id, group_id);
         
         % --- try to load SFDR
         table_cfg = struct();

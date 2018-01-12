@@ -25,8 +25,10 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
 %  tbl.quant_names - names of the data quantities
 %  tbl.axis_x - name of the secondary axis quantity
 %  tbl.axis_y - name of the primary axis quantity
-%  tbl.has_x - secondary axis exist and has nonzero size
-%  tlb.has_y - primary axis exist and has nonzero size
+%  tbl.has_x - secondary axis exist (even if it is empty)
+%  tlb.has_y - primary axis exist (even if it is empty)
+%  tbl.size_x - secondary axis size (0 when quantities independent on X)
+%  tlb.size_y - primary axis size (0 when quantities independent on Y)
 %
 %
 % Notes:
@@ -104,8 +106,6 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
     if has_primary
       tbl = setfield(tbl,quant_names{1},file{fpos});
       fpos++;
-    else
-      tbl = setfield(tbl,'fake_primary',[]);
     end
     % store secondary axis
     if has_second
@@ -244,20 +244,18 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
   end
   
   % store axes names
-  if ~isempty(second_ax_name)
-    tbl.axis_x = second_ax_name;
-    tbl.has_x = ~~numel(getfield(tbl,second_ax_name));
+  tbl.axis_x = second_ax_name;
+  tbl.has_x = ~isempty(tbl.axis_x);  
+  if tbl.has_x
     tbl.size_x = numel(getfield(tbl,second_ax_name));
   else
-    tbl.has_x = 0;
     tbl.size_x = 0; 
   end  
   tbl.axis_y = quant_names{1};
-  if ~isempty(quant_names{1})
-    tbl.has_y = ~~numel(getfield(tbl,quant_names{1}));
-    tbl.size_y = numel(getfield(tbl,quant_names{1}));
+  tbl.has_y = ~isempty(tbl.axis_y);
+  if tbl.has_y    
+    tbl.size_y = numel(getfield(tbl,tbl.axis_y));
   else
-    tbl.has_y = 0;
     tbl.size_y = 0;
   end
   

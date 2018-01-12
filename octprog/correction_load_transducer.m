@@ -21,6 +21,13 @@ function [tran] = correction_load_transducer(file)
 %   tran.Zcb - 1D table of cable series Z
 %   tran.Ycb - 1D table of cable shunting Y
 %   tran.Zlo - 1D table of RVD's low side resistor Z
+%   tran.has_tfer_gain - tfer_gain table found
+%   tran.has_tfer_phi - etc.
+%   tran.has_Zca - etc.
+%   tran.has_Yca - etc.
+%   tran.has_Zcb - etc.
+%   tran.has_Ycb - etc.
+%   tran.has_Zlo - etc.
 %
 %
 % This is part of the TWM - TracePQM WattMeter.
@@ -87,6 +94,7 @@ function [tran] = correction_load_transducer(file)
         fdep_file = {[],[],1.0,0.0};         
     end
     tfer_gain = correction_load_table(fdep_file,'rms',{'f','gain','u_gain'});
+    tran.has_tfer_gain = ischar(fdep_file);
     
     % load frequency/rms dependence (phase):
     try
@@ -96,6 +104,7 @@ function [tran] = correction_load_transducer(file)
         fdep_file = {[],[],0.0,0.0};         
     end
     tran.tfer_phi = correction_load_table(fdep_file,'rms',{'f','phi','u_phi'});
+    tran.has_tfer_phi = ischar(fdep_file);
       
     
     % combine nominal gain and relative gain transfer to the absolute gain tfer.: 
@@ -113,6 +122,7 @@ function [tran] = correction_load_transducer(file)
         Zca_file = {[], 0.0, 0.0, 0.0, 0.0};         
     end
     tran.Zca = correction_load_table(Zca_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
+    tran.has_Zca = ischar(Zca_file);
     % load output terminal shunting admittance (optional):
     try
         Yca_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals shunting admittance path')];
@@ -121,15 +131,19 @@ function [tran] = correction_load_transducer(file)
         Yca_file = {[], 0.0, 0.0, 0.0, 0.0};         
     end
     tran.Yca = correction_load_table(Yca_file,'',{'f','Cp','D','u_Cp','u_D'});
+    tran.has_Yca = ischar(Yca_file);
     
     % load cable series impedance (optional):
     try
         Zcb_file = [root_fld correction_load_transducer_get_file_key(inf,'output cable series impedance path')];
+        tran.has_Zcb = 1;
     catch
         % default value {0 Ohm, 0 H}
-        Zcb_file = {[], 0.0, 0.0, 0.0, 0.0};         
+        Zcb_file = {[], 0.0, 0.0, 0.0, 0.0};
+        tran.has_Ycb = 0;         
     end
     tran.Zcb = correction_load_table(Zcb_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
+    tran.has_Zcb = ischar(Zcb_file);
     % load cable shunting admittance (optional):
     try
         Ycb_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals shunting admittance path')];
@@ -138,6 +152,7 @@ function [tran] = correction_load_transducer(file)
         Ycb_file = {[], 0.0, 0.0, 0.0, 0.0};         
     end
     tran.Ycb = correction_load_table(Ycb_file,'',{'f','Cp','D','u_Cp','u_D'});
+    tran.has_Ycb = ischar(Ycb_file);
     
     % load impedance of the low side of RVD (optional, applies only for RVDs):
     try
@@ -146,7 +161,8 @@ function [tran] = correction_load_transducer(file)
         % default value {0 Ohm, 0 Ohm}
         Zlo_file = {[], 0.0, 0.0, 0.0, 0.0};         
     end
-    tran.Zlo = correction_load_table(Zlo_file,'',{'f','Rs','Xs','u_Rs','u_Xs'});
+    tran.Zlo = correction_load_table(Zlo_file,'',{'f','Rp','Cp','u_Rp','u_Cp'});
+    tran.has_Zlo = ischar(Zlo_file);
     
     % load SFDR (optional):
     try

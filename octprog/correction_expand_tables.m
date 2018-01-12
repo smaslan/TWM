@@ -46,13 +46,13 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
   ay_max = [];
   for t = 1:T
     tab = tin{t};
-    if tab.has_x
+    if tab.size_x
       xdata = getfield(tab,tab.axis_x);
       ax = union(ax,xdata);
       ax_min(end+1) = min(xdata);
       ax_max(end+1) = max(xdata);   
     end
-    if tab.has_y
+    if tab.size_y
       ydata = getfield(tab,tab.axis_y);
       ay = union(ay,ydata);
       ay_min(end+1) = min(ydata);
@@ -94,42 +94,50 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
     Q = numel(qnames);
     
     % load current axes
-    if tab.has_x
+    if tab.size_x
       xdata = getfield(tab,tab.axis_x);
     end
-    if tab.has_y
+    if tab.size_y
       ydata = getfield(tab,tab.axis_y);
     end
     
     % --- interpolate each quantity:
     for q = 1:Q
-      if has_x && has_y && tab.has_x && tab.has_y
-        % table has both axes, interpolate in 2D
-        tab = setfield(tab,qnames{q},interp2(xdata,ydata,getfield(tab,qnames{q}),axi,ayi,'linear'));
-      elseif has_y && tab.has_y
+      if has_x && has_y && tab.size_x && tab.size_y
+        % table has both axes, interpolate in 2D        
+        qu = getfield(tab,qnames{q});
+        qu = interp2nan(xdata,ydata,qu,axi,ayi,'linear');
+        tab = setfield(tab,qnames{q},qu);
+      elseif has_y && tab.size_y
         % only primary axis (Y), interpolate 1D
-        tab = setfield(tab,qnames{q},interp1(ydata,getfield(tab,qnames{q}),ay,'linear'));
-      elseif has_x && tab.has_x
+        qu = getfield(tab,qnames{q});
+        qu = interp1nan(ydata,qu,ay,'linear');               
+        tab = setfield(tab,qnames{q},qu);
+      elseif has_x && tab.size_x
         % only secondary axis (X), interpolate 1D
-        tab = setfield(tab,qnames{q},interp1(xdata,getfield(tab,qnames{q}),ax,'linear')); 
+        qu = getfield(tab,qnames{q});
+        qu = interp1nan(xdata,qu,ax,'linear');        
+        tab = setfield(tab,qnames{q},qu); 
       end
     end
     
     % overwrite axes by new axes:
     if tab.has_x
-      if numel(ax) > 1
+      szx = numel(ax);
+      if szx > 1
         tab = setfield(tab,tab.axis_x,ax);
       else
-        tab = setfield(tab,tab.axis_x,[]);
-        tab.has_x = 0;
-      end        
+        tab = setfield(tab,tab.axis_x,[]);        
+      end
+      tab.size_x = (szx > 1)*szx;        
     end
     if tab.has_y
-      if numel(ay) > 1
+      szy = numel(ay);
+      if szy > 1
         tab = setfield(tab,tab.axis_y,ay);
       else
         tab = setfield(tab,tab.axis_y,[]);
-        tab.has_y = 0;
+        tab.size_y = (szy > 1)*szy;
       end        
     end
     

@@ -250,7 +250,11 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     % items were found), it will modify the transducer's gain and phase transfer accordingly.
     % It will also proceed the uncertainty of the corretions to the new gain and phase uncertainty.
     
+    for c = 1:data.channels_count
     
+        corr.tran{c} = correction_transducer_loading(corr.tran{c},corr.dig{c});
+    
+    end
     
     
     
