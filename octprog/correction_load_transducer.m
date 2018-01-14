@@ -93,8 +93,10 @@ function [tran] = correction_load_transducer(file)
         % default (gain, unc.) 
         fdep_file = {[],[],1.0,0.0};         
     end
-    tfer_gain = correction_load_table(fdep_file,'rms',{'f','gain','u_gain'});
+    tran.tfer_gain = correction_load_table(fdep_file,'rms',{'f','gain','u_gain'});
+    tran.tfer_gain.qwtb = qwtb_gen_naming('tr_gain','f','a',{'gain'},{'u_gain'},{''});
     tran.has_tfer_gain = ischar(fdep_file);
+    
     
     % load frequency/rms dependence (phase):
     try
@@ -104,12 +106,13 @@ function [tran] = correction_load_transducer(file)
         fdep_file = {[],[],0.0,0.0};         
     end
     tran.tfer_phi = correction_load_table(fdep_file,'rms',{'f','phi','u_phi'});
+    tran.tfer_phi.qwtb = qwtb_gen_naming('tr_phi','f','a',{'phi'},{'u_phi'},{''});
     tran.has_tfer_phi = ischar(fdep_file);
       
     
     % combine nominal gain and relative gain transfer to the absolute gain tfer.: 
-    tran.tfer_gain = tran.nominal*tfer_gain.gain;
-    tran.tfer_u_gain = (tran.u_nominal^2 + tfer_gain.u_gain.^2).^0.5;
+    tran.tfer_gain.gain = tran.nominal*tran.tfer_gain.gain;
+    tran.tfer_gain.u_gain = (tran.u_nominal^2 + tran.tfer_gain.u_gain.^2).^0.5;
       
     
     % --- load loading effect corrections ---
@@ -119,7 +122,7 @@ function [tran] = correction_load_transducer(file)
         Zca_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals series impedance path')];
     catch
         % default value {0 Ohm, 0 H}
-        Zca_file = {[], 0.0, 0.0, 0.0, 0.0};         
+        Zca_file = {[], 1e-9, 1e-12, 0.0, 0.0};         
     end
     tran.Zca = correction_load_table(Zca_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
     tran.has_Zca = ischar(Zca_file);
@@ -127,8 +130,8 @@ function [tran] = correction_load_transducer(file)
     try
         Yca_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals shunting admittance path')];
     catch
-        % default value {0 S, 0 D}
-        Yca_file = {[], 0.0, 0.0, 0.0, 0.0};         
+        % default value {0 F, 0 D}
+        Yca_file = {[], 1e-15, 0.0, 0.0, 0.0};         
     end
     tran.Yca = correction_load_table(Yca_file,'',{'f','Cp','D','u_Cp','u_D'});
     tran.has_Yca = ischar(Yca_file);
@@ -139,7 +142,7 @@ function [tran] = correction_load_transducer(file)
         tran.has_Zcb = 1;
     catch
         % default value {0 Ohm, 0 H}
-        Zcb_file = {[], 0.0, 0.0, 0.0, 0.0};
+        Zcb_file = {[], 1e-9, 1e-12, 0.0, 0.0};
         tran.has_Ycb = 0;         
     end
     tran.Zcb = correction_load_table(Zcb_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
@@ -148,8 +151,8 @@ function [tran] = correction_load_transducer(file)
     try
         Ycb_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals shunting admittance path')];
     catch
-        % default value {0 S, 0 D}
-        Ycb_file = {[], 0.0, 0.0, 0.0, 0.0};         
+        % default value {0 F, 0 D}
+        Ycb_file = {[], 1e-15, 0.0, 0.0, 0.0};         
     end
     tran.Ycb = correction_load_table(Ycb_file,'',{'f','Cp','D','u_Cp','u_D'});
     tran.has_Ycb = ischar(Ycb_file);
@@ -159,7 +162,7 @@ function [tran] = correction_load_transducer(file)
         Zlo_file = [root_fld correction_load_transducer_get_file_key(inf,'rvd low side impedance path')];
     catch
         % default value {0 Ohm, 0 Ohm}
-        Zlo_file = {[], 0.0, 0.0, 0.0, 0.0};         
+        Zlo_file = {[], 1e9, 1e-15, 0.0, 0.0};         
     end
     tran.Zlo = correction_load_table(Zlo_file,'',{'f','Rp','Cp','u_Rp','u_Cp'});
     tran.has_Zlo = ischar(Zlo_file);
@@ -172,6 +175,15 @@ function [tran] = correction_load_transducer(file)
         sfdr_file = {[], [], 180};         
     end
     tran.SFDR = correction_load_table(sfdr_file,'rms',{'f','sfdr'});
+    tran.SFDR.qwtb = qwtb_gen_naming('tr_sfdr','f','a',{'sfdr'},{''},{''});
+    
+    % this is a list of the correction that will be passed to the QWTB algorithm
+    % note: ignoring the loading corrections here, in current version of TWM
+    %       they are expected to be processed and merged to 'tfer_...' 
+    %       during the measurement and correction loading
+    % note: any correction added to this list will be passed to the QWTB
+    %       but it must contain the 'qwtb' record in the table (see eg. above)  
+    tran.qwtb_list = {'tfer_gain','tfer_phi','SFDR'};
     
 end
 
@@ -181,4 +193,76 @@ function [file_name] = correction_load_transducer_get_file_key(inf,key)
     if isempty(file_name)
         error('File name empty!');
     end  
+end
+
+ 
+function [qw] = qwtb_gen_naming(c_name,ax_prim,ax_sec,v_list,u_list,v_names)
+% Correction table structure cannot be directly passed into the QWTB.
+% So this will prepare names of the QWTB variables that will be used 
+% for passing the table to the QWTB algorithm.
+%
+% Parameters:
+%   c_name  - core name of the correction data
+%   ax_prim - name of the primary axis suffix (optional)
+%   ax_sec  - name of the secondary axis suffix (optional)
+%   v_list  - cell array of the table's quantities to store
+%   u_list  - cell array of the table's uncertainties to store
+%   v_names - names of the suffixes for each item in the 'v_list'
+%
+% Example 1:
+%   qw = qwtb_gen_naming('adc_gain','f','a',{'gain'},{'u_gain'},{''}):
+%   qw.c_name = 'adc_gain'
+%   qw.v_names = 'adc_gain'
+%   qw.ax_prim = 'adc_gain_f'
+%   qw.ax_sec = 'adc_gain_a'
+%   qw.v_list = {'gain'}
+%   qw.u_list = {'u_gain'}
+%   this will be passed to the QWTB list:
+%     di.adc_gain.v - the table quantity 'gain' 
+%     di.adc_gain.u - the table quantity 'u_gain' (uncertainty)
+%     di.adc_gain_f.v - primary axis of the table
+%     di.adc_gain_a.v - secondary axis of the table
+%
+% Example 2:
+%   qw = qwtb_gen_naming('Yin','f','',{'Rp','Cp'},{'u_Rp','u_Cp'},{'rp','cp'}):
+%   qw.c_name = 'Yin'
+%   qw.v_names = {'Yin_Rp','Yin_Cp'}
+%   qw.ax_prim = 'Yin_f'
+%   qw.ax_sec = ''
+%   qw.v_list = {'Rp','Cp'}
+%   qw.u_list = {'u_Rp','u_Cp'}
+%   this will be passed to the QWTB list:
+%     di.Yin_rp.v - the table quantity 'Rp' 
+%     di.Yin_rp.u - the table quantity 'u_Rp' (uncertainty)
+%     di.Yin_cp.v - the table quantity 'Cp' 
+%     di.Yin_cp.u - the table quantity 'u_Cp' (uncertainty)
+%     di.adc_gain_f.v - primary axis of the table
+
+    
+    V = numel(v_names);
+    if V > 1
+        % create variable names: 'c_name'_'v_names{:}':
+        qw.v_names = {};
+        for k = 1:V
+            qw.v_names{k} = [c_name '_' v_names{k}];
+        end
+    else
+        % variable name: 'c_name':
+        qw.v_names = {c_name}; 
+    end
+    
+    if ~isempty(ax_prim)
+        qw.ax_prim = [c_name '_' ax_prim];
+    else
+        qw.ax_prim = '';         
+    end
+    if ~isempty(ax_sec)
+        qw.ax_sec = [c_name '_' ax_sec];
+    else
+        qw.ax_sec = '';
+    end
+    qw.c_name = c_name;
+    qw.v_list = v_list;
+    qw.u_list = u_list;
+    
 end

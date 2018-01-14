@@ -26,9 +26,9 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
 %  tbl.axis_x - name of the secondary axis quantity
 %  tbl.axis_y - name of the primary axis quantity
 %  tbl.has_x - secondary axis exist (even if it is empty)
-%  tlb.has_y - primary axis exist (even if it is empty)
+%  tbl.has_y - primary axis exist (even if it is empty)
 %  tbl.size_x - secondary axis size (0 when quantities independent on X)
-%  tlb.size_y - primary axis size (0 when quantities independent on Y)
+%  tbl.size_y - primary axis size (0 when quantities independent on Y)
 %
 %
 % Notes:
@@ -84,7 +84,7 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
   end
   
   if iscell(file)
-    % fake table
+    % default table
     
     % which axes are there?
     has_primary = ~isempty(quant_names{1});
@@ -116,7 +116,7 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
     for k = 1:quant_N
       tbl = setfield(tbl,quant_names{k+1},file{fpos});
       fpos++;
-    end
+    end       
     
   else
   

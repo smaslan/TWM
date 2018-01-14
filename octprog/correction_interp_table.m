@@ -1,4 +1,4 @@
-function [tbl] = correction_interp_tables(tbl,ax,ay)
+function [tbl] = correction_interp_table(tbl,ax,ay)
 % TWM: Interpolator of the correction tables loaded by 'correction_load_table'.
 % It will return interpolated value(s) from the correction table.
 %

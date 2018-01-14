@@ -1,27 +1,21 @@
 clc;
 clear all;
 
+warning('off');
+
 mfld = fileparts(mfilename('fullpath'));
 cd(mfld); 
 
 addpath([mfld filesep() 'info']);
 addpath([mfld filesep() 'qwtb']);
 
-qwtb_list_file = 'qwtb_list.info';
+%meas_root = [mfld '\..\temp\stst'];
+file = [mfld '\..\temp\sim\session_doc.info'];
 
-%qwtb_test(qwtb_list_file);
+%meas = tpq_load_record(file,-1,1);
+qwtb_exec_algorithm(file,0,1,1);
 
-[ids, names] = qwtb_load_algorithms(qwtb_list_file);
-
-[alginfo,ptab,unc_list,input_params] = qwtb_load_algorithm('SP-WFFT');
-
-return
-
-
-meas_root = [mfld '\..\temp\stst'];
-file = [mfld '\..\temp\stst\session.info'];
-
-meas = tpq_load_record(file);
+return;
 
 % process all repetition cycles
 %for m = 1:meas.repetitions_count

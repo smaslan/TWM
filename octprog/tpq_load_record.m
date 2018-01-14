@@ -29,7 +29,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
 %     corr - structure of correction data containing:
 %       phase_indexes - phase ID of each digitizer channel
 %                     - used to assign U and I channels to phases
-%       tran - cell array of transducers containing:
+%       tran - cell array of transducers containing struct with:
 %         type - string defining transducer type 'shunt', 'divider' 
 %         name - string with transducer's name
 %         sn - string with transducer's serial
@@ -243,7 +243,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     % load digitizer corrections:
     corr.dig = correction_load_digitizer(digitizer_path, inf, data, 1, group_id);
     
-    
+
     % --- Apply Loading Corrections ---
     % This section will try to calculate the effect of the cable and digitizer's input impedance
     % on the frequency transfer of the transducer. If it can be done (all required correction
@@ -252,20 +252,11 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     
     for c = 1:data.channels_count
     
-        corr.tran{c} = correction_transducer_loading(corr.tran{c},corr.dig{c});
+        corr.tran{c} = correction_transducer_loading(corr.tran{c},corr.dig.chn{c});
     
-    end
-    
-    
-    
-    
-    
-    
+    end   
     
     % return corrections
     data.corr = corr;
-    
-  
-  
 
 end

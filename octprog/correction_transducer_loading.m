@@ -94,12 +94,19 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
     if tran.has_Zcb + tran.has_Ycb == 1
         error('Transducer loading correction: Cable correction is incomplete! Zcb or Ycb is missing.');
     end
-     
+
     % make list of involved tables:
     tlist = {tran.tfer_gain,tran.tfer_phi,tran.Zlo,tran.Zca,tran.Yca,tran.Zcb,tran.Ycb,dig.Yin};
     
     % merge axes of the tables:
     [tlist,rms,fx] = correction_expand_tables(tlist);
+    
+    if ~numel(fx)
+        % non of the correction have frequency dependence, so generate some range:
+        % ###todo: this should be somehow protected. In real life it won't happen as at least the 
+        %          'tfer_gain' and 'tfer_phi' will be dependence but theoretically it may happen
+        fx(:,1) = logspace(log10(10),log10(1e6),10);
+    end
             
     % interpolate divider's transfer, convert to complex transfer:
     tfer_gain = correction_interp_table(tlist{1},[],fx);
@@ -111,8 +118,7 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
     [tr, u_tr] = Zphi2Z(g, p, u_g, u_p);
     tr_org = tr;
     tr = mcrand(2, mcc, tr, u_tr);
-    
-    
+
     % interpolate RVD's low side admittance:
     tmp = correction_interp_table(tlist{3},[],fx);
     [Zlo,u_Zlo] = CpRp2Z(fx, tmp.Cp, tmp.Rp, tmp.u_Cp, tmp.u_Rp);
@@ -147,7 +153,6 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
         [Zlo,u_Zlo] = Z_inv(tr,u_tr);
     end
     
-    
     % --- 1) Assume the transd. was measured including the effect of the Zca-Yca
     %        and no external load. So unload it from the 0.5Zca-Yca load:
     
@@ -162,6 +167,7 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
     
     % calculate actual, unloaded ratio of the transducer (in/out):
     tr = tr.*k_ca.*k_zl;
+
         
     if is_rvd
         % RVD: calculate top side impedance Zhi:        
@@ -197,6 +203,8 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
     tr = tr.*k_in.*k_cb.*k_te;
     
     
+    
+    
     % --- evaluate Monte-Carlo data:    
     % note: I don't use mean of the randomized data to avoid noisy result.
     %       Instead I use first item of noisified quantities which is original without noise,
@@ -214,7 +222,7 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
     tfer_phi = correction_interp_table(tlist{2},rms,fx);
     
     % convert gain-phase to complex tfer: 
-    [tr, u_tr] = Zphi2Z(g, p, u_g, u_p);
+    [tr, u_tr] = Zphi2Z(tfer_gain.gain, tfer_phi.phi, tfer_gain.u_gain, tfer_phi.u_phi);
     
     % apply correction in complex form:
     tr = tr.*tfer;
@@ -225,8 +233,13 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
     [g,p,u_g,u_p] = Z2Zphi(tr,u_tr);
     
     % overwrite original transducer's transfer:
+    % note: preserve original custom data, i.e. the qwtb variable naming setup
+    qw = tran.tfer_gain.qwtb;
     tran.tfer_gain = correction_load_table({fx,rms,g,u_g},'rms',{'f','gain','u_gain'});
+    tran.tfer_gain.qwtb = qw;
+    qw = tran.tfer_phi.qwtb;
     tran.tfer_phi = correction_load_table({fx,rms,p,u_p},'rms',{'f','phi','u_phi'});
+    tran.tfer_phi.qwtb = qw;
 
 end
 
@@ -237,6 +250,29 @@ end
 function [] = correction_transducer_loading_test()
 % this is a test function that validates the loading algorithm by
 % calculating the same correction using different method - loop-currents
+    
+    % test Z_inv():
+    z =   [1e+6 + j*1e+3; 1     + j*10e-6];
+    uz = [1e+2 + j*0.1;   10e-6 + j*10e-6];
+    [y,uy] = Z_inv(z,uz);
+    [z2,uz2] = Z_inv(y,uy);
+    if abs(z./z2-1) > 1e-6 || abs(uz./uz2-1) > 0.01
+        error('Z_inv() does not work!');
+    end
+    
+    % test Z-phi to cplx(Z) and cplx(Z) to Z-phi covertor:
+    m =  [1     ; 10];
+    um = [1e-6  ; 100e-6];
+    p =  [0.1   ; 1e-3];
+    up = [100e-6; 1e-6];        
+    [z,uz] = Zphi2Z(m,p,um,up);
+    [m2,p2,um2,up2] = Z2Zphi(z,uz);
+    if abs(m./m2-1) > 1e-6 || abs(p./p2-1) > 1e-6 || abs(um./um2-1) > 0.01 || abs(up./up2-1) > 0.01
+        error('Z2ZPhi() or Zphi2Z() does not work!');
+    end
+    
+    clear all;
+    
     
     % frequency range of the simulation:
     F = 10;
@@ -272,12 +308,12 @@ function [] = correction_transducer_loading_test()
     
     % define cable's impedance:
     len_b = 0.5;
-    Ls_a = 250e-9;
-    Rs_a = 50e-3;
-    Cp_a = 105e-12;
-    D_a = 0.02;
-    Zca = (Rs_a + j*w*Ls_a)*len_b;
-    Yca = w*Cp_a*(j + D)*len_b;
+    Ls_b = 250e-9;
+    Rs_b = 50e-3;
+    Cp_b = 105e-12;
+    D_b = 0.02;
+    Zcb = (Rs_b + j*w*Ls_b)*len_b;
+    Ycb = w*Cp_b*(j + D)*len_b;
     
     % define digitizer input impedance Cp-Rp:
     Cp_i = 50e-12;
@@ -312,32 +348,33 @@ function [] = correction_transducer_loading_test()
     u_g(end,end) = NaN;
     
     % build transd. tfer tables:        
-    tran.tfer_gain = correction_load_table({fx,rms,g,u_g},'rms',{'f','gain','u_gain'});
-    tran.tfer_phi = correction_load_table({fx,rms,p,u_p},'rms',{'f','phi','u_phi'});
+    tran.tfer_gain = correction_load_table({f,rms,g,u_g},'rms',{'f','gain','u_gain'});
+    tran.tfer_phi = correction_load_table({f,rms,p,u_p},'rms',{'f','phi','u_phi'});
+    
+    U = ones(F,1);
     
     % build RVD's low-side impedance table:
-    tran.Zlo = correction_load_table({f,real(1./Zlo_ef),imag(1./Zlo_ef)./w,0,0},'',{'f','Rp','Cp','u_Rp','u_Cp'});
+    tran.Zlo = correction_load_table({f,1./real(1./Zlo_ef),imag(1./Zlo_ef)./w,0*U,0*U},'',{'f','Rp','Cp','u_Rp','u_Cp'});
     tran.has_Zlo = 1;
     
     % build terminal tables:    
-    tran.Zca = correction_load_table({f,real(Zca),imag(Zca)./w,0,0},'',{'f','Rs','Ls','u_Rs','u_Ls'});
+    tran.Zca = correction_load_table({f,real(Zca),imag(Zca)./w,0*U,0*U},'',{'f','Rs','Ls','u_Rs','u_Ls'});
     tran.has_Zca = 1;
-    tran.Yca = correction_load_table({f,imag(Yca)./w,imag(Yca)./real(Yca),0,0},'',{'f','Cp','D','u_Cp','u_D'});
+    tran.Yca = correction_load_table({f,imag(Yca)./w,imag(Yca)./real(Yca),0*U,0*U},'',{'f','Cp','D','u_Cp','u_D'});
     tran.has_Yca = 1;
     
     % build cable tables:
-    tran.Zcb = correction_load_table({f,real(Zcb),imag(Zcb)./w,0,0},'',{'f','Rs','Ls','u_Rs','u_Ls'});
+    tran.Zcb = correction_load_table({f,real(Zcb),imag(Zcb)./w,0*U,0*U},'',{'f','Rs','Ls','u_Rs','u_Ls'});
     tran.has_Zcb = 1;
-    tran.Ycb = correction_load_table({f,imag(Ycb)./w,imag(Ycb)./real(Ycb),0,0},'',{'f','Cp','D','u_Cp','u_D'});
+    tran.Ycb = correction_load_table({f,imag(Ycb)./w,imag(Ycb)./real(Ycb),0*U,0*U},'',{'f','Cp','D','u_Cp','u_D'});
     tran.has_Ycb = 1;
        
     % digitizer's input impedance:
-    dig.Yin = correction_load_table({f,imag(Yin)./w,real(Yin),0,0},'',{'f','Cp','Gp','u_Cp','u_Gp'});
-    
-    
+    dig.Yin = correction_load_table({f,imag(Yin)./w,real(Yin),0*U,0*U},'',{'f','Cp','Gp','u_Cp','u_Gp'});
     
     % calculate using the tested algorithm:
     [tran_n,tfer,u_tfer] = correction_transducer_loading(tran,dig);
+    tran_n.tfer_gain
     tfer
     u_tfer
     
@@ -396,7 +433,9 @@ function [Y,uY] = Z_inv(Z,uZ)
   uRs = real(uZ);
   uXs = imag(uZ);
   
-  uGp = (4*Rs.^2.*Xs.^2.*uXs.^2+(Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uRs.^2).^0.5./(Xs.^8+4*Rs.^2.*Xs.^6+6.*Rs.^4.*Xs.^4+4*Rs.^6.*Xs.^2+Rs.^8).^0.5; 
+  uGp = (4*Rs.^2.*Xs.^2.*uXs.^2+(Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uRs.^2).^0.5./(Xs.^8+4*Rs.^2.*Xs.^6+6*Rs.^4.*Xs.^4+4*Rs.^6.*Xs.^2+Rs.^8).^0.5;
+  %uGp =  (4*Rs.^2.*Xs.^2.*uXs.^2+(Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uRs.^2).^0.5./(Xs.^8+4*Rs.^2.*Xs.^6+6*Rs.^4.*Xs.^4+4*Rs.^6.*Xs.^2+Rs.^8).^0.5;
+  %uGp = ((4*Rs.^2.*Xs.^2.*uXs.^2)./(Xs.^2+Rs.^2).^4+(1./(Xs.^2+Rs.^2)-(2*Rs.^2)./(Xs.^2+Rs.^2).^2).^2.*uRs.^2).^0.5;  
   uBp = ((Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uXs.^2+4*Rs.^2.*Xs.^2.*uRs.^2).^0.5./(Xs.^8+4*Rs.^2.*Xs.^6+6*Rs.^4.*Xs.^4+4*Rs.^6.*Xs.^2+Rs.^8).^0.5;
   
   Y = complex(1./Z);
@@ -408,13 +447,14 @@ end
 % conversion of Z-phi [Ohm-rad] scheme to complex Y scheme with uncertainty
 % note: it has been crippled by the bsxfun() for Matlab < 2016b - do not remove!
 function [Z,u_Z] = Zphi2Z(Z,phi,u_Z,u_phi)
- 
-    % Z = Z*e(j*phi) [Ohm + jOhm]:
-    Z = Z.*exp(j*phi); 
     
     % re: sqrt(Z^2*sin(phi)^2*u_phi^2+cos(phi)^2*u_Z^2):
     % im: sqrt(g^2*cos(p)^2*u_p^2+sin(p)^2*u_g^2):
-    u_Z = sqrt(Z.^2.*sin(phi).^2.*u_phi.^2 + cos(phi).^2.*u_Z.^2) + j*sqrt(Z.^2.*cos(phi).^2.*u_phi.^2 + sin(phi).^2.*u_Z.^2);
+    %u_Z = sqrt(Z.^2.*sin(phi).^2.*u_phi.^2 + cos(phi).^2.*u_Z.^2) + j*sqrt(Z.^2.*cos(phi).^2.*u_phi.^2 + sin(phi).^2.*u_Z.^2);
+    u_Z = (Z.^2.*sin(phi).^2.*u_phi.^2 + cos(phi).^2.*u_Z.^2).^0.5 + j*(Z.^2.*cos(phi).^2.*u_phi.^2 + sin(phi).^2.*u_Z.^2).^0.5;
+       
+    % Z = Z*e(j*phi) [Ohm + jOhm]:
+    Z = Z.*exp(j*phi); 
 
 end
 
@@ -423,10 +463,6 @@ end
 % note: it has been crippled by the bsxfun() for Matlab < 2016b - do not remove!
 function [Z,phi,u_Z,u_phi] = Z2Zphi(Z,u_Z)
  
-    % convert to polar:
-    Z = abs(Z);
-    phi = arg(Z);
-    
     % extract real and imag parts:
     re = real(Z);
     im = imag(Z);
@@ -434,10 +470,16 @@ function [Z,phi,u_Z,u_phi] = Z2Zphi(Z,u_Z)
     u_im = imag(u_Z);
         
     % sqrt(re^2*u_re^2+im^2*u_im^2)/sqrt(re^2+im^2)):
-    u_Z = sqrt(re.^2.*u_re.^2 + im.^2.*u_im.^2)./sqrt(re.^2 + im.^2);
+    %u_Z = sqrt(re.^2.*u_re.^2 + im.^2.*u_im.^2)./sqrt(re.^2 + im.^2);
+    u_Z = (re.^2.*u_re.^2 + im.^2.*u_im.^2).^0.5./(re.^2 + im.^2).^0.5;
     
     % sqrt(im^2*u_re^2+re^2*u_im^2)/(re^2+im^2):
-    u_phi = sqrt(im.^2.*u_re.^2 + re.^2.*u_im.^2)./(re.^2 + im.^2); 
+    %u_phi = sqrt(im.^2.*u_re.^2 + re.^2.*u_im.^2)./(re.^2 + im.^2);
+    u_phi = (im.^2.*u_re.^2 + re.^2.*u_im.^2).^0.5./(re.^4 + 2*im.^2.*re.^2 + im.^4).^0.5;
+    
+    % convert to polar:
+    phi = arg(Z);
+    Z = abs(Z); 
 
 end
 
