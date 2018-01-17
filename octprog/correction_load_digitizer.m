@@ -25,9 +25,12 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
 
     % no correction data defined - load blank (defaults)?
     use_default = isempty(cor_path);
-    
+        
     % measurement's root folder:
     meas_root = meas.meas_folder;
+    
+    % build correction's absolute path:
+    cor_path = [meas_root filesep() cor_path];
 
     if ~use_default
        
@@ -63,6 +66,9 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
     else
         % defaults:        
         dig.name = 'blank digitizer';
+        
+        % generate blank correction file info-string:
+        dinf = '';
     end
         
     % --- try to load interchannel timeshifts

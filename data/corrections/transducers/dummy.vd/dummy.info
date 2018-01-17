@@ -9,6 +9,7 @@ serial number:: n/a
 
 % nominal/DC ratio [Vin/Vout]
 nominal ratio:: 1.0
+nominal ratio uncertainty:: 0.0
 
 % path to the CSV file with frequency dependence of the transducer coefficient
 % note: leave empty or remove if not used

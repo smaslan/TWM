@@ -1061,6 +1061,8 @@
 			<Item Name="Advapi32.dll" Type="Document" URL="Advapi32.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
+			<Item Name="GOLPI struct test.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI struct test.vi"/>
+			<Item Name="Struct Get.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/Struct Get.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM" Type="EXE">

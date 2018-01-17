@@ -198,27 +198,39 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     % ====== CORRECTIONS SECTION ======
     
     % load corrections section from meas. header
-    cinf = infogetsection(inf, 'corrections');
+    cinf = infogetsection(inf, 'measurement setup configuration');
     
     % get phase index for each channel
     corr.phase_idx = infogetmatrix(cinf, 'channel phase indexes');
      
     
+    
     % --- Transducer Corrections ---
+    
+    disp('loading transducers')
     
     % get transducer paths
     transducer_paths = infogetmatrixstr(cinf, 'transducer paths');
     
-    if numel(corr.phase_idx) && (numel(corr.phase_idx) ~= data.channels_count || numel(transducer_paths) ~= data.channels_count)
-        error('Transducers count does not match channel count!');
+    if numel(corr.phase_idx) > data.channels_count || numel(transducer_paths) > data.channels_count
+        error('TWM measurement loader: Transducers count is higher than digitizer channels count!');
     end
     has_transducers = ~~numel(transducer_paths);
+        
+    % load transducer to digitizer mapping matrix:
+    tr_map = infogetmatrix(cinf, 'transducer to digitizer channels mapping');
     
-    disp('loading transducers')
+    if numel(transducer_paths) && numel(transducer_paths) ~= size(tr_map,1)
+        error('TWM measurement loader: Transducers count does not match number of rows in the ''transducer to digitizer channels mapping'' matrix!');
+    end
+    if isempty(tr_map)
+        tr_map = [1:data.channels_count]';
+    end
     
     % load tranducer correction files
+    tr_chn_all = [];
     corr.tran = {struct()};  
-    for t = 1:data.channels_count
+    for t = 1:numel(transducer_paths)
       
         % build absolute transducer correction path
         if has_transducers
@@ -229,7 +241,27 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
         
         % try to load the correction
         corr.tran{t} = correction_load_transducer(t_file);
+        
+        % load list of digitzer channels attached to this transducer:
+        tr_chn = tr_map(t,:);
+        tr_chn = tr_chn(~isnan(tr_chn));
+        
+        % check valid range of the digitizer channels:
+        if any(tr_chn > data.channels_count) || any(tr_chn == 0)
+            error(sprintf('TWM measurement loader: Some of the assigned digitizer indexes for channel #%d is out of range of available digitizer channels in matrix ''transducer to digitizer channels mapping''!'));
+        end
+                
+        % store the channel list
+        corr.tran{t}.channels = tr_chn;
+        
+        % collect all used channel indexes:        
+        tr_chn_all = [tr_chn_all, tr_chn];
       
+    end
+    
+    % check for duplicate digitizer channels in the mapping: 
+    if numel(unique(tr_chn_all)) ~= numel(tr_chn_all)
+        error(sprintf('TWM measurement loader: It seems there are duplicate digitizer channel indexes in the matrix ''transducer to digitizer channels mapping''!'));    
     end
     
   
@@ -238,23 +270,11 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     disp('loading digitizer')
     
     % get digitizer corrections path:
-    digitizer_path = [data.meas_folder filesep() infogettext(cinf, 'digitizer path')];
+    digitizer_path = infogettext(cinf, 'digitizer corrections path');
         
     % load digitizer corrections:
     corr.dig = correction_load_digitizer(digitizer_path, inf, data, 1, group_id);
     
-
-    % --- Apply Loading Corrections ---
-    % This section will try to calculate the effect of the cable and digitizer's input impedance
-    % on the frequency transfer of the transducer. If it can be done (all required correction
-    % items were found), it will modify the transducer's gain and phase transfer accordingly.
-    % It will also proceed the uncertainty of the corretions to the new gain and phase uncertainty.
-    
-    for c = 1:data.channels_count
-    
-        corr.tran{c} = correction_transducer_loading(corr.tran{c},corr.dig.chn{c});
-    
-    end   
     
     % return corrections
     data.corr = corr;
