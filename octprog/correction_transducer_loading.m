@@ -41,7 +41,7 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
 %  (shunt) |  +----+  |  +----+     +----+  |  +----+     |
 %         +++        +++                   +++           +++
 %         | |        | |                   | |           | |
-%         | | Zlo    | | Yca (optional)    | | Ycb       | | inp_Y
+%         | | Zlo    | | Yca (optional)    | | Ycb       | | Yin
 %         +++        +++                   +++           +++
 %  0V      |          |                     |             |     0V
 %  o-------+----------+----------o----------+----------o--+-----o
@@ -158,26 +158,42 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
     
     % Zlo unloaded by the 0.5Zca-Yca shunting impedance:
     Zlo_ef = 1./(1./Zlo - 1./(0.5*Zca + 1./Yca));
-    % relative effect to the transfer:
-    k_zl = Zlo./Zlo_ef;
-    Zlo = Zlo_ef;
     
     % the complex transfer of the 0.5Zca-Yca divider (out/in):
     k_ca = 2./(Yca.*Zca+2);
     
-    % calculate actual, unloaded ratio of the transducer (in/out):
-    tr = tr.*k_ca.*k_zl;
-
-        
+    % fix the error due to the terminals loading:
+    tr = tr.*k_ca;
+    
     if is_rvd
-        % RVD: calculate top side impedance Zhi:        
-        % Zhi = Zlo.*(tr - 1);
+        % for RVD:
         
+        % high-side impedance:        
+        Zhi = Zlo.*(tr - 1);
+        
+        % relative change of the low-side impedance due to loading:        
+        LD = Zlo_ef./Zlo;
+                
+        % calculate loaded transfer (in/out):
+        tr = (Zlo.*LD + Zhi)./(Zlo.*LD);
+        
+        % continue with the corrected low-side impedance:  
+        Zlo = Zlo_ef;
+    
     else
-        % shunt: recalculate its impedance from the unloaded ratio:
+        % for Shunt:
+        
+        % relative effect to the transfer:
+        k_zl = Zlo./Zlo_ef;
+        
+        % calculate actual, unloaded ratio of the transducer (in/out):
+        tr = tr.*k_zl;
+        
+        % recalculate its impedance from the unloaded ratio:
         Zlo = 1./tr;
-                               
+        
     end
+       
     
     % --- 2) Calculate total impedance loading of the Zlo:
       
@@ -195,9 +211,26 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
     % calculate loaded low-side impedance:
     Zlo_ef = (Zlo.*Zx)./(Zx + Zlo);
     
-    % correct the transfer by the load effect (in/out):
-    % note: this is not exact solution for RVD but it should be fine...
-    tr = tr.*Zlo./Zlo_ef;  
+    
+    
+    if is_rvd
+        % RVD:
+        
+        % high-side impedance:        
+        Zhi = Zlo.*(tr - 1);
+        
+        % relative change of the low-side impedance due to loading:        
+        LD = Zlo_ef./Zlo;
+        
+        % calculate loaded transfer (in/out):
+        tr = (Zlo.*LD + Zhi)./(Zlo.*LD);
+        
+    else
+        % correct the transfer by the load effect (in/out):
+        % note: this is not exact solution for RVD but it should be fine...
+        tr = tr.*Zlo./Zlo_ef;
+    end
+      
     
     % --- 3) Apply tfer of the whole terminal-cable-digitizer chain to the trans. tfer:    
     tr = tr.*k_in.*k_cb.*k_te;
@@ -234,12 +267,21 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
     
     % overwrite original transducer's transfer:
     % note: preserve original custom data, i.e. the qwtb variable naming setup
-    qw = tran.tfer_gain.qwtb;
+    try
+        qw = tran.tfer_gain.qwtb;
+    end
     tran.tfer_gain = correction_load_table({fx,rms,g,u_g},'rms',{'f','gain','u_gain'});
-    tran.tfer_gain.qwtb = qw;
-    qw = tran.tfer_phi.qwtb;
+    try
+        tran.tfer_gain.qwtb = qw;
+    end
+    clear qw;
+    try
+        qw = tran.tfer_phi.qwtb;
+    end
     tran.tfer_phi = correction_load_table({fx,rms,p,u_p},'rms',{'f','phi','u_phi'});
-    tran.tfer_phi.qwtb = qw;
+    try
+        tran.tfer_phi.qwtb = qw;
+    end
 
 end
 
@@ -299,12 +341,12 @@ function [] = correction_transducer_loading_test()
     Zhi = 1./(1/((D - 1)*Rlo) + j*w*Chi);
     
     % define terminals impedances:
-    Ls_a = 100e-9;
+    Ls_a = 1000e-9;
     Rs_a = 50e-3;
-    Cp_a = 10e-12;
+    Cp_a = 100e-12;
     D_a = 0.01;
     Zca = Rs_a + j*w*Ls_a;
-    Yca = w*Cp_a*(j + D);
+    Yca = w*Cp_a*(j + D_a);
     
     % define cable's impedance:
     len_b = 0.5;
@@ -313,12 +355,13 @@ function [] = correction_transducer_loading_test()
     Cp_b = 105e-12;
     D_b = 0.02;
     Zcb = (Rs_b + j*w*Ls_b)*len_b;
-    Ycb = w*Cp_b*(j + D)*len_b;
+    Ycb = w*Cp_b*(j + D_b)*len_b;
     
     % define digitizer input impedance Cp-Rp:
     Cp_i = 50e-12;
     Rp_i = 1e6;
     Yin = 1./Rp_i + j*w*Cp_i;
+    Zin = 1./Yin;
     
     % calculate effective value of the Zlo when loaded by 0.5*Zca-Yca:
     Zlo_ef = 1./(1./Zlo + 1./(1./Yca + 0.5*Zca));
@@ -360,26 +403,62 @@ function [] = correction_transducer_loading_test()
     % build terminal tables:    
     tran.Zca = correction_load_table({f,real(Zca),imag(Zca)./w,0*U,0*U},'',{'f','Rs','Ls','u_Rs','u_Ls'});
     tran.has_Zca = 1;
-    tran.Yca = correction_load_table({f,imag(Yca)./w,imag(Yca)./real(Yca),0*U,0*U},'',{'f','Cp','D','u_Cp','u_D'});
+    tran.Yca = correction_load_table({f,imag(Yca)./w,real(Yca)./imag(Yca),0*U,0*U},'',{'f','Cp','D','u_Cp','u_D'});
     tran.has_Yca = 1;
     
     % build cable tables:
     tran.Zcb = correction_load_table({f,real(Zcb),imag(Zcb)./w,0*U,0*U},'',{'f','Rs','Ls','u_Rs','u_Ls'});
     tran.has_Zcb = 1;
-    tran.Ycb = correction_load_table({f,imag(Ycb)./w,imag(Ycb)./real(Ycb),0*U,0*U},'',{'f','Cp','D','u_Cp','u_D'});
+    tran.Ycb = correction_load_table({f,imag(Ycb)./w,real(Ycb)./imag(Ycb),0*U,0*U},'',{'f','Cp','D','u_Cp','u_D'});
     tran.has_Ycb = 1;
-       
+
     % digitizer's input impedance:
     dig.Yin = correction_load_table({f,imag(Yin)./w,real(Yin),0*U,0*U},'',{'f','Cp','Gp','u_Cp','u_Gp'});
     
     % calculate using the tested algorithm:
     [tran_n,tfer,u_tfer] = correction_transducer_loading(tran,dig);
-    tran_n.tfer_gain
-    tfer
-    u_tfer
+    tran_n.tfer_gain.gain
+    tran_n.tfer_phi.phi
+    %tfer
+    %u_tfer
     
     
-    % --- now the fun part - exact solution ---    
+    
+    % --- now the fun part - exact solution ---
+    
+    % move frequency dependence to the third dim:
+    Zhi = reshape(Zhi,[1,1,F]);
+    Zlo = reshape(Zlo,[1,1,F]);
+    Zin = reshape(Zin,[1,1,F]);
+    Zca = reshape(Zca,[1,1,F]);
+    Yca = reshape(Yca,[1,1,F]);
+    Zcb = reshape(Zcb,[1,1,F]);
+    Ycb = reshape(Ycb,[1,1,F]);
+    Z = zeros(size(Zhi));
+
+    % loop-currents matrix:
+    L = [ Zhi+Zlo  -Zlo                  Z                               Z;
+         -Zlo       Zlo+0.5*Zca+1./Yca  -1./Yca                          Z;
+          Z        -1./Yca               1./Yca+0.5*Zca+0.5*Zcb+1./Ycb  -1./Ycb;
+          Z         Z                   -1./Ycb                          1./Ycb+0.5*Zcb+Zin];
+
+    % define loop voltages:
+    U = [1;0;0;0];
+    
+    % solve for each frequency: 
+    I = [];
+    for k = 1:F       
+        I(:,k) = L(:,:,k)\U;
+    end
+    
+    U_out = I(4,:)(:).*Zin(:);
+    
+    tfer_ex = 1./U_out;
+    
+    abs(tfer_ex)
+    arg(tfer_ex)
+    
+    %tfer_ex./k_ef
     
     
     

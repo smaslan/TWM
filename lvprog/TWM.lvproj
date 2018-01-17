@@ -709,6 +709,7 @@
 				<Item Name="Corr Setup.ctl" Type="VI" URL="../measure/Corrections/Corr Setup.ctl"/>
 				<Item Name="Corr Tranducer Item.ctl" Type="VI" URL="../measure/Corrections/Corr Tranducer Item.ctl"/>
 				<Item Name="Corr Tranducers Setup.ctl" Type="VI" URL="../measure/Corrections/Corr Tranducers Setup.ctl"/>
+				<Item Name="Corr Tranducer ADC Channel.ctl" Type="VI" URL="../measure/Corrections/Corr Tranducer ADC Channel.ctl"/>
 				<Item Name="Corr Digitizers.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizers.ctl"/>
 				<Item Name="Corr Digitizer Channel.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer Channel.ctl"/>
 				<Item Name="Corr Panel.vi" Type="VI" URL="../measure/Corrections/Corr Panel.vi"/>
@@ -717,6 +718,7 @@
 				<Item Name="Corr Transducers Build Meas Paths.vi" Type="VI" URL="../measure/Corrections/Corr Transducers Build Meas Paths.vi"/>
 				<Item Name="Corr Transducers To Meas Folder.vi" Type="VI" URL="../measure/Corrections/Corr Transducers To Meas Folder.vi"/>
 				<Item Name="Corr Transducers to Meas Header.vi" Type="VI" URL="../measure/Corrections/Corr Transducers to Meas Header.vi"/>
+				<Item Name="Corr Transducers Fill ADC Channel Lists.vi" Type="VI" URL="../measure/Corrections/Corr Transducers Fill ADC Channel Lists.vi"/>
 				<Item Name="Corr Digitizer Open.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Open.vi"/>
 				<Item Name="Corr Digitizer Reload.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Reload.vi"/>
 				<Item Name="Corr Digitizer Check.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Check.vi"/>
@@ -1059,8 +1061,6 @@
 			<Item Name="Advapi32.dll" Type="Document" URL="Advapi32.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="GOLPI struct test.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI struct test.vi"/>
-			<Item Name="Struct Get.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/Struct Get.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM" Type="EXE">
