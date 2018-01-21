@@ -40,6 +40,9 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         % load corrections info file:
         dinf = infoload(cor_path);
         
+        % parse info file (speedup):
+        dinf = infoparse(dinf);
+        
         % check correction file validity:    
         ctype = infogettext(dinf, 'type');    
         if ~strcmpi(ctype,'digitizer')
@@ -50,7 +53,7 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         dig.name = infogettext(dinf, 'name');
         
         % load list of the digitizer's channel names from the correction file:
-        chn_names = infogetmatrixstr(dinf, 'channel identifiers');
+        chn_names = infogettextmatrix(dinf, 'channel identifiers');
         
         % check if the correction file matches to the measurement header instruments:
         if ~all(strcmpi(chn_names,meas.channel_names))
@@ -58,7 +61,7 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         end
             
         % load channel correction paths:
-        chn_paths = infogetmatrixstr(dinf, 'channel correction paths');
+        chn_paths = infogettextmatrix(dinf, 'channel correction paths');
         % check consistency:
         if numel(chn_paths) ~= numel(chn_names)
             error('Digitizer correction loader: Number of digitizer''s channels does not match.');

@@ -9,11 +9,18 @@ cd(mfld);
 addpath([mfld filesep() 'info']);
 addpath([mfld filesep() 'qwtb']);
 
+
+%str = infosettextmatrix('','matrix',{'ass' 'jedna';'biatch' 'dva'})
+
+inf = ['hovno' char(10)];
+inf = infosetsection(inf,['biatch' char(10) 'bla'],{})
+
+
 %meas_root = [mfld '\..\temp\stst'];
-file = [mfld '\..\temp\sim\session_doc.info'];
+%file = [mfld '\..\temp\sim\session_doc.info'];
 
 %meas = tpq_load_record(file,-1,1);
-qwtb_exec_algorithm(file,0,1,1);
+%qwtb_exec_algorithm(file,0,1,1);
 
 return;
 

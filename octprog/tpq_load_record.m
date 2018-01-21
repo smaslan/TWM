@@ -55,6 +55,9 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     
     % try to load header file 
     inf = infoload(header);
+    
+    % parse the info file (faster usage): 
+    inf = infoparse(inf);
        
     % get total groups count in the header file 
     data.groups_count = infogetnumber(inf,'groups count');
@@ -101,7 +104,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     data.is_temperature = infogetnumber(inf, 'temperature available') > 0;
     
     % get names of the digitizer channels
-    data.channel_names = infogetmatrixstr(inf, 'channel descriptors');
+    data.channel_names = infogettextmatrix(inf, 'channel descriptors');
       
     
     % ====== GROUP SECTION ======
@@ -113,7 +116,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     data.meas_folder = fileparts(header);
     
     % get record file names
-    record_names = infogetmatrixstr(ginf, 'record sample data files');
+    record_names = infogettextmatrix(ginf, 'record sample data files');
     
     % sample counts for each record in the average group
     sample_counts = infogetmatrix(ginf, 'record samples counts');
@@ -201,7 +204,11 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     cinf = infogetsection(inf, 'measurement setup configuration');
     
     % get phase index for each channel
-    corr.phase_idx = infogetmatrix(cinf, 'channel phase indexes');
+    corr.phase_idx = infogetmatrix(cinf, 'channel phase indexes');    
+    if isempty(corr.phase_idx)
+        % generate default phase order if not available in the header: 
+        corr.phase_idx = [1:data.channels_count].';    
+    end
      
     
     
@@ -210,7 +217,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     disp('loading transducers')
     
     % get transducer paths
-    transducer_paths = infogetmatrixstr(cinf, 'transducer paths');
+    transducer_paths = infogettextmatrix(cinf, 'transducer paths');
     
     if numel(corr.phase_idx) > data.channels_count || numel(transducer_paths) > data.channels_count
         error('TWM measurement loader: Transducers count is higher than digitizer channels count!');
@@ -227,10 +234,17 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
         tr_map = [1:data.channels_count]';
     end
     
+    
+    TC = numel(transducer_paths);
+    if ~TC
+        % if not transducers are defined, generate fake ones, one for each digitizer channel:
+        TC = data.channels_count;
+    end
+        
     % load tranducer correction files
     tr_chn_all = [];
-    corr.tran = {struct()};  
-    for t = 1:numel(transducer_paths)
+    corr.tran = {struct()};
+    for t = 1:TC
       
         % build absolute transducer correction path
         if has_transducers

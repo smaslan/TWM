@@ -44,7 +44,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
   
   
   % get list of QWTB algorithm parameter names 
-  parameter_names = infogetmatrixstr(qinf, 'list of parameter names');
+  parameter_names = infogettextmatrix(qinf, 'list of parameter names');
   
   % inputs of the algorithm
   inputs = struct();
@@ -56,7 +56,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
     name = parameter_names{p};
       
     % get values of the parameter 
-    values = infogetmatrixstr(qinf, name);    
+    values = infogettextmatrix(qinf, name);    
     % try to convert them to numeric
     num_values = cellfun('str2num', values, 'UniformOutput', false);
     
@@ -174,7 +174,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
     for p = 1:numel(phases)
       list{p} = sprintf('L%d',phases(p));
     end     
-    rinf = infosetmatrixstr(rinf, 'list', list);    
+    rinf = infosettextmatrix(rinf, 'list', list);    
     infosave(rinf, result_path);
     
     % --- for each unique phase:
@@ -222,7 +222,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
     % single input algorithm
     
     % store list of channels to results file         
-    rinf = infosetmatrixstr(rinf, 'list', channels);
+    rinf = infosettextmatrix(rinf, 'list', channels);
     infosave(rinf, result_path);
     
     % --- for each available channel
@@ -232,7 +232,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
       di = inputs;
       
       % store channel corrections:
-      di = qwtb_alg_insert_chn_corr(di,data,p)
+      di = qwtb_alg_insert_chn_corr(di,data,p);
       
       % store time vector
       di.Ts.v = data.Ts;
@@ -268,7 +268,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
     rinf = infoload(results_header);
     
     % try to get algorithms list
-    algs = infogetmatrixstr(rinf, 'algorithms');
+    algs = infogettextmatrix(rinf, 'algorithms');
     
   catch
     % no algorithms yet
@@ -279,7 +279,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
   % load lists of available results for each algorithm
   algs_hist = {};
   for a = 1:numel(algs)
-    algs_hist{a,1} = infogetmatrixstr(rinf, algs{a});   
+    algs_hist{a,1} = infogettextmatrix(rinf, algs{a});   
   end
   
   % check if this algorithm is already listed?
@@ -324,11 +324,11 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
   rinf = infosetnumber(rinf, 'last result id', rid);
   
   % store updated list of algorithms
-  rinf = infosetmatrixstr(rinf, 'algorithms', algs);
+  rinf = infosettextmatrix(rinf, 'algorithms', algs);
     
   % store lists of results for each algorithm
   for a = 1:numel(algs)
-    rinf = infosetmatrixstr(rinf, algs{a}, algs_hist{a});    
+    rinf = infosettextmatrix(rinf, algs{a}, algs_hist{a});    
   end
   
   % write updated results header back to the file 

@@ -1,32 +1,34 @@
-function succes = infosave(infostr, filename, varargin)%<<<1
-% -- Function File: infosave ( INFOSTR, FILENAME)
-% -- Function File: infosave ( INFOSTR, FILENAME, AUTOEXTENSION)
-% -- Function File: infosave ( INFOSTR, FILENAME, AUTOEXTENSION,
-%          OVERWRITE)
-%     Save info string INFOSTR into file 'FILENAME.info' as text.
-%     Extension '.info' is added automatically if missing, this can be
-%     prevented by setting AUTOEXTENSION to zero.  If OVERWRITE is set,
-%     existing file is overwritten.
-%
-%     Example:
-%          infosave('key:: val', 'test_file')
-%          infosave('key:: val', 'test_file_with_other_extension.txt', 0)
+## Copyright (C) 2014 Martin Šíra %<<<1
+##
 
-% Copyright (C) 2014 Martin Šíra %<<<1
-%
+## -*- texinfo -*-
+## @deftypefn {Function File} infosave (@var{infostr}, @var{filename})
+## @deftypefnx {Function File}  infosave (@var{infostr}, @var{filename}, @var{autoextension})
+## @deftypefnx {Function File}  infosave (@var{infostr}, @var{filename}, @var{autoextension}, @var{overwrite})
+## Save info string @var{infostr} into file `@var{filename}.info` as text. Extension `.info`
+## is added automatically if missing, this can be prevented by setting @var{autoextension}
+## to zero. If @var{overwrite} is set, existing file is overwritten.
+##
+## Example:
+## @example
+## infosave('key:: val', 'test_file')
+## infosave('key:: val', 'test_file_with_other_extension.txt', 0)
+## @end example
+## @end deftypefn
 
-% Author: Martin Šíra <msiraATcmi.cz>
-% Created: 2014
-% Version: 1.5
-% Script quality:
-%   Tested: yes
-%   Contains help: yes
-%   Contains example in help: no
-%   Checks inputs: yes
-%   Contains tests: no
-%   Contains demo: no
-%   Optimized: N/A
+## Author: Martin Šíra <msiraATcmi.cz>
+## Created: 2014
+## Version: 4.0
+## Script quality:
+##   Tested: yes
+##   Contains help: yes
+##   Contains example in help: no
+##   Checks inputs: yes
+##   Contains tests: no
+##   Contains demo: no
+##   Optimized: N/A
 
+function succes = infosave(infostr, filename, varargin) %<<<1
         % input possibilities:
         %       infostr, filename
         %       infostr, filename, autoextension
@@ -35,7 +37,7 @@ function succes = infosave(infostr, filename, varargin)%<<<1
         % check inputs %<<<2
         if (nargin<2 || nargin>4)
                 print_usage()
-        end
+        endif
         if nargin == 2
                 autoextension = 1;
                 overwrite = 0;
@@ -45,10 +47,10 @@ function succes = infosave(infostr, filename, varargin)%<<<1
         else
                 autoextension = varargin{1};
                 overwrite = varargin{2};
-        end
+        endif
         if (~ischar(filename) || ~ischar(infostr))
                 error('infosave: infostr and filename must be strings')
-        end
+        endif
 
         % check extension %<<<2
         if autoextension
@@ -60,24 +62,24 @@ function succes = infosave(infostr, filename, varargin)%<<<1
                         if ~strcmpi(filename(end-4:end), '.info')
                                 % extension .info is missing
                                 filename = [filename '.info'];
-                        end
-                end
-        end
+                        endif
+                endif
+        endif
         % check if file exist:
         if ~overwrite
                 if exist(filename, 'file')
                         error(['infosave: file `' filename '` already exists'])
-                end
-        end
+                endif
+        endif
 
         % write file %<<<2
         fid = fopen (filename, 'w');
         if fid == -1
                 error(['infosavefile: error opening file `' filename '`'])
-        end
+        endif
         fprintf(fid, '%s', infostr);
         fclose(fid);
-end
+endfunction
 
 % --------------------------- tests: %<<<1
 %!shared fn, fne, cont
@@ -94,5 +96,3 @@ end
 %! delete(fn);
 %!error(infosave(5));
 %!error(infosave(cont, 5));
-
-% vim settings modeline: vim: foldmarker=%<<<,%>>> fdm=marker fen ft=octave textwidth=1000

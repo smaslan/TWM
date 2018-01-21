@@ -395,13 +395,15 @@
 							<Item Name="Get 1D CXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D CXT.vi"/>
 							<Item Name="Get 1D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D EXT.vi"/>
 							<Item Name="Get 1D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D I64.vi"/>
-							<Item Name="Get 1D U64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D U64.vi"/>
 							<Item Name="Get 1D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D String.vi"/>
 							<Item Name="Get 1D Time Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D Time Stamp.vi"/>
+							<Item Name="Get 1D U64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D U64.vi"/>
 							<Item Name="Get 2D CXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D CXT.vi"/>
 							<Item Name="Get 2D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D EXT.vi"/>
 							<Item Name="Get 2D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D I64.vi"/>
 							<Item Name="Get 2D U64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D U64.vi"/>
+							<Item Name="Get 2D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D String.vi"/>
+							<Item Name="Get 2D Time Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D Time Stamp.vi"/>
 						</Item>
 						<Item Name="Testing" Type="Folder">
 							<Item Name="test library.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Testing/test library.vi"/>
@@ -410,6 +412,7 @@
 						<Item Name="Utilities" Type="Folder">
 							<Item Name="Add spaces.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Add spaces.vi"/>
 							<Item Name="Assure Newline at End.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Assure Newline at End.vi"/>
+							<Item Name="Convert String to Time Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Convert String to Time Stamp.vi"/>
 							<Item Name="Create 1D Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Create 1D Table.vi"/>
 							<Item Name="Create 2D Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Create 2D Table.vi"/>
 							<Item Name="Create key line.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Create key line.vi"/>
@@ -417,11 +420,13 @@
 							<Item Name="Create Table Heading.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Create Table Heading.vi"/>
 							<Item Name="EOL.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/EOL.vi"/>
 							<Item Name="Exist Section.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Exist Section.vi"/>
+							<Item Name="Flatten to CSV Record.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Flatten to CSV Record.vi"/>
 							<Item Name="Get Key Line.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Get Key Line.vi"/>
 							<Item Name="Get Matrix String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Get Matrix String.vi"/>
 							<Item Name="Get Section Indentation Length.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Get Section Indentation Length.vi"/>
 							<Item Name="Indent Size.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Indent Size.vi"/>
 							<Item Name="Insert.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Insert.vi"/>
+							<Item Name="Parse CSV String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Parse CSV String.vi"/>
 							<Item Name="RegExpTranslate.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/RegExpTranslate.vi"/>
 							<Item Name="Remove all sections.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Remove all sections.vi"/>
 						</Item>
@@ -1061,8 +1066,6 @@
 			<Item Name="Advapi32.dll" Type="Document" URL="Advapi32.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="GOLPI struct test.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI struct test.vi"/>
-			<Item Name="Struct Get.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Struct/Struct Get.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM" Type="EXE">

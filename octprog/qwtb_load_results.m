@@ -87,6 +87,9 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
   % load results header
   inf = infoload(res_header);
   
+  % parse the results header:
+  inf = infoparse(inf);
+  
   % try load last algorithm ID
   try 
     last_alg = infogettext(inf, 'last algorithm');
@@ -110,7 +113,7 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
   
   % list of calculated algorithms
   try 
-    algs = infogetmatrixstr(inf, 'algorithms');
+    algs = infogettextmatrix(inf, 'algorithms');
   catch
     % no list - something is wrong
     error('QWTB results viewer: List of calculated algorithms does not exist!');
@@ -124,7 +127,7 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
   
   % list of calculated algorithms
   try 
-    res_files = infogetmatrixstr(inf, algs{aid});
+    res_files = infogettextmatrix(inf, algs{aid});
   catch
     error('QWTB results viewer: Desired algorithm''s result not available in the results header! Possibly inconsitent results header file.');
   end
@@ -165,7 +168,7 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
     % get result file
     res_file = res_files{temp_res_id};
     
-    % load selected result file
+    % load selected result file    
     res = qwtb_parse_result(res_file, cfg, var_list);
     L = numel(res);
     

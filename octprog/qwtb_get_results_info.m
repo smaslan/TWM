@@ -36,7 +36,7 @@ function [res_files, res_exist] = qwtb_get_results_info(meas_root, alg_id)
   
   % list of calculated algorithms
   try 
-    algs = infogetmatrixstr(inf, 'algorithms');
+    algs = infogettextmatrix(inf, 'algorithms');
   catch
     res_exist = 0;
     return
@@ -50,7 +50,7 @@ function [res_files, res_exist] = qwtb_get_results_info(meas_root, alg_id)
   
   % list of calculated algorithms
   try 
-    res_files = infogetmatrixstr(inf, algs{aid});
+    res_files = infogettextmatrix(inf, algs{aid});
   catch
     error('QWTB results viewer: Desired algorithm''s result not available in the results header! Possibly inconsitent results header file.');
   end

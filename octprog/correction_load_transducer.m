@@ -45,6 +45,9 @@ function [tran] = correction_load_transducer(file)
         
         % try to load the correction file
         inf = infoload(file);
+        
+        % parse info file (speedup):
+        inf = infoparse(inf);
           
         % get correction type id
         t_type = infogettext(inf, 'type');

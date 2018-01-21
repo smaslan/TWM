@@ -39,10 +39,10 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
   res = infosetnumber('phase index', phase_info.index);
   
   % store channel tag (u1, i1, ...)
-  res = infosetmatrixstr(res, 'channel tag', phase_info.tags);
+  res = infosettextmatrix(res, 'channel tag', phase_info.tags);
   
   % store list of variables
-  res = infosetmatrixstr(res, 'variable names', resvars);
+  res = infosettextmatrix(res, 'variable names', resvars);
   
   
   % TODO: filtering of the vairabels to save maybe???? 

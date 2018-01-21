@@ -14,6 +14,6 @@ function [alg_list] = qwtb_parse_alg_filter(list_file)
   end
   
   % try to load list of the algorithms (algorithm IDs)
-  alg_list = infogetmatrixstr(inf, 'list of supported algorithms');
+  alg_list = infogettextmatrix(inf, 'list of supported algorithms');
 
 end

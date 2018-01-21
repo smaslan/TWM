@@ -4,10 +4,10 @@ type:: qwtb list
 // === list of the supported algorithms ===
 // note: enter algorithm ID's, e.g.: PSFE, SFDR, ...
 #startmatrix:: list of supported algorithms
-        WRMS;
-        PSFE;
-        SP-FFT;
-        SP-WFFT;
+        WRMS
+        PSFE
+        SP-FFT
+        SP-WFFT
 #endmatrix:: list of supported algorithms
 
 
@@ -18,7 +18,7 @@ type:: qwtb list
 // parameters:
 //  exclude outputs: matrix of output quantities that will be excluded from display (usually time vector)
 //  graphs: 2D matrix of graph-like outputs (frequency dependence, ...), one row per graph, column: x, y qunatity
-//          example: f; A;
+//          example: f; A
 //  spectrum: output quantity that will be displayed as default frequency spectrum
 //  is phase: matrix of output quantities that are phase (used for phase unit display mode selection [rad/deg])
 //  number formats: 2D matrix of configurations for particular variables, one row per variable, columns:
@@ -33,67 +33,67 @@ type:: qwtb list
 //                    minimum relative uncertainty - minimum relative uncertainty of the quantity (unit-less)
 //                                                 - this will have effect in case no uncertainty is available
 //
-//                  example: f; si; 1e-6; 0.0001;
+//                  example: f; si; 1e-6; 0.0001
 //
 
 #startsection:: WRMS
         #startmatrix:: number formats
-                rms; si; 1e-7; 1e-7;
-                f; si; 1e-6; 1e-6;
-                A; si; 1e-7; 1e-7;
+                rms; si; 1e-7; 1e-7
+                f; si; 1e-6; 1e-6
+                A; si; 1e-7; 1e-7
         #endmatrix:: number formats
         #startmatrix:: graphs
-                f; A;
+                f; A
         #endmatrix:: graphs
         spectrum:: A
 #endsection:: WRMS
 
 #startsection:: PSFE
         #startmatrix:: number formats
-                f; si; 1e-6; 1e-6;
-                A; si; 1e-7; 1e-7;
-                ph; f; 1e-7; 1e-7;
+                f; si; 1e-6; 1e-6
+                A; si; 1e-7; 1e-7
+                ph; f; 1e-7; 1e-7
         #endmatrix:: number formats
         #startmatrix:: is phase
-                ph;
+                ph
         #endmatrix:: is phase
 #endsection:: PSFE
 
 #startsection:: SP-FFT
         #startmatrix:: exclude outputs
-                f;
+                f
         #endmatrix:: exclude outputs
         #startmatrix:: graphs
-                f; A;
-                f; ph;
+                f; A
+                f; ph
         #endmatrix:: graphs
         #startmatrix:: is phase
-                ph;
+                ph
         #endmatrix:: is phase
         spectrum:: A
         #startmatrix:: number formats
-                f; si; 1e-6; 1e-6;
-                A; si; 1e-6; 1e-6;
-                ph; f; 1e-6; 1e-6;
+                f; si; 1e-6; 1e-6
+                A; si; 1e-6; 1e-6
+                ph; f; 1e-6; 1e-6
         #endmatrix:: number formats
 #endsection:: SP-FFT
 
 #startsection:: SP-WFFT
         #startmatrix:: exclude outputs
-                f;
+                f
         #endmatrix:: exclude outputs
         #startmatrix:: graphs
-                f; A;
-                f; ph;
+                f; A
+                f; ph
         #endmatrix:: graphs
         #startmatrix:: is phase
-                ph;
+                ph
         #endmatrix:: is phase
         spectrum:: A
         #startmatrix:: number formats
-                f; si; 1e-6; 1e-6;
-                A; si; 1e-6; 1e-6;
-                ph; f; 1e-6; 1e-6;
+                f; si; 1e-6; 1e-6
+                A; si; 1e-6; 1e-6
+                ph; f; 1e-6; 1e-6
         #endmatrix:: number formats
 #endsection:: SP-WFFT
 

@@ -1,11 +1,11 @@
-## Copyright (C) 2013 Martin Šíra %<<<1
+## Copyright (C) 2017 Martin Šíra %<<<1
 ##
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} @var{text} = infogetmatrix (@var{infostr}, @var{key})
-## @deftypefnx {Function File} @var{text} = infogetmatrix (@var{infostr}, @var{key}, @var{scell})
+## @deftypefn {Function File} @var{text} = infogettextmatrix (@var{infostr}, @var{key})
+## @deftypefnx {Function File} @var{text} = infogettextmatrix (@var{infostr}, @var{key}, @var{scell})
 ## Parse info string @var{infostr}, finds lines after line
-## '#startmatrix:: key' and before '#endmatrix:: key', parse numbers from lines
+## '#startmatrix:: key' and before '#endmatrix:: key', parse strings from lines
 ## and return as matrix.
 ##
 ## If @var{scell} is set, the key is searched in section(s) defined by string(s) in cell.
@@ -13,12 +13,12 @@
 ## Example:
 ## @example
 ## infostr = sprintf('A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n"a";  "b"; "c" \n"d";"e";         "f"  \n#endmatrix:: simple matrix \n#startmatrix:: time matrix\n  2013-12-11T22:59:30.123456\n  2013-12-11T22:59:35.123456\n#endmatrix:: time matrix\nC:: c without section\n#startsection:: section 1 \n  C:: c in section 1 \n  #startsection:: subsection\n    C:: c in subsection\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: c in section 2\n#endsection:: section 2\n')
-## infogetmatrix(infostr,'simple matrix')
+## infogettextmatrix(infostr,'simple matrix')
 ## @end example
 ## @end deftypefn
 
 ## Author: Martin Šíra <msiraATcmi.cz>
-## Created: 2013
+## Created: 2017
 ## Version: 4.0
 ## Script quality:
 ##   Tested: yes
@@ -29,22 +29,24 @@
 ##   Contains demo: no
 ##   Optimized: no
 
-function matrix = infogetmatrix(varargin) %<<<1
+function matrix = infogettextmatrix(varargin) %<<<1
+        
+        if nargin == 3
+            % fake sections cells because otherwise the parameter checker won't parse them correctly
+            % for the val being a cell array!
+            varargin{end+1} = {};
+        endif
+        
         % identify and check inputs %<<<2
-        [printusage, infostr, key, scell, is_parsed] = get_id_check_inputs('infogetmatrix', varargin{:});
+        [printusage, infostr, key, scell] = get_id_check_inputs('infogettextmatrix', varargin{:});
         if printusage
                 print_usage()
         endif
 
         % get matrix %<<<2
-        infostr = get_matrix('infogetmatrix', infostr, key, scell);
+        infostr = get_matrix('infogettextmatrix', infostr, key, scell);
         % parse csv:
         matrix = csv2cell(infostr);
-        % convert to numbers:
-        % ###note: imho uniformoutput=false not needed, because str2double() never fails, it just returns NaN
-        %matrix = cellfun(@str2double, matrix, 'UniformOutput', false);
-        matrix = cellfun(@str2double, matrix);
-        %matrix = cell2mat(matrix);
 endfunction
 
 function [printusage, infostr, key, scell, is_parsed] = get_id_check_inputs(functionname, varargin) %<<<1
@@ -446,10 +448,10 @@ endfunction
 
 % --------------------------- tests: %<<<1
 %!shared infostr
-%! infostr = sprintf('A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n1;  2   ; 3 \n4;5;         6    \n#endmatrix:: simple matrix \nC:: c without section\n#startsection:: section 1 \n  C:: c in section 1 \n  #startsection:: subsection\n#startmatrix:: simple matrix \n2;  3; 4 \n5;6;         7  \n#endmatrix:: simple matrix \n    C:: c in subsection\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: c in section 2\n#endsection:: section 2\n');
-%!assert(all(all( infogetmatrix(infostr,'simple matrix') == [1 2 3; 4 5 6] )))
-%!assert(all(all( infogetmatrix(infostr,'simple matrix', {'section 1', 'subsection'}) == [2 3 4; 5 6 7] )))
-%!error(infogetmatrix('', ''));
-%!error(infogetmatrix('', infostr));
-%!error(infogetmatrix(infostr, ''));
-%!error(infogetmatrix(infostr, 'A', {'section 1'}));
+%! infostr = sprintf('A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n"a";  "b"   ; "c" \n"d";"e";         "f"    \n#endmatrix:: simple matrix \nC:: c without section\n#startsection:: section 1 \n  C:: c in section 1 \n  #startsection:: subsection\n#startmatrix:: simple matrix \n"b";  "c"; "d" \n"e";"f";         "g"  \n#endmatrix:: simple matrix \n    C:: c in subsection\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: c in section 2\n#endsection:: section 2\n');
+%!assert(all(all(strcmp( infogettextmatrix(infostr,'simple matrix'), {'a' 'b' 'c'; 'd' 'e' 'f'} ))))
+%!assert(all(all(strcmp( infogettextmatrix(infostr,'simple matrix', {'section 1', 'subsection'}), {'b' 'c' 'd'; 'e' 'f' 'g'} ))))
+%!error(infogettextmatrix('', ''));
+%!error(infogettextmatrix('', infostr));
+%!error(infogettextmatrix(infostr, ''));
+%!error(infogettextmatrix(infostr, 'A', {'section 1'}));

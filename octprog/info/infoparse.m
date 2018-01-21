@@ -20,16 +20,18 @@ function [idata] = infoparse(inf,mode)
 %    sec_count - number of subsections
 %    sec_names - cell array of subsection names
 %    sections - cell array of subsections - each cell is the same as this struct
-%    item_count - number of items in section (matrices and scalar items)
-%    item_names - cell array of item names
-%    items - cell array of item string content
-%    item_is_matrix - array of item type flags: 1 for matrix, 0 for scalar
+%    scalar_count - number of scalar items in section
+%    scalar_names - cell array of scalar item names
+%    scalars - cell array of scalar item string contents
+%    matrix_count - number of matrices in section
+%    matrix_names - cell array of matrix names
+%    matrix - cell array of matrix string contents
 %    data - unparsed section content, note it is removed vhen mode is 'all'  
 %  
 
     % parse mode selection:
     if ~exist('mode','var')
-        mode = '';
+        mode = 'all';
     end
     if strcmpi(mode,'matrix')
         parse_level = 1;
@@ -39,21 +41,21 @@ function [idata] = infoparse(inf,mode)
         parse_level = 0;         
     end
 
-    % line break
-    NL = sprintf('\n');
+    % temporary line break:
+    NL = char([10]);
     
-    % note: this should be rather in infoload()
-    % replace windows CRLF by NL:
-    inf = strrep(inf,char([13 10]),NL);
-    % not convert the rest to NL:
-    inf = strrep(inf,char(10),NL);
-    inf = strrep(inf,char(13),NL);
-    
-    % add linebreaks around data (for simpler tokenization)
+    % add linebreaks around data (for simpler tokenization):
     inf = [NL inf NL];
     
-    % find line breaks
-    nls = find(inf==NL);
+    % get rid of system specific EOLs but do not change string size!:
+    % note the result is stored in temporary string! original must be preserved
+    % replace windows CRLF by ' LF'
+    inflf = strrep(inf,char([13 10]),char([32 NL]));
+    % not convert the rest of CR/LF to LF:
+    inflf = strrep(inflf,char(13),NL);
+       
+    % find line breaks:
+    nls = find(inflf == NL);
         
     % tokenize sections:
     if parse_level
@@ -68,7 +70,7 @@ function [idata] = infoparse(inf,mode)
     sec_pos = [];
     for s = 1:numel(keystr)    
         % look for token candidates:      
-        ss = strfind(inf,keystr{s});
+        ss = strfind(inflf,keystr{s});
         keystrlen = length(keystr{s});
         S = numel(ss);
         
@@ -86,7 +88,7 @@ function [idata] = infoparse(inf,mode)
                 % look for separator:
                 qci = strfind(row,'::');
                 if ~isempty(qci)
-                    % is there, extract section's name:                
+                    % separator is there, extract section's name:                
                     name = strtrim(row(qci+2:end));
                     
                     if ~isempty(name)
@@ -96,7 +98,7 @@ function [idata] = infoparse(inf,mode)
                         sec_name{end+1} = name;
                         % section data (start/end):
                         sec_start(end+1) = row_end + 2;
-                        sec_end(end+1) = row_start - 2;                                                        
+                        sec_end(end+1) = row_start - 1;                                                        
                         % store section key type (start/end):  
                         sec_type(end+1) = s;
                         % store section key position:
@@ -119,8 +121,9 @@ function [idata] = infoparse(inf,mode)
     idata = infoparse_struct(struct(),inf,1,1,N,sec_pos,sec_name,sec_start,sec_end,sec_type,'_',2,parse_level);
     
     % update objects count:
-    idata.sec_count = numel(idata.sections);
-    idata.item_count = numel(idata.items);
+    %idata.sec_count = numel(idata.sections);
+    %idata.scalar_count = numel(idata.scalars);
+    %idata.matrix_count = numel(idata.matrix);
     
     % and we are outa here...
         
@@ -136,9 +139,10 @@ function [idata,n,pos] = infoparse_struct(idata,inf,pos,n,N,sec_pos,sec_name,sec
     if stype == 2
         idata.sec_names = {};
         idata.sections = {};
-        idata.item_names = {};
-        idata.items = {};
-        idata.item_is_matrix = [];
+        idata.scalar_names = {};
+        idata.scalars = {};
+        idata.matrix_names = {};
+        idata.matrix = {};
     end
     
     while n <= N
@@ -158,24 +162,23 @@ function [idata,n,pos] = infoparse_struct(idata,inf,pos,n,N,sec_pos,sec_name,sec
             % --- parse rest of this's section stuff (optional): ---            
             if parse_level > 1
                 % line break
-                NL = sprintf('\n');
+                NL = char(10);
                 % add linebreaks around data (for simpler tokenization) 
                 str = [NL idata.data NL];
                 % find line breaks
-                nls = find(str==NL);
-                
+                nls = find(str == char(13) | str == char(10));
+     
                 % search separators: 
                 ss = strfind(str,'::');
                 % for each separator:
                 for k = 1:numel(ss)
                     % extract active part of the row:
                     row_start = nls(find(nls < ss(k),1,'last')) + 1;
-                    row_end = nls(find(nls > ss(k),1)) - 1;        
+                    row_end = nls(find(nls > ss(k),1)) - 1;    
                     
                     % store item
-                    idata.item_is_matrix(end+1) = 0;
-                    idata.item_names{end+1} = strtrim(str(row_start:ss(k)-1));
-                    idata.items{end+1} = strtrim(str(ss(k)+2:row_end));                                     
+                    idata.scalar_names{end+1} = strtrim(str(row_start:ss(k)-1));
+                    idata.scalars{end+1} = strtrim(str(ss(k)+2:row_end));                                     
                 end
                 
                 % get rid of raw data because we parsed everything
@@ -192,7 +195,10 @@ function [idata,n,pos] = infoparse_struct(idata,inf,pos,n,N,sec_pos,sec_name,sec
             
             % update objects count
             idata.sec_count = numel(idata.sections);
-            idata.item_count = numel(idata.items);
+            idata.scalar_count = numel(idata.scalars);
+            idata.matrix_count = numel(idata.matrix);
+            % format magic-id - used to identify the structure is generate by this function:
+            idata.this_is_infostring = 1;
                   
             return;
             
@@ -234,9 +240,8 @@ function [idata,n,pos] = infoparse_struct(idata,inf,pos,n,N,sec_pos,sec_name,sec
             [item_data,n,pos] = infoparse_struct(struct(),inf,pos,n+1,N,sec_pos,sec_name,sec_start,sec_end,sec_type,new_name,4,parse_level);
                      
             % collect item data
-            idata.item_names{end+1} = new_name;
-            idata.items{end+1} = item_data;
-            idata.item_is_matrix(end+1) = 1;                
+            idata.matrix_names{end+1} = new_name;
+            idata.matrix{end+1} = item_data;              
             
         end
         

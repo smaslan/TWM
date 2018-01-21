@@ -46,7 +46,9 @@ function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
   end
   
   % load result info
-  inf = infoload(result_path);
+  inf = infoload(result_path);  
+  % parse the info file (faster usage): 
+  inf = infoparse(inf);
   
   % complementary MAT file
   result_mat = [result_path '.mat'];
@@ -60,28 +62,28 @@ function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
 
   % get list of excluded variables
   try 
-    excludes = infogetmatrixstr(alg_cfg, 'exclude outputs');
+    excludes = infogettextmatrix(alg_cfg, 'exclude outputs');
   catch
     excludes = {};
   end
   
   % get list of graph variables
   try 
-    graphs = infogetmatrixstr(alg_cfg, 'graphs');
+    graphs = infogettextmatrix(alg_cfg, 'graphs');
   catch
     graphs = {};
   end
   
   % get list of phase variables
   try 
-    phases = infogetmatrixstr(alg_cfg, 'is phase');
+    phases = infogettextmatrix(alg_cfg, 'is phase');
   catch
     phases = {};
   end
   
   % try to get number formats of the quantities {name, format, min abs unc., min rel unc}
   try
-    fmt = infogetmatrixstr(alg_cfg, 'number formats');
+    fmt = infogettextmatrix(alg_cfg, 'number formats');
   catch
     fmt = {};
   end
@@ -103,7 +105,7 @@ function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
   var_list = unique(var_list); 
   
   % get channels/phases list
-  list = infogetmatrixstr(inf, 'list');
+  list = infogettextmatrix(inf, 'list');
   L = numel(list);
   
   % decide MAT file format (Octave sometimes needs explicit definition)
@@ -119,7 +121,7 @@ function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
     sinf = infogetsection(inf, list{k});
     
     % get variable names
-    var_names_all = infogetmatrixstr(sinf, 'variable names');
+    var_names_all = infogettextmatrix(sinf, 'variable names');
     
     % filter variables:
     vars = {};

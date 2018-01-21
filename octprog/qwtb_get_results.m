@@ -65,10 +65,9 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
     cfg.phi_mode = 0;
   end        
   
-    
   % --- load and process results
   [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(meas_root, res_id, alg_id, cfg);
-  
+    
 
   res = results{1};
   % counts: [phases/channels, variables]

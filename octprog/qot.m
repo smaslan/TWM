@@ -10,14 +10,23 @@ addpath([mfld filesep() 'info']);
 addpath([mfld filesep() 'qwtb']);
 
 
-correction_transducer_loading()
+%correction_transducer_loading()
+%return
+
+
+%meas = [mfld '\..\temp\sim\DIGITIZER\HP3458_demo'];
+meas = [mfld '\..\temp\sim\session_doc'];
+
+tic
+data = tpq_load_record(meas);
+toc
+
+
 
 
 return
 
 
-meas = [mfld '\..\temp\sim\DIGITIZER\HP3458_demo'];
-%meas = [mfld '\..\temp\sim\session_doc'];
 inf = infoload(meas);
 
 

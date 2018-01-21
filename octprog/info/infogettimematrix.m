@@ -2,18 +2,20 @@
 ##
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} @var{text} = infogetmatrix (@var{infostr}, @var{key})
-## @deftypefnx {Function File} @var{text} = infogetmatrix (@var{infostr}, @var{key}, @var{scell})
+## @deftypefn {Function File} @var{text} = infogettimematrix (@var{infostr}, @var{key})
+## @deftypefnx {Function File} @var{text} = infogettimematrix (@var{infostr}, @var{key}, @var{scell})
 ## Parse info string @var{infostr}, finds lines after line
 ## '#startmatrix:: key' and before '#endmatrix:: key', parse numbers from lines
-## and return as matrix.
+## and returns the values as number of seconds since the epoch (as in function
+## time()). Expected time format is ISO 8601: %Y-%m-%dT%H:%M:%S.SSSSSS. The number
+## of digits in fraction of seconds is not limited.
 ##
 ## If @var{scell} is set, the key is searched in section(s) defined by string(s) in cell.
 ##
 ## Example:
 ## @example
 ## infostr = sprintf('A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n"a";  "b"; "c" \n"d";"e";         "f"  \n#endmatrix:: simple matrix \n#startmatrix:: time matrix\n  2013-12-11T22:59:30.123456\n  2013-12-11T22:59:35.123456\n#endmatrix:: time matrix\nC:: c without section\n#startsection:: section 1 \n  C:: c in section 1 \n  #startsection:: subsection\n    C:: c in subsection\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: c in section 2\n#endsection:: section 2\n')
-## infogetmatrix(infostr,'simple matrix')
+## infogettimematrix(infostr,'time matrix')
 ## @end example
 ## @end deftypefn
 
@@ -29,9 +31,9 @@
 ##   Contains demo: no
 ##   Optimized: no
 
-function matrix = infogetmatrix(varargin) %<<<1
+function tmatrix = infogettimematrix(varargin) %<<<1
         % identify and check inputs %<<<2
-        [printusage, infostr, key, scell, is_parsed] = get_id_check_inputs('infogetmatrix', varargin{:});
+        [printusage, infostr, key, scell] = get_id_check_inputs('infogettimematrix', varargin{:});
         if printusage
                 print_usage()
         endif
@@ -39,12 +41,15 @@ function matrix = infogetmatrix(varargin) %<<<1
         % get matrix %<<<2
         infostr = get_matrix('infogetmatrix', infostr, key, scell);
         % parse csv:
-        matrix = csv2cell(infostr);
-        % convert to numbers:
-        % ###note: imho uniformoutput=false not needed, because str2double() never fails, it just returns NaN
-        %matrix = cellfun(@str2double, matrix, 'UniformOutput', false);
-        matrix = cellfun(@str2double, matrix);
-        %matrix = cell2mat(matrix);
+        smat = csv2cell(infostr);
+
+        % convert to time data:
+        for i = 1:size(smat, 1)
+                for j = 1:size(smat, 2)
+                        s = strtrim(smat{i, j});
+                        tmatrix(i, j) = iso2posix_time(strtrim(smat{i, j}));
+                endfor
+        endfor
 endfunction
 
 function [printusage, infostr, key, scell, is_parsed] = get_id_check_inputs(functionname, varargin) %<<<1
@@ -444,12 +449,72 @@ endif
 
 endfunction
 
+function posixnumber = iso2posix_time(isostring)
+        % converts ISO8601 time to posix time both for GNU Octave and Matlab
+        % posix time is number of seconds since the epoch, the epoch is referenced to 00:00:00 CUT
+        % (Coordinated Universal Time) 1 Jan 1970, for example, on Monday February 17, 1997 at 07:15:06 CUT,
+        % the value returned by 'time' was 856163706.)
+        % ISO 8601
+        % %Y-%m-%dT%H:%M:%S%20u
+        % 2013-12-11T22:59:30.15648946
+
+        isostring = strtrim(isostring);
+        if isOctave
+                % Octave version:
+                % parse of time data:
+                posixnumber = mktime(strptime(isostring, '%Y-%m-%dT%H:%M:%S'));
+                if ~isempty(posixnumber)
+                        % I do not know how to read fractions of second by strptime, so this line fix it:
+                        posixnumber = posixnumber + str2num(isostring(20:end));
+                endif
+        else
+                % Matlab version:
+                posixnumber = posixtime(datetime(isostring(1:19), 'TimeZone', 'local', 'Format', 'yyyy-MM-dd''T''HH:mm:ss'));
+                % I do not know how to read fractions of second by datetime, so this line fix it:
+                posixnumber = posixnumber + str2num(isostring(20:end));
+        endif
+endfunction
+
+function isostring = posix2iso_time(posixnumber)
+        % posix time to ISO8601 time both for GNU Octave and Matlab
+        % posix time is number of seconds since the epoch, the epoch is referenced to 00:00:00 CUT
+        % (Coordinated Universal Time) 1 Jan 1970, for example, on Monday February 17, 1997 at 07:15:06 CUT,
+        % the value returned by 'time' was 856163706.)
+        % ISO 8601
+        % %Y-%m-%dT%H:%M:%S%20u
+        % 2013-12-11T22:59:30.15648946
+
+        if isOctave
+                % Octave version:
+                isostring = strftime('%Y-%m-%dT%H:%M:%S', localtime(posixnumber));
+                % add decimal dot and microseconds:
+                isostring = [isostring '.' num2str(localtime(posixnumber).usec, '%0.6d')];
+        else
+                % Matlab version:
+                isostring = datestr(datetime(posixnumber, 'TimeZone', 'local', 'ConvertFrom', 'posixtime'), 'yyyy-mm-ddTHH:MM:SS');
+                % add decimal dot and microseconds:
+                isostring = [isostring '.' num2str(mod(posixnumber, 1), '%0.6d')];
+        endif
+endfunction
+
+function retval = isOctave
+% checks if GNU Octave or Matlab
+% according https://www.gnu.org/software/octave/doc/v4.0.1/How-to-distinguish-between-Octave-and-Matlab_003f.html
+
+  persistent cacheval;  % speeds up repeated calls
+
+  if isempty (cacheval)
+    cacheval = (exist ("OCTAVE_VERSION", "builtin") > 0);
+  end
+
+  retval = cacheval;
+end
+
 % --------------------------- tests: %<<<1
 %!shared infostr
-%! infostr = sprintf('A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n1;  2   ; 3 \n4;5;         6    \n#endmatrix:: simple matrix \nC:: c without section\n#startsection:: section 1 \n  C:: c in section 1 \n  #startsection:: subsection\n#startmatrix:: simple matrix \n2;  3; 4 \n5;6;         7  \n#endmatrix:: simple matrix \n    C:: c in subsection\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: c in section 2\n#endsection:: section 2\n');
-%!assert(all(all( infogetmatrix(infostr,'simple matrix') == [1 2 3; 4 5 6] )))
-%!assert(all(all( infogetmatrix(infostr,'simple matrix', {'section 1', 'subsection'}) == [2 3 4; 5 6 7] )))
-%!error(infogetmatrix('', ''));
-%!error(infogetmatrix('', infostr));
-%!error(infogetmatrix(infostr, ''));
-%!error(infogetmatrix(infostr, 'A', {'section 1'}));
+%! infostr = sprintf('A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n"a";  "b"; "c" \n"d";"e";         "f"  \n#endmatrix:: simple matrix \n#startmatrix:: time matrix\n  2013-12-11T22:59:30.123456\n  2013-12-11T22:59:35.123456\n#endmatrix:: time matrix\nC:: c without section\n#startsection:: section 1 \n  C:: c in section 1 \n  #startsection:: subsection\n    C:: c in subsection\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: c in section 2\n#endsection:: section 2\n');
+%!assert(all(all( abs(infogettimematrix(infostr,'time matrix') - [1386799170.12346; 1386799175.12346]) < 6e-6 )))
+%!error(infogettimematrix('', ''));
+%!error(infogettimematrix('', infostr));
+%!error(infogettimematrix(infostr, ''));
+%!error(infogettimematrix(infostr, 'A', {'section 1'}));

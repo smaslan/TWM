@@ -2,21 +2,18 @@
 ##
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} @var{text} = infogettext (@var{infostr}, @var{key})
-## @deftypefnx {Function File} @var{text} = infogettext (@var{infostr}, @var{key}, @var{scell})
+## @deftypefn {Function File} @var{text} = infogettime (@var{infostr}, @var{key})
+## @deftypefnx {Function File} @var{text} = infogettime (@var{infostr}, @var{key}, @var{scell})
 ## Parse info string @var{infostr}, finds line with content "key:: value" and returns 
-## the value as text.
+## the value as number of seconds since the epoch (as in function time()). Expected time format 
+## is ISO 8601: %Y-%m-%dT%H:%M:%S.SSSSSS. The number of digits in fraction of seconds is not limited.
 ##
 ## If @var{scell} is set, the key is searched in section(s) defined by string(s) in cell.
 ##
 ## Example:
 ## @example
-## infostr = sprintf('A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n"a";  "b"; "c" \n"d";"e";         "f"  \n#endmatrix:: simple matrix \n#startmatrix:: time matrix\n  2013-12-11T22:59:30.123456\n  2013-12-11T22:59:35.123456\n#endmatrix:: time matrix\nC:: c without section\n#startsection:: section 1 \n  C:: c in section 1 \n  #startsection:: subsection\n    C:: c in subsection\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: c in section 2\n#endsection:: section 2\n')
-## infogettext(infostr,'A')
-## infogettext(infostr,'B([V?*.])')
-## infogettext(infostr,'C')
-## infogettext(infostr,'C', @{'section 1', 'subsection'@})
-## infogettext(infostr,'C', @{'section 2'@})
+## infostr = sprintf('T:: 2013-12-11T22:59:30.123456')
+## infogettime(infostr,'T')
 ## @end example
 ## @end deftypefn
 
@@ -32,15 +29,21 @@
 ##   Contains demo: no
 ##   Optimized: no
 
-function text = infogettext(varargin) %<<<1
+function time = infogettime(varargin) %<<<1
         % identify and check inputs %<<<2
-        [printusage, infostr, key, scell] = get_id_check_inputs('infogettext', varargin{:});
+        [printusage, infostr, key, scell] = get_id_check_inputs('infogettime', varargin{:});
         if printusage
                 print_usage()
         endif
 
-        % get text %<<<2
-        text = get_key('infogettext', infostr, key, scell);
+        % get time %<<<2
+        % get time as text:
+        s = get_key('infogettime', infostr, key, scell);
+        % parse of time data:
+        time = iso2posix_time(s);
+        if isempty(time)
+                error(['infogettime: key `' key '` does not contain time data'])
+        endif
 endfunction
 
 function [printusage, infostr, key, scell, is_parsed] = get_id_check_inputs(functionname, varargin) %<<<1
@@ -280,41 +283,72 @@ function key = regexpescape(key) %<<<1
         endif
 endfunction
 
+function posixnumber = iso2posix_time(isostring)
+        % converts ISO8601 time to posix time both for GNU Octave and Matlab
+        % posix time is number of seconds since the epoch, the epoch is referenced to 00:00:00 CUT
+        % (Coordinated Universal Time) 1 Jan 1970, for example, on Monday February 17, 1997 at 07:15:06 CUT,
+        % the value returned by 'time' was 856163706.)
+        % ISO 8601
+        % %Y-%m-%dT%H:%M:%S%20u
+        % 2013-12-11T22:59:30.15648946
+
+        isostring = strtrim(isostring);
+        if isOctave
+                % Octave version:
+                % parse of time data:
+                posixnumber = mktime(strptime(isostring, '%Y-%m-%dT%H:%M:%S'));
+                if ~isempty(posixnumber)
+                        % I do not know how to read fractions of second by strptime, so this line fix it:
+                        posixnumber = posixnumber + str2num(isostring(20:end));
+                endif
+        else
+                % Matlab version:
+                posixnumber = posixtime(datetime(isostring(1:19), 'TimeZone', 'local', 'Format', 'yyyy-MM-dd''T''HH:mm:ss'));
+                % I do not know how to read fractions of second by datetime, so this line fix it:
+                posixnumber = posixnumber + str2num(isostring(20:end));
+        endif
+endfunction
+
+function isostring = posix2iso_time(posixnumber)
+        % posix time to ISO8601 time both for GNU Octave and Matlab
+        % posix time is number of seconds since the epoch, the epoch is referenced to 00:00:00 CUT
+        % (Coordinated Universal Time) 1 Jan 1970, for example, on Monday February 17, 1997 at 07:15:06 CUT,
+        % the value returned by 'time' was 856163706.)
+        % ISO 8601
+        % %Y-%m-%dT%H:%M:%S%20u
+        % 2013-12-11T22:59:30.15648946
+
+        if isOctave
+                % Octave version:
+                isostring = strftime('%Y-%m-%dT%H:%M:%S', localtime(posixnumber));
+                % add decimal dot and microseconds:
+                isostring = [isostring '.' num2str(localtime(posixnumber).usec, '%0.6d')];
+        else
+                % Matlab version:
+                isostring = datestr(datetime(posixnumber, 'TimeZone', 'local', 'ConvertFrom', 'posixtime'), 'yyyy-mm-ddTHH:MM:SS');
+                % add decimal dot and microseconds:
+                isostring = [isostring '.' num2str(mod(posixnumber, 1), '%0.6d')];
+        endif
+endfunction
+
+function retval = isOctave
+% checks if GNU Octave or Matlab
+% according https://www.gnu.org/software/octave/doc/v4.0.1/How-to-distinguish-between-Octave-and-Matlab_003f.html
+
+  persistent cacheval;  % speeds up repeated calls
+
+  if isempty (cacheval)
+    cacheval = (exist ("OCTAVE_VERSION", "builtin") > 0);
+  end
+
+  retval = cacheval;
+end
+
 % --------------------------- tests: %<<<1
 %!shared infostr
-%! infostr = sprintf('A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n1;  2; 3; \n4;5;         6;  \n#endmatrix:: simple matrix \nC:: c without section\n#startsection:: section 1 \n  C:: c in section 1 \n  #startsection:: subsection\n    C:: c in subsection\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: c in section 2\n#endsection:: section 2\n');
-%!assert(strcmp(infogettext(infostr,'A'),'1'))
-%!assert(strcmp(infogettext(infostr,'B([V?*.])'),'!$^&*()[];::,.'));
-%!assert(strcmp(infogettext(infostr,'C'),'c without section'))
-%!assert(strcmp(infogettext(infostr,'C', {'section 1'}),'c in section 1'))
-%!assert(strcmp(infogettext(infostr,'C', {'section 1', 'subsection'}),'c in subsection'))
-%!assert(strcmp(infogettext(infostr,'C', {'section 2'}),'c in section 2'))
-%!error(infogettext('', ''));
-%!error(infogettext('', infostr));
-%!error(infogettext(infostr, ''));
-%!error(infogettext(infostr, 'A', {'section 1'}));
-
-
-
-% NOVY TESTOVACI INFOSTR:
-% 
-% infostr = "A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n1;  2; 3; \n4;5;         6;  \n#endmatrix:: simple matrix \nC:: c without section\n#startsection:: section 1 \n  C:: c in section 1 \n  #startsection:: subsection\n    C:: c in subsection\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: c in section 2\n#endsection:: section 2\n"
-
-
-% A:: 1
-% some note
-% B([V?*.])::    !$^&*()[];::,.
-% #startmatrix:: simple matrix 
-% 1;  2; 3; 
-% 4;5;         6;  
-% #endmatrix:: simple matrix 
-% C:: c without section
-% #startsection:: section 1 
-  % C:: c in section 1 
-  % #startsection:: subsection
-    % C:: c in subsection
-  % #endsection:: subsection
-% #endsection:: section 1
-% #startsection:: section 2
-  % C:: c in section 2
-% #endsection:: section 2
+%! infostr = sprintf('A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n1;  2; 3; \n4;5;         6;  \n#endmatrix:: simple matrix \nT:: 2013-12-11T22:59:30.123456\nC:: 2\n#startsection:: section 1 \n  C:: 3\n  #startsection:: subsection\n    C:: 4\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: 5\n#endsection:: section 2\n');
+%!assert(infogettime(infostr,'T') == 1386799170.123456)
+%!error(infogettime('', ''));
+%!error(infogettime('', infostr));
+%!error(infogettime(infostr, ''));
+%!error(infogettime(infostr, 'A', {'section 1'}));

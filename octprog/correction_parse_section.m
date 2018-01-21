@@ -50,7 +50,8 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
 
   % merge selected measurement group INFO section with global meas. INFO file for easier search
   group_sec = infogetsection(meas_inf,group_sec_name);
-  meas_inf = [group_sec sprintf('\n') meas_inf];
+  group_sec = infosetsection(group_sec,meas_inf,{});
+  
 
   % get this correction's section from correction file header 
   try
@@ -87,7 +88,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
   
   % try get list of the filter attributes
   try    
-    attr_filter = infogetmatrixstr(cinf,'valid for attributes');    
+    attr_filter = infogettextmatrix(cinf,'valid for attributes');    
     if numel(attr_filter) && ~numel(attr_filter{1})
       attr_filter = {};
     end    
@@ -106,7 +107,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
     % there must be a key of the same name otherwise user requests filtering by non-existent attribute
     try     
       % is matrix? in that case it is most likely channel dependent attribute
-      attr_meas_value = infogetmatrixstr(meas_inf, attr_name);
+      attr_meas_value = infogettextmatrix(meas_inf, attr_name);
     catch
       % is no matrix, may be scalar?
       attr_meas_value = infogettext(meas_inf, attr_name);
@@ -145,7 +146,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
        
     
     % fetch allowed values of the filter attribute from correction section
-    attr_values = infogetmatrixstr(cinf, attr_name);
+    attr_values = infogettextmatrix(cinf, attr_name);
     
     % check if there is match:
     if ~correction_compare_attributes(attr_meas_value,attr_values)
@@ -197,7 +198,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
       end
       
       % try to load listed values of the parameter (mandatory)
-      par{p}.values = infogetmatrixstr(pinf,'value');
+      par{p}.values = infogettextmatrix(pinf,'value');
 
       % try to convert the values to numeric
       try
@@ -217,7 +218,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
       % if it's not there, then the correction is not usable for the meas. header
       try
         % channel dependent parameter? (i.e. matrix?)
-        par{p}.meas_value = infogetmatrixstr(meas_inf, par{p}.name);
+        par{p}.meas_value = infogettextmatrix(meas_inf, par{p}.name);
       catch
         % nope - so is it scalar parameter?
         par{p}.meas_value = infogettext(meas_inf, par{p}.name);
@@ -274,11 +275,11 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
 
 
   % try to read the matrix with the correction data values
-  values = infogetmatrixstr(cinf, 'value');
+  values = infogettextmatrix(cinf, 'value');
   
   % try to read the matrix with the uncertainties
   try
-    uncerts = infogetmatrixstr(cinf, 'uncertainty');
+    uncerts = infogettextmatrix(cinf, 'uncertainty');
     has_unc = 1;
   catch
     % not exist, do nothing as it is optional
