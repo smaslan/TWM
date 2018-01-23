@@ -18,7 +18,8 @@ addpath([mfld filesep() 'qwtb']);
 meas = [mfld '\..\temp\sim\session_doc'];
 
 tic
-data = tpq_load_record(meas);
+%data = tpq_load_record(meas);
+qwtb_exec_algorithm(meas);
 toc
 
 

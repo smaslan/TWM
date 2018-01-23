@@ -275,7 +275,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
     algs = {};
     
   end
-  
+
   % load lists of available results for each algorithm
   algs_hist = {};
   for a = 1:numel(algs)
@@ -333,8 +333,6 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
   
   % write updated results header back to the file 
   infosave(rinf, results_header, 1, 1);  
-    
-  
   
 end
 
