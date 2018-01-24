@@ -12,6 +12,10 @@ function [din] = qwtb_restore_twm_input_dims(din, varargin)
 % (c) 2017, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.
 %
+    
+    % ###note: NOT DONE YET!!!!
+    
+    
     if ~nargin
         % --- run testing ---
         
@@ -25,39 +29,96 @@ function [din] = qwtb_restore_twm_input_dims(din, varargin)
                       
     else
         % --- restore all predefined correction ---
-    
-        % restore correction data vector orientations
-        din = twm_qwtb_restore_input_dim_corr(din, {'adc_gain';'adc_phi'}, {'adc_gain_f';'adc_gain_a'});
-        din = twm_qwtb_restore_input_dim_corr(din, {'tr_gain';'tr_phi'}, {'tr_gain_f';'tr_gain_a'});
-        din = twm_qwtb_restore_input_dim_corr(din, 'adc_sfdr', {'adc_sfdr_f';'adc_sfdr_a'});
-        din = twm_qwtb_restore_input_dim_corr(din, 'tr_sfdr', {'tr_sfdr_f';'tr_sfdr_a'});
-        din = twm_qwtb_restore_input_dim_corr(din, {'crosstalk_re';'crosstalk_im'}, {'crosstalk_f'});
+        
+        
+        % has 'y' input?
+        has_y = isfield(din,'y');
+        
+        % has 'u' and 'i' inputs?
+        ui = [isfield(din,'u') isfield(din,'i')];
+        if xor(ui(1),ui(2))
+            error('QWTB input quantities checker: missing one of the main inputs ''u'' or ''i''!');
+        end
+        has_ui = ui(1) && ui(2);
+        
+        % has multiple records per input?
+        if has_y
+            is_multi = sum(size(din.y.v) > 1) > 1;
+        elseif has_ui
+            is_multi = sum(size(din.u.v) > 1) > 1;
+        else
+            is_multi = 0;
+        end
+        
+        % y/u/i are differential?
+        y_is_diff = has_y && isfield(din,'y_lo');
+        u_is_diff = has_ui && isfield(din,'u_lo');
+        i_is_diff = has_ui && isfield(din,'i_lo');
+        
+        % build list of channel prefixes for the parameters:
+        pfx_ch = {};
+        pfx_tr = {};
+        if has_y
+            pfx_ch{end+1} = '';
+            pfx_tr{end+1} = '';
+            if y_is_diff
+                pfx_ch{end+1} = 'lo_';
+            end
+        elseif has_ui
+            pfx_ch{end+1} = 'u_';
+            pfx_ch{end+1} = 'i_';
+            pfx_tr{end+1} = 'u_';
+            pfx_tr{end+1} = 'i_';
+            if u_is_diff
+                pfx_ch{end+1} = 'u_lo_';
+            end
+            if i_is_diff
+                pfx_ch{end+1} = 'i_lo_';
+            end
+        end
+
+        % restore correction data vector orientations for channel corrections:
+        for k = 1:numel(pfx_ch)
+            % get quantity prefix:
+            p = pfx_ch{k}; 
+            % fix the default quantities:
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'adc_gain'];[p 'adc_phi']}, {[p 'adc_gain_f'];[p 'adc_gain_a']});
+            din = twm_qwtb_restore_input_dim_corr(din, [p 'adc_sfdr'], {[p 'adc_sfdr_f'];[p 'adc_sfdr_a']});
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'adc_Yin_Cp'];[p 'adc_Yin_Gp']}, {[p 'adc_Yin_f']});           
+            %din = twm_qwtb_restore_input_dim_corr(din, {'crosstalk_re';'crosstalk_im'}, {'crosstalk_f'});
+        end
+        
+        % restore correction data vector orientations for transducer corrections:
+        for k = 1:numel(pfx_ch)
+            % get quantity prefix:
+            p = pfx_ch{k}; 
+            % fix the default quantities:
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_gain'];[p 'tr_phi']}, {[p 'tr_gain_f'];[p 'tr_gain_a']});
+            din = twm_qwtb_restore_input_dim_corr(din, [p 'tr_sfdr'], {[p 'tr_sfdr_f'];[p 'tr_sfdr_a']});            
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zlo_Rp'];[p 'tr_Zlo_Cp']}, {[p 'tr_Zlo_f']});
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zca_Rs'];[p 'tr_Zca_Ls']}, {[p 'tr_Zca_f']});
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Yca_Cp'];[p 'tr_Yca_D']}, {[p 'tr_Yca_f']});
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'Zcb_Rs'];[p 'Zcb_Ls']}, {[p 'Zcb_f']});
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'Ycb_Cp'];[p 'Ycb_D']}, {[p 'Ycb_f']});            
+        end
        
         
         % fix input data, so the vectors are always vertical
-        if isfield(din,'y') && isvector(din.y.v) 
+        if has_y && ~is_multi 
             din.y.v = din.y.v(:);
-            if isfield(din.y,'u')
-              din.y.u = din.y.u(:);
+            if y_is_diff
+                din.y_lo.v = din.y_lo.v(:);
             end
         end
-        if isfield(din,'u') && isvector(din.u.v)
+        if has_ui && ~is_multi
             din.u.v = din.u.v(:);
-            if isfield(din.u,'u')
-              din.u.u = din.u.u(:);
-            end  
-        end
-        if isfield(din,'i') && isvector(din.i.v)
             din.i.v = din.i.v(:);
-            if isfield(din.i,'u')
-              din.i.u = din.i.u(:);
-            end  
-        end
-        if isfield(din,'t') && isvector(din.t.v)
-            din.t.v = din.t.v(:);
-            if isfield(din.t,'u')
-              din.t.u = din.t.u(:);
-            end  
+            if u_is_diff 
+                din.u_lo.v = din.u_lo.v(:);                
+            end
+            if i_is_diff
+                din.i_lo.v = din.i_lo.v(:);
+            end
         end
     
     % ###todo: the rest of the corrections, is there are some new...
@@ -154,10 +215,29 @@ end
 function ret = twm_qwtb_restore_input_dims_test()
 % this is simple test function that should validate the above scripts
     
+    % build some fake data structure
+    din = struct();
+    for k = 1:50
+        name = sprintf('long_name_%2d',int32(k));
+        val = rand(100,10);
+        din = setfield(din,name,struct('v',val,'u',val));   
+    end
+    
+    % try to call the fix function with non-existent data items - just to measure how fast it is:
+    tid = tic();
+    for k = 1:100   
+        try
+            dout = qwtb_restore_twm_input_dims(din,{'non_existent_item';'non_existent_item_2'},{'data_y';'data_x'});
+        end
+    end
+    toc(tid)
+    
+    qwtb_restore_twm_input_dims(din);
+    
     clear din;
     din.data_a.v = [1];
     din.data_y.v = [];    
-    dout = twm_qwtb_restore_input_dims(din,'data_a',{'data_y'});
+    dout = qwtb_restore_twm_input_dims(din,'data_a',{'data_y'});
     if size(dout.data_a.v) ~= size(din.data_a.v) || size(dout.data_y.v) ~= size(din.data_y.v)
         error('Failed at 1D test with 0D data.');
     end
@@ -165,7 +245,7 @@ function ret = twm_qwtb_restore_input_dims_test()
     clear din;
     din.data_a.v = [1 2 3];
     din.data_y.v = [1 2 3];    
-    dout = twm_qwtb_restore_input_dims(din,'data_a',{'data_y'});
+    dout = qwtb_restore_twm_input_dims(din,'data_a',{'data_y'});
     if size(dout.data_a.v) ~= size(din.data_a.v') || size(dout.data_y.v) ~= size(din.data_y.v')
         error('Failed at 1D test with 1D data.');
     end    
@@ -174,7 +254,7 @@ function ret = twm_qwtb_restore_input_dims_test()
     din.data_a.v = [1];
     din.data_x.v = [];
     din.data_y.v = [];
-    dout = twm_qwtb_restore_input_dims(din,'data_a',{'data_y';'data_x'});
+    dout = qwtb_restore_twm_input_dims(din,'data_a',{'data_y';'data_x'});
     if size(dout.data_a.v) ~= size(din.data_a.v) || size(dout.data_y.v) ~= size(din.data_y.v) || size(dout.data_x.v) ~= size(din.data_x.v)
         error('Failed at 2D test with 0D data.');
     end
@@ -183,7 +263,7 @@ function ret = twm_qwtb_restore_input_dims_test()
     din.data_a.v = [1 2 3];
     din.data_x.v = [];
     din.data_y.v = [1 2 3];
-    dout = twm_qwtb_restore_input_dims(din,'data_a',{'data_y';'data_x'});
+    dout = qwtb_restore_twm_input_dims(din,'data_a',{'data_y';'data_x'});
     if size(dout.data_a.v) ~= size(din.data_a.v') || size(dout.data_y.v) ~= size(din.data_y.v') || size(dout.data_x.v) ~= size(din.data_x.v)
         error('Failed at 2D test with y-1D data.');
     end
@@ -192,7 +272,7 @@ function ret = twm_qwtb_restore_input_dims_test()
     din.data_a.v = [1 2 3];
     din.data_x.v = [1 2 3];
     din.data_y.v = [];
-    dout = twm_qwtb_restore_input_dims(din,'data_a',{'data_y';'data_x'});
+    dout = qwtb_restore_twm_input_dims(din,'data_a',{'data_y';'data_x'});
     if size(dout.data_a.v) ~= size(din.data_a.v) || size(dout.data_y.v) ~= size(din.data_y.v) || size(dout.data_x.v) ~= size(din.data_x.v)
         error('Failed at 2D test with x-1D data.');
     end
@@ -201,7 +281,7 @@ function ret = twm_qwtb_restore_input_dims_test()
     din.data_a.v = [1 2 3;4 5 6];
     din.data_x.v = [1 2 3];
     din.data_y.v = [1 2];
-    dout = twm_qwtb_restore_input_dims(din,'data_a',{'data_y';'data_x'});
+    dout = qwtb_restore_twm_input_dims(din,'data_a',{'data_y';'data_x'});
     if size(dout.data_a.v) ~= size(din.data_a.v) || size(dout.data_y.v) ~= size(din.data_y.v') || size(dout.data_x.v) ~= size(din.data_x.v)
         error('Failed at 2D test with 2D data.');
     end
@@ -211,7 +291,7 @@ function ret = twm_qwtb_restore_input_dims_test()
     din.data_b.v = [1 2 3];
     din.data_x.v = [];
     din.data_y.v = [1 2 3];
-    dout = twm_qwtb_restore_input_dims(din,{'data_a';'data_b'},{'data_y';'data_x'});
+    dout = qwtb_restore_twm_input_dims(din,{'data_a';'data_b'},{'data_y';'data_x'});
     if size(dout.data_a.v) ~= size(din.data_a.v') || size(dout.data_b.v) ~= size(din.data_b.v') || size(dout.data_y.v) ~= size(din.data_y.v') || size(dout.data_x.v) ~= size(din.data_x.v)
         error('Failed at 2D test with multi 2D data.');
     end
@@ -221,7 +301,7 @@ function ret = twm_qwtb_restore_input_dims_test()
     din.data_a.u = [1 2 3];
     din.data_x.v = [];
     din.data_y.v = [1 2 3];
-    dout = twm_qwtb_restore_input_dims(din,'data_a',{'data_y';'data_x'});
+    dout = qwtb_restore_twm_input_dims(din,'data_a',{'data_y';'data_x'});
     if size(dout.data_a.u) ~= size(dout.data_a.v)
         error('Failed at 2D test with 2D data - uncertainty does not match data.');
     end
