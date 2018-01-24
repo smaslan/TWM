@@ -10,10 +10,20 @@ addpath([mfld filesep() 'info']);
 addpath([mfld filesep() 'qwtb']);
 
 
-%str = infosettextmatrix('','matrix',{'ass' 'jedna';'biatch' 'dva'})
+algi = qwtb('TWM-TEST','info');
 
-inf = ['hovno' char(10)];
-inf = infosetsection(inf,['biatch' char(10) 'bla'],{})
+din.Ts.v = 1;
+din.y.v = rand(100,1);
+
+din.adc_gain_f.v = [1 2 3];
+din.adc_gain_a.v = [];
+din.adc_gain.v = [1 2 3];
+din.adc_gain.u = [0.1 0.2 0.3]; 
+
+qwtb('TWM-TEST',din);
+
+
+
 
 
 %meas_root = [mfld '\..\temp\stst'];
@@ -44,6 +54,7 @@ plot_cfg.grid = 1;
 plot_cfg.legend = '';
 
 qwtb_plot_result(meas_root, 0, '', 0, cfg, 'A', plot_cfg)
+
 
 
 
