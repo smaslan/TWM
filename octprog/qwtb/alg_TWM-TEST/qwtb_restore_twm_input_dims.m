@@ -8,10 +8,13 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
 % Usage:
 % [dout, cfg] = qwtb_restore_twm_input_dims()
 %  - to perform self-test
+%
 % [dout, cfg] = qwtb_restore_twm_input_dims(din)
 %  - to restore all default quantities
+%
 % [dout, cfg] = qwtb_restore_twm_input_dims(din, opt)
 %  - to restore restore all default quantities, ignore missing ones
+%
 % [dout, cfg] = qwtb_restore_twm_input_dims(din, opt, quantities, axes)
 %  - to restore one particular quantity
 %
@@ -31,11 +34,13 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
 %            u_is_diff - nonzero if 'u' input has complementary 'u_lo' input
 %            i_is_diff - nonzero if 'i' input has complementary 'i_lo' input
 %            is_multi  - nonzero if there are multiple records in 'y', 'u', 'i'
-% 
+%            pfx_ch    - list of channel prefixes ('', 'u_' and 'i_' for single-ended,
+%                        'lo_', 'lo_u_' and 'lo_i_' for differential complement, ...)
+%            pfx_tr    - list of transducer channel prefixes ('', 'u_' and 'i_')
 %
 % License:
 % --------
-% This is part of the TWM - Traceable PQ Wattemter
+% This is part of the TWM - Traceable PQ Wattmeter
 % (c) 2018, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.
 %
@@ -116,7 +121,11 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
                 pfx_ch{end+1} = 'i_lo_';
             end
         end
-
+        
+        % return the prefix lists for future use:
+        cfg.pfx_ch = pfx_ch;
+        cfg.pfx_tr = pfx_tr;
+        
         % restore correction data vector orientations for channel corrections:
         for k = 1:numel(pfx_ch)
             % get quantity prefix:

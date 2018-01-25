@@ -12,15 +12,17 @@ addpath([mfld filesep() 'qwtb']);
 
 algi = qwtb('TWM-TEST','info');
 
-din.Ts.v = 1;
-din.y.v = rand(100,1);
+din.Ts.v = 1/10000;
+din.y.v = rand(20,1);
 
-din.adc_gain_f.v = [1 2 3];
+din.adc_gain_f.v = [0;1e3;1e6];
 din.adc_gain_a.v = [];
-din.adc_gain.v = [1 2 3];
-din.adc_gain.u = [0.1 0.2 0.3]; 
+din.adc_gain.v = [1;    1.1;  1.5];
+din.adc_gain.u = [0.01; 0.02; 0.03]; 
 
+tic
 qwtb('TWM-TEST',din);
+toc
 
 
 
