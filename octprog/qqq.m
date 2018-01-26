@@ -12,13 +12,44 @@ addpath([mfld filesep() 'qwtb']);
 
 algi = qwtb('TWM-TEST','info');
 
+N = 11;
 din.Ts.v = 1/10000;
-din.y.v = rand(20,1);
 
+% harmonic amplitudes:
+A =  [1 0.5];
+% harmonic phase:
+ph = [0.1 -0.8]*pi
+% harmonic frequency relative to 1/(N*Ts):
+fk = [1 5  ];
+
+% time vector:
+t(:,1) = [0:N-1]*din.Ts.v;
+
+% synthesize waveform:
+din.y.v = sum(A.*sin(t*2*pi.*fk/N/din.Ts.v + ph),2);
+
+% create some corretion table for the digitizer gain: 
 din.adc_gain_f.v = [0;1e3;1e6];
 din.adc_gain_a.v = [];
-din.adc_gain.v = [1;    1.1;  1.5];
+din.adc_gain.v = [1.00; 1.10; 1.50];
 din.adc_gain.u = [0.01; 0.02; 0.03]; 
+% create some corretion table for the digitizer phase: 
+din.adc_phi_f.v = [0;1e3;1e6];
+din.adc_phi_a.v = [];
+din.adc_phi.v = [0.00; 0.10; 10.0];
+din.adc_phi.u = [0.01; 0.02;  2.0];
+
+% create some corretion table for the transducer gain: 
+din.tr_gain_f.v = [0;1e3;1e6];
+din.tr_gain_a.v = [];
+din.tr_gain.v = [1.00; 0.80; 0.60];
+din.tr_gain.u = [0.01; 0.02; 0.05]; 
+% create some corretion table for the transducer phase: 
+din.tr_phi_f.v = [0;1e3;1e6];
+din.tr_phi_a.v = [];
+din.tr_phi.v = [0.00; -0.30; -5.0];
+din.tr_phi.u = [0.01;  0.02;  2.0];
+
 
 tic
 qwtb('TWM-TEST',din);

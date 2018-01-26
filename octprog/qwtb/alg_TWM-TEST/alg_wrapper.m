@@ -34,32 +34,19 @@ function dataout = alg_wrapper(datain, calcset)
     tab = qwtb_restore_correction_tables(datain,cfg);
     
     
+
     % --------------------------------------------------------------------
     % Now we are ready to do whatever the algorithm should do ...
     % Replace following code by whatever algorithm you like
     % --------------------------------------------------------------------
-    
-    
+        
     % --- lets assume simple FFT spectral analysis ---
     
-    % get waveform vector:
-    u = datain.y.v;
+    % calculate spectrum (polar form):
+    [f_U, amp, phi] = ampphspectrum(datain.y.v, fs);
     
-    % calculate full spectrum:
-    U = fft(u);
-    
-    % total DFT bins count:
-    N = numel(U);
-    
-    % throw away negative frequencies of the spectrum:
-    % and normalize
-    U = U(1:floor(N/2))/N*2;
-    
-    % remaining DFT bins count:
-    N = numel(U);
-    
-    % build frequency axis:
-    f_U = [0:N-1]/fs;
+    % convert to complex form:
+    U = amp.*exp(phi);    
     
     % get range of the used frequencies: 
     f_min = min(f_U);
