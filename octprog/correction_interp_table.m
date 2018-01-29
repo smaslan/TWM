@@ -129,7 +129,6 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
     end
     
     
-    
     % interpolate each quantity:    
     if ~isempty(ax) && tbl.size_x
         % interpolate by x-axis:        
@@ -143,7 +142,7 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
         end                
     end
     if ~isempty(ay) && tbl.size_y
-        % interpolate by y-axis:        
+        % interpolate by y-axis:
         for q = 1:Q
             quants{q} = interp1nan(oy,quants{q},ay);
         end

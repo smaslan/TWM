@@ -4,17 +4,17 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     % samples count to synthesize:
-    N = 21;
+    N = 1e5;
     
     % sampling rate [Hz]
     din.fs.v = 10000;
     
     % harmonic amplitudes:
-    A =  [1 0.5];
+    A =  [1    0.5  0.2]';
     % harmonic phases:
-    ph = [0.1 -0.8]*pi
+    ph = [0.1 -0.8  0.2]'*pi;
     % harmonic component index {1st, 2rd, ..., floor(N/2)}:
-    fk = [1 5 round(0.4*N)];
+    fk = [1    5    round(0.4*N)]';
     
     
     % create some corretion table for the digitizer gain: 
@@ -50,24 +50,51 @@ function alg_test(calcset) %<<<1
     % calculate actual frequencies of the harmonics:
     fx = fk/N*din.fs.v;
     
+    % rms level of the input signal:
+    rms = sum(0.5*A.^2)^0.5;
+    
+    % interpolate transducer gain/phase to the measured frequencies and rms amplitude:
+    k_gain = correction_interp_table(tab.tr_gain,rms,fx);    
+    k_phi = correction_interp_table(tab.tr_phi,rms,fx);
+    
+    % apply transducer gain:
+    A_syn = A./k_gain.gain;
+    ph_syn = ph - k_phi.phi;
+    
     % interpolate digitizer gain/phase to the measured frequencies and amplitudes:
     k_gain = correction_interp_table(tab.adc_gain,A,fx,'f',1);    
     k_phi = correction_interp_table(tab.adc_phi,A,fx,'f',1);
     
-    
-    
+    % apply digitizer gain:
+    A_syn = A_syn./k_gain.gain;
+    ph_syn = ph_syn - k_phi.phi;
     
     % generate relative time <2;2*pi):
     t(:,1) = [0:N-1]/N*2*pi;
     
     % synthesize waveform (crippled for Matlab < 2016b):
-    % u = A.*sin(t.*fk + ph);
-    u = bsxfun(@times, A, sin(bsxfun(@plus, bsxfun(@times, t, fk), ph)));
+    % u = A_syn.*sin(t.*fk + ph_syn);
+    u = bsxfun(@times, A_syn', sin(bsxfun(@plus, bsxfun(@times, t, fk'), ph_syn')));
     % sum the harmonic components to a single composite signal:
     u = sum(u,2);
     
+    % store to the QWTB input list:
+    din.y.v = u;
 
-
-
-
+    % --- execute the algorithm:
+    dout = qwtb('TWM-TEST',din);
+    
+    % --- compare calcualted results with desired:
+    if abs([dout.amp.v(1+fk)] - A(:)) > 2*eps
+        error('TWM-TEST testing: calculated gains do not match!');
+    end
+    if abs([dout.phi.v(1+fk)] - ph(:)) > 2*eps                                    
+        error('TWM-TEST testing: calculated phase do not match!');          
+    end
+    if abs(dout.rms.v - rms) > 2*eps
+        error('TWM-TEST testing: calculated rms value does not match!');
+    end
+                                                                         
+    
 end
+   

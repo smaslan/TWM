@@ -9,6 +9,14 @@ cd(mfld);
 addpath([mfld filesep() 'info']);
 addpath([mfld filesep() 'qwtb']);
 
+qwtb('TWM-TEST','test')
+
+return
+
+
+
+
+
 
 algi = qwtb('TWM-TEST','info');
 

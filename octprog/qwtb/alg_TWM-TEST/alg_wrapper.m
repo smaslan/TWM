@@ -33,7 +33,6 @@ function dataout = alg_wrapper(datain, calcset)
     % This is not necessary but the TWM style tables are more comfortable to use then raw correction matrices
     tab = qwtb_restore_correction_tables(datain,cfg);
     
-    
 
     % --------------------------------------------------------------------
     % Now we are ready to do whatever the algorithm should do ...
@@ -44,9 +43,7 @@ function dataout = alg_wrapper(datain, calcset)
     
     % calculate spectrum (polar form):
     [f_U, amp, phi] = ampphspectrum(datain.y.v, fs);
-    
-    % convert to complex form:
-    U = amp.*exp(phi);    
+    f_U = f_U(:); % ###note to be removed
     
     % get range of the used frequencies: 
     f_min = min(f_U);
@@ -61,12 +58,9 @@ function dataout = alg_wrapper(datain, calcset)
     adc_gain = tabs{1};
     adc_phi = tabs{2};
     
-    % calculate amplitude spectrum:
-    amp_U = abs(U);
-    
     % get range of the used amplitudes: 
-    a_min = min(amp_U);
-    a_max = max(amp_U);
+    a_min = min(amp);
+    a_max = max(amp);
         
     % check if correction data have sufficient range for the measured spectrum components:
     % note: isempty() tests is used to identify if the correction is not dependent on the axis, therefore the error check does not apply
@@ -77,16 +71,19 @@ function dataout = alg_wrapper(datain, calcset)
         error('Digitizer gain/phase correction data do not have sufficient frequency range!');
     end
     
-    % build complex transfer table from digitizer gain/phase:  
-    adc_tf = correction_add2table(adc_gain,'tf',adc_gain.gain.*exp(j*adc_phi.phi));
-              
-    % interpolate the complex tfer table to the measured frequencies and amplitudes:
-    adc_tf = correction_interp_table(adc_tf,amp_U(:),f_U(:),'f',1);
+    % interpolate the gain/phase table to the measured frequencies and amplitudes:
+    adc_gain = correction_interp_table(adc_gain,amp(:),f_U(:),'f',1);
+    adc_phi = correction_interp_table(adc_phi,amp(:),f_U(:),'f',1);
     
+    % check if there aren't some NaNs in the correction data - that means user correction dataset contains some undefined values:
+    if any(isnan(adc_gain.gain)) || any(isnan(adc_phi.phi))
+        error('Digitizer gain/phase correction data do not have sufficient frequency range!');
+    end
     
-    % apply the digitizer transfer correction in the complex domain:
-    U = U.*adc_tf.tf;
-    
+    % apply the digitizer transfer correction:
+    amp = amp.*adc_gain.gain;
+    phi = phi + adc_phi.phi;
+
     
     % --- now apply transducer gain/phase corrections:
     % this will be more tricky, because trans. correction data are dependent on the input rms value so,
@@ -100,14 +97,7 @@ function dataout = alg_wrapper(datain, calcset)
     % extract modified tables:
     tr_gain = tabs{1};
     tr_phi = tabs{2};
-    
-    % calculate amplitude spectrum:
-    amp_U = abs(U);
-    
-    % get range of the used amplitudes: 
-    a_min = min(amp_U);
-    a_max = max(amp_U);
-        
+            
     % check if correction data have sufficient range for the measured spectrum components:
     % note: isempty() tests is used to identify if the correction is not dependent on the axis, therefore the error check does not apply
     if ~isempty(ax_f) && (f_min < min(ax_f) || f_max > max(ax_f))
@@ -117,27 +107,31 @@ function dataout = alg_wrapper(datain, calcset)
         error('Transducer gain/phase correction data do not have sufficient frequency range!');
     end
     
-    % build complex transfer table from transducer gain/phase:
-    tr_tf = correction_add2table(tr_gain,'tf',tr_gain.gain.*exp(j*tr_phi.phi));
-          
-    % interpolate the complex tfer table to the measured frequencies but NOT amplitudes:
-    tr_tf_tmp = correction_interp_table(tr_tf,[],f_U);
+    % interpolate the gain tfer table to the measured frequencies but NOT amplitudes:
+    tr_gain_tmp = correction_interp_table(tr_gain,[],f_U);
     
     % get the rms-independent tfer:
     % the nanmean is used to find mean correction coefficient for all available rms-values ignoring missing NaN-data 
-    tf_tmp = nanmean(tr_tf_tmp.tf,2);
+    gain_tmp = nanmean(tr_gain_tmp.gain,2);
     
     % apply the tfer to the signal to get INPUT spectrum estimate:
-    U_tmp = U.*tf_tmp;
+    amp_tmp = amp.*gain_tmp;
     
     % now estimate rms value of the spectrum:
-    rms = (0.5*U_tmp.^2).^0.5;
+    rms = sum(0.5*abs(amp).^2)^0.5;
     
-    % interpolate the complex tfer table to the measured frequencies and rms level:
-    tr_tf = correction_interp_table(tr_tf,rms,f_U);
+    % interpolate the gain/phase tfer table to the measured frequencies and rms level:
+    tr_gain = correction_interp_table(tr_gain,rms,f_U);
+    tr_phi = correction_interp_table(tr_phi,rms,f_U);
     
-    % finally apply the transducer correction in complex domain:
-    U = U.*tr_tf.tf;
+    % check if there aren't some NaNs in the correction data - that means user correction dataset contains some undefined values:
+    if any(isnan(tr_gain.gain)) || any(isnan(tr_phi.phi))
+        error('Transducer gain/phase correction data do not have sufficient frequency range!');
+    end
+    
+    % finally apply the transducer correction:
+    amp = amp.*tr_gain.gain;
+    phi = phi + tr_phi.phi;
     
     
     % --- now we have the spectrum of signal on the transducer input
@@ -145,12 +139,12 @@ function dataout = alg_wrapper(datain, calcset)
     % note the '.v' stands for the value of the quantity, eventual '.u' would be uncertainty 
     
     % return signal RMS value:
-    dataout.rms.v = (0.5*U.^2).^0.5;
+    dataout.rms.v = sum(0.5*amp.^2).^0.5;
     
     % return the spectrum in polar form:
-    dataout.spec_f.v = f_U;
-    dataout.spec_amp.v = abs(U);
-    dataout.spec_phi.v = arg(U);
+    dataout.f.v = f_U;
+    dataout.amp.v = amp;
+    dataout.phi.v = phi;
     
        
     % --------------------------------------------------------------------
