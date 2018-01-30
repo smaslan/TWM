@@ -85,13 +85,13 @@ function alg_test(calcset) %<<<1
     dout = qwtb('TWM-TEST',din);
     
     % --- compare calcualted results with desired:
-    if abs([dout.amp.v(1+fk)] - A(:)) > 2*eps
-        error('TWM-TEST testing: calculated gains do not match!');
+    if any(abs([dout.amp.v(1+fk)] - A(:))./A(:) > 1e-6)
+        error('TWM-TEST testing: calculated amplitudes do not match!');
     end
-    if abs([dout.phi.v(1+fk)] - ph(:)) > 2*eps                                    
-        error('TWM-TEST testing: calculated phase do not match!');          
+    if any(abs([dout.phi.v(1+fk)] - ph(:)) > 10e-6)                                    
+        error('TWM-TEST testing: calculated phases do not match!');          
     end
-    if abs(dout.rms.v - rms) > 2*eps
+    if abs(dout.rms.v - rms)/rms > 1e-7
         error('TWM-TEST testing: calculated rms value does not match!');
     end
                                                                          

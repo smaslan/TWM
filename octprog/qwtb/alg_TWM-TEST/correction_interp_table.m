@@ -1,3 +1,9 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% DO NOT EDIT THIS DIRECTLY, THIS IS GENERATED AUTOMATICALLY! %%%
+%%% Edit source in the ./source folder, then run 'make*.bat'    %%%
+%%% to rebuild this function.                                   %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
 % TWM: Interpolator of the correction tables loaded by 'correction_load_table'.
 % It will return interpolated value(s) from the correction table either in 2D
@@ -8,6 +14,9 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
 %   tbl = correction_interp_table(tbl, [], ay)
 %   tbl = correction_interp_table(tbl, ax, ay)
 %   tbl = correction_interp_table(tbl, ax, ay, new_axis_name, new_axis_dim)
+%
+%   tbl = correction_interp_table()
+%     - run self-test/validation
 %
 % Parameters:
 %   tbl           - Input table
@@ -35,6 +44,12 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
+    if ~nargin
+        % initiate self-test/validation:
+        tbl = correction_interp_table_test();
+        return
+    end
+    
     % default parameters:
     if ~exist('ax','var')
         ax = [];
@@ -69,13 +84,13 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
         end
         
         % expand axes:
-        if isscalar(ay)
+        if isscalar(ay) && ~isvector(ax)
             if new_axis_dim == 2
                 ay = repmat(ay,size(ax));
             else
                 error('Correction table interpolator: Cannot expand axis ''ay'' because the ''new_axis_dim'' requests this axis as a new independnet axis of the table!');
             end
-        elseif isscalar(ax)
+        elseif isscalar(ax) && ~isvector(ay)
             if new_axis_dim == 1
                 ax = repmat(ax,size(ay));
             else
@@ -114,10 +129,6 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
         ay = oy;
     end
     
-    % flip axes to proper orientation:
-    ax = ax(:).';
-    ay = ay(:);
-    
     % count of the quantities in the table:
     q_names = tbl.quant_names;
     Q = numel(tbl.quant_names);
@@ -127,51 +138,51 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
     for q = 1:Q
         quants{end+1} = getfield(tbl,q_names{q});
     end
+
     
-    
-    
-    % interpolate each quantity:    
-    if ~isempty(ax) && tbl.size_x
-        % interpolate by x-axis:        
-        for q = 1:Q
-            quants{q} = interp1nan(ox,quants{q}.',ax.').';
-        end
-    elseif ~isempty(ax) && ~tbl.size_x
-        % interpolate by x-axis (source is independent on the x-axis - just replicate the quantities for each 'ax'):
-        for q = 1:Q
-            quants{q} = repmat(quants{q},[1 numel(ax)]);
-        end                
-    end
-    if ~isempty(ay) && tbl.size_y
-        % interpolate by y-axis:        
-        for q = 1:Q
-            quants{q} = interp1nan(oy,quants{q},ay);
-        end
-    elseif ~isempty(ay) && ~tbl.size_y
-        % interpolate by y-axis (source is independent on the y-axis - just replicate the quantities for each 'ay'):
-        for q = 1:Q
-            quants{q} = repmat(quants{q},[numel(ay) 1]);
-        end
-    end
-    
+    % flip axes to proper orientation:
+    ax = ax(:).';
+    ay = ay(:);
     
     if ~in2d
+        % --- mode 1: one value per item of 'ax'/'ay':
         
-        % get only just one item per item of 'ay'/'ax':
-        % orient it according the user demand
-        idx = (1:numel(ax)+1:numel(quants{1}));
+    
+        % interpolate each quantity:
+        if tbl.size_x && tbl.size_y
+            for q = 1:Q
+                quants{q} = interp2nan(ox,oy,quants{q},ax.',ay);
+            end
+        elseif tbl.size_x
+            for q = 1:Q
+                quants{q} = interp1nan(ox,quants{q},ax);
+            end
+        elseif tbl.size_y
+            for q = 1:Q
+                quants{q} = interp1nan(oy,quants{q},ay);
+            end
+        else
+            if new_axis_dim == 1
+                for q = 1:Q
+                    quants{q} = repmat(quants{q},size(ay));
+                end
+            else
+                for q = 1:Q
+                    quants{q} = repmat(quants{q},size(ax));
+                end
+            end            
+        end
+        
+        % set correct orientation:
         if new_axis_dim == 1
             for q = 1:Q
-                tmp = quants{q}(idx);
-                quants{q} = tmp(:);
+                quants{q} = quants{q}(:);
             end
         else
             for q = 1:Q
-                tmp = quants{q}(idx);
-                quants{q} = tmp;
-            end
+                quants{q} = quants{q}(:).';
+            end    
         end
-        
         
         % --- modify the axes, because not it became just 1D table dependent on unknown new axis:
         
@@ -185,17 +196,57 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
             tbl.axis_y = new_axis_name;
             tbl.has_x = 0;
             tbl.has_y = 1;
-            %tbl = setfield(tbl, new_axis_name, ay);
         else
             % select 'ax' as the new axis:
             tbl.axis_x = new_axis_name;
             tbl.axis_y = '';
             tbl.has_x = 1;
             tbl.has_y = 0;
-            %tbl = setfield(tbl, new_axis_name, ax);
-        end
-         
-    end
+        end        
+    
+    else
+        % --- mode 2: regular 2D interpolation:
+        
+        if ~isempty(ax) && ~isempty(ay)
+            if tbl.size_x && tbl.size_y
+                for q = 1:Q
+                    quants{q} = interp2nan(ox,oy,quants{q},ax,ay);
+                end
+            elseif tbl.size_x
+                for q = 1:Q
+                    quants{q} = repmat(interp1nan(ox,quants{q},ax),size(ay));
+                end
+            elseif tbl.size_y
+                for q = 1:Q
+                    quants{q} = repmat(interp1nan(oy,quants{q},ay),size(ax));
+                end
+            else
+                for q = 1:Q
+                    quants{q} = repmat(quants{q},[numel(ay) numel(ax)]);
+                end
+            end        
+        elseif ~isempty(ax)
+            if tbl.size_x
+                for q = 1:Q
+                    quants{q} = interp1nan(ox,quants{q},ax);
+                end
+            else
+                for q = 1:Q
+                    quants{q} = repmat(quants{q},size(ax));
+                end
+            end        
+        elseif ~isempty(ay)
+            if tbl.size_y
+                for q = 1:Q
+                    quants{q} = interp1nan(oy,quants{q},ay);
+                end
+            else
+                for q = 1:Q
+                    quants{q} = repmat(quants{q},size(ay));
+                end
+            end        
+        end 
+    end  
     
     % store back the interpolated quantities:
     for q = 1:Q
@@ -232,3 +283,322 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
 
 
 end
+
+
+
+
+
+% ====== SELF-TEST SECTION ======
+
+%!test correction_interp_table()
+function [res] = correction_interp_table_test()
+
+    % high tolerance needed because of NaN tolerant interps - they cause some additional error:
+    ep = 100*eps;
+    
+    tab.name = 'test';
+    tab.a = [1 2 3];
+    tab.f = [1;2;3];
+    tab.qu1 = [1 2 3;4 5 6;7 8 9];    
+    tab.quant_names = {'qu1'};
+    tab.axis_x = 'a';
+    tab.axis_y = 'f';
+    tab.has_x = ~isempty(tab.axis_x);
+    tab.has_y = ~isempty(tab.axis_y);
+    tab.size_x = size(tab.a,2)*tab.has_x;
+    tab.size_y = size(tab.f,1)*tab.has_y;
+    
+    tin = correction_interp_table(tab,[1 2],[2 3],'g',1);        
+    if ~isfield(tin,'g') || ~strcmpi(tin.axis_y,'g') || any(abs(tin.g - [2;3]) > ep) || any(abs(tin.qu1 - [4;8]) > ep) || tin.has_x || ~tin.has_y
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[2 3],''g'',1)''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[2 3],'g',2);
+    if ~isfield(tin,'g') || ~strcmpi(tin.axis_x,'g') || any(abs(tin.g - [1 2]) > ep) || any(abs(tin.qu1 - [4 8]) > ep) || ~tin.has_x || tin.has_y
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[1 2],''g'',1)''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[2 3]);
+    if any(abs(tin.qu1 - [4 5;7 8]) > ep) || tin.size_x ~= 2 || tin.size_y ~= 2
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[2 3])''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[]);
+    if any(abs(tin.qu1 - [1 2;4 5;7 8]) > ep) || tin.size_x ~= 2 || tin.size_y ~= 3
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2])''!');    
+    end
+    
+    tin = correction_interp_table(tab,[],[2 3]);
+    if any(abs(tin.qu1 - [4 5 6;7 8 9]) > ep) || tin.size_x ~= 3 || tin.size_y ~= 2
+        error('Correction table validation failed at: ''correction_interp_table(tab,[],[2 3])''!');    
+    end
+    
+    
+    
+    tab.name = 'test';
+    tab.a = [];
+    tab.f = [1;2;3];
+    tab.qu1 = [1;2;3];    
+    tab.quant_names = {'qu1'};
+    tab.axis_x = 'a';
+    tab.axis_y = 'f';
+    tab.has_x = ~isempty(tab.axis_x);
+    tab.has_y = ~isempty(tab.axis_y);
+    tab.size_x = size(tab.a,2)*tab.has_x;
+    tab.size_y = size(tab.f,1)*tab.has_y;
+    
+    tin = correction_interp_table(tab,[1 2],[2 3],'g',1);
+    if ~isfield(tin,'g') || ~strcmpi(tin.axis_y,'g') || any(abs(tin.g - [2;3]) > ep) || any(abs(tin.qu1 - [2;3]) > ep) || tin.has_x || ~tin.has_y
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[2 3],''g'',1)''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[2 3],'g',2);
+    if ~isfield(tin,'g') || ~strcmpi(tin.axis_x,'g') || any(abs(tin.g - [1 2]) > ep) || any(abs(tin.qu1 - [2 3]) > ep) || ~tin.has_x || tin.has_y
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[1 2],''g'',1)''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[2 3]);
+    if any(abs(tin.qu1 - [2 2;3 3]) > ep) || tin.size_x ~= 2 || tin.size_y ~= 2
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[2 3])''!');    
+    end
+    
+    tin = correction_interp_table(tab,[],[2 3]);
+    if any(abs(tin.qu1 - [2;3]) > ep) || tin.size_x ~= 0 || tin.size_y ~= 2
+        error('Correction table validation failed at: ''correction_interp_table(tab,[],[2 3])''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[]);
+    if any(abs(tin.qu1 - [1 1;2 2;3 3]) > ep) || tin.size_x ~= 2 || tin.size_y ~= 3
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[])''!');    
+    end
+    
+    tin = correction_interp_table(tab,[],[]);
+    if any(abs(tin.qu1 - [1;2;3]) > ep) || tin.size_x ~= 0 || tin.size_y ~= 3
+        error('Correction table validation failed at: ''correction_interp_table(tab,[],[])''!');    
+    end
+    
+    
+    
+    tab.name = 'test';
+    tab.a = [];
+    tab.f = [1;2;3];
+    tab.qu1 = [1;2;3];    
+    tab.quant_names = {'qu1'};
+    tab.axis_x = '';
+    tab.axis_y = 'f';
+    tab.has_x = ~isempty(tab.axis_x);
+    tab.has_y = ~isempty(tab.axis_y);
+    tab.size_x = size(tab.a,2)*tab.has_x;
+    tab.size_y = size(tab.f,1)*tab.has_y;
+        
+    tin = correction_interp_table(tab,[],[2 3]);
+    if any(abs(tin.qu1 - [2;3]) > ep) || tin.size_x ~= 0 || tin.size_y ~= 2
+        error('Correction table validation failed at: ''correction_interp_table(tab,[],[2 3])''!');    
+    end
+        
+    tin = correction_interp_table(tab,[],[]);
+    if any(abs(tin.qu1 - [1;2;3]) > ep) || tin.size_x ~= 0 || tin.size_y ~= 3
+        error('Correction table validation failed at: ''correction_interp_table(tab,[],[])''!');    
+    end
+    
+    
+    
+    tab.name = 'test';
+    tab.a = [1 2 3];
+    tab.f = [];
+    tab.qu1 = [1 2 3];    
+    tab.quant_names = {'qu1'};
+    tab.axis_x = 'a';
+    tab.axis_y = 'f';
+    tab.has_x = ~isempty(tab.axis_x);
+    tab.has_y = ~isempty(tab.axis_y);
+    tab.size_x = size(tab.a,2)*tab.has_x;
+    tab.size_y = size(tab.f,1)*tab.has_y;
+    
+    tin = correction_interp_table(tab,[1 2],[2 3],'g',1);
+    if ~isfield(tin,'g') || ~strcmpi(tin.axis_y,'g') || any(abs(tin.g - [2;3]) > ep) || any(abs(tin.qu1 - [1;2]) > ep) || tin.has_x || ~tin.has_y
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[2 3],''g'',1)''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[2 3],'g',2);
+    if ~isfield(tin,'g') || ~strcmpi(tin.axis_x,'g') || any(abs(tin.g - [1 2]) > ep) || any(abs(tin.qu1 - [1 2]) > ep) || ~tin.has_x || tin.has_y
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[1 2],''g'',1)''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[2 3]);
+    if any(abs(tin.qu1 - [1 2;1 2]) > ep) || tin.size_x ~= 2 || tin.size_y ~= 2
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[2 3])''!');    
+    end
+    
+    tin = correction_interp_table(tab,[],[2 3]);
+    if any(abs(tin.qu1 - [1 2 3;1 2 3]) > ep) || tin.size_x ~= 3 || tin.size_y ~= 2
+        error('Correction table validation failed at: ''correction_interp_table(tab,[],[2 3])''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[]);
+    if any(abs(tin.qu1 - [1 2]) > ep) || tin.size_x ~= 2 || tin.size_y ~= 0
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[])''!');    
+    end
+    
+    tin = correction_interp_table(tab,[],[]);
+    if any(abs(tin.qu1 - [1 2 3]) > ep) || tin.size_x ~= 3 || tin.size_y ~= 0
+        error('Correction table validation failed at: ''correction_interp_table(tab,[],[])''!');    
+    end
+    
+    
+    tab.name = 'test';
+    tab.a = [1 2 3];
+    tab.f = [];
+    tab.qu1 = [1 2 3];    
+    tab.quant_names = {'qu1'};
+    tab.axis_x = 'a';
+    tab.axis_y = '';
+    tab.has_x = ~isempty(tab.axis_x);
+    tab.has_y = ~isempty(tab.axis_y);
+    tab.size_x = size(tab.a,2)*tab.has_x;
+    tab.size_y = size(tab.f,1)*tab.has_y;
+        
+    tin = correction_interp_table(tab,[1 2],[]);
+    if any(abs(tin.qu1 - [1 2]) > ep) || tin.size_x ~= 2 || tin.size_y ~= 0
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[])''!');    
+    end
+            
+    tin = correction_interp_table(tab,[],[]);
+    if any(abs(tin.qu1 - [1 2 3]) > ep) || tin.size_x ~= 3 || tin.size_y ~= 0
+        error('Correction table validation failed at: ''correction_interp_table(tab,[],[])''!');    
+    end
+    
+    
+    
+    
+    tab.name = 'test';
+    tab.a = [];
+    tab.f = [];
+    tab.qu1 = [2];    
+    tab.quant_names = {'qu1'};
+    tab.axis_x = 'a';
+    tab.axis_y = 'f';
+    tab.has_x = ~isempty(tab.axis_x);
+    tab.has_y = ~isempty(tab.axis_y);
+    tab.size_x = size(tab.a,2)*tab.has_x;
+    tab.size_y = size(tab.f,1)*tab.has_y;
+    
+    tin = correction_interp_table(tab,[1 2],[2 3],'g',1);        
+    if ~isfield(tin,'g') || ~strcmpi(tin.axis_y,'g') || any(abs(tin.g - [2;3]) > ep) || any(abs(tin.qu1 - [2;2]) > ep) || tin.has_x || ~tin.has_y
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[2 3],''g'',1)''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[2 3],'g',2);
+    if ~isfield(tin,'g') || ~strcmpi(tin.axis_x,'g') || any(abs(tin.g - [1 2]) > ep) || any(abs(tin.qu1 - [2 2]) > ep) || ~tin.has_x || tin.has_y
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[1 2],''g'',1)''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[2 3]);
+    if any(abs(tin.qu1 - [2 2;2 2]) > ep) || tin.size_x ~= 2 || tin.size_y ~= 2
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2],[2 3])''!');    
+    end
+    
+    tin = correction_interp_table(tab,[1 2],[]);
+    if any(abs(tin.qu1 - [2 2]) > ep) || tin.size_x ~= 2 || tin.size_y ~= 0
+        error('Correction table validation failed at: ''correction_interp_table(tab,[1 2])''!');    
+    end
+    
+    tin = correction_interp_table(tab,[],[2 3]);
+    if any(abs(tin.qu1 - [2;2]) > ep) || tin.size_x ~= 0 || tin.size_y ~= 2
+        error('Correction table validation failed at: ''correction_interp_table(tab,[],[2 3])''!');    
+    end
+    
+    
+    
+    
+    
+    tab.name = 'test';
+    tab.a = [];
+    tab.f = [];
+    tab.qu1 = [2];    
+    tab.quant_names = {'qu1'};
+    tab.axis_x = '';
+    tab.axis_y = '';
+    tab.has_x = ~isempty(tab.axis_x);
+    tab.has_y = ~isempty(tab.axis_y);
+    tab.size_x = size(tab.a,2)*tab.has_x;
+    tab.size_y = size(tab.f,1)*tab.has_y;
+        
+    tin = correction_interp_table(tab,[],[]);
+    if any(abs(tin.qu1 - [2]) > ep) || tin.size_x ~= 0 || tin.size_y ~= 0
+        error('Correction table validation failed at: ''correction_interp_table(tab,[],[])''!');    
+    end       
+    
+    res = 1;
+    
+end
+
+
+
+% ====== SUB-FUNCTIONS SECTION ======
+
+function [yi] = interp1nan(x,y,xi,varargin)
+% This is a crude wrapper for interp1() function that should avoid unwanted NaN
+% results if the 'xi' is on the boundary of NaN data in 'y'.
+%
+% Note: Not all parameter combinations for interp1() are implemented!
+%       It is just very basic wrapper.
+%
+% Example:
+% x = [1 2 3], y = [1 2 NaN]
+% interp1(x,y,2,'linear') may return NaN because the 'xi = 2' is on the boundary
+% of the valid 'y' data.  
+%
+% This is part of the TWM - TracePQM WattMeter.
+% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
+% 
+
+    % maximum allowable tolerance: 
+    max_eps = 5*eps*xi;
+    
+    % try to interpolate with offsets xi = <xi +/- max_eps>:
+    tmp(:,:,1) = interp1(x,y,xi + max_eps,varargin{:});
+    tmp(:,:,2) = interp1(x,y,xi - max_eps,varargin{:});
+    
+    % select non NaN results from the candidates:
+    yi = nanmean(tmp,3);    
+
+end
+
+function [zi] = interp2nan(x,y,z,xi,yi,varargin)
+% This is a crude wrapper for interp2() function that should avoid unwanted NaN
+% results if the 'xi' or 'yi' is on the boundary of NaN data in 'z'.
+%
+% Note: Not all parameter combinations for interp2() are implemented!
+%       It is just very basic wrapper.
+%
+% Example:
+% x = [1 2 3]
+% y = [1;2;3]
+% z = [1 2 3;
+%      4 5 6;
+%      7 8 NaN]
+% interp2(x,y,z,3,2,'linear') may return NaN because the 'xi = 2' and 'yi = 3' 
+% is on the boundary of the valid 'z' data.  
+%
+% This is part of the TWM - TracePQM WattMeter.
+% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
+% 
+
+    % maximum allowable tolerance: 
+    max_eps_x = 5*eps*xi;
+    max_eps_y = 5*eps*yi;
+    
+    % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
+    tmp(:,:,1) = interp2(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
+    tmp(:,:,2) = interp2(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
+    tmp(:,:,3) = interp2(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
+    tmp(:,:,4) = interp2(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+    
+    % select non NaN results from the candidates:
+    zi = nanmean(tmp,3);    
+
+end
+

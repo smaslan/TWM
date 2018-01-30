@@ -1,9 +1,3 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%% DO NOT EDIT THIS DIRECTLY, THIS IS GENERATED AUTOMATICALLY! %%%
-%%% Edit source in the ./source folder, then run 'make*.bat'    %%%
-%%% to rebuild this function.                                   %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 function [yi] = interp1nan(x,y,xi,varargin)
 % This is a crude wrapper for interp1() function that should avoid unwanted NaN
 % results if the 'xi' is on the boundary of NaN data in 'y'.
