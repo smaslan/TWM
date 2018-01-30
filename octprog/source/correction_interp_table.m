@@ -2,7 +2,7 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
 % TWM: Interpolator of the correction tables loaded by 'correction_load_table'.
 % It will return interpolated value(s) from the correction table either in 2D
 % mode or 1D mode.
-%
+% 
 % Usage:
 %   tbl = correction_interp_table(tbl, ax, [])
 %   tbl = correction_interp_table(tbl, [], ay)
