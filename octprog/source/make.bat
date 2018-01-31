@@ -7,6 +7,12 @@ correction_interp_table.m+^
 interp1nan.m+^
 interp2nan.m
 
+CALL :MAKEIT ..\correction_expand_tables.m ^
+make_head.m+^
+correction_expand_tables.m+^
+interp1nan.m+^
+interp2nan.m
+
 CALL :MAKEIT ..\interp1nan.m ^
 make_head.m+^
 interp1nan.m
