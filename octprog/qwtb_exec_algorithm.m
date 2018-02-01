@@ -12,249 +12,290 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
 
-  % load measurement file header
-  inf = infoload(meas_file);
-  
-  % measuremet root path 
-  meas_root = [fileparts(meas_file) filesep()];
-  
-  % default repetition cycle id
-  if ~exist('avg_id','var')
-    avg_id = -1;
-  end
-  
-  % try to load QWTB processing info
-  try
-    qinf = infogetsection(inf, 'QWTB processing setup');
-  catch
-    % not present - no calculation, no error
-    return    
-  end
-  
-  % process all averaging cycles at once?
-  proc_all = infogetnumber(qinf, 'calculate whole average at once');
-  
-  if proc_all && ~is_last_avg
-    % processing should be done when all averages are done, but this is not last averaging cycle - do nothing
-    return
-  end
-  
-  % get QWTB algorithm ID
-  alg_id = infogettext(qinf, 'algorithm id');
-  
-  
-  % get list of QWTB algorithm parameter names 
-  parameter_names = infogettextmatrix(qinf, 'list of parameter names');
-  
-  % inputs of the algorithm
-  inputs = struct();
-  
-  % --- try to load values of the parameters
-  for p = 1:numel(parameter_names)
-  
-    % name of the parameter
-    name = parameter_names{p};
-      
-    % get values of the parameter 
-    values = infogettextmatrix(qinf, name);    
-    % try to convert them to numeric
-    num_values = cellfun('str2num', values, 'UniformOutput', false);
+    % load measurement file header
+    inf = infoload(meas_file);
     
-    if ~isempty(values)
+    % measuremet root path 
+    meas_root = [fileparts(meas_file) filesep()];
     
-      % create empty parameter in the QWTB inputs list
-      inputs = setfield(inputs, name, struct());
+    % default repetition cycle id
+    if ~exist('avg_id','var')
+        avg_id = -1;
+    end
     
-      if all(cellfun('numel', num_values))
-        % all values are numeric, assume the parameter is numeric
-           
-        eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', cell2mat(num_values));',name,name));
-                    
-      else
-        % at least some of the parameters are not numeric, assume string type
+    % try to load QWTB processing info
+    try
+        qinf = infogetsection(inf, 'QWTB processing setup');
+    catch
+        % not present - no calculation, no error
+        return    
+    end
+    
+    % process all averaging cycles at once?
+    proc_all = infogetnumber(qinf, 'calculate whole average at once');
+    
+    if proc_all && ~is_last_avg
+        % processing should be done when all averages are done, but this is not last averaging cycle - do nothing
+        return
+    end
+    
+    % get QWTB algorithm ID
+    alg_id = infogettext(qinf, 'algorithm id');
+    
+    
+    % get list of QWTB algorithm parameter names 
+    parameter_names = infogettextmatrix(qinf, 'list of parameter names');
+    
+    % inputs of the algorithm
+    inputs = struct();
+  
+    % --- try to load values of the parameters
+    for p = 1:numel(parameter_names)
+    
+        % name of the parameter
+        name = parameter_names{p};
+          
+        % get values of the parameter 
+        values = infogettextmatrix(qinf, name);    
+        % try to convert them to numeric
+        num_values = cellfun('str2num', values, 'UniformOutput', false);
         
-        if numel(values) == 1
-          % scalar - single string parameter
-          eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', values{1});',name,name));
-        else
-          % vector - cell array of string parameters (note: possibly never used, but just in case...)
-          eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', values);',name,name));
+        if ~isempty(values)
+        
+            % create empty parameter in the QWTB inputs list
+            inputs = setfield(inputs, name, struct());
+          
+            if all(cellfun('numel', num_values))
+                % all values are numeric, assume the parameter is numeric
+                   
+                eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', cell2mat(num_values));',name,name));
+                          
+            else
+                % at least some of the parameters are not numeric, assume string type
+                
+                if numel(values) == 1
+                  % scalar - single string parameter
+                  eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', values{1});',name,name));
+                else
+                  % vector - cell array of string parameters (note: possibly never used, but just in case...)
+                  eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', values);',name,name));
+                end
+                  
+            end
+          
         end
-            
-      end
       
     end
-    
-  end
   
-  % --- identify input types of the algorithm
-    
-  % fetch information struct of the QWTB algorithm
-  alginfo = qwtb(alg_id,'info');
-  
-  % QWTB algorithm input parameters
-  q_inp = alginfo.inputs;
-  
-  % is this single input algorithm?
-  is_single_inp = qwtb_find_parameter(q_inp,'y');
-  if ~is_single_inp
-    % no 'y' input - possibly algorithm with 'u' and 'i' inputs?
-    
-    if ~(qwtb_find_parameter(q_inp,'u') && qwtb_find_parameter(q_inp,'i'))
-      % not even that - error
-      error(sprintf('QWTB algorithm executer: the algorithm ''%s'' does not have supported inputs (must have ''y'', or ''u'' and ''i'' inputs)!',alg_id));
-    end
-    
-  end
-  
-  % check if there is timestep input?
-  is_time_vec = qwtb_find_parameter(q_inp,'Ts');
-  if ~is_time_vec
-    error(sprintf('QWTB algorithm executer: the algorithm ''%s'' does not have inputs ''Ts''!',alg_id));
-  end
-  
-  
-  % --- load record(s)
-  
-  if proc_all
-    % process all averages (repetitions) at once
-    avg_id = 0;
-  end
-  
-  % load last measurement group
-  data = tpq_load_record(meas_file,-1,avg_id);
-    
-  
-  % no assigned channel yet
-  assgn_channels = zeros(data.channels_count,1);
-  
-  % get unique phase indexes from the channels list
-  phases = unique(data.corr.phase_idx);
-  
-  % build channel-quantities names ('u1','i1','u2','i2',...)
-  channels = {}; 
-  uis = {'u';'i'};
-  for c = 1:data.channels_count
-    channels{c,1} = sprintf('%s%d',uis{1 + strcmpi(data.corr.tran{c}.type,'shunt')},data.corr.phase_idx(c)); 
-  end
-  
-  % duplicate phase and quantity for some channel?
-  if numel(unique(channels)) ~= numel(channels)
-    error('QWTB algorithm executer: Some channels have the duplicate phase index for the same quantity (current or voltage)! Incorrect correction data.');
-  end
-  
-    
-  % get file name of the record that is currently loaded (only fist one if multiple loaded)
-  result_name = data.record_filenames{1};
-  
-  % build result folder path
-  result_folder = 'RESULTS';
-    
-  % try make result folder
-  if ~exist([meas_root result_folder],'file') 
-    mkdir(meas_root, result_folder);
-  end
-  
-  % build result file path base (no extension)
-  result_rel_path = [result_folder filesep() alg_id '-' result_name];
-  result_path = [meas_root result_rel_path];
-  
-  % try to remove eventual existing results
-  if exist([result_path '.mat'],'file') delete([result_path '.mat']); end
-  if exist([result_path '.info'],'file') delete([result_path '.info']); end
-    
-  % insert copy of QWTB parameters to the result
-  rinf = infosetsection('QWTB parameters', qinf);
-  
-  if ~is_single_inp
-    % dual input channel algorithm: we must have always paired 'u' and 'i' for each phase
-    
-    % store list of phases to the results file ('L1','L2',...)
-    list = {};
-    for p = 1:numel(phases)
-      list{p} = sprintf('L%d',phases(p));
-    end     
-    rinf = infosettextmatrix(rinf, 'list', list);    
-    infosave(rinf, result_path);
-    
-    % --- for each unique phase:
-    for p = 1:numel(phases)
-      % build the phase's 'u' and 'i' names
-      u_name = sprintf('u%d',phases(p)); 
-      i_name = sprintf('i%d',phases(p));
+
+    % --- identify input types of the algorithm
       
-      % try to find voltage channel in the loaded measurement data:
-      u_id = find(strcmpi(channels,u_name),1);
-      if ~numel(u_id)
-        error(sprintf('QWTB algorithm executer: Missing voltage channel for phase #%d!',uniphx(p)));
-      end
-      
-      % try to find current channel in the loaded measurement data: 
-      i_id = find(strcmpi(channels,i_name),1);
-      if ~numel(u_id)
-        error(sprintf('QWTB algorithm executer: Missing current channel for phase #%d!',uniphx(p)));
-      end
-      
-      % copy user parameters to the QWTB inputs
-      di = inputs;
-      
-      % store time vector
-      di.Ts.v = data.Ts;
-      
-      % store voltage and current vectors     
-      di.u.v = data.y(:,u_id:data.channels_count:end);
-      di.i.v = data.y(:,i_id:data.channels_count:end);
-      
-      % execute algorithm
-      dout = qwtb(alg_id,di);
-      
-      % store current channel phase setup info (index; U, I tag)
-      phase_info.index = data.corr.phase_idx(p);
-      phase_info.tags = {u_name,i_name};
-      phase_info.section = list{p};
-      
-      % store results to the result file
-      qwtb_store_results(result_path, dout, alginfo, phase_info);
-      
-    end
+    % fetch information struct of the QWTB algorithm
+    alginfo = qwtb(alg_id,'info');
+    
+    % QWTB algorithm input parameters
+    q_inp = alginfo.inputs;
+    
+    % is this single input algorithm?
+    is_single_inp = qwtb_find_parameter(q_inp,'y');
+    if ~is_single_inp
+        % no 'y' input - possibly algorithm with 'u' and 'i' inputs?
         
-  else  
-    % single input algorithm
-    
-    % store list of channels to results file         
-    rinf = infosettextmatrix(rinf, 'list', channels);
-    infosave(rinf, result_path);
-    
-    % --- for each available channel
-    for p = 1:numel(channels)
-    
-      % copy user parameters to the QWTB inputs
-      di = inputs;
+        if ~(qwtb_find_parameter(q_inp,'u') && qwtb_find_parameter(q_inp,'i'))
+            % not even that - error
+            error(sprintf('QWTB algorithm executer: the algorithm ''%s'' does not have supported inputs (must have ''y'', or ''u'' and ''i'' inputs)!',alg_id));
+        end
       
-      % store channel corrections:
-      di = qwtb_alg_insert_chn_corr(di,data,p);
-      
-      % store time vector
-      di.Ts.v = data.Ts;
-      
-      % store voltage or current vector
-      di.y.v = data.y(:,p:data.channels_count:end);
-      
-       
-      % execute algorithm
-      dout = qwtb(alg_id,di);
-      
-      % store current channel phase setup info (index; U, I tag)
-      phase_info.index = data.corr.phase_idx(p);
-      phase_info.tags = channels(p);
-      phase_info.section = channels{p};
-      
-      % store results to the result file
-      qwtb_store_results(result_path, dout, alginfo, phase_info);
-    
     end
     
-  end
+    % check if there is timestep input?
+    is_time_vec = qwtb_find_parameter(q_inp,'Ts');
+    if ~is_time_vec
+        error(sprintf('QWTB algorithm executer: the algorithm ''%s'' does not have inputs ''Ts''!',alg_id));
+    end
+    
+    % algorithm supports differential inputs?
+    has_diff = qwtb_find_parameter(q_inp,'support_diff');
+    
+    % algorithm supports multiple waveform input?
+    has_multi = qwtb_find_parameter(q_inp,'support_multi_inputs');
+    
+    % check compatibility:
+    if proc_all && ~has_multi
+        error(sprintf('QWTB algorithm executer: the algorithm ''%s'' cannot process multiple records at the time!',alg_id));
+    end
+    
+  
+    % --- load record(s)
+    
+    if proc_all
+        % process all averages (repetitions) at once
+        avg_id = 0;
+    end
+    
+    % load last measurement group
+    data = tpq_load_record(meas_file,-1,avg_id);
+    
+    % get unique phase indexes from the channels list
+    phases = unique(data.corr.phase_idx);
+    
+    % build channel-quantities names ('u1','i1','u2','i2',...)
+    channels = {}; 
+    uis = {'u';'i'};
+    for c = 1:numel(data.corr.tran)
+        channels{c,1} = sprintf('%s%d',uis{1 + strcmpi(data.corr.tran{c}.type,'shunt')},data.corr.phase_idx(c));
+        
+        % check differential input capability of the algorithm:
+        if data.corr.tran{c}.is_diff && ~has_diff
+            error(sprintf('QWTB algorithm executer: the algorithm ''%s'' cannot process differential inputs!',alg_id));
+        end 
+    end
+  
+    
+    % get file name of the record that is currently loaded (only fist one if multiple loaded)
+    result_name = data.record_filenames{1};
+    
+    % build result folder path
+    result_folder = 'RESULTS';
+      
+    % try make result folder
+    if ~exist([meas_root result_folder],'file') 
+        mkdir(meas_root, result_folder);
+    end
+    
+    % build result file path base (no extension)
+    result_rel_path = [result_folder filesep() alg_id '-' result_name];
+    result_path = [meas_root result_rel_path];
+    
+    % try to remove eventual existing results
+    if exist([result_path '.mat'],'file') delete([result_path '.mat']); end
+    if exist([result_path '.info'],'file') delete([result_path '.info']); end
+      
+    % insert copy of QWTB parameters to the result
+    rinf = infosetsection('QWTB parameters', qinf);
+  
+    if ~is_single_inp
+        % dual input channel algorithm: we must have always paired 'u' and 'i' for each phase
+        
+        % store list of phases to the results file ('L1','L2',...)
+        list = {};
+        for p = 1:numel(phases)
+            list{p} = sprintf('L%d',phases(p));
+        end     
+        rinf = infosettextmatrix(rinf, 'list', list);    
+        infosave(rinf, result_path);
+        
+        % --- for each unique phase:
+        for p = 1:numel(phases)
+            
+            error('dual input algoritms not implemented yet, broh...');
+            
+            % build the phase's 'u' and 'i' names
+            u_name = sprintf('u%d',phases(p)); 
+            i_name = sprintf('i%d',phases(p));
+            
+            % try to find voltage channel in the loaded measurement data:
+            u_id = find(strcmpi(channels,u_name),1);
+            if ~numel(u_id)
+              error(sprintf('QWTB algorithm executer: Missing voltage channel for phase #%d!',uniphx(p)));
+            end
+            
+            % try to find current channel in the loaded measurement data: 
+            i_id = find(strcmpi(channels,i_name),1);
+            if ~numel(u_id)
+              error(sprintf('QWTB algorithm executer: Missing current channel for phase #%d!',uniphx(p)));
+            end
+            
+            % copy user parameters to the QWTB inputs
+            di = inputs;
+            
+            % store time vector
+            di.Ts.v = data.Ts;
+            
+            % store voltage and current vectors     
+            di.u.v = data.y(:,u_id:data.channels_count:end);
+            di.i.v = data.y(:,i_id:data.channels_count:end);
+            
+            % execute algorithm
+            dout = qwtb(alg_id,di);
+            
+            % store current channel phase setup info (index; U, I tag)
+            phase_info.index = data.corr.phase_idx(p);
+            phase_info.tags = {u_name,i_name};
+            phase_info.section = list{p};
+            
+            % store results to the result file
+            qwtb_store_results(result_path, dout, alginfo, phase_info);
+          
+        end
+          
+    else  
+        % single input algorithm
+        
+        % store list of channels to results file         
+        rinf = infosettextmatrix(rinf, 'list', channels);
+        infosave(rinf, result_path);
+        
+        % --- for each available transducer:
+        for p = 1:numel(data.corr.tran)
+        
+            % get transducer:
+            tran = data.corr.tran{p};
+                    
+            % generate assigned channel prefixes:
+            if tran.is_diff
+                % differential connection:
+                dig_pfx = {'';'lo'};            
+            else
+                % single-ended connection:
+                dig_pfx = {''};            
+            end         
+        
+            % copy user parameters to the QWTB input quantities:
+            di = inputs;
+            
+            % store sampling time:
+            di.Ts.v = data.Ts;
+          
+            % for each digitizer channel assigned to the transducer:
+            for c = 1:numel(tran.channels)
+            
+                % waveform data quantity name:
+                d_pfx = 'y';
+                if ~isempty(dig_pfx{c})
+                    d_pfx = [d_pfx '_' dig_pfx{c}];                
+                end
+            
+                % store waveform data:
+                % note stores all available repetitions, one column per repetition:
+                di = setfield(di, d_pfx, struct('v', data.y(:, tran.channels(c):data.channels_count:end)));
+                
+                % store channel corrections:
+                di = qwtb_alg_insert_chn_corr(di,data,tran.channels(c),dig_pfx{c});
+            
+            end
+            
+            % insert transducer corrections:
+            di = qwtb_alg_insert_tran_corr(di,data,p,'');
+            
+            %fieldnames(di)
+           
+            % execute algorithm
+            dout = qwtb(alg_id,di);
+            
+            % store current channel phase setup info (index; U, I tag)
+            phase_info.index = data.corr.phase_idx(p);
+            phase_info.tags = channels(p);
+            phase_info.section = channels{p};
+            
+            % store results to the result file
+            qwtb_store_results(result_path, dout, alginfo, phase_info);
+        
+        end
+      
+    end
+    
+    return
   
   
   % --- build results header
@@ -338,31 +379,51 @@ end
 
 
 
-function [di] = qwtb_alg_insert_chn_corr(di,data,p)
+function [di] = qwtb_alg_insert_chn_corr(di,data,p,prefix)
 % Parameters:
 %   di   - QWTB input data
 %   data - measurement data
 %   p    - channel index
+%   prefix - prefix string of the channel correction (e.g. 'u' or 'i_lo')
 
+    if ~isempty(prefix) 
+        prefix = [prefix '_'];
+    end
+    
     % get digitizer's channel from meas. data:
     dig = data.corr.dig.chn{p};
+    
+    % copy all digizer channel correction to QWTB input data: 
+    for k = 1:numel(dig.qwtb_list)        
+        di = qwtb_alg_conv_corr(di,getfield(dig,dig.qwtb_list{k}),prefix);                
+    end
+       
+end
+
+function [di] = qwtb_alg_insert_tran_corr(di,data,p,prefix)
+% Parameters:
+%   di   - QWTB input data
+%   data - measurement data
+%   p    - channel index
+%   prefix - prefix string of the channel correction (e.g. 'u' or 'i')
+
+    if ~isempty(prefix) 
+        prefix = [prefix '_'];
+    end
     
     % get transducers's channel from meas. data:
     tran = data.corr.tran{p};
     
-    % copy all digizer channel correction to QWTB input data: 
-    for k = 1:numel(dig.qwtb_list)        
-        di = qwtb_alg_conv_corr(di,getfield(dig,dig.qwtb_list{k}));                
-    end
-    
     % copy all transducer correction to QWTB input data: 
     for k = 1:numel(tran.qwtb_list)        
-        di = qwtb_alg_conv_corr(di,getfield(tran,tran.qwtb_list{k}));        
+        di = qwtb_alg_conv_corr(di,getfield(tran,tran.qwtb_list{k}),prefix);        
     end
     
 end
 
-function [di] = qwtb_alg_conv_corr(di,tab)
+
+
+function [di] = qwtb_alg_conv_corr(di,tab,prefix)
 % This will convert correction table 'correction_load_table()'
 % to the QWTB format.
 % 
@@ -375,6 +436,7 @@ function [di] = qwtb_alg_conv_corr(di,tab)
 %           v_names - cell array of QWTB variable names
 %           v_list  - cell array of the table's variables
 %           u_list  - cell array of the table's uncertainties
+%   prefix - prefix string of the correction (e.g. 'u_' or 'u_lo_')
 %
 % example:
 %   qwtb.ax_prim = 'Yin_f'
@@ -383,11 +445,11 @@ function [di] = qwtb_alg_conv_corr(di,tab)
 %   qwtb.v_list = {'Rp','Cp'}
 %   qwtb.u_list = {'u_Rp','u_Cp'}
 %  will create:
-%   di.Yin_f.v  - primary axis of 'tab'
-%   di.Yin_rp.v - quantity 'Rp' from 'tab'
-%   di.Yin_rp.u - quantity 'u_Rp' from 'tab'
-%   di.Yin_cp.v - quantity 'Cp' from 'tab'
-%   di.Yin_cp.u - quantity 'u_Cp' from 'tab'
+%   di.[prefix]Yin_f.v  - primary axis of 'tab'
+%   di.[prefix]Yin_rp.v - quantity 'Rp' from 'tab'
+%   di.[prefix]Yin_rp.u - quantity 'u_Rp' from 'tab'
+%   di.[prefix]Yin_cp.v - quantity 'Cp' from 'tab'
+%   di.[prefix]Yin_cp.u - quantity 'u_Cp' from 'tab'
 %
     
     % get naming data for QWTB passing from the correction tables:
@@ -399,13 +461,13 @@ function [di] = qwtb_alg_conv_corr(di,tab)
     % set primary axis:
     if ~isempty(qw.ax_prim)    
         ax_data = getfield(tab,tab.axis_y);
-        di = setfield(di,qw.ax_prim,struct('v',ax_data));    
+        di = setfield(di, [prefix qw.ax_prim], struct('v',ax_data));    
     end
     
     % set secondary axis:
     if ~isempty(qw.ax_sec)    
         ax_data = getfield(tab,tab.axis_x);
-        di = setfield(di,qw.ax_sec,struct('v',ax_data));    
+        di = setfield(di, [prefix qw.ax_sec], struct('v',ax_data));    
     end
     
     % set all quantities: 
@@ -423,7 +485,7 @@ function [di] = qwtb_alg_conv_corr(di,tab)
         end
         
         % set parameter to the QWTB input data: 
-        di = setfield(di,qw.v_names{q},qu);
+        di = setfield(di, [prefix qw.v_names{q}], qu);
     end
 
 end

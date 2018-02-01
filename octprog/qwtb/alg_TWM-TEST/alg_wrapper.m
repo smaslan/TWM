@@ -21,7 +21,7 @@ function dataout = alg_wrapper(datain, calcset)
          
     if cfg.y_is_diff
         % Input data 'y' is differential: if it is not allowed, put error message here
-        error('Differential input data ''y'' not allowed!');     
+        %error('Differential input data ''y'' not allowed!');     
     end
     
     if cfg.is_multi
@@ -33,56 +33,112 @@ function dataout = alg_wrapper(datain, calcset)
     % This is not necessary but the TWM style tables are more comfortable to use then raw correction matrices
     tab = qwtb_restore_correction_tables(datain,cfg);
     
-
+    
     % --------------------------------------------------------------------
     % Now we are ready to do whatever the algorithm should do ...
-    % Replace following code by whatever algorithm you like
+    % Replace following code by whatever algorithm you like.
     % --------------------------------------------------------------------
         
     % --- lets assume simple FFT spectral analysis ---
     
-    % calculate spectrum (polar form):
-    [f_U, amp, phi] = ampphspectrum(datain.y.v, fs);
-    f_U = f_U(:); % ###note to be removed
+    % --- first we have to deal with possible differential input, i.e. the signal may be:
+    % just 'y' for signle-ended connection or ('y' - 'y_lo') for differential connection.
+    % The task is to correct the digitizer channels 'y' (and 'y_lo') independently
+    % so everything in the first stage of processing will be made up to twice
     
-    % get range of the used frequencies: 
-    f_min = min(f_U);
-    f_max = max(f_U);
+    % build names of the input channels:
+    chn_data_names = {'y';'y_lo'};
     
+    % build prefix names of the corrections (first high-side or single-ended, then low-side):
+    corr_pfx = cfg.pfx_ch;
     
-    % --- now apply digitizer gain/phase corrections to the raw spectrum:
+    % total count of input channels (1 for SE, 2 for differential) 
+    chn_n = 1 + cfg.y_is_diff;
     
-    % unite frequency/amplitude axes of the digitizer gain/phase corrections: 
-    [tabs,ax_a,ax_f] = correction_expand_tables({tab.adc_gain, tab.adc_phi});
-    % extract modified tables:
-    adc_gain = tabs{1};
-    adc_phi = tabs{2};
-    
-    % get range of the used amplitudes: 
-    a_min = min(amp);
-    a_max = max(amp);
+    % empty list of channel correction tables so far:
+    gp_tabs = {};
         
-    % check if correction data have sufficient range for the measured spectrum components:
-    % note: isempty() tests is used to identify if the correction is not dependent on the axis, therefore the error check does not apply
-    if ~isempty(ax_f) && (f_min < min(ax_f) || f_max > max(ax_f))
-        error('Digitizer gain/phase correction data do not have sufficient frequency range!');
+    % collect all needed correction tables for each input channel:
+    for c = 1:chn_n
+    
+        % correction channle prefix:
+        pfx = corr_pfx{c};
+        
+        % load correction of this channel (gain and phase only at this stage):
+        gp_tabs = {gp_tabs{:}, getfield(tab, [pfx 'adc_gain']), getfield(tab, [pfx 'adc_phi'])};
+    
+    end
+    
+    
+    % Unite frequency/amplitude axes of the digitizer chanel gain/phase corrections:
+    %   Note: This step is needed and must be performed for ALL channels involved in the calculation
+    %   because user may have created correction tables with different freq. or amplitude axes,
+    %   so this will find the largest common range of the axes and interpolates the tables
+    %   the common axes. That simplifies further processing and furthermore we can tell
+    %   immediately if the common range of axes is enough for the data to be corrected.
+    [gp_tabs, ax_a, ax_f] = correction_expand_tables(gp_tabs);
+    
+    
+    % clear calculated spectrum: 
+    amp = [];
+    phi = [];    
+    
+    % --- apply correction to each input channel:
+    for c = 1:chn_n
+    
+        % get input signal:
+        y = getfield(datain, chn_data_names{c});
+    
+        % calculate spectrum (polar form):
+        [f_U, amp, phi] = ampphspectrum(y.v, fs);
+        f_U = f_U(:); % ###note to be removed
+        
+        % get range of the existing frequencies: 
+        f_min = min(f_U);
+        f_max = max(f_U);
+        
+        % get range of the existing amplitudes in the signal: 
+        a_min = min(amp);
+        a_max = max(amp);
+        
+        % --- now apply digitizer gain/phase corrections to the raw spectrum:        
+    
+        % extract correction tables for this channel:
+        adc_gain = gp_tabs{c*2 - 2 + 1};
+        adc_phi = gp_tabs{c*2 - 2 + 2};
+            
+        % check if correction data have sufficient range for the measured spectrum components:
+        % note: isempty() tests is used to identify if the correction is not dependent on the axis, therefore the error check does not apply
+        if ~isempty(ax_f) && (f_min < min(ax_f) || f_max > max(ax_f))
+            error('Digitizer gain/phase correction data do not have sufficient frequency range!');
+        end    
+        if ~isempty(ax_a) && (a_min < min(ax_a) || a_max > max(ax_a))
+            error('Digitizer gain/phase correction data do not have sufficient frequency range!');
+        end
+        
+        % interpolate the gain/phase tables to the measured frequencies and amplitudes:
+        adc_gain = correction_interp_table(adc_gain,amp(:),f_U(:),'f',1);
+        adc_phi = correction_interp_table(adc_phi,amp(:),f_U(:),'f',1);
+        
+        % check if there are some NaNs in the correction data - that means user correction dataset contains some undefined values:
+        if any(isnan(adc_gain.gain)) || any(isnan(adc_phi.phi))
+            error('Digitizer gain/phase correction data do not have sufficient frequency range!');
+        end
+        
+        % apply the digitizer transfer correction:
+        amp(:,c) = amp.*adc_gain.gain;
+        phi(:,c) = phi + adc_phi.phi;
+    
+    end
+    
+    % now we can subtract the two input channels for the differential mode:    
+    if cfg.y_is_diff    
+        amp = amp(:,1) - amp(:,2);        
+        phi = phi(:,1) - phi(:,2);                
     end    
-    if ~isempty(ax_a) && (a_min < min(ax_a) || a_max > max(ax_a))
-        error('Digitizer gain/phase correction data do not have sufficient frequency range!');
-    end
+    % --- from now we have one single-ended signal
     
-    % interpolate the gain/phase table to the measured frequencies and amplitudes:
-    adc_gain = correction_interp_table(adc_gain,amp(:),f_U(:),'f',1);
-    adc_phi = correction_interp_table(adc_phi,amp(:),f_U(:),'f',1);
     
-    % check if there aren't some NaNs in the correction data - that means user correction dataset contains some undefined values:
-    if any(isnan(adc_gain.gain)) || any(isnan(adc_phi.phi))
-        error('Digitizer gain/phase correction data do not have sufficient frequency range!');
-    end
-    
-    % apply the digitizer transfer correction:
-    amp = amp.*adc_gain.gain;
-    phi = phi + adc_phi.phi;
 
     
     % --- now apply transducer gain/phase corrections:
@@ -146,10 +202,18 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.amp.v = amp;
     dataout.phi.v = phi;
     
+    % --- NOTE ---
+    % This was very basic calculation, the real stuff is not there:
+    % No uncertainty contribution from the correction was implemented yet.
+    % No correction to the interchannel cross-talk is present.
+    % Also no correction to the cable effects was implemented and
+    % no correction to the low-side cable leakage current (diff. mode) was implemented.
+    % These are the actual tricky parts to be done.
+           
+    % --------------------------------------------------------------------
+    % End of the demonstration algorithm.
+    % --------------------------------------------------------------------
        
-    % --------------------------------------------------------------------
-    % End of the demonstration algorithm
-    % --------------------------------------------------------------------
    
     % --- my job here is done...
           

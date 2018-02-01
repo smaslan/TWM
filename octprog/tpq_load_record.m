@@ -34,6 +34,10 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
 %         name - string with transducer's name
 %         sn - string with transducer's serial
 %         nominal - transducer's nominal ratio (Ohms or Vin/Vout)
+%         channels - list of digitizer channel indexes associated with this tran.
+%                    note: high-side first, low-side second for diff. connect. mode
+%         is_diff - non-zero if channel is connected in diff. mode
+%         * - correction tables, see transducer loader function
 %
 % Note the corrections are FAR from being done!!!! Just the phase indexes 
 % works now.
@@ -234,6 +238,8 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
         tr_map = [1:data.channels_count]';
     end
     
+    % remove unassigned channels from the mapping list:
+    tr_map(tr_map == 0) = NaN;    
     
     TC = numel(transducer_paths);
     if ~TC
@@ -262,11 +268,14 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
         
         % check valid range of the digitizer channels:
         if any(tr_chn > data.channels_count) || any(tr_chn == 0)
-            error(sprintf('TWM measurement loader: Some of the assigned digitizer indexes for channel #%d is out of range of available digitizer channels in matrix ''transducer to digitizer channels mapping''!'));
+            error(sprintf('TWM measurement loader: Some of the assigned digitizer indexes for channel #%d is out of range of available digitizer channels in matrix ''transducer to digitizer channels mapping''!',t));
         end
                 
-        % store the channel list
+        % store the channel list for this transducer:
         corr.tran{t}.channels = tr_chn;
+        
+        % is transducer connected differentially?:
+        corr.tran{t}.is_diff = numel(tr_chn) > 1;
         
         % collect all used channel indexes:        
         tr_chn_all = [tr_chn_all, tr_chn];
@@ -287,8 +296,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     digitizer_path = infogettext(cinf, 'digitizer corrections path');
         
     % load digitizer corrections:
-    corr.dig = correction_load_digitizer(digitizer_path, inf, data, 1, group_id);
-    
+    corr.dig = correction_load_digitizer(digitizer_path, inf, data, 1, group_id);    
     
     % return corrections
     data.corr = corr;

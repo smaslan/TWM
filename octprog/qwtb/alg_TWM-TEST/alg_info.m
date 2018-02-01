@@ -363,8 +363,20 @@ function alginfo = alg_info() %<<<1
     
     pid = 1;
     % outputs
-    alginfo.outputs(pid).name = 'some_output';
-    alginfo.outputs(pid).desc = 'Some Output Quantity';
+    alginfo.outputs(pid).name = 'rms';
+    alginfo.outputs(pid).desc = 'RMS value';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'f';
+    alginfo.outputs(pid).desc = 'spectrum frequency axis';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'amp';
+    alginfo.outputs(pid).desc = 'spectrum amplitdue';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'phi';
+    alginfo.outputs(pid).desc = 'spectrum phase [rad]';
     pid = pid + 1;
     
     
