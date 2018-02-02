@@ -78,7 +78,7 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
       app_mat = '';
     end
     
-    if numel(variable.v) > limits.max_array
+    if numel(variable.v) > limits.max_array && ~ischar(variable.v)
       % the variable is some badass array - it is tooo big to store it in text file, it goes to MAT file insted
            
       % store value to the MAT
@@ -126,9 +126,16 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
         % numeric value, store numeric matrix
         ovar = infosetmatrix(ovar, 'value', variable.v);
         
+      elseif ischar(variable.v)
+        % character string:
+        
+        ovar = infosettext(ovar, 'value', variable.v);
+              
       else
         % non numeric output???
         % TODO: decide what to do
+        
+        
         
       end
       

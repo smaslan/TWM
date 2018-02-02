@@ -3,13 +3,13 @@ function alginfo = alg_info() %<<<1
 %
 % See also qwtb
 
-    alginfo.id = 'TWM-TEST';
-    alginfo.name = 'Test/demonstration algorithm for the TWM tool';
-    alginfo.desc = 'It contains all input quantities defined in the algorithms data exchange model.';
-    alginfo.citation = '';
-    alginfo.remarks = '';
-    alginfo.license = '';
-    
+    alginfo.id = 'TWM-PSFE';
+    alginfo.name = 'TWM tool wrapper: Phase Sensitive Frequency Estimator';
+    alginfo.desc = 'An algorithm for estimating the frequency, amplitude, and phase of the fundamental component in harmonically distorted waveforms. The algorithm minimizes the phase difference between the sine model and the sampled waveform by effectively minimizing the influence of the harmonic components. It uses a three-parameter sine-fitting algorithm for all phase calculations. The resulting estimates show up to two orders of magnitude smaller sensitivity to harmonic distortions than the results of the four-parameter sine fitting algorithm.';
+    alginfo.citation = 'Lapuh, R., "Estimating the Fundamental Component of Harmonically Distorted Signals From Noncoherently Sampled Data," Instrumentation and Measurement, IEEE Transactions on , vol.64, no.6, pp.1419,1424, June 2015, doi: 10.1109/TIM.2015.2401211, URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7061456&isnumber=7104190';
+    alginfo.remarks = 'If sampling time |Ts| is not supplied, wrapper will calculate |Ts| from sampling frequency |fs| or if not supplied, mean of differences of time series |t| is used to calculate |Ts|.';
+    alginfo.license = 'MIT License';
+
     
     pid = 1;
     % sample data
@@ -55,25 +55,30 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     
-    % --- flags:
-    % note: presence of these parameters signalizes caller capabilities of the algoirthm
-     
-    alginfo.inputs(pid).name = 'support_diff';
-    alginfo.inputs(pid).desc = 'Algorithm supports differential input data';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
-    
-    alginfo.inputs(pid).name = 'support_multi_inputs';
-    alginfo.inputs(pid).desc = 'Algorithm supports processing of a multiple waveforms at once';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
     
     
     % --- parameters:
+    alginfo.inputs(pid).name = 'f_estimate';
+    alginfo.inputs(pid).desc = 'Initial f. estimate mode (see PSFE doc.)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
+    
+    % --- flags {support_multi_inputs, support_diff}:
+    % note: presence of these parameters signalizes caller capabilities of the algoirthm
+     
+    alginfo.inputs(pid).name = 'support_diff';
+    alginfo.inputs(pid).desc = 'TWM control flag: supports differential input data';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    
+    
+    % --- correction data:
     
     % ADC setup
     alginfo.inputs(pid).name = 'adc_bits';
@@ -199,6 +204,22 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
+    
+    % ADC timebase frequency correction:
+    alginfo.inputs(pid).name = 'adc_freq';
+    alginfo.inputs(pid).desc = 'ADC timebase freq. correction';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    % relative time stamp of reference channel ('y'):
+    alginfo.inputs(pid).name = 'time_stamp';
+    alginfo.inputs(pid).desc = 'Relative time-stamp of ''y''';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
     
     
     
@@ -362,26 +383,25 @@ function alginfo = alg_info() %<<<1
     
     
     pid = 1;
-    % outputs
-    alginfo.outputs(pid).name = 'rms';
-    alginfo.outputs(pid).desc = 'RMS value';
-    pid = pid + 1;
-    
+    % outputs    
     alginfo.outputs(pid).name = 'f';
-    alginfo.outputs(pid).desc = 'spectrum frequency axis';
+    alginfo.outputs(pid).desc = 'Frequency of main signal component';
     pid = pid + 1;
     
-    alginfo.outputs(pid).name = 'amp';
-    alginfo.outputs(pid).desc = 'spectrum amplitdue';
+    alginfo.outputs(pid).name = 'A';
+    alginfo.outputs(pid).desc = 'Amplitude of main signal component';
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'phi';
-    alginfo.outputs(pid).desc = 'spectrum phase [rad]';
+    alginfo.outputs(pid).desc = 'Phase of main signal component [rad]';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'warning';
+    alginfo.outputs(pid).desc = 'Warnings/fails';
+    pid = pid + 1;  
     
     
-    alginfo.providesGUF = 0;
+    alginfo.providesGUF = 1;
     alginfo.providesMCM = 0;
 
 end
