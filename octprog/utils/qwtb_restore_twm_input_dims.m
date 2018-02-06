@@ -8,10 +8,13 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
 % Usage:
 % [dout, cfg] = qwtb_restore_twm_input_dims()
 %  - to perform self-test
+%
 % [dout, cfg] = qwtb_restore_twm_input_dims(din)
 %  - to restore all default quantities
+%
 % [dout, cfg] = qwtb_restore_twm_input_dims(din, opt)
 %  - to restore restore all default quantities, ignore missing ones
+%
 % [dout, cfg] = qwtb_restore_twm_input_dims(din, opt, quantities, axes)
 %  - to restore one particular quantity
 %
@@ -31,11 +34,13 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
 %            u_is_diff - nonzero if 'u' input has complementary 'u_lo' input
 %            i_is_diff - nonzero if 'i' input has complementary 'i_lo' input
 %            is_multi  - nonzero if there are multiple records in 'y', 'u', 'i'
-% 
+%            pfx_ch    - list of channel prefixes ('', 'u_' and 'i_' for single-ended,
+%                        'lo_', 'lo_u_' and 'lo_i_' for differential complement, ...)
+%            pfx_tr    - list of transducer channel prefixes ('', 'u_' and 'i_')
 %
 % License:
 % --------
-% This is part of the TWM - Traceable PQ Wattemter
+% This is part of the TWM - Traceable PQ Wattmeter
 % (c) 2018, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.
 %
@@ -116,7 +121,11 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
                 pfx_ch{end+1} = 'i_lo_';
             end
         end
-
+        
+        % return the prefix lists for future use:
+        cfg.pfx_ch = pfx_ch;
+        cfg.pfx_tr = pfx_tr;
+        
         % restore correction data vector orientations for channel corrections:
         for k = 1:numel(pfx_ch)
             % get quantity prefix:
@@ -143,7 +152,29 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'Zcb_Rs'];[p 'Zcb_Ls']}, {[p 'Zcb_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'Ycb_Cp'];[p 'Ycb_D']}, {[p 'Ycb_f']}, opt);            
         end
-       
+        
+        % create default digitizer timebase correction:
+        din = qwtb_rtwm_inps_default(din,true,'adc_freq',0,0);
+        
+        % create default digitizer aperture correction:
+        din = qwtb_rtwm_inps_default(din,true,'adc_aper_corr',0);
+        %  - create default aperture
+        din = qwtb_rtwm_inps_default(din,true,'adc_aper',0);
+                
+        % create default jitter:
+        din = qwtb_rtwm_inps_default(din,true,'jitter',0);
+        
+        % create default time-stamp:
+        din = qwtb_rtwm_inps_default(din,true,'time_stamp',0,0);
+        
+        % create default time shift correction:
+        din = qwtb_rtwm_inps_default(din,true,'time_shift',0,0);             
+        
+        % create default differential channel time shift corrections:
+        din = qwtb_rtwm_inps_default(din,cfg.y_is_diff,'time_shift_lo',0,0);
+        din = qwtb_rtwm_inps_default(din,cfg.u_is_diff,'u_time_shift_lo',0,0);
+        din = qwtb_rtwm_inps_default(din,cfg.i_is_diff,'i_time_shift_lo',0,0);
+        
         
         % fix input data, so the vectors are always vertical
         if cfg.has_y && ~cfg.is_multi 
@@ -168,6 +199,31 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
     
 end
 
+
+
+
+function [din] = qwtb_rtwm_inps_default(din,condition,name,value,unc)
+% create default qwtb style input quantity of name 'name' of 'condition' is met and 
+% it does not exist in the 'din' QWTB input list. If it exist but has unassigned uncertainty
+% it will assing it if the 'unc' parameter is assigned. 
+    
+    if condition
+
+        has_unc = nargin >= 5;
+    
+        if ~isfield(din, name)
+            item.v = value;
+        else
+            item = getfield(din, name);
+        end
+        if has_unc && (~isfield(item,'u') || isempty(item.u))
+            item.u = unc;
+        end        
+        din = setfield(din, name, item);         
+    
+    end
+    
+end
 
 
 function [din] = twm_qwtb_restore_input_dim_corr(din, data, data_axes, opt)
@@ -487,26 +543,7 @@ function ret = twm_qwtb_restore_input_dims_test()
     [dout, cfg] = qwtb_restore_twm_input_dims(din,1);
     if size(dout.u_adc_gain.v) ~= size(din.u_adc_gain.v') || size(dout.u_adc_gain_f.v) ~= size(din.u_adc_gain_f.v') || size(dout.i_adc_gain.v) ~= size(din.i_adc_gain.v') || size(dout.i_adc_gain_f.v) ~= size(din.i_adc_gain_f.v') || size(dout.u_lo_adc_gain.v) ~= size(din.u_lo_adc_gain.v') || size(dout.u_lo_adc_gain_f.v) ~= size(din.u_lo_adc_gain_f.v') || size(dout.i_lo_adc_gain.v) ~= size(din.i_lo_adc_gain.v') || size(dout.i_lo_adc_gain_f.v) ~= size(din.i_lo_adc_gain_f.v') || size(dout.u_tr_gain.v) ~= size(din.u_tr_gain.v') || size(dout.u_tr_gain_f.v) ~= size(din.u_tr_gain_f.v') || size(dout.i_tr_gain.v) ~= size(din.i_tr_gain.v') || size(dout.i_tr_gain_f.v) ~= size(din.i_tr_gain_f.v')
         error('Failed at se/diff channel correction restoration for ''u''/''i'' inputs.');
-    end
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    end 
     
     ret = 1;
  
