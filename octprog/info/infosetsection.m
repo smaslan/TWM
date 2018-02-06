@@ -1,47 +1,42 @@
-## Copyright (C) 2014 Martin Šíra %<<<1
-##
+function infostr = infosetsection(varargin)%<<<1
+% -- Function File: INFOSTR = infosetsection (KEY, VAL)
+% -- Function File: INFOSTR = infosetsection (VAL, SCELL)
+% -- Function File: INFOSTR = infosetsection (INFOSTR, KEY, VAL)
+% -- Function File: INFOSTR = infosetsection (INFOSTR, VAL, SCELL)
+% -- Function File: INFOSTR = infosetsection (INFOSTR, KEY, VAL, SCELL)
+%     Returns info string with a section made from KEY and string VAL in
+%     following format:
+%          #startsection:: key
+%               val
+%          #endsection:: key
+%
+%     If SCELL is set, the section is put into subsections according
+%     SCELL.  If KEY is not specified, last element of SCELL is
+%     considered as KEY.
+%
+%     If INFOSTR is set, the section is put into existing INFOSTR
+%     sections, or sections are generated if needed.
+%
+%     Example:
+%          infosetsection('section key', sprintf('multi\nline\nvalue'))
+%          infostr = infosetsection('value', {'section key', 'subsection key'})
+%          infosetsection(infostr, 'subsubsection key', 'other value', {'section key', 'subsection key'})
 
-## -*- texinfo -*-
-## @deftypefn {Function File} @var{infostr} = infosetsection (@var{key}, @var{val})
-## @deftypefnx {Function File} @var{infostr} = infosetsection (@var{val}, @var{scell})
-## @deftypefnx {Function File} @var{infostr} = infosetsection (@var{infostr}, @var{key}, @var{val})
-## @deftypefnx {Function File} @var{infostr} = infosetsection (@var{infostr}, @var{val}, @var{scell})
-## @deftypefnx {Function File} @var{infostr} = infosetsection (@var{infostr}, @var{key}, @var{val}, @var{scell})
-## Returns info string with a section made from @var{key} and string
-## @var{val} in following format:
-## @example
-## #startsection:: key
-##      val
-## #endsection:: key
-##
-## @end example
-## If @var{scell} is set, the section is put into subsections according @var{scell}. 
-## If @var{key} is not specified, last element of @var{scell} is considered as @var{key}.
-##
-## If @var{infostr} is set, the section is put into existing @var{infostr} 
-## sections, or sections are generated if needed.
-##
-## Example:
-## @example
-## infosetsection('section key', sprintf('multi\nline\nvalue'))
-## infostr = infosetsection('value', @{'section key', 'subsection key'@})
-## infosetsection(infostr, 'subsubsection key', 'other value', @{'section key', 'subsection key'@})
-## @end example
-## @end deftypefn
+% Copyright (C) 2014 Martin Šíra %<<<1
+%
 
-## Author: Martin Šíra <msiraATcmi.cz>
-## Created: 2014
-## Version: 4.0
-## Script quality:
-##   Tested: yes
-##   Contains help: yes
-##   Contains example in help: yes
-##   Checks inputs: yes
-##   Contains tests: yes
-##   Contains demo: no
-##   Optimized: no
+% Author: Martin Šíra <msiraATcmi.cz>
+% Created: 2014
+% Version: 4.0
+% Script quality:
+%   Tested: yes
+%   Contains help: yes
+%   Contains example in help: yes
+%   Checks inputs: yes
+%   Contains tests: yes
+%   Contains demo: no
+%   Optimized: no
 
-function infostr = infosetsection(varargin) %<<<1
         % input possibilities:
         %       key, val
         %       val, scell
@@ -61,7 +56,7 @@ function infostr = infosetsection(varargin) %<<<1
         % check inputs %<<<2
         if (nargin < 2 || nargin > 4)
                 print_usage()
-        endif
+        end
         % identify inputs
         if nargin == 2;
                 if ~iscell(varargin{2})
@@ -74,7 +69,7 @@ function infostr = infosetsection(varargin) %<<<1
                         key = '';
                         val = varargin{1};
                         scell = varargin{2};
-                endif
+                end
         elseif nargin == 3
                 if iscell(varargin{3})
                         infostr = varargin{1};
@@ -86,35 +81,35 @@ function infostr = infosetsection(varargin) %<<<1
                         key = varargin{2};
                         val = varargin{3};
                         scell = {};
-                endif
+                end
         elseif nargin == 4
                 infostr = varargin{1};
                 key = varargin{2};
                 val = varargin{3};
                 scell = varargin{4};
-        endif
+        end
         % check values of inputs
         if ~(ischar(infostr) || isstruct(infostr)) || ~(ischar(val) || isstruct(val))
                 error('infosetsection: infostr and val must be strings or parsed info-string')
-        endif
+        end
         if ~ischar(key)
                 error('infosetsection: key must be string')
-        endif
+        end
         if (~iscell(scell))
                 error('infosetsection: scell must be a cell')
-        endif
+        end
         if (~all(cellfun(@ischar, scell)))
                 error('infosetsection: scell must be a cell of strings')
-        endif
+        end
 
         % format inputs %<<<2
         if ~isempty(key)
                 scell = [scell {key}];
-        endif
+        end
         
         % make infostr %<<<2
         infostr = set_section('infosetsection', infostr, val, scell, true);
-endfunction
+end
 
 function infostr = set_section(functionname, infostr, content, scell, indent) %<<<1
         % put content into a proper section (and subsections according scell)
@@ -135,7 +130,7 @@ function infostr = set_section(functionname, infostr, content, scell, indent) %<
         % check parameter compatibility
         if new_is_parsed ~= in_is_parsed
                 error(sprintf('%s: input inf-string and new content must be of the same type',functionname));
-        endif
+        end
         
         if in_is_parsed
                 % --- PARSED INFO-STRING MODE ---
@@ -144,7 +139,7 @@ function infostr = set_section(functionname, infostr, content, scell, indent) %<
                 
                 if ~isempty(scell)
                         error(sprintf('%s: in parsed mode it can so far only insert data to global, not to subsections, sorry, too lazy...',functionname));                
-                endif
+                end
                 
                 try
                         sections = infostr.sections;
@@ -201,7 +196,7 @@ function infostr = set_section(functionname, infostr, content, scell, indent) %<
                         INDENT_LEN = 8;
                 else
                         INDENT_LEN = 0;
-                endif
+                end
         
                 % make infostr %<<<2
                 if (isempty(infostr) && length(scell) == 1)
@@ -224,8 +219,8 @@ function infostr = set_section(functionname, infostr, content, scell, indent) %<
                                         % error happened -> section path scell(1:i) do not exist:
                                         i = i - 1;
                                         break
-                                end_try_catch
-                        endfor
+                                end
+                        end
                         % split info string according found position:
                         infostrA = infostr(1:position);
                         infostrB = infostr(position+1:end);
@@ -234,7 +229,7 @@ function infostr = set_section(functionname, infostr, content, scell, indent) %<
                                 before = '';
                         else
                                 before = [deblank(infostrA) NL];
-                        endif
+                        end
                         % remove leading new lines if present in part B:
                         infostrB = regexprep(infostrB, '^\n', '');
                         % create sections if needed:
@@ -245,7 +240,7 @@ function infostr = set_section(functionname, infostr, content, scell, indent) %<
                                 % else just use content with proper indentation:
                                 spaces = repmat(' ', 1, i.*INDENT_LEN);
                                 toinsert = [deblank(strrep([NL strtrim(content) NL], NL, [NL spaces])) NL];
-                        endif
+                        end
                         % create main section if needed
                         if i < length(scell);
                                 % simply generate section
@@ -254,13 +249,13 @@ function infostr = set_section(functionname, infostr, content, scell, indent) %<
                                 toinsert = set_section(functionname, '', toinsert, scell(i+1), indent);
                                 spaces = repmat(' ', 1, i.*INDENT_LEN);
                                 toinsert = [deblank(strrep([NL strtrim(toinsert) NL], NL, [NL spaces])) NL];
-                        endif
+                        end
                         toinsert = regexprep(toinsert, '^\n', '');
                         % create new infostr by inserting new part at proper place of old infostr:
                         infostr = deblank([before deblank(toinsert) NL infostrB]);
-                endif
-        endif
-endfunction
+                end
+        end
+end
 
 function [section, endposition] = get_section(functionname, infostr, scell) %<<<1
         % finds content of a section (and subsections according scell)
@@ -281,11 +276,11 @@ function [section, endposition] = get_section(functionname, infostr, scell) %<<<
                         sid = find(strcmp(infostr.sec_names,scell{s}),1);
                         if isempty(sid)
                                 error(sprintf('%s: subsection ''%s'' not found',functionname,scell{s}));
-                        endif
+                        end
                         
                         % go deeper:
                         infostr = infostr.sections{sid};
-                endfor
+                end
                 
                 % assing result
                 section = infostr;
@@ -317,29 +312,29 @@ function [section, endposition] = get_section(functionname, infostr, scell) %<<<
                                                 if E < 2
                                                         % danger of infinite loop! this should never happen
                                                         error([functionname ': infinite loop happened!'])
-                                                endif
+                                                end
                                                 % remove previous parts of infostr to start looking for 
                                                 % wanted section after the end of found section:
                                                 infostr = infostr(E+1:end);
                                                 % calculate correct position that will be returned to user:
                                                 endposition = endposition + E;
-                                        endif
-                                endif
-                        endwhile
+                                        end
+                                end
+                        end
                         % if nothing found:
                         if isempty(section)
                                 error([functionname ': section `' scell{1} '` not found'])
-                        endif
+                        end
                         % some result was obtained. if subsections are required, do recursion:
                         if length(scell) > 1
                                 % recursively call for subsections:
                                 tmplength = length(section);
                                 [section, tmppos] = get_section(functionname, section, scell(2:end));
                                 endposition = endposition - (tmplength - tmppos);
-                        endif
-                endif
-        endif        
-endfunction
+                        end
+                end
+        end
+end
 
 % --------------------------- tests: %<<<1
 %!shared iskey, iskeysubkey, iskey2, isvalval2, isvalsubval2

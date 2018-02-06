@@ -53,7 +53,8 @@ function [tab] = qwtb_build_correction_table(din,names,name_ax,default,default_u
         end
         default_ax = {};
         for k = 1:(has_x+1)
-            default_ax{k} = getfield(din,name_ax{k}).v;
+            ct = getfield(din,name_ax{k});
+            default_ax{k} = ct.v;
         end             
     end    
         
@@ -207,17 +208,17 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
     % store primary axis
     if has_primary
       tbl = setfield(tbl,quant_names{1},file{fpos});
-      fpos++;
+      fpos = fpos + 1;
     end
     % store secondary axis
     if has_second
       tbl = setfield(tbl,second_ax_name,file{fpos});
-      fpos++;
+      fpos = fpos + 1;
     end
     % store quantities 
     for k = 1:quant_N
       tbl = setfield(tbl,quant_names{k+1},file{fpos});
-      fpos++;
+      fpos = fpos + 1;
     end       
     
   else

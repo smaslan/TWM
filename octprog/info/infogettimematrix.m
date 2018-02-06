@@ -1,42 +1,40 @@
-## Copyright (C) 2013 Martin Šíra %<<<1
-##
+function tmatrix = infogettimematrix(varargin)%<<<1
+% -- Function File: TEXT = infogettimematrix (INFOSTR, KEY)
+% -- Function File: TEXT = infogettimematrix (INFOSTR, KEY, SCELL)
+%     Parse info string INFOSTR, finds lines after line '#startmatrix::
+%     key' and before '#endmatrix:: key', parse numbers from lines and
+%     returns the values as number of seconds since the epoch (as in
+%     function time()).  Expected time format is ISO 8601:
+%     %Y-%m-%dT%H:%M:%S.SSSSSS. The number of digits in fraction of
+%     seconds is not limited.
+%
+%     If SCELL is set, the key is searched in section(s) defined by
+%     string(s) in cell.
+%
+%     Example:
+%          infostr = sprintf('A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n"a";  "b"; "c" \n"d";"e";         "f"  \n#endmatrix:: simple matrix \n#startmatrix:: time matrix\n  2013-12-11T22:59:30.123456\n  2013-12-11T22:59:35.123456\n#endmatrix:: time matrix\nC:: c without section\n#startsection:: section 1 \n  C:: c in section 1 \n  #startsection:: subsection\n    C:: c in subsection\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: c in section 2\n#endsection:: section 2\n')
+%          infogettimematrix(infostr,'time matrix')
 
-## -*- texinfo -*-
-## @deftypefn {Function File} @var{text} = infogettimematrix (@var{infostr}, @var{key})
-## @deftypefnx {Function File} @var{text} = infogettimematrix (@var{infostr}, @var{key}, @var{scell})
-## Parse info string @var{infostr}, finds lines after line
-## '#startmatrix:: key' and before '#endmatrix:: key', parse numbers from lines
-## and returns the values as number of seconds since the epoch (as in function
-## time()). Expected time format is ISO 8601: %Y-%m-%dT%H:%M:%S.SSSSSS. The number
-## of digits in fraction of seconds is not limited.
-##
-## If @var{scell} is set, the key is searched in section(s) defined by string(s) in cell.
-##
-## Example:
-## @example
-## infostr = sprintf('A:: 1\nsome note\nB([V?*.])::    !$^&*()[];::,.\n#startmatrix:: simple matrix \n"a";  "b"; "c" \n"d";"e";         "f"  \n#endmatrix:: simple matrix \n#startmatrix:: time matrix\n  2013-12-11T22:59:30.123456\n  2013-12-11T22:59:35.123456\n#endmatrix:: time matrix\nC:: c without section\n#startsection:: section 1 \n  C:: c in section 1 \n  #startsection:: subsection\n    C:: c in subsection\n  #endsection:: subsection\n#endsection:: section 1\n#startsection:: section 2\n  C:: c in section 2\n#endsection:: section 2\n')
-## infogettimematrix(infostr,'time matrix')
-## @end example
-## @end deftypefn
+% Copyright (C) 2013 Martin Šíra %<<<1
+%
 
-## Author: Martin Šíra <msiraATcmi.cz>
-## Created: 2013
-## Version: 4.0
-## Script quality:
-##   Tested: yes
-##   Contains help: yes
-##   Contains example in help: yes
-##   Checks inputs: yes
-##   Contains tests: yes
-##   Contains demo: no
-##   Optimized: no
+% Author: Martin Šíra <msiraATcmi.cz>
+% Created: 2013
+% Version: 4.0
+% Script quality:
+%   Tested: yes
+%   Contains help: yes
+%   Contains example in help: yes
+%   Checks inputs: yes
+%   Contains tests: yes
+%   Contains demo: no
+%   Optimized: no
 
-function tmatrix = infogettimematrix(varargin) %<<<1
         % identify and check inputs %<<<2
         [printusage, infostr, key, scell] = get_id_check_inputs('infogettimematrix', varargin{:});
         if printusage
                 print_usage()
-        endif
+        end
 
         % get matrix %<<<2
         infostr = get_matrix('infogetmatrix', infostr, key, scell);
@@ -48,9 +46,9 @@ function tmatrix = infogettimematrix(varargin) %<<<1
                 for j = 1:size(smat, 2)
                         s = strtrim(smat{i, j});
                         tmatrix(i, j) = iso2posix_time(strtrim(smat{i, j}));
-                endfor
-        endfor
-endfunction
+                end
+        end
+end
 
 function [printusage, infostr, key, scell, is_parsed] = get_id_check_inputs(functionname, varargin) %<<<1
         % function identifies and partially checks inputs used in infoget* functions 
@@ -69,7 +67,7 @@ function [printusage, infostr, key, scell, is_parsed] = get_id_check_inputs(func
         if (nargin < 2+1 || nargin > 3+1)
                 printusage = true;
                 return;
-        endif
+        end
         infostr = varargin{1};
         key = varargin{2};
         % set default value
@@ -78,7 +76,7 @@ function [printusage, infostr, key, scell, is_parsed] = get_id_check_inputs(func
                 scell = {};
         else
                 scell = varargin{3};
-        endif
+        end
 
         % input is parsed info string? 
         is_parsed = isstruct(infostr) && isfield(infostr,'this_is_infostring');
@@ -86,17 +84,17 @@ function [printusage, infostr, key, scell, is_parsed] = get_id_check_inputs(func
         % check values of inputs infostr, key, scell %<<<2
         if ~ischar(infostr) && ~is_parsed
                 error([functionname ': infostr must be either string or structure generated by infoparse()'])
-        endif
+        end
         if ~ischar(key) || isempty(key)
                 error([functionname ': key must be non-empty string'])
-        endif
+        end
         if (~iscell(scell))
                 error([functionname ': scell must be a cell'])
-        endif
+        end
         if (~all(cellfun(@ischar, scell)))
                 error([functionname ': scell must be a cell of strings'])
-        endif
-endfunction
+        end
+end
 
 function [section, endposition] = get_section(functionname, infostr, scell) %<<<1
         % finds content of a section (and subsections according scell)
@@ -117,11 +115,11 @@ function [section, endposition] = get_section(functionname, infostr, scell) %<<<
                         sid = find(strcmp(infostr.sec_names,scell{s}),1);
                         if isempty(sid)
                                 error(sprintf('%s: subsection ''%s'' not found',functionname,scell{s}));
-                        endif
+                        end
                         
                         % go deeper:
                         infostr = infostr.sections{sid};
-                endfor
+                end
                 
                 % assing result
                 section = infostr;
@@ -153,29 +151,29 @@ function [section, endposition] = get_section(functionname, infostr, scell) %<<<
                                                 if E < 2
                                                         % danger of infinite loop! this should never happen
                                                         error([functionname ': infinite loop happened!'])
-                                                endif
+                                                end
                                                 % remove previous parts of infostr to start looking for 
                                                 % wanted section after the end of found section:
                                                 infostr = infostr(E+1:end);
                                                 % calculate correct position that will be returned to user:
                                                 endposition = endposition + E;
-                                        endif
-                                endif
-                        endwhile
+                                        end
+                                end
+                        end
                         % if nothing found:
                         if isempty(section)
                                 error([functionname ': section `' scell{1} '` not found'])
-                        endif
+                        end
                         % some result was obtained. if subsections are required, do recursion:
                         if length(scell) > 1
                                 % recursively call for subsections:
                                 tmplength = length(section);
                                 [section, tmppos] = get_section(functionname, section, scell(2:end));
                                 endposition = endposition - (tmplength - tmppos);
-                        endif
-                endif
-        endif        
-endfunction
+                        end
+                end
+        end
+end
 
 function [infostr] = rem_subsections(functionname, infostr) %<<<1
         % remove all other sections in infostr
@@ -207,11 +205,11 @@ function [infostr] = rem_subsections(functionname, infostr) %<<<1
                                 if S-1 >= E+1
                                         % danger of infinite loop! this should never happen
                                         error([functionname ': infinite loop happened!'])
-                                endif
-                        endif
-                endwhile
-        endif
-endfunction
+                                end
+                        end
+                end
+        end
+end
 
 function [val] = get_matrix(functionname, infostr, key, scell) %<<<1
         % returns content of matrix as text from infostr in section/subsections according scell
@@ -240,7 +238,7 @@ function [val] = get_matrix(functionname, infostr, key, scell) %<<<1
                 mid = find(strcmp(infostr.matrix_names,key),1);
                 if isempty(mid)
                         error([functionname ': matrix named `' key '` not found'])
-                endif
+                end
                 % return its content:
                 val = infostr.matrix{mid};                
         else
@@ -251,10 +249,10 @@ function [val] = get_matrix(functionname, infostr, key, scell) %<<<1
                 [S, E, TE, M, T, NM] = regexpi (infostr,['#startmatrix\s*::\s*' key '(.*)' '#endmatrix\s*::\s*' key], 'once');
                 if isempty(T)
                         error([functionname ': matrix named `' key '` not found'])
-                endif
+                end
                 val=strtrim(T{1});
-        endif
-endfunction
+        end
+end
 
 function key = regexpescape(key) %<<<1
         % Translate all special characters (e.g., '$', '.', '?', '[') in
@@ -271,8 +269,8 @@ function key = regexpescape(key) %<<<1
                 key = regexprep(key, '\*', '\*');
                 key = regexprep(key, '\(', '\(');
                 key = regexprep(key, '\)', '\)');
-        endif
-endfunction
+        end
+end
 
 function data = csv2cell(s) %<<<1
 % Reads string with csv sheet according RFC4180 (with minor modifications, see last three
@@ -318,7 +316,7 @@ elseif isempty(strfind(s, CELLSTR)) %<<<2
         % (this would prevent using fast cellfun method)
         if length(s) > 1 && isempty(strtrim(s{end}))
                 s = s(1:end-1);
-        endif
+        end
         % strsplit by separators on all lines:
         s = cellfun(@strsplit, s, repmat({CELLSEP}, size(s)), 'UniformOutput', false);
         try %<<<3
@@ -338,12 +336,12 @@ elseif isempty(strfind(s, CELLSTR)) %<<<2
                                 elseif size(c,2) > size(data,2)
                                         % new line is too long, whole matrix must be padded:
                                         data = [data, repmat({''}, size(c,2) - size(data,2), 1)];
-                                endif
-                        endif
+                                end
+                        end
                         % add new line of sheet:
                         data = [data; c];
-                endfor
-        end_try_catch
+                end
+        end
         
         % ###note: was added to get rid of start/end whites
         data = strtrim(data);
@@ -375,7 +373,7 @@ else %<<<2
                         % and mark all ends:
                         FieldEnd = true;
                         LineEnd = true;
-                endif
+                end
                 if inQuoteField %<<<3
                         % we are inside quotes of field
                         if curChar == CELLSTR
@@ -387,10 +385,10 @@ else %<<<2
                                         % going out of quotes
                                         inQuoteField = false;
                                         Field = [Field curChar];
-                                endif
+                                end
                         else
                                 Field = [Field curChar];
-                        endif
+                        end
                 else %<<<3
                         % we are not inside quotes of field
                         if curChar == CELLSTR
@@ -407,18 +405,18 @@ else %<<<2
                                 LineEnd = true;
                                 if nextChar == LF
                                         i = i + 1;      % increment counter to skip next character, which is already part of CRLF newline
-                                endif
+                                end
                         elseif curChar == LF
                                 % found end of line (this also ends field)
                                 FieldEnd = true;
                                 LineEnd = true;
                                 if nextChar == CR
                                         i = i + 1;      % increment counter to skip next character, which is already part of LFCR newline
-                                endif
+                                end
                         else
                                 Field = [Field curChar];
-                        endif
-                endif
+                        end
+                end
                 if FieldEnd == true %<<<3
                         % add field to sheet:
                         Field = strtrim(Field);
@@ -430,8 +428,8 @@ else %<<<2
                                 % and whole non modified field will be returned
                                 if (strcmp(Field(1), '"') && strcmp(Field(end), '"'))
                                         Field = Field(2:end-1);
-                                endif
-                        endif
+                                end
+                        end
                         data(curCol, curRow) = {Field};
                         Field = '';
                         FieldEnd = false;
@@ -441,13 +439,13 @@ else %<<<2
                                 LineEnd = false;
                         else
                                 curCol = curCol + 1;
-                        endif
-                endif
-        endwhile
+                        end
+                end
+        end
         data = data';
-endif
+end
 
-endfunction
+end
 
 function posixnumber = iso2posix_time(isostring)
         % converts ISO8601 time to posix time both for GNU Octave and Matlab
@@ -466,14 +464,14 @@ function posixnumber = iso2posix_time(isostring)
                 if ~isempty(posixnumber)
                         % I do not know how to read fractions of second by strptime, so this line fix it:
                         posixnumber = posixnumber + str2num(isostring(20:end));
-                endif
+                end
         else
                 % Matlab version:
                 posixnumber = posixtime(datetime(isostring(1:19), 'TimeZone', 'local', 'Format', 'yyyy-MM-dd''T''HH:mm:ss'));
                 % I do not know how to read fractions of second by datetime, so this line fix it:
                 posixnumber = posixnumber + str2num(isostring(20:end));
-        endif
-endfunction
+        end
+end
 
 function isostring = posix2iso_time(posixnumber)
         % posix time to ISO8601 time both for GNU Octave and Matlab
@@ -494,8 +492,8 @@ function isostring = posix2iso_time(posixnumber)
                 isostring = datestr(datetime(posixnumber, 'TimeZone', 'local', 'ConvertFrom', 'posixtime'), 'yyyy-mm-ddTHH:MM:SS');
                 % add decimal dot and microseconds:
                 isostring = [isostring '.' num2str(mod(posixnumber, 1), '%0.6d')];
-        endif
-endfunction
+        end
+end
 
 function retval = isOctave
 % checks if GNU Octave or Matlab

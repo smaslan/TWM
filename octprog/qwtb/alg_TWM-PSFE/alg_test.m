@@ -141,7 +141,7 @@ function alg_test(calcset) %<<<1
         
 
     % --- execute the algorithm:
-    dout = qwtb('TWM-PSFE',din)
+    dout = qwtb('TWM-PSFE',din);
     
     
     % check frequency estimate:

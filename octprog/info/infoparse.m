@@ -1,4 +1,4 @@
-function [idata] = infoparse(inf,mode)
+function [idata] = infoparse(inf, mode)
 % INFO-STRINGS: Parses info-string to sections, matrices and items.
 % If will go through the string and recoursively parse the sections.
 % Optionally it will also parse the matrices - it will extract the 
@@ -128,7 +128,6 @@ function [idata] = infoparse(inf,mode)
     % and we are outa here...
         
 end
-
 
 function [idata,n,pos] = infoparse_struct(idata,inf,pos,n,N,sec_pos,sec_name,sec_start,sec_end,sec_type,name,stype,parse_level)
         
