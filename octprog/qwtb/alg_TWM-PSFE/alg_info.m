@@ -42,7 +42,7 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     alginfo.inputs(pid).name = 'y_lo';
-    alginfo.inputs(pid).desc = 'Sampled values';
+    alginfo.inputs(pid).desc = 'Sampled values - low-side';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
@@ -79,8 +79,8 @@ function alginfo = alg_info() %<<<1
     
     
     % --- correction data:
-    
-    % ADC setup
+        
+    % ADC setup:
     alginfo.inputs(pid).name = 'adc_bits';
     alginfo.inputs(pid).desc = 'ADC resolution';
     alginfo.inputs(pid).alternative = 0;
@@ -105,7 +105,23 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
-    % ADC gain calibration matrix (2D dependence, rows: freqs., columns: harmonic amplitudes)
+    % ADC apperture effect correction:
+    % this set to non-zero value will enable auto correction of the aperture effect by algorithm
+    alginfo.inputs(pid).name = 'adc_aper_corr';
+    alginfo.inputs(pid).desc = 'ADC aperture effect correction switch';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    % apperture value must be passed if the 'adc_aper_corr' is non-zero:
+    alginfo.inputs(pid).name = 'adc_aper';
+    alginfo.inputs(pid).desc = 'ADC aperture value';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;       
+    
+    % ADC gain calibration matrix (2D dependence, rows: freqs., columns: harmonic amplitudes):
     alginfo.inputs(pid).name = 'adc_gain_f';
     alginfo.inputs(pid).desc = 'ADC gain transfer: frequency axis';
     alginfo.inputs(pid).alternative = 0;

@@ -98,7 +98,26 @@ function dataout = alg_wrapper(datain, calcset)
         % note: assume frequency comming from digitizer tb., because the timestamp comes also from dig. timebase
         ph = ph - datain.time_stamp.v*f_org*2*pi;
         % calc. uncertainty contribution:
-        u_p_ts = datain.time_stamp.u*f_org*2*pi;        
+        u_p_ts = datain.time_stamp.u*f_org*2*pi;
+        
+        
+        % calculate aperture corrections (when enabled and some non-zero value entered for the aperture time):
+        if datain.adc_aper_corr.v && abs(datain.adc_aper.v) > 1e-12 
+        
+            % get aperture time:
+            ta = datain.adc_aper.v;
+          
+            % calculate gain correction:
+            ap_gain = (pi*ta*f)./sin(pi*ta*f);
+            % calculate phase correction:
+            ap_phi = pi*ta*f;
+            
+            % apply the corrections:
+            A = A*ap_gain;
+            ph = ph + ap_phi; 
+        
+        end        
+                
         
         % Unite frequency/amplitude axes of the digitizer channel gain/phase corrections:
         [gp_tabs, ax_a, ax_f] = correction_expand_tables({tab.adc_gain, tab.adc_phi});
@@ -119,8 +138,6 @@ function dataout = alg_wrapper(datain, calcset)
         % interpolate the gain/phase tables to the measured frequency and amplitude:
         adc_gain = correction_interp_table(adc_gain,A,f,'f',1);
         adc_phi = correction_interp_table(adc_phi,A,f,'f',1);
-        
-        
         
         % check if there are some NaNs in the correction data - that means user correction dataset contains some undefined values:
         if any(isnan(adc_gain.gain)) || any(isnan(adc_phi.phi))

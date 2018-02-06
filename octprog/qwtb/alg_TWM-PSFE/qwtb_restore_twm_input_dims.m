@@ -155,6 +155,11 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         
         % create default digitizer timebase correction:
         din = qwtb_rtwm_inps_default(din,true,'adc_freq',0,0);
+        
+        % create default digitizer aperture correction:
+        din = qwtb_rtwm_inps_default(din,true,'adc_aper_corr',0);
+        %  - create default aperture
+        din = qwtb_rtwm_inps_default(din,true,'adc_aper',0);
                 
         % create default jitter:
         din = qwtb_rtwm_inps_default(din,true,'jitter',0);
