@@ -33,7 +33,7 @@ function dataout = alg_wrapper(datain, calcset)
     
     % Rebuild TWM style correction tables:
     % note: for comfortable work on correction matrices
-    c_tabs = qwtb_restore_correction_tables(corr,cfg);  
+    c_tabs = qwtb_restore_correction_tables(datain,cfg);  
 
 
     % obtain wave data
@@ -76,7 +76,7 @@ function dataout = alg_wrapper(datain, calcset)
         elseif strcmpi(datain.f0_mode.v,'psfe')
             s.f_fund_fit = 2;
         else
-            error(sprintf('QWTB: THDWFFT wrapper: initial guess mode ''%s'' of the fundamental frequency is not recognized! Only ''zerocross'', ''fit'' or ''PSFE'' are recognized.',datain.f0_mode.v));
+            error(sprintf('QWTB: TWM-THDWFFT wrapper: initial guess mode ''%s'' of the fundamental frequency is not recognized! Only ''zerocross'', ''fit'' or ''PSFE'' are recognized.',datain.f0_mode.v));
         end
     end
     

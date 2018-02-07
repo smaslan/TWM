@@ -1,9 +1,9 @@
-function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(t,w_sig,init_freq,fit_freq,f_fund_zc,window_type,verbose)
+function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_freq,fit_freq,f_fund_zc,window_type,verbose)
 % Part of non-coherent, windowed FFT, THD meter.
 % Calculates windowed amplitude spectrum of the signals.
 %
 % Input parameters:
-%   t(:,1)      - input time vector [s]
+%   fs          - sampling rate
 %   w_sig(:,n)  - input waveforms, each column 'n' for one repeated measurement
 %   init_freq   - initial guess of the fundamental frequency [Hz]
 %   fit_freq    - search mode of fundamental freq.:
@@ -40,9 +40,6 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(t,w_sig,init_f
   wc = window_coeff(window_type, WN, 'periodic');
   w_gain = mean(wc);
   w_rms = sum(wc.^2)^0.5/WN^0.5;
-      
-  % sampling rate [Hz]
-  fs = 1./(t(2) - t(1));
     
   %%% for each input signal %%%
   n = size(w_sig,2);
@@ -73,6 +70,9 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(t,w_sig,init_f
       sig = zeros(length(amp),n);
     end
     
+    
+    
+    
     % estimate RMS value of the signal
     rms_v(1,k) = sum(0.5*(amp*w_gain).^2)^0.5/w_rms;
     
@@ -89,9 +89,6 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(t,w_sig,init_f
     f_sig = init_freq;
     f_std = 0;
   end
-  
-  %% sampling rate
-  fs = 1/(t(2) - t(1));
   
   %% bin frequency step [Hz]
   f_bin_step = f(2) - f(1);

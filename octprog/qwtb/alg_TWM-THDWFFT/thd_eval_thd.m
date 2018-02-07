@@ -1,4 +1,4 @@
-function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_fix_b,sig_m,f] = thd_eval_thd(f,sig,f_sig,h_num,h_f_max,f_dev_max,probab,mcc,window_type,corr,tab,cfg)
+function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_fix_b,sig_m,f] = thd_eval_thd(f,sig,f_sig,h_num,h_f_max,f_dev_max,probab,mcc,window_type,fs,corr,tab,cfg)
 % Part of non-coherent, windowed FFT, THD meter.
 % Calculates THD and its uncertainty from a windowed spectrum.
 %
@@ -15,6 +15,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
 %   fix_thd     - magic correction of THD, ### temporary ###, {0 - none, 1,2 - THD from means, 2 - worst case uncertainties}
 %               - for details see source code notes
 %   window_type - name string of the window function used for the calculation of input spectra
+%   fs          - sampling rate [Hz]
 %   corr        - correction data structure from TWM tool passed via QWTB
 %   tab         - correction tables (TWM style)
 %   cfg         - TWM configuration flags & stuff
@@ -89,13 +90,10 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     % expand flatness to be >100% sure the scalloping won't cause amp. errors outside 95% uncertainty:
     % ###note: is not nice solution, but works, rest of the algorithm is even more empirical... 
     flat = flat*1.4;
-    
+   
         
     % DFT bin frequency step [Hz]:
     f_bin_step = f(2) - f(1);
-     
-    % sampling rate [Hz]:
-    fs = 2*length(f)*f_bin_step;
     
     % averages count (repeated measurements):
     A = size(sig,2);
@@ -147,7 +145,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     
     % get largest available range of frequency for all correction:
     t_list = {tab.adc_gain,tab.adc_sfdr,tab.tr_gain,tab.tr_sfdr};  
-    [fc_min,fc_max] = tab_get_common_range(t_list);
+    [fc_min,fc_max] = tab_get_common_range(t_list,'f');
     
     % check the corrections range:
     if f_min < fc_min || f_max > fc_max
@@ -206,7 +204,9 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
       
     % get rough estimate of the transducer gain frequency transfer:
     tr_gain = nanmean(tab.tr_gain.gain,2);      
-    tr_gain = interp1(tab.tr_gain.f,tr_gain,f,'linear');
+    if numel(tr_gain) > 1
+        tr_gain = interp1(tab.tr_gain.f,tr_gain,f,'linear');
+    end
     
     % get rough INPUT voltage/current for one of the measurements only:  
     tr_sig = sig(:,1).*tr_gain;
@@ -245,8 +245,6 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         %sig_m = mean(sig,2);
         %sig_ua = std(sig.')'/size(sig,2)^0.5;
         % this is actually stdev(), not ua(), but don't tell nobody... :)
-        % hypotetically it should be type A uncertainty, but as the whole alg. is empirical anyway,
-        % this works much better in the end
         sig_ua = std(sig.')';
     else
         % for a single records:
@@ -273,7 +271,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
           
         % find nearest DFT bin for given harmonic freq
         [v,id] = min(abs(f_harm(h) - f));
-         
+                 
         % generate search range for the DFT bin with maximum amplitude 
         ida = max(round(id - f_dev_max), 1);
         idb = min(round(id + f_dev_max), length(sig_m));
@@ -282,11 +280,14 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         [v,ida] = max(sig_m(ida:idb));
         id = id + ida - 1 - f_dev_max;
         
+        %werr = thd_window_gain_corr(f_harm(h),f(id),f_bin_step,window_type);
+        werr = 0;
+        
         % store index of the DFT bin with harmonic
         i_sig(h) = id;
         
         % store found harmonic amplitude
-        U_harm(h) = sig_m(id);
+        U_harm(h) = sig_m(id)*(1 - werr);
            
         % store type A uncertainty of the harmonic
         U_hstd(h) = sig_ua(id);
@@ -336,10 +337,11 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     end
   
     % calculate absolute spur value from transducer:
-    tr_spur = a0*10^(-tr_sfdr/20);
+    tr_spur = a0*10^(-tr_sfdr.sfdr/20);
     
-    % tranducer gain for f0
-    gain0 = interp1(f,tr_gain.v,f0,'linear');
+    % transducer gain for f0    
+    gain0 = correction_interp_table(tab.tr_gain, [], f0);
+    gain0 = nanmean(gain0.gain);
     
     % get fundamental amplitude on ADC
     a0_adc = a0./gain0;
@@ -348,7 +350,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     adc_sfdr = correction_interp_table(tab.adc_sfdr, a0_adc, f0, 'f', 2);
   
     % calculate absolute spur value from ADC scaled to input voltage/current:
-    adc_spur = a0*10^(-adc_sfdr/20);
+    adc_spur = a0*10^(-adc_sfdr.sfdr/20);
     
     % combine spurs:
     % ###note: using worst case scenario = sum, but probably should be sumsq().^0.5?
@@ -551,4 +553,29 @@ function [ax_min,ax_max] = tab_get_common_range(t_list,ax_name)
         ax_min = -inf;
     end
     
+end
+
+
+function [gain_error] = thd_window_gain_corr(f_real,f_bin,f_bin_step,w_type)
+% this calculates error caused by applying normalized-windowed-FFT
+% if the analyzed frequency is not exactly matching nearest DFT bin
+% i.e. it calculates scalloping error for given frequency 'f_real', 
+% analyzed DFT bin of frequency 'f_bin' and frequency step of DFT 'f_bin_step'
+    
+    % get window's time function
+    M = 32;
+    w = window_coeff(w_type, M, 'periodic');
+    
+    % calc. zoomed window spectrum, center it
+    Z = 100;
+    W = fft(w,M*Z)/M*2;
+    W = fftshift(W);    
+    C = round(M*Z/2)+1;
+    
+    % relative position from 'f_bin' [bins]
+    k = (f_real - f_bin)/f_bin_step;
+    
+    % calculate relative error of windowed FFT amplitude guess if the window was normalized 
+    gain_error = abs(W(C))./abs(W(C + round(k*Z))) - 1;
+
 end

@@ -85,15 +85,12 @@ function [r] = thd_wfft(y,fs,s,corr,tab,cfg)
 
   % get samples count per record
   N = size(y,1);
-    
-  % rebuild time vector
-  t(:,1) = [0:N-1]/fs;
   
   % window type used for the input spectrum - rather do not modify!
   window_type = 'flattop_248D';
     
   % get spectrum of each waveform (one waveform - one averaging cycle)
-  [f,sig,fs,f_bin_step,r.f_sig,f_std,rms] = thd_proc_waves(t, y, s.f_fund, s.f_fund_fit, s.f_fund_zc_filter, window_type, s.verbose);
+  [f,sig,fs,f_bin_step,r.f_sig,f_std,rms] = thd_proc_waves(fs, y, s.f_fund, s.f_fund_fit, s.f_fund_zc_filter, window_type, s.verbose);
   
   
   % calculate harmonics distance in [DFT bins]
@@ -106,7 +103,7 @@ function [r] = thd_wfft(y,fs,s,corr,tab,cfg)
   
   
   % evaluate thd coefficients
-  [thd,r.f_lst,f_noise,r.a_noise,r.a_lst,r.a_lst_a,r.a_lst_b,r.a_comp_lst,r.a_comp_lst_a,r.a_comp_lst_b,sig_m,f] = thd_eval_thd(f,sig,r.f_sig,s.h_num,s.h_f_max,s.f_dev_max,s.mc_cover,s.mc_cycles,window_type,corr,tab,cfg);
+  [thd,r.f_lst,f_noise,r.a_noise,r.a_lst,r.a_lst_a,r.a_lst_b,r.a_comp_lst,r.a_comp_lst_a,r.a_comp_lst_b,sig_m,f] = thd_eval_thd(f,sig,r.f_sig,s.h_num,s.h_f_max,s.f_dev_max,s.mc_cover,s.mc_cycles,window_type,fs,corr,tab,cfg);
   
   
   % store the results into the results struct
