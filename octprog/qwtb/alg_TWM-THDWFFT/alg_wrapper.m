@@ -90,6 +90,11 @@ function dataout = alg_wrapper(datain, calcset)
         s.h_f_max = datain.band.v;
     end
     
+    % enable scalloping error correction?
+    if isfield(datain, 'scallop_fix') && datain.scallop_fix.v
+        % yaha
+        s.f_dev_max = -1;
+    end
     
     % prepare corrections data structure (copy of input parameters without data vector - is too large)
     cin = rmfield(datain,'y');

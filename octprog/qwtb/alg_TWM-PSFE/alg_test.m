@@ -1,5 +1,5 @@
 function alg_test(calcset) %<<<1
-% Part of QWTB. Test script for algorithm TWM-TEST.
+% Part of QWTB. Test script for algorithm TWM-PSFE.
 %
 % See also qwtb
 

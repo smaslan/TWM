@@ -35,6 +35,12 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
     disp('Processing signal waveforms:');
   end
   
+  
+  
+  % generate time vector [s]
+  M = size(w_sig,1);
+  t(:,1) = [0:M-1]/fs;
+  
   % calculate window rms gain coeficient
   WN = 100;
   wc = window_coeff(window_type, WN, 'periodic');
@@ -64,6 +70,17 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
         
     %% get waveform spectrum
     [f,amp] = ampphspectrum(w_sig(:,k), fs, 0, 0, window_type, [], 0);
+    
+    %w = window_coeff(window_type, M, 'periodic');
+    %w = w(:);        
+    %y = w_sig(:,k).*w(end:-1:1);    
+    %Y = fft(y)/M*2;
+    %Y = Y(1:floor(M/2));    
+    %Y = Y/mean(w);    
+    %amp = abs(Y);
+    %f = [0:numel(Y)]/M*fs;
+    %f = f(:);
+        
         
     %% allocate results buffer
     if k == 1      
@@ -84,7 +101,7 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
   %% average fundamental freqs.
   if ~init_freq  
     f_sig = mean(s_freq);
-    f_std = std(s_freq);
+    f_std = std(s_freq(:));
   else
     f_sig = init_freq;
     f_std = 0;

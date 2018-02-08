@@ -57,6 +57,13 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     
+    alginfo.inputs(pid).name = 'scallop_fix';
+    alginfo.inputs(pid).desc = 'Enable correction of window scalloping error';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
     alginfo.inputs(pid).name = 'H';
     alginfo.inputs(pid).desc = 'Maximum analyzed harmonic count';
     alginfo.inputs(pid).alternative = 0;

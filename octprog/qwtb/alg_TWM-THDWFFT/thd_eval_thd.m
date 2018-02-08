@@ -80,16 +80,31 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.
 %
 
+    % enable scalloping correction?
+    fix_scalloping = f_dev_max < 0;
+
+    if f_dev_max < 0
+        % window scalloping correction enabled
+        
+        % harmonic DFT bin search range limited to +/-0.5 bin
+        f_dev_max = 0;
+        
+    end
 
   
     % --- obtain parameters of the window
     % window +/-0.5*bin relative flatness [-]:
     [a,b,flat] = thd_window_spectrum(1000,1000,10,window_type);
-    clear a,b;
+    clear a,b;    
+    if fix_scalloping
+        % when scalloping error correction enabled, assume about 50% flatness improvement (pessimistic guess):
+        flat = flat*0.5;
+    else
+        % expand flatness to be >100% sure the scalloping won't cause amp. errors outside 95% uncertainty:
+        % ###note: is not nice solution, but works, rest of the algorithm is even more empirical... 
+        flat = flat*1.4;
+    end
     
-    % expand flatness to be >100% sure the scalloping won't cause amp. errors outside 95% uncertainty:
-    % ###note: is not nice solution, but works, rest of the algorithm is even more empirical... 
-    flat = flat*1.4;
    
         
     % DFT bin frequency step [Hz]:
@@ -219,7 +234,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     % --- apply transducer gain correction 
     
     % get correction coefs. for each frequency and rms level:
-    tr_gain = correction_interp_table(tab.tr_gain, tr_rms, f, 'f', 2);
+    tr_gain = correction_interp_table(tab.tr_gain, tr_rms, f, 'f', 1);
     
     if any(isnan(tr_gain.gain))
         error('THD, corrections: Amplitude range of transducer correction not sufficient!');
@@ -251,7 +266,6 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         sig_m = sig;
         sig_ua = zeros(size(sig_m));
     end
-   
   
       
     % --- Find harmonics and get near noise levels
@@ -280,14 +294,18 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         [v,ida] = max(sig_m(ida:idb));
         id = id + ida - 1 - f_dev_max;
         
-        %werr = thd_window_gain_corr(f_harm(h),f(id),f_bin_step,window_type);
-        werr = 0;
+        % calculate scalloping error correction factor:
+        if fix_scalloping
+            werr = thd_window_gain_corr(f_harm(h),f(id),f_bin_step,window_type);
+        else
+            werr = 0;
+        end
         
         % store index of the DFT bin with harmonic
         i_sig(h) = id;
         
         % store found harmonic amplitude
-        U_harm(h) = sig_m(id)*(1 - werr);
+        U_harm(h) = sig_m(id)*(1 + werr);
            
         % store type A uncertainty of the harmonic
         U_hstd(h) = sig_ua(id);
@@ -576,6 +594,6 @@ function [gain_error] = thd_window_gain_corr(f_real,f_bin,f_bin_step,w_type)
     k = (f_real - f_bin)/f_bin_step;
     
     % calculate relative error of windowed FFT amplitude guess if the window was normalized 
-    gain_error = abs(W(C))./abs(W(C + round(k*Z))) - 1;
+    gain_error = abs(W(C))./abs(W(C - round(k*Z))) - 1;
 
 end

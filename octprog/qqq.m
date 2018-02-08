@@ -9,7 +9,7 @@ cd(mfld);
 addpath([mfld filesep() 'info']);
 addpath([mfld filesep() 'qwtb']);
 
-qwtb('TWM-PSFE','test')
+qwtb('TWM-THDWFFT','test')
 
 return
 

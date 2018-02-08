@@ -13,9 +13,11 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
 %            Yca - 1D table of output terminals shunting Y (Cp+D format)
 %            Zcb - 1D table of cable series Z (Rs+Ls format)
 %            Ycb - 1D table of cable shunting Y (Cp+D format)
-%            Zlo - 1D table of RVD's low side resistor Z (Rp+Cp format)     
+%            Zlo - 1D table of RVD's low side resistor Z (Rp+Cp format)
 %   dig  - digitizer channel correction data with items:
-%            inp_Y - channel input shunting admittance (Cp+D format)
+%            Yin - channel input shunting admittance (Cp+Gp format)
+%          additional for differential input mode:
+%            lo_Yin - low-side channel input shunting admittance (Cp+Gp format)      
 %
 %
 % Returns:
@@ -27,7 +29,7 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
 %
 %
 %
-% The correction applies following equivalent circuit:
+% The correction applies following equivalent circuit (single-ended mode):
 %
 %  in (RVD)
 %  o-------+
@@ -36,7 +38,7 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
 %         | | Zhi
 %         | |
 %         +++ Zca/2      Zca/2      Zcb/2      Zcb/2
-%  in      |  +----+     +----+     +----+     +----+        out
+%  in      |  +----+     +----+     +----+     +----+          out
 %  o-------+--+    +--+--+    +--o--+    +--+--+    +--o--+-----o
 %  (shunt) |  +----+  |  +----+     +----+  |  +----+     |
 %         +++        +++                   +++           +++
@@ -50,7 +52,7 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
 %  |                             |                     |        |
 %  +-------- TRANSDUCER ---------+------ CABLE --------+- ADC --+
 %
-% The correction consist of 3 components:
+% The correction consists of 3 components:
 %  a) The transducer (RVD or shunt). When shunt. The Zhi nor Zlo are not
 %     required as the Zlo can be expressed from tfer_gain and tfer_phi.
 %     Part of the tran. is also its output terminal modeled as transmission
@@ -62,7 +64,43 @@ function [tran,tfer,u_tfer] = correction_transducer_loading(tran,dig)
 %  1) Unload the transducer from the Zcb-Ycb load.
 %  2) Calculate effect of the cable and digitizer to the impedane Zlo.
 %  3) Calculate complex transfer from V(Zlo) to V(out).
-% All effects combines linearly to complex 'tfer' correction.  
+% All effects combines linearly to complex 'tfer' correction.
+% The correction applies following equivalent circuit (single-ended mode):
+%
+%
+% The correction applies following equivalent circuit (differential mode):
+% ### not implemented yet!!!
+%
+%  in (RVD)
+%  o-------+
+%          |
+%         +++
+%         | | Zhi
+%         | |
+%         +++ Zca/2      Zca/2       Zcb/2      Zcb/2
+%  in      |  +----+     +----+      +----+     +----+          
+%  o-------+--+    +--+--+    +--o---+    +--+--+    +---o--+---o u
+%  (shunt) |  +----+  |  +----+      +----+  |  +----+      |
+%          |          |                     +++            +++
+%         +++        +++                    | |            | |
+%         | |        | |                    | | Ycb        | | Yin
+%         | | Zlo    | | Yca (optional)     +++            +++
+%         +++        +++                     |              |
+%          |          |            +---------+----------o---+---o gnd_u
+%  0V      |          |            | +----+     +----+
+%  o-------+----------+----------o---+    +--+--+    +--o---+---o u_lo
+%                                  | +----+  |  +----+      |
+%                                  | Zcb/2  +++  Zcb/2     +++
+%                                  |        | |            | |
+%                                  |        | | Ycb        | | lo_Yin
+%                                  |        +++            +++
+%                                  |         |              |
+%                                  +---------+----------o---+---o gnd_u_lo
+%                                  |
+%                                 +++                                
+% ^                              ^                      ^       ^
+% |                              |                      |       |
+% +-------- TRANSDUCER ----------+-----+ CABLES +-------+- ADC -+
 %
 %
 % This is part of the TWM - TracePQM WattMeter.
