@@ -8,6 +8,7 @@ type:: qwtb list
         PSFE
         SP-FFT
         SP-WFFT
+        TWM-THDWFFT
 #endmatrix:: list of supported algorithms
 
 
@@ -98,3 +99,21 @@ type:: qwtb list
 #endsection:: SP-WFFT
 
 
+#startsection:: TWM-THDWFFT
+        #startmatrix:: number formats
+                H;       f;  1e-7; 1e-7
+                f;       si; 1e-6; 1e-6
+                h;       si; 1e-8; 1e-5
+                h_raw;   si; 1e-8; 1e-5
+                thd;     f;  1e-5; 1e-5
+                thd_raw; f;  1e-5; 1e-5
+                spec_f;  si; 1e-6; 1e-6
+                spec_a;  si; 1e-8; 1e-6
+        #endmatrix:: number formats
+        #startmatrix:: graphs
+                f; h
+                f; h_raw
+                spec_f; spec_A
+        #endmatrix:: graphs
+        spectrum:: spec_a
+#endsection:: WRMS

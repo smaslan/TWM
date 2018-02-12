@@ -175,6 +175,11 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         din = qwtb_rtwm_inps_default(din,cfg.u_is_diff,'u_time_shift_lo',0,0);
         din = qwtb_rtwm_inps_default(din,cfg.i_is_diff,'i_time_shift_lo',0,0);
         
+        % create default ADC resolution:
+        din = qwtb_rtwm_inps_default(din,true,'adc_bits',40);        
+        % create default ADC range:
+        din = qwtb_rtwm_inps_default(din,true,'adc_nrng',1000);
+        
         
         % fix input data, so the vectors are always vertical
         if cfg.has_y && ~cfg.is_multi 
