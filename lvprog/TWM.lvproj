@@ -193,7 +193,6 @@
 			<Item Name="correction_load_transducer.m" Type="Document" URL="../../octprog/correction_load_transducer.m"/>
 			<Item Name="correction_parse_section.m" Type="Document" URL="../../octprog/correction_parse_section.m"/>
 			<Item Name="iii.m" Type="Document" URL="../../octprog/iii.m"/>
-			<Item Name="pokus.m" Type="Document" URL="../../octprog/pokus.m"/>
 			<Item Name="qot.m" Type="Document" URL="../../octprog/qot.m"/>
 			<Item Name="qqq.m" Type="Document" URL="../../octprog/qqq.m"/>
 			<Item Name="qwtb_average_results.m" Type="Document" URL="../../octprog/qwtb_average_results.m"/>
