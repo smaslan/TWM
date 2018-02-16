@@ -295,7 +295,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
       
     end
     
-    return
+
   
   
   % --- build results header

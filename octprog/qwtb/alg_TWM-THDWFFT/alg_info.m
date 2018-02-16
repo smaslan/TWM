@@ -91,7 +91,7 @@ function alginfo = alg_info() %<<<1
     % --- flags {support_multi_inputs, support_diff}:
     % note: presence of these parameters signalizes caller capabilities of the algoirthm     
     
-    alginfo.inputs(pid).name = 'support_multi';
+    alginfo.inputs(pid).name = 'support_multi_inputs';
     alginfo.inputs(pid).desc = 'TWM control flag: supports multiple input records';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
@@ -373,7 +373,7 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'f';
-    alginfo.outputs(pid).desc = 'Harmonic freqiencies';
+    alginfo.outputs(pid).desc = 'Harmonic frequencies';
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'spec_f';
