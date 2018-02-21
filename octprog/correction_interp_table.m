@@ -4,7 +4,7 @@
 %%% to rebuild this function.                                   %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
+function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim,i_mode)
 % TWM: Interpolator of the correction tables loaded by 'correction_load_table'.
 % It will return interpolated value(s) from the correction table either in 2D
 % mode or 1D mode.
@@ -14,8 +14,9 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
 %   tbl = correction_interp_table(tbl, [], ay)
 %   tbl = correction_interp_table(tbl, ax, ay)
 %   tbl = correction_interp_table(tbl, ax, ay, new_axis_name, new_axis_dim)
+%   tbl = correction_interp_table(..., i_mode)
 %
-%   tbl = correction_interp_table()
+%   tbl = correction_interp_table('test')
 %     - run self-test/validation
 %
 % Parameters:
@@ -26,11 +27,13 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
 %                   in this case the 'ax' and 'ay' must have the same size
 %                   or one may be vector and one scalar, the scalar one will
 %                   be replicated to size of the other. The function will 
-%                   return 1 item per item of 'ax'/'ay'/
+%                   return 1 item per item of 'ax'/'ay'
 %                   It will also create a new 1D table with the one axis name
 %                   'new_axis_name'.
 %   new_axis_dim  - In the 1D mode this defines which axis 'ax' or 'ay' will be
-%                   used for the new axis 'new_axis_name'.  
+%                   used for the new axis 'new_axis_name'.
+%   i_mode        - Desired mode of interpolation same as for interp1(),
+%                   default is 'linear'.  
 %
 % note: leave 'ax' or 'ay' empty [] to not interpolate in that axis.
 % note: if the 'ax' or 'ay' is not empty and the table have not x or y
@@ -39,12 +42,12 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
 % Returns:
 %   tbl - table with interpolated quantities
 %
-% This is part of the TWM - TracePQM WattMeter.
+% This is part of the TWM - TracePQM WattMeter (https://github.com/smaslan/TWM).
 % (c) 2018, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
-    if ~nargin
+    if nargin == 1 && ischar(tbl) && strcmpi(tbl,'test')
         % initiate self-test/validation:
         tbl = correction_interp_table_test();
         return
@@ -70,7 +73,7 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
     end
     
     % is it 2D interpolation?
-    in2d = ~exist('new_axis_name','var');
+    in2d = ~(exist('new_axis_name','var') && exist('new_axis_dim','var'));
     
     % input checking for the 2D mode
     if ~in2d
@@ -98,8 +101,14 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
             end            
         end
         
+    elseif exist('new_axis_name','var')
+        % get interpolation mode:
+        i_mode = new_axis_name;
     end
     
+    if ~exist('i_mode','var')
+        i_mode = 'linear'; % default interp mode
+    end
     
     % check compatibility with data:
     if has_ax && ~tbl.has_x
@@ -151,15 +160,15 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
         % interpolate each quantity:
         if tbl.size_x && tbl.size_y
             for q = 1:Q
-                quants{q} = interp2nan(ox,oy,quants{q},ax.',ay);
+                quants{q} = interp2nan(ox,oy,quants{q},ax.',ay,i_mode);
             end
         elseif tbl.size_x
             for q = 1:Q
-                quants{q} = interp1nan(ox,quants{q},ax);
+                quants{q} = interp1nan(ox,quants{q},ax,i_mode);
             end
         elseif tbl.size_y
             for q = 1:Q
-                quants{q} = interp1nan(oy,quants{q},ay);
+                quants{q} = interp1nan(oy,quants{q},ay,i_mode);
             end
         else
             if new_axis_dim == 1
@@ -210,7 +219,7 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
         if ~isempty(ax) && ~isempty(ay)
             if tbl.size_x && tbl.size_y
                 for q = 1:Q
-                    quants{q} = interp2nan(ox,oy,quants{q},ax,ay);
+                    quants{q} = interp2nan(ox,oy,quants{q},ax,ay,i_mode);
                 end
             elseif tbl.size_x
                 for q = 1:Q
@@ -228,7 +237,7 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
         elseif ~isempty(ax)
             if tbl.size_x
                 for q = 1:Q
-                    quants{q} = interp1nan(ox,quants{q},ax);
+                    quants{q} = interp1nan(ox,quants{q},ax,i_mode);
                 end
             else
                 for q = 1:Q
@@ -238,7 +247,7 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim)
         elseif ~isempty(ay)
             if tbl.size_y
                 for q = 1:Q
-                    quants{q} = interp1nan(oy,quants{q},ay);
+                    quants{q} = interp1nan(oy,quants{q},ay,i_mode);
                 end
             else
                 for q = 1:Q
@@ -289,8 +298,6 @@ end
 
 
 % ====== SELF-TEST SECTION ======
-
-%!test correction_interp_table()
 function [res] = correction_interp_table_test()
 
     % high tolerance needed because of NaN tolerant interps - they cause some additional error:

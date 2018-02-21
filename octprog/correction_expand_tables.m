@@ -9,7 +9,7 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
 %
 % This will take cell array of tables, looks for largest common range of 
 % axes, then interpolates the tables data so all tables have the same axes.
-% It uses linear interpolation and no extrapolation. NaNs will be inserted
+% It uses selected interpolation mode and no extrapolation. NaNs will be inserted
 % when range of new axis is outside range of source data.
 % Note it will repeat the process for all data quantities in the table.
 %
@@ -18,11 +18,16 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
 % If the table is independent to one or both axes, the function lets
 % them independent (will not create new axis).
 %
+% [tout,ax,xy] = correction_expand_tables(tin)
+% [tout,ax,xy] = correction_expand_tables(tin, reduce_axes)
+% [tout,ax,xy] = correction_expand_tables(..., i_mode)
+%
 % Parameters:
 %  tin         - cell array of input tables
 %  reduce_axes - reduces new axes to largest common range if set '1' (default)
 %                if set to '0', it will merge the source axes to largest
 %                needed range, but the data of some tables will contain NaNs!
+%  i_mode      - interpolation mode (default: 'linear')
 %
 % Returns:
 %  tout - cell array of the modfied tables
@@ -30,14 +35,23 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
 %  ay   - new y axis (empty if not exist) 
 %
 %
-% This is part of the TWM - TracePQM WattMeter.
-% (c) 2017, Stanislav Maslan, smaslan@cmi.cz
+% This is part of the TWM - TracePQM WattMeter (https://github.com/smaslan/TWM).
+% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
   % by default reduce axes to largest common range
   if ~exist('reduce_axes','var')
     reduce_axes = 1;
+  end
+  
+  % identify interpolation mode:
+  if ~exist('i_mode','var')
+    if exist('reduce_axes','var') && ischar(reduce_axes)
+      i_mode = reduce_axes;
+    else
+      i_mode = 'linear';
+    end
   end
   
   % tables count
@@ -112,17 +126,17 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
       if has_x && has_y && tab.size_x && tab.size_y
         % table has both axes, interpolate in 2D        
         qu = getfield(tab,qnames{q});
-        qu = interp2nan(xdata,ydata,qu,axi,ayi,'linear');
+        qu = interp2nan(xdata,ydata,qu,axi,ayi,i_mode);
         tab = setfield(tab,qnames{q},qu);
       elseif has_y && tab.size_y
         % only primary axis (Y), interpolate 1D
         qu = getfield(tab,qnames{q});
-        qu = interp1nan(ydata,qu,ay,'linear');               
+        qu = interp1nan(ydata,qu,ay,i_mode);               
         tab = setfield(tab,qnames{q},qu);
       elseif has_x && tab.size_x
         % only secondary axis (X), interpolate 1D
         qu = getfield(tab,qnames{q});
-        qu = interp1nan(xdata,qu,ax,'linear');        
+        qu = interp1nan(xdata,qu,ax,i_mode);        
         tab = setfield(tab,qnames{q},qu); 
       end
     end

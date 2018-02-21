@@ -3,6 +3,9 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
 %
 % This will load single CSV file of 1D or 2D dependence into structure.
 %
+% [tbl] = correction_load_table(file, second_ax_name, quant_names)
+% [tbl] = correction_load_table(file, second_ax_name, quant_names, i_mode)
+%
 % Parameters:
 %  file - full file path to the CSV file
 %       - may be replaced by cell array {quant. 1, quant. 2, ...},
@@ -14,6 +17,7 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
 %  quant_names - names of the quantities in the CSV file
 %              - first one is always independent quantity (primary axis),
 %                following strings are names of the dependent quantities
+%  i_mode      - interpolation mode (default: 'linear')
 %
 % Returns:
 %  tbl.name - CSV file comment
@@ -33,7 +37,7 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
 %
 % Notes:
 % Missing quantity values in the middle of the data will be interpolated
-% per rows (linear).
+% per rows (linear mode by default).
 % Missing (empty) cells on the starting and ending rows will be replaced
 % by NaN.
 %
@@ -73,14 +77,19 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
 % 10000        ; 6.100   ; 6.102   ; 0.5        ; 0.5
 %
 %
-% This is part of the TWM - TracePQM WattMeter.
-% (c) 2017, Stanislav Maslan, smaslan@cmi.cz
+% This is part of the TWM - TracePQM WattMeter (https://github.com/smaslan/TWM).
+% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
   
   % by default assume no secondary axis
-  if ~exist('second_ax_name','var')
+  if isempty(second_ax_name)
     second_ax_name = '';  
+  end
+  
+  % identify interpolation mode:
+  if ~exist('i_mode','var')
+    i_mode = 'linear';
   end
   
   if iscell(file)
@@ -152,8 +161,7 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
     if isempty(second_ax_name) && A > 1
       error('Correction table loader: no secondary axis desired but correction data contain more than 1 column per quantity!');
     end
-      
-    
+        
     % read name of the table
     tbl.name = csv{1,1};
     
@@ -224,7 +232,7 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
   
         if numel(p) > 1
           % interpolate data to fill in gaps and replace ends by NaNs     
-          vv(1:end,a) = num2cell(interp1(p,d,prim,'linear'));
+          vv(1:end,a) = num2cell(interp1(p,d,prim,i_mode));
         else
           % just one row, cannot interpolate
           tmp = vv(1:end,a);
