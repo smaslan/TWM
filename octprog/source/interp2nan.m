@@ -19,18 +19,54 @@ function [zi] = interp2nan(x,y,z,xi,yi,varargin)
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
+    persistent is_octave;  % speeds up repeated calls  
+    if isempty (is_octave)
+        is_octave = (exist ('OCTAVE_VERSION', 'builtin') > 0);
+    end
+
     % maximum allowable tolerance: 
     max_eps_x = 5*eps*xi;
     max_eps_y = 5*eps*yi;
     
-    % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
-    tmp(:,:,1) = interp2(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
-    tmp(:,:,2) = interp2(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
-    tmp(:,:,3) = interp2(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
-    tmp(:,:,4) = interp2(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+    if any(strcmpi(varargin,'linear')) || is_octave
+
+        % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
+        tmp(:,:,1) = interp2(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
+        tmp(:,:,2) = interp2(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
+        tmp(:,:,3) = interp2(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
+        tmp(:,:,4) = interp2(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+    
+    else
+    
+        % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
+        tmp(:,:,1) = interp2p(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
+        tmp(:,:,2) = interp2p(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
+        tmp(:,:,3) = interp2p(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
+        tmp(:,:,4) = interp2p(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+    
+    end
     
     % select non NaN results from the candidates:
     zi = nanmean(tmp,3);    
+
+end
+
+function [zi] = interp2p(x,y,z,xi,yi,varargin)
+% very crude replacement of the interp2() to enable support for 'pchip' in 2D in Matlab
+% it is designed just for function in this file! Not general interp2 replacement!
+% note it was designed for long y-dim and short x-dim
+% when it is the other way, it will be painfully slow in Matlab 
+    
+    if sum(size(xi) > 1) > 1
+        % xi, yi are most likely meshes - reduce:
+        xi = xi(1,:);
+        yi = yi(:,1);
+    end
+    
+    tmp = interp1(x.',z.',xi,varargin{:}).';    
+    zi = interp1(y,tmp,yi,varargin{:});
+    %tmp = interp1(y,z,yi,varargin{:});
+    %zi = interp1(x.',tmp.',xi,varargin{:}).';
 
 end
 

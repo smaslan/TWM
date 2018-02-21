@@ -263,7 +263,8 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
     end
     
     % merge axes of the tables to common range:
-    [tlist,rms,fx] = correction_expand_tables(tlist);
+    [tlist,rms,fx] = correction_expand_tables(tlist,'none');
+    clear tlist;
 
     if ~isempty(fx) && (f_max > max(fx) || f_min < min(fx))
         error('Transducer loading correction: Some of the involved correction tables have insufficient frequency reange!');
@@ -326,14 +327,15 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
     Zlo2        = CpRp2Z(f, tmp2.Cp, tmp2.Rp, tmp2.u_Cp, tmp2.u_Rp);
     u_cint = (abs(real(Zlo) - real(Zlo2)) + j*abs(imag(Zlo) - imag(Zlo2)))/3^0.5; % estimate iterpolation error uncertainty     
     % detect envelope of the interp uncertainty:      
-    if tlist{3}.size_y                
+    if tab.tr_Zlo.size_y                
         % identify centres of the correction sections (that is where largest interpolation error is):        
-        fid = interp1(f,[1:F_w],0.5*(tlist{3}.f(1:end-1) + tlist{3}.f(2:end)),'nearest');
+        fid = interp1(f,[1:F_w],0.5*(tab.tr_Zlo.f(1:end-1) + tab.tr_Zlo.f(2:end)),'nearest');
         % override uncertainty by envelope:
         u_cint = interp1(f(fid),u_cint(fid),f,'pchip','extrap');
     end
     u_Zlo = (real(u_Zlo).^2 + real(u_cint).^2).^0.5 + j*(imag(u_Zlo).^2 + imag(u_cint).^2).^0.5;    
     Zlo = uncdiff(Zlo, u_Zlo, 3, QT);
+    clear tmp2;
         
     
     % interpolate output terminals Z/Y:
@@ -358,6 +360,7 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
     tmp = correction_interp_table(tab.adc_Yin,[],f,int_mode);
     [Yin,u_Yin] = CpGp2Y(f, tmp.Cp, tmp.Gp, tmp.u_Cp, tmp.u_Gp);
     Yin = uncdiff(Yin, u_Yin, 8, QT);
+    clear tmp;
 
     
     % interpolate divider's transfer, convert to complex transfer:        
@@ -401,27 +404,29 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
         tmp = correction_interp_table(tab.lo_adc_Yin,[],f,int_mode);
         [lo_Yin,u_lo_Yin] = CpGp2Y(f, tmp.Cp, tmp.Gp, tmp.u_Cp, tmp.u_Gp);
         Yinl = uncdiff(lo_Yin, u_lo_Yin, 13, QT);
+        clear tmp;
         
         
         % --- 1) Solve the cable->digitizer transfers and simplify the circuit:  
         
         % calculate transfer of the high-side cable to dig. input (in/out):
-        k1 = (Yin.*Zcb + 2)./2;
+        kih = (Yin.*Zcb + 2)./2;
         Zih = 1./(1./(1./Yin + 0.5*Zcb) + Ycb);
-        k2 = (Zih + 0.5*Zcb)./Zih;
+        kih = kih.*(Zih + 0.5*Zcb)./Zih; % complex cable to dig. transfer
         Zih = Zih + 0.5*Zcb; % effective cable input impedance
-        kih = k1.*k2; % complex cable to dig. transfer        
+         
         
         % calculate transfer of the low-side cable to dig. input (in/out):
-        k1 = (Yinl.*Zcb + 2)./2;
+        kil = (Yinl.*Zcb + 2)./2;
         Zil = 1./(1./(1./Yinl + 0.5*Zcb) + Ycb);
-        k2 = (Zil + 0.5*Zcb)./Zil;
+        kil = kil.*(Zil + 0.5*Zcb)./Zil; % complex cable to dig. transfer
         Zil = Zil + 0.5*Zcb; % effective cable input impedance
-        kil = k1.*k2; % complex cable to dig. transfer
         
         % apply high/low side cable transfers to the input complex voltages:        
         Uhi = U.*kih;  
         Ulo = U_lo.*kil;
+        
+        clear kih kil Zcb Ycb Yin Yinl;
         
                         
         % --- 2) Assume the transd. was measured including the effect of the Zca-Zcal-Zcam-Yca
@@ -465,6 +470,8 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
             Zlo = 1./(1./Zlo - 1./(0.5*Zca_ef + 1./Yca));
                         
         end
+        
+        clear Zlo_int Zlo_ef k_ca Zca_ef tr;
 
         
         % --- 3) solve the circuit (the formulas come from symbolic solver):
@@ -486,6 +493,8 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
             Y = -I1;
         
         end
+        
+        clear I1 I2 Ulo Uhi Zlo Zhi Zil Zih Zca Yca Zcal Zcam;
     
     else
         % =====================================
@@ -529,6 +538,8 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
             Zlo = 1./(1./Zlo - 1./(0.5*Zca + 1./Yca));
                         
         end
+        
+        clear k_ca Zlo_int;
            
         
         % --- 2) Calculate total impedance loading of the Zlo:
@@ -566,12 +577,16 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
         % --- 4) Calculate input level:
         Y = U.*tr;
         
+        clear tr k_in k_cb k_te U Zlo_ef Zx Zhi Zca Yca Zcb Ycb Yin;
+        
     end
     
     
     % convert result back to the polar form:
     Ai = abs(Y);
-    phi = arg(Y);
+    phi = angle(Y);
+    
+    clear Y;
      
     % --- evaluate uncertainty data:    
     [Ai,u_Ai] = uncdiffeval(Ai);
@@ -588,7 +603,7 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
             
             % calculate differential of the working spots:
             dA = A.*exp(j*ph) - lo_A.*exp(j*lo_ph);            
-            dph = arg(dA);
+            dph = angle(dA);
             dA  = abs(dA);
             
             % normalize calculated result to inputting working spots:
@@ -597,7 +612,6 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
             k_ph = phi - dph;
             u_k_A = u_Ai./dA;
             u_k_ph = u_phi;
-            
             
             % upsample correction tfer to original freq spots:
             % note: using nearest method because there may be gaps in the tfer correction data
@@ -617,12 +631,12 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
             
             % in this step we are detecting peak uncertainties per groups of freqs
             % and overwritting the individual original freq spot uncertanties
-            u_A_pk = reshape(u_k_A,[grp_size F/grp_size]);
-            u_A_pk = repmat(max(u_A_pk,[],1),[grp_size 1]);
-            u_k_A = u_A_pk(:);            
-            u_ph_pk = reshape(u_k_ph,[grp_size F/grp_size]);
-            u_ph_pk = repmat(max(u_ph_pk,[],1),[grp_size 1]);
-            u_k_ph = u_ph_pk(:);
+            u_k_A = reshape(u_k_A,[grp_size F/grp_size]);
+            u_k_A = repmat(max(u_k_A,[],1),[grp_size 1]);
+            u_k_A = u_k_A(:);            
+            u_k_ph = reshape(u_k_ph,[grp_size F/grp_size]);
+            u_k_ph = repmat(max(u_k_ph,[],1),[grp_size 1]);
+            u_k_ph = u_k_ph(:);
                         
             
             
@@ -630,7 +644,7 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
             dA = A_org.*exp(j*ph_org) - lo_A_org.*exp(j*lo_ph_org);
             u_dA = (u_A_org.^2 + u_lo_A_org.^2).^0.5; % just estimate
             u_dph = (u_ph_org.^2 + u_lo_ph_org.^2).^0.5; % just estimate            
-            dph = arg(dA);
+            dph = angle(dA);
             dA  = abs(dA);
             
             % now apply the tfer to original spots:
@@ -663,6 +677,8 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
             u_Ai = ((Ai.*u_A_org).^2 + (A_org.*u_Ai).^2).^0.5;
             u_phi = (u_phi.^2 + u_ph_org.^2).^0.5;
             
+            clear A_org ph_org u_A_org u_ph_org;
+            
         end
         
     end
@@ -684,6 +700,8 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
     u_trg_int = abs(tr_gain.gain - tr_gain_l.gain)/3^0.5;
     u_trp_int = abs(tr_phi.phi - tr_phi_l.phi)/3^0.5;
     
+    clear tr_gain_l tr_phi_l;
+    
     %  --- detect envelope of the tr tfer interpolation errors and use them for whole sections of tr tfer correction:
     F2 = numel(f);
     if tab.tr_gain.size_y        
@@ -698,9 +716,8 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
         % override uncertainty by envelope:
         u_trp_int = interp1(f(fid),u_trp_int(fid),f,'pchip','extrap');
     end
-    
-    
-    % calculate change agains its original assumption:
+        
+    % calculate change of tran. tfer against its original assumption:
     k_A_tr = tr_gain.gain./g_org;
     k_ph_tr = tr_phi.phi - p_org;
     
@@ -709,7 +726,7 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
     
     % get abs. uncertainties of the final transducer correction:
     u_trg = A_tmp.*(tr_gain.u_gain.^2 + u_trg_int.^2).^0.5./g_org;
-    u_trp = tr_phi.u_phi;
+    u_trp = (tr_phi.u_phi.^2 + u_trp_int.^2).^0.5;
     
     % upsample the rms dependency to original freq spots:
     k_A_tr = interp1(f,k_A_tr,f_org,int_mode,'extrap');  
@@ -789,7 +806,7 @@ function [] = correction_transducer_loading_test()
         cfg{id}.D = 10;
         cfg{id}.F_corr = F_corr;
         cfg{id}.F = F;
-        cfg{id}.label = ['SE, RVD test (' lab{k} ') ...'];
+        cfg{id}.label = ['SE, RVD test (' lab{k} ')'];
         
         id = id + 1; % test 2:
         cfg{id}.is_rvd = 0;
@@ -797,7 +814,7 @@ function [] = correction_transducer_loading_test()
         cfg{id}.Rlo = 20;
         cfg{id}.F_corr = F_corr;
         cfg{id}.F = F;
-        cfg{id}.label = ['SE, shunt test (' lab{k} ') ...'];
+        cfg{id}.label = ['SE, shunt test (' lab{k} ')'];
         
         id = id + 1; % test 3:
         cfg{id}.is_rvd = 1;
@@ -806,7 +823,7 @@ function [] = correction_transducer_loading_test()
         cfg{id}.D = 10;
         cfg{id}.F_corr = F_corr;
         cfg{id}.F = F;
-        cfg{id}.label = ['DIFF, RVD test (' lab{k} ') ...'];
+        cfg{id}.label = ['DIFF, RVD test (' lab{k} ')'];
         
         id = id + 1; % test 4:
         cfg{id}.is_rvd = 0;
@@ -814,7 +831,7 @@ function [] = correction_transducer_loading_test()
         cfg{id}.Rlo = 20;
         cfg{id}.F_corr = F_corr;
         cfg{id}.F = F;
-        cfg{id}.label = ['DIFF, shunt test (' lab{k} ') ...'];
+        cfg{id}.label = ['DIFF, shunt test (' lab{k} ')'];
     end
     
     id = id + 1;
@@ -827,7 +844,7 @@ function [] = correction_transducer_loading_test()
     cfg{id}.A_min = 10e-6;    
     cfg{id}.A_noise = 1e-6;
     cfg{id}.A_count = 500;        
-    cfg{id}.label = 'DIFF, shunt test, many random freq spots ...';
+    cfg{id}.label = 'DIFF, shunt test, many random freq spots';
     cfg{id}.plot = 1;
     
     
@@ -839,7 +856,7 @@ function [] = correction_transducer_loading_test()
         % setup for current test:
         s = cfg{c};
         
-        disp(s.label);
+        printf(s.label);
         
         % interpolation mode of the freq characteristics:
         % note: must be identical to the one used by the main function
@@ -984,7 +1001,7 @@ function [] = correction_transducer_loading_test()
         
         % reinterpolate 'measured' transfer to correction freq spots:
         g = abs(k_ef);    
-        p = arg(k_ef);            
+        p = angle(k_ef);            
         [gc,pc,u_gc,u_pc] = decim_corr_data(g,p,f,fc,int_mode);
         
         % simulate transd. transfer and uncertainty (gain):
@@ -1101,10 +1118,14 @@ function [] = correction_transducer_loading_test()
             end
             
             % extract currents:
-            I1 = I(1,:)(:);
-            I2 = I(2,:)(:);
-            I3 = I(3,:)(:);
-            I4 = I(4,:)(:);
+            I1 = I(1,:);
+            I2 = I(2,:);
+            I3 = I(3,:);
+            I4 = I(4,:);
+            I1 = I1(:);
+            I2 = I2(:);
+            I3 = I3(:);
+            I4 = I4(:);
                         
             if s.is_rvd
                 % -- RVD mode:
@@ -1133,11 +1154,12 @@ function [] = correction_transducer_loading_test()
 
             % convert voltages to polar:
             Aih = abs(Uih);
-            phih = arg(Uih);
+            phih = angle(Uih);
             Ail = abs(Uil);
-            phil = arg(Uil);
+            phil = angle(Uil);
             
             % --- apply the loading correction to obtain original signal:
+            disp(' ...');
             tic();
             [Ax,phx,u_Ax,u_phx] = correction_transducer_loading(tab,tran,f,[], Aih,phih,0*Aih,0*phih, Ail,phil,0*Ail,0*phil);
         
@@ -1160,17 +1182,20 @@ function [] = correction_transducer_loading_test()
             end
             
             % forward transfer (out/in):
+            I4 = I(4,:);
             if s.is_rvd
-                tfer = I(4,:)(:).*Zin(:);
+                tfer = I4(:).*Zin(:);
             else
-                tfer = I(4,:)(:).*Zin(:)./I(1,:)(:);
+                I1 = I(1,:);
+                tfer = I4(:).*Zin(:)./I1(:);
             end
             
             % extract magnitude and phase:
             A_in = A.*abs(tfer);
-            ph_in = ph + arg(tfer);
+            ph_in = ph + angle(tfer);
             
             % --- apply the loading correction to obtain original signal:
+            disp(' ...');
             tic();
             [Ax,phx,u_Ax,u_phx] = correction_transducer_loading(tab,tran,f,[], A_in,ph_in,0*A_in,0*ph_in);
             
@@ -1413,7 +1438,7 @@ function [Z,phi,u_Z,u_phi] = Z2Zphi(Z,u_Z)
     u_phi = (im.^2.*u_re.^2 + re.^2.*u_im.^2).^0.5./(re.^4 + 2*im.^2.*re.^2 + im.^4).^0.5;
     
     % convert to polar:
-    phi = arg(Z);
+    phi = angle(Z);
     Z = abs(Z); 
 
 end
@@ -1794,6 +1819,8 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
 %                if set to '0', it will merge the source axes to largest
 %                needed range, but the data of some tables will contain NaNs!
 %  i_mode      - interpolation mode (default: 'linear')
+%                note: use 'none' to disable the interpolation - it will just find
+%                'ax','xy' and return unchanged tables
 %
 % Returns:
 %  tout - cell array of the modfied tables
@@ -1868,6 +1895,11 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
   % build meshgrid for 2D inetrpolation to the new axes:
   if has_x && has_y
     [axi,ayi] = meshgrid(ax,ay);
+  end
+  
+  if strcmpi(i_mode,'none')
+    T = 0; % do not interpolate mode
+    tout = tin;
   end
   
   % --- now interpolate table data to new axes ---
@@ -2277,18 +2309,54 @@ function [zi] = interp2nan(x,y,z,xi,yi,varargin)
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
+    persistent is_octave;  % speeds up repeated calls  
+    if isempty (is_octave)
+        is_octave = (exist ('OCTAVE_VERSION', 'builtin') > 0);
+    end
+
     % maximum allowable tolerance: 
     max_eps_x = 5*eps*xi;
     max_eps_y = 5*eps*yi;
     
-    % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
-    tmp(:,:,1) = interp2(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
-    tmp(:,:,2) = interp2(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
-    tmp(:,:,3) = interp2(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
-    tmp(:,:,4) = interp2(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+    if any(strcmpi(varargin,'linear')) || is_octave
+
+        % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
+        tmp(:,:,1) = interp2(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
+        tmp(:,:,2) = interp2(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
+        tmp(:,:,3) = interp2(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
+        tmp(:,:,4) = interp2(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
     
+    else
+    
+        % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
+        tmp(:,:,1) = interp2p(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
+        tmp(:,:,2) = interp2p(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
+        tmp(:,:,3) = interp2p(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
+        tmp(:,:,4) = interp2p(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+    
+    end
+  
     % select non NaN results from the candidates:
     zi = nanmean(tmp,3);    
+
+end
+
+function [zi] = interp2p(x,y,z,xi,yi,varargin)
+% very crude replacement of the interp2() to enable support for 'pchip' in 2D in Matlab
+% it is designed just for function in this file! Not general interp2 replacement!
+% note it was designed for long y-dim and short x-dim
+% when it is the other way, it will be painfully slow in Matlab 
+    
+    if sum(size(xi) > 1) > 1
+        % xi, yi are most likely meshes - reduce:
+        xi = xi(1,:);
+        yi = yi(:,1);
+    end
+    
+    tmp = interp1(x.',z.',xi,varargin{:}).';    
+    zi = interp1(y,tmp,yi,varargin{:});
+    %tmp = interp1(y,z,yi,varargin{:});
+    %zi = interp1(x.',tmp.',xi,varargin{:}).';
 
 end
 

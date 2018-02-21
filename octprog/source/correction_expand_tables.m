@@ -22,6 +22,8 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
 %                if set to '0', it will merge the source axes to largest
 %                needed range, but the data of some tables will contain NaNs!
 %  i_mode      - interpolation mode (default: 'linear')
+%                note: use 'none' to disable the interpolation - it will just find
+%                'ax','xy' and return unchanged tables
 %
 % Returns:
 %  tout - cell array of the modfied tables
@@ -96,6 +98,11 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
   % build meshgrid for 2D inetrpolation to the new axes:
   if has_x && has_y
     [axi,ayi] = meshgrid(ax,ay);
+  end
+  
+  if strcmpi(i_mode,'none')
+    T = 0; % do not interpolate mode
+    tout = tin;
   end
   
   % --- now interpolate table data to new axes ---
