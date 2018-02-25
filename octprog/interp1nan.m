@@ -21,15 +21,21 @@ function [yi] = interp1nan(x,y,xi,varargin)
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
-    % maximum allowable tolerance: 
-    max_eps = 5*eps*xi;
-    
-    % try to interpolate with offsets xi = <xi +/- max_eps>:
-    tmp(:,:,1) = interp1(x,y,xi + max_eps,varargin{:});
-    tmp(:,:,2) = interp1(x,y,xi - max_eps,varargin{:});
-    
-    % select non NaN results from the candidates:
-    yi = nanmean(tmp,3);    
+    if any(isnan(y))
+
+        % maximum allowable tolerance: 
+        max_eps = 5*eps*xi;
+        
+        % try to interpolate with offsets xi = <xi +/- max_eps>:
+        tmp(:,:,1) = interp1(x,y,xi + max_eps,varargin{:});
+        tmp(:,:,2) = interp1(x,y,xi - max_eps,varargin{:});
+        
+        % select non NaN results from the candidates:
+        yi = nanmean(tmp,3);
+        
+    else
+        yi = interp1(x,y,xi,varargin{:});    
+    end   
 
 end
 

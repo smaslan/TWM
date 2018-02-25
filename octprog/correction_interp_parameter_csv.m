@@ -23,8 +23,6 @@ function [data] = correction_interp_parameter_csv(files, w, csvcfg, correction_n
     tab{m} = correction_load_table(files{m},second_ax,q_names);
   end
   
-  tab
-  
   % merge tables axes to largest common range
   tab = correction_expand_tables(tab);   
 

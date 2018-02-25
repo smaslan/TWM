@@ -39,10 +39,8 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
 %         is_diff - non-zero if channel is connected in diff. mode
 %         * - correction tables, see transducer loader function
 %
-% Note the corrections are FAR from being done!!!! Just the phase indexes 
-% works now.
 %
-% This is part of the TWM - TracePQM WattMeter.
+% This is part of the TWM - TracePQM WattMeter (https://github.com/smaslan/TWM).
 % (c) 2018, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
@@ -113,7 +111,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     
     % ====== GROUP SECTION ======
     
-    % get preset sample counts
+    % get desired sample counts
     data.sample_count = infogetnumber(ginf, 'samples count');
       
     % get measurement root folder
@@ -137,9 +135,23 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     % relative timestamps for each record in the average group
     relative_timestamps = infogetmatrix(ginf, 'record relative timestamps [s]');
     
+    % get voltage ranges per channel:
+    data.ranges = infogetmatrix(ginf, 'voltage ranges [V]');
+    
+    % get ADC bit resolution:
+    data.bitres = infogetnumber(ginf, 'bit resolution');
+        
+    
     if data.is_temperature
         % relative timestamps for each record in the average group
         temperatures = infogetmatrix(ginf, 'record channel temperatures [deg C]');
+    end
+    
+    % try to load aperture times:
+    try
+        apertures = infogetmatrix(ginf, 'aperture [s]');
+    catch
+        apertures = zeros(data.repetitions_count,1); % defaults    
     end
     
     
@@ -192,8 +204,11 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     
     end
     
-    % return relataive timestamps as 2D matrix (average cycle, channel) 
-    data.timestamp = [relative_timestamps(ids)];
+    % return relataive timestamps as 2D matrix (repetition cycles, channel) 
+    data.timestamp = relative_timestamps(ids,:);
+    
+    % return apertures as 1D matrix (repetition cycles, 1):
+    data.apertures = apertures(ids);
     
     % return sampling period
     data.Ts = mean(time_incerements(ids));
@@ -254,9 +269,9 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
       
         % build absolute transducer correction path
         if has_transducers
-          t_file = [data.meas_folder filesep() transducer_paths{t}];
+            t_file = [data.meas_folder filesep() transducer_paths{t}];
         else
-          t_file = '';
+            t_file = '';
         end        
         
         % try to load the correction

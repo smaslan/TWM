@@ -31,12 +31,12 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
     
     % build correction's absolute path:
     cor_path = [meas_root filesep() cor_path];
+    
+    % digitizer correction root folder
+    cor_root = fileparts(cor_path);
 
     if ~use_default
-       
-        % digitizer correction root folder
-        cor_root = fileparts(cor_path);
-        
+
         % load corrections info file:
         dinf = infoload(cor_path);
         
@@ -80,10 +80,32 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
     table_cfg.second_ax = 'chn';
     table_cfg.quant_names = {'its','u_its'};
     table_cfg.default = {[1:meas.channels_count],zeros(1,meas.channels_count),zeros(1,meas.channels_count)};
-    dig.time_shifts = correction_parse_section(meas_root, dinf, minf, 'interchannel timeshift', table_cfg, 1, rep_id, group_id);
+    dig.time_shifts = correction_parse_section(cor_root, dinf, minf, 'interchannel timeshift', table_cfg, 1, rep_id, group_id);
+    % note: this is passed manually, thus no 'qwtb' struct!
+    
+    % --- try to load timebase correction value:
+    table_cfg = struct();
+    table_cfg.quant_names = {'tbc','u_tbc'};
+    table_cfg.default = {0,0}; % no cirrection by default
+    dig.jitter = correction_parse_section(cor_root, dinf, minf, 'timebase correction', table_cfg, 1, rep_id, group_id);
+    dig.jitter.qwtb = qwtb_gen_naming('adc_freq','','',{'tbc'},{'u_tbc'},{''});
     
     % --- try to load crosstalk
     % ###TODO: todo
+    
+    % this is a list of the correction that will be passed to the QWTB algorithm
+    % note: any correction added to this list will be passed to the QWTB
+    %       but it must contain the 'qwtb' record in the table (see eg. above)          
+    dig.qwtb_list = {};
+    % autobuild of the list of loaded correction:
+    fnm = fieldnames(dig);
+    for k = 1:numel(fnm)
+        item = getfield(dig,fnm{k});
+        if isfield(item,'qwtb')
+            dig.qwtb_list{end+1} = fnm{k};
+        end
+    end
+    
 
     % --- LOAD CHANNEL CORRECTIONS ---
     chn = {};
@@ -95,8 +117,14 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
             % build path to channel's correction file
             channel_path = [cor_root filesep() chn_paths{c}];
             
+            % channel correction root folder
+            chn_root = fileparts(channel_path);
+            
             % load channel correction file
             cinf = infoload(channel_path);
+            
+            % parse info file (speedup):
+            cinf = infoparse(cinf);
             
             % check the file format mark
             ctype = infogettext(cinf, 'type');
@@ -120,7 +148,8 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
             
         else
             % defaults:
-            cinf = '';        
+            cinf = '';
+            chn_root = '';        
             chn{c}.name = 'blank channel correction';
         end
         
@@ -130,7 +159,8 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         table_cfg = struct();
         table_cfg.quant_names = {'gain','u_gain'};
         table_cfg.default = {1.0,0.0};
-        chn{c}.nom_gain = correction_parse_section(meas_root, dinf, minf, 'nominal gain', table_cfg, 1, rep_id, group_id);
+        chn{c}.nom_gain = correction_parse_section(chn_root, cinf, minf, 'nominal gain', table_cfg, c, rep_id, group_id);
+        
         
         % --- try to load gain transfer
         table_cfg = struct();
@@ -138,7 +168,7 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         table_cfg.second_ax = 'amp';
         table_cfg.quant_names = {'gain','u_gain'};
         table_cfg.default = {[],[],1.0,0.0};
-        chn{c}.tfer_gain = correction_parse_section(meas_root, dinf, minf, 'gain transfer', table_cfg, 1, rep_id, group_id);
+        chn{c}.tfer_gain = correction_parse_section(chn_root, cinf, minf, 'gain transfer', table_cfg, c, rep_id, group_id);
         chn{c}.tfer_gain.qwtb = qwtb_gen_naming('adc_gain','f','a',{'gain'},{'u_gain'},{''});
         
         % combine nominal gain with transfer:
@@ -152,7 +182,7 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         table_cfg.second_ax = 'amp';
         table_cfg.quant_names = {'phi','u_phi'};
         table_cfg.default = {[],[],0.0,0.0};
-        chn{c}.tfer_phi = correction_parse_section(meas_root, dinf, minf, 'phase transfer', table_cfg, 1, rep_id, group_id);
+        chn{c}.tfer_phi = correction_parse_section(chn_root, cinf, minf, 'phase transfer', table_cfg, c, rep_id, group_id);
         chn{c}.tfer_phi.qwtb = qwtb_gen_naming('adc_phi','f','a',{'phi'},{'u_phi'},{''});
         
         % --- try to load input admittance
@@ -160,7 +190,8 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         table_cfg.primary_ax = 'f';
         table_cfg.quant_names = {'Cp','Gp','u_Cp','u_Gp'};
         table_cfg.default = {[],0.0,1e-6,0.0,0.0};
-        chn{c}.Yin = correction_parse_section(meas_root, dinf, minf, 'input admittance', table_cfg, 1, rep_id, group_id);
+        chn{c}.Yin = correction_parse_section(chn_root, cinf, minf, 'input admittance', table_cfg, c, rep_id, group_id);
+        chn{c}.Yin.qwtb = qwtb_gen_naming('adc_Yin','f','',{'Cp','Gp'},{'u_Cp','u_Gp'},{'Cp','Gp'});
                 
         % --- try to load SFDR
         table_cfg = struct();
@@ -168,16 +199,37 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         table_cfg.second_ax = 'amp';
         table_cfg.quant_names = {'sfdr'};
         table_cfg.default = {[],[],180.0};
-        chn{c}.SFDR = correction_parse_section(meas_root, dinf, minf, 'sfdr', table_cfg, 1, rep_id, group_id);
+        chn{c}.SFDR = correction_parse_section(chn_root, cinf, minf, 'sfdr', table_cfg, c, rep_id, group_id);
         chn{c}.SFDR.qwtb = qwtb_gen_naming('adc_sfdr','f','a',{'sfdr'},{''},{''});
         
+        % --- try to load aperture correction state
+        table_cfg = struct();
+        table_cfg.quant_names = {'enab'};
+        table_cfg.default = {1}; % enabled by default
+        chn{c}.aper_corr = correction_parse_section(chn_root, cinf, minf, 'aperture correction', table_cfg, c, rep_id, group_id);
+        chn{c}.aper_corr.qwtb = qwtb_gen_naming('adc_aper_corr','','',{'enab'},{''},{''});
+        
+        % --- try to load jitter value:
+        table_cfg = struct();
+        table_cfg.quant_names = {'jitt'};
+        table_cfg.default = {0}; % enabled by default
+        chn{c}.jitter = correction_parse_section(chn_root, cinf, minf, 'rms jitter', table_cfg, c, rep_id, group_id);
+        chn{c}.jitter.qwtb = qwtb_gen_naming('adc_jitter','','',{'jitt'},{''},{''});
+        
         % this is a list of the correction that will be passed to the QWTB algorithm
-        % note: ignoring the impedances here, in current version of TWM
-        %       they are expected to be processed and merged to transducer's 'tfer_...' 
-        %       during the measurement and correction loading
         % note: any correction added to this list will be passed to the QWTB
-        %       but it must contain the 'qwtb' record in the table (see eg. above)  
-        chn{c}.qwtb_list = {'tfer_gain','tfer_phi','SFDR'};
+        %       but it must contain the 'qwtb' record in the table (see eg. above)          
+        chn{c}.qwtb_list = {};
+        % autobuild of the list of loaded correction:
+        fnm = fieldnames(chn{c});
+        for k = 1:numel(fnm)
+            item = getfield(chn{c},fnm{k});
+            if isfield(item,'qwtb')
+                chn{c}.qwtb_list{end+1} = fnm{k};
+            end
+        end
+        
+        %chn{c}.qwtb_list
 
     end
     

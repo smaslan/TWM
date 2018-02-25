@@ -271,7 +271,6 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
   if ~numel(par{1}.name) && numel(par{2}.name)
     error(sprintf('Correction parser: Missing primary dependence while secondary is present for the correction ''%s''!',correction_name));
   end
- 
 
 
   % try to read the matrix with the correction data values
@@ -345,7 +344,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
     % interpolate the CSV files
     data = correction_interp_parameter_csv(values, w, table_cfg, correction_name);
         
-    
+      
     
   else
     % --- 'value' is matrix of numerics

@@ -561,15 +561,21 @@ function [yi] = interp1nan(x,y,xi,varargin)
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
-    % maximum allowable tolerance: 
-    max_eps = 5*eps*xi;
-    
-    % try to interpolate with offsets xi = <xi +/- max_eps>:
-    tmp(:,:,1) = interp1(x,y,xi + max_eps,varargin{:});
-    tmp(:,:,2) = interp1(x,y,xi - max_eps,varargin{:});
-    
-    % select non NaN results from the candidates:
-    yi = nanmean(tmp,3);    
+    if any(isnan(y))
+
+        % maximum allowable tolerance: 
+        max_eps = 5*eps*xi;
+        
+        % try to interpolate with offsets xi = <xi +/- max_eps>:
+        tmp(:,:,1) = interp1(x,y,xi + max_eps,varargin{:});
+        tmp(:,:,2) = interp1(x,y,xi - max_eps,varargin{:});
+        
+        % select non NaN results from the candidates:
+        yi = nanmean(tmp,3);
+        
+    else
+        yi = interp1(x,y,xi,varargin{:});    
+    end   
 
 end
 
@@ -599,30 +605,41 @@ function [zi] = interp2nan(x,y,z,xi,yi,varargin)
         is_octave = (exist ('OCTAVE_VERSION', 'builtin') > 0);
     end
 
-    % maximum allowable tolerance: 
-    max_eps_x = 5*eps*xi;
-    max_eps_y = 5*eps*yi;
+    if any(isnan(z))
     
-    if any(strcmpi(varargin,'linear')) || is_octave
-
-        % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
-        tmp(:,:,1) = interp2(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
-        tmp(:,:,2) = interp2(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
-        tmp(:,:,3) = interp2(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
-        tmp(:,:,4) = interp2(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+        % maximum allowable tolerance: 
+        max_eps_x = 5*eps*xi;
+        max_eps_y = 5*eps*yi;
+        
+        if any(strcmpi(varargin,'linear')) || is_octave
+    
+            % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
+            tmp(:,:,1) = interp2(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
+            tmp(:,:,2) = interp2(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
+            tmp(:,:,3) = interp2(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
+            tmp(:,:,4) = interp2(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+        
+        else
+        
+            % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
+            tmp(:,:,1) = interp2p(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
+            tmp(:,:,2) = interp2p(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
+            tmp(:,:,3) = interp2p(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
+            tmp(:,:,4) = interp2p(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+        
+        end
+      
+        % select non NaN results from the candidates:
+        zi = nanmean(tmp,3);
     
     else
-    
-        % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
-        tmp(:,:,1) = interp2p(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
-        tmp(:,:,2) = interp2p(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
-        tmp(:,:,3) = interp2p(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
-        tmp(:,:,4) = interp2p(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
-    
+        
+        if any(strcmpi(varargin,'linear')) || is_octave    
+            zi = interp2(x,y,z,xi,yi,varargin{:});        
+        else
+            zi = interp2p(x,y,z,xi,yi,varargin{:});
+        end
     end
-    
-    % select non NaN results from the candidates:
-    zi = nanmean(tmp,3);    
 
 end
 

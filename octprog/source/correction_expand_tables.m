@@ -143,7 +143,7 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
     end
     
     % overwrite axes by new axes:
-    if tab.has_x
+    if tab.size_x
       szx = numel(ax);
       if szx > 1
         tab = setfield(tab,tab.axis_x,ax);
@@ -152,7 +152,7 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
       end
       tab.size_x = (szx > 1)*szx;        
     end
-    if tab.has_y
+    if tab.size_y
       szy = numel(ay);
       if szy > 1
         tab = setfield(tab,tab.axis_y,ay);

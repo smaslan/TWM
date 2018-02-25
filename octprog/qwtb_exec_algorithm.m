@@ -150,7 +150,39 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
             error(sprintf('QWTB algorithm executer: the algorithm ''%s'' cannot process differential inputs!',alg_id));
         end 
     end
-  
+    
+
+    % --- set some specific parameters to the input quantities (common for entire digitizer): 
+    
+    % store apertures (one for each repetition cycle):
+    inputs.adc_aper.v = data.apertures;
+    
+    % store bit resolution:
+    inputs.adc_bits.v = data.bitres;
+    
+    % store sampling period [s]:
+    inputs.Ts.v = data.Ts;
+    
+    % load timestamps matrix: 
+    tm_stamp = data.timestamp;
+    
+    % load inter-channel time shifts: 
+    its = data.corr.dig.time_shifts.its;
+    its = bsxfun(@minus,its,its(:,1)); % make it relative to 1. channel
+    
+    % combine the timestamp and time shift correction to get absolute record start shifts:
+    tm_stamp   = bsxfun(@plus,tm_stamp,its);
+    u_tm_stamp = repmat(data.corr.dig.time_shifts.u_its,[size(tm_stamp,1) 1]); % uncertainty   
+    
+    % ####todo: in future here should be override of time-shift calibration data by self-calibration
+    
+     
+    
+    
+    
+    
+    
+    % --- prepare result files:
     
     % get file name of the record that is currently loaded (only fist one if multiple loaded)
     result_name = data.record_filenames{1};
@@ -173,6 +205,9 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
       
     % insert copy of QWTB parameters to the result
     rinf = infosetsection('QWTB parameters', qinf);
+    
+    
+    % --- execute algorithms:
   
     if ~is_single_inp
         % dual input channel algorithm: we must have always paired 'u' and 'i' for each phase
@@ -185,43 +220,114 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
         rinf = infosettextmatrix(rinf, 'list', list);    
         infosave(rinf, result_path);
         
+        tags = {};
+        
         % --- for each unique phase:
         for p = 1:numel(phases)
             
-            error('dual input algoritms not implemented yet, broh...');
-            
-            % build the phase's 'u' and 'i' names
-            u_name = sprintf('u%d',phases(p)); 
-            i_name = sprintf('i%d',phases(p));
-            
-            % try to find voltage channel in the loaded measurement data:
-            u_id = find(strcmpi(channels,u_name),1);
-            if ~numel(u_id)
-              error(sprintf('QWTB algorithm executer: Missing voltage channel for phase #%d!',uniphx(p)));
-            end
-            
-            % try to find current channel in the loaded measurement data: 
-            i_id = find(strcmpi(channels,i_name),1);
-            if ~numel(u_id)
-              error(sprintf('QWTB algorithm executer: Missing current channel for phase #%d!',uniphx(p)));
-            end
+            % phase index:
+            pid = phases(p);
             
             % copy user parameters to the QWTB inputs
             di = inputs;
             
-            % store time vector
-            di.Ts.v = data.Ts;
+            % phase-channel names:
+            pchn_list = {'u','i'};
             
-            % store voltage and current vectors     
-            di.u.v = data.y(:,u_id:data.channels_count:end);
-            di.i.v = data.y(:,i_id:data.channels_count:end);
+            % for each phase channel (u/i):
+            for k = 1:numel(pchn_list)
             
+                % phase channel name:
+                pchn_pfx = pchn_list{k};
+                
+                % try to find associated transducer:
+                cid = find(data.corr.phase_idx(:) == pid & xor(strcmpi({[data.corr.tran{:}].type},'shunt')',strcmpi(pchn_pfx,'i')));
+                
+                % check validity:
+                if isempty(cid)
+                    error(sprintf('QWTB algorithm executer: Missing ''%s'' channel of phase #%d!',pchn_pfx,phases(p)));
+                elseif numel(cid) > 1
+                    error(sprintf('QWTB algorithm executer: Multiple transducers found for ''%s'' channel of phase #%d!',pchn_pfx,phases(p)));
+                end
+                % ok, we have found transducer...
+                
+                % add phase-channel name to list:
+                tags{end+1} = [pchn_pfx int2str(cid)];
+                
+                % transducer:
+                tran = data.corr.tran{cid};
+                
+                if pchn_pfx == 'u'
+                    % -- voltage channel:
+                    % store measurement time-stamps (one per record, but only for first phase-channel):
+                    di.time_stamp.v =   tm_stamp(:,tran.channels(1));
+                    di.time_stamp.u = u_tm_stamp(:,tran.channels(1));
+                    
+                    % remember voltage transducer digitizer main channel (or high-side channel):
+                    u_tran_id = tran.channels(cid);
+                    
+                else
+                    % -- current channel:                    
+                    i_tran_id = tran.channels(cid);
+                    
+                    % store u/i channel timeshift:
+                    di.time_shift.v =  diff(tm_stamp(:,[i_tran_id u_tran_id]),[],2);
+                    di.time_shift.u = sum(u_tm_stamp(:,[i_tran_id u_tran_id]).^2,2).^0.5; % uncertainty
+                    
+                end
+                
+                % for differential mode store low-side channel timeshift:
+                if tran.is_diff
+                    ts.v =  diff(tm_stamp(:,tran.channels),[],2);
+                    ts.u = sum(u_tm_stamp(:,tran.channels).^2,2).^0.5; % uncertainty
+                    di = setfield(di, [pchn_pfx '_time_shift_lo'], ts);
+                end
+                
+                
+                % generate assigned channel prefixes:
+                if tran.is_diff
+                    % differential connection:
+                    dig_pfx = {pchn_pfx;[pchn_pfx '_lo']};            
+                else
+                    % single-ended connection:
+                    dig_pfx = {pchn_pfx};            
+                end 
+                             
+                % for each digitizer channel assigned to the transducer:
+                for c = 1:numel(tran.channels)
+                
+                    % channel name:
+                    pfx = dig_pfx{c};
+                    
+                    % store range value:
+                    di = setfield(di, [pfx '_adc_nrng'], struct('v',data.ranges(c)));                
+                
+                    % store waveform data:
+                    % note stores all available repetitions, one column per repetition:
+                    di = setfield(di, pfx, struct('v', data.y(:, tran.channels(c):data.channels_count:end)));
+                    
+                    % store channel corrections:
+                    di = qwtb_alg_insert_corrs(di, data.corr.dig.chn{tran.channels(c)}, pfx);
+                
+                end
+                
+                % store transducer corrections:
+                di = qwtb_alg_insert_corrs(di,tran,pchn_pfx);
+            
+            end
+            
+            % store global digitizer corrections:
+            di = qwtb_alg_insert_corrs(di,data.corr.dig,'');
+            
+            %fieldnames(di)            
+            %error('dual input algoritms not implemented yet, broh...');
+           
             % execute algorithm
             dout = qwtb(alg_id,di);
             
             % store current channel phase setup info (index; U, I tag)
             phase_info.index = data.corr.phase_idx(p);
-            phase_info.tags = {u_name,i_name};
+            phase_info.tags = tags;
             phase_info.section = list{p};
             
             % store results to the result file
@@ -253,30 +359,46 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
         
             % copy user parameters to the QWTB input quantities:
             di = inputs;
+                       
+            % store measurement time-stamps (one per record):
+            di.time_stamp.v =   tm_stamp(:,tran.channels(1));
+            di.time_stamp.u = u_tm_stamp(:,tran.channels(1));
             
-            % store sampling time:
-            di.Ts.v = data.Ts;
+            % for differential mode store low-side channel timeshift:
+            if tran.is_diff
+                di.time_shift_lo.v = diff(tm_stamp(:,tran.channels),[],2);
+                di.time_shift_lo.u = sum(u_tm_stamp(:,tran.channels).^2,2).^0.5; % uncertainty
+                % ###note: summing high+low side unc. which is maybe not correct?
+            end
           
             % for each digitizer channel assigned to the transducer:
             for c = 1:numel(tran.channels)
             
                 % waveform data quantity name:
+                pfx = dig_pfx{c};
                 d_pfx = 'y';
-                if ~isempty(dig_pfx{c})
-                    d_pfx = [d_pfx '_' dig_pfx{c}];                
+                if ~isempty(pfx)
+                    pfx = [pfx '_'];
+                    d_pfx = [d_pfx '_' pfx];                
                 end
+                
+                % store range value:
+                di = setfield(di,[pfx 'adc_nrng'],struct('v',data.ranges(c)));                
             
                 % store waveform data:
                 % note stores all available repetitions, one column per repetition:
                 di = setfield(di, d_pfx, struct('v', data.y(:, tran.channels(c):data.channels_count:end)));
                 
                 % store channel corrections:
-                di = qwtb_alg_insert_chn_corr(di,data,tran.channels(c),dig_pfx{c});
+                di = qwtb_alg_insert_corrs(di,data.corr.dig.chn{tran.channels(c)},dig_pfx{c});
             
             end
             
-            % insert transducer corrections:
-            di = qwtb_alg_insert_tran_corr(di,data,p,'');
+            % store transducer corrections:
+            di = qwtb_alg_insert_corrs(di,tran,'');
+            
+            % store global digitizer corrections:
+            di = qwtb_alg_insert_corrs(di,data.corr.dig,'');
             
             %fieldnames(di)
            
@@ -379,47 +501,23 @@ end
 
 
 
-function [di] = qwtb_alg_insert_chn_corr(di,data,p,prefix)
+function [di] = qwtb_alg_insert_corrs(di,tables,prefix)
 % Parameters:
-%   di   - QWTB input data
-%   data - measurement data
-%   p    - channel index
+%   di     - QWTB input data
+%   table  - correction tables
 %   prefix - prefix string of the channel correction (e.g. 'u' or 'i_lo')
 
     if ~isempty(prefix) 
         prefix = [prefix '_'];
     end
-    
-    % get digitizer's channel from meas. data:
-    dig = data.corr.dig.chn{p};
-    
-    % copy all digizer channel correction to QWTB input data: 
-    for k = 1:numel(dig.qwtb_list)        
-        di = qwtb_alg_conv_corr(di,getfield(dig,dig.qwtb_list{k}),prefix);                
+        
+    % copy all listed correction tables to the QWTB input data: 
+    for k = 1:numel(tables.qwtb_list)        
+        di = qwtb_alg_conv_corr(di,getfield(tables,tables.qwtb_list{k}),prefix);                
     end
        
 end
 
-function [di] = qwtb_alg_insert_tran_corr(di,data,p,prefix)
-% Parameters:
-%   di   - QWTB input data
-%   data - measurement data
-%   p    - channel index
-%   prefix - prefix string of the channel correction (e.g. 'u' or 'i')
-
-    if ~isempty(prefix) 
-        prefix = [prefix '_'];
-    end
-    
-    % get transducers's channel from meas. data:
-    tran = data.corr.tran{p};
-    
-    % copy all transducer correction to QWTB input data: 
-    for k = 1:numel(tran.qwtb_list)        
-        di = qwtb_alg_conv_corr(di,getfield(tran,tran.qwtb_list{k}),prefix);        
-    end
-    
-end
 
 
 

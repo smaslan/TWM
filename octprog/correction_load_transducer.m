@@ -21,13 +21,6 @@ function [tran] = correction_load_transducer(file)
 %   tran.Zcb - 1D table of cable series Z
 %   tran.Ycb - 1D table of cable shunting Y
 %   tran.Zlo - 1D table of RVD's low side resistor Z
-%   tran.has_tfer_gain - tfer_gain table found
-%   tran.has_tfer_phi - etc.
-%   tran.has_Zca - etc.
-%   tran.has_Yca - etc.
-%   tran.has_Zcb - etc.
-%   tran.has_Ycb - etc.
-%   tran.has_Zlo - etc.
 %
 %
 % This is part of the TWM - TracePQM WattMeter.
@@ -98,7 +91,6 @@ function [tran] = correction_load_transducer(file)
     end
     tran.tfer_gain = correction_load_table(fdep_file,'rms',{'f','gain','u_gain'});
     tran.tfer_gain.qwtb = qwtb_gen_naming('tr_gain','f','a',{'gain'},{'u_gain'},{''});
-    tran.has_tfer_gain = ischar(fdep_file);
     
     
     % load frequency/rms dependence (phase):
@@ -110,7 +102,6 @@ function [tran] = correction_load_transducer(file)
     end
     tran.tfer_phi = correction_load_table(fdep_file,'rms',{'f','phi','u_phi'});
     tran.tfer_phi.qwtb = qwtb_gen_naming('tr_phi','f','a',{'phi'},{'u_phi'},{''});
-    tran.has_tfer_phi = ischar(fdep_file);
       
     
     % combine nominal gain and relative gain transfer to the absolute gain tfer.: 
@@ -128,7 +119,7 @@ function [tran] = correction_load_transducer(file)
         Zca_file = {[], 1e-9, 1e-12, 0.0, 0.0};         
     end
     tran.Zca = correction_load_table(Zca_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
-    tran.has_Zca = ischar(Zca_file);
+    tran.Zca.qwtb = qwtb_gen_naming('tr_Zca','f','',{'Rs','Ls'},{'u_Rs','u_Ls'},{'Rs','Ls'});
     % load output terminal shunting admittance (optional):
     try
         Yca_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals shunting admittance path')];
@@ -137,7 +128,25 @@ function [tran] = correction_load_transducer(file)
         Yca_file = {[], 1e-15, 0.0, 0.0, 0.0};         
     end
     tran.Yca = correction_load_table(Yca_file,'',{'f','Cp','D','u_Cp','u_D'});
-    tran.has_Yca = ischar(Yca_file);
+    tran.Yca.qwtb = qwtb_gen_naming('tr_Yca','f','',{'Cp','D'},{'u_Cp','u_D'},{'Cp','D'});
+    % load output terminals low-side series impedance (optional):
+    try
+        Zcal_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals series impedance path (low-side)')];
+    catch
+        % default value {0 Ohm, 0 H}
+        Zcal_file = {[], 1e-9, 1e-12, 0.0, 0.0};         
+    end
+    tran.Zcal = correction_load_table(Zca_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
+    tran.Zcal.qwtb = qwtb_gen_naming('tr_Zcal','f','',{'Rs','Ls'},{'u_Rs','u_Ls'},{'Rs','Ls'});
+    % load output terminals mutual series impedance (optional):
+    try
+        Zcam_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals mutual inductance path')];
+    catch
+        % default value {0 H}
+        Zcam_file = {[], 1e-12, 0.0};         
+    end
+    tran.Zcam = correction_load_table(Zcam_file,'',{'f','M','u_M'});
+    tran.Zcam.qwtb = qwtb_gen_naming('tr_Zcam','f','',{'M'},{'u_M'},{''});
     
     % load cable series impedance (optional):
     try
@@ -149,7 +158,7 @@ function [tran] = correction_load_transducer(file)
         tran.has_Ycb = 0;         
     end
     tran.Zcb = correction_load_table(Zcb_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
-    tran.has_Zcb = ischar(Zcb_file);
+    tran.Zcb.qwtb = qwtb_gen_naming('Zcb','f','',{'Rs','Ls'},{'u_Rs','u_Ls'},{'Rs','Ls'});
     % load cable shunting admittance (optional):
     try
         Ycb_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals shunting admittance path')];
@@ -158,7 +167,7 @@ function [tran] = correction_load_transducer(file)
         Ycb_file = {[], 1e-15, 0.0, 0.0, 0.0};         
     end
     tran.Ycb = correction_load_table(Ycb_file,'',{'f','Cp','D','u_Cp','u_D'});
-    tran.has_Ycb = ischar(Ycb_file);
+    tran.Ycb.qwtb = qwtb_gen_naming('Ycb','f','',{'Cp','D'},{'u_Cp','u_D'},{'Cp','D'});
     
     % load impedance of the low side of RVD (optional, applies only for RVDs):
     try
@@ -168,7 +177,7 @@ function [tran] = correction_load_transducer(file)
         Zlo_file = {[], 1e9, 1e-15, 0.0, 0.0};         
     end
     tran.Zlo = correction_load_table(Zlo_file,'',{'f','Rp','Cp','u_Rp','u_Cp'});
-    tran.has_Zlo = ischar(Zlo_file);
+    tran.Zlo.qwtb = qwtb_gen_naming('tr_Zlo','f','',{'Rp','Cp'},{'u_Rp','u_Cp'},{'Rp','Cp'});
     
     % load SFDR (optional):
     try
@@ -181,12 +190,17 @@ function [tran] = correction_load_transducer(file)
     tran.SFDR.qwtb = qwtb_gen_naming('tr_sfdr','f','a',{'sfdr'},{''},{''});
     
     % this is a list of the correction that will be passed to the QWTB algorithm
-    % note: ignoring the loading corrections here, in current version of TWM
-    %       they are expected to be processed and merged to 'tfer_...' 
-    %       during the measurement and correction loading
     % note: any correction added to this list will be passed to the QWTB
     %       but it must contain the 'qwtb' record in the table (see eg. above)  
-    tran.qwtb_list = {'tfer_gain','tfer_phi','SFDR'};
+    tran.qwtb_list = {};
+    % autobuild of the list of loaded correction:
+    fnm = fieldnames(tran);
+    for k = 1:numel(fnm)
+        item = getfield(tran,fnm{k});
+        if isfield(item,'qwtb')
+            tran.qwtb_list{end+1} = fnm{k};
+        end
+    end
     
 end
 
