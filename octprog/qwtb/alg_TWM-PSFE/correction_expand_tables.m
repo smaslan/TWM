@@ -9,7 +9,7 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
 %
 % This will take cell array of tables, looks for largest common range of 
 % axes, then interpolates the tables data so all tables have the same axes.
-% It uses linear interpolation and no extrapolation. NaNs will be inserted
+% It uses selected interpolation mode and no extrapolation. NaNs will be inserted
 % when range of new axis is outside range of source data.
 % Note it will repeat the process for all data quantities in the table.
 %
@@ -18,11 +18,18 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
 % If the table is independent to one or both axes, the function lets
 % them independent (will not create new axis).
 %
+% [tout,ax,xy] = correction_expand_tables(tin)
+% [tout,ax,xy] = correction_expand_tables(tin, reduce_axes)
+% [tout,ax,xy] = correction_expand_tables(..., i_mode)
+%
 % Parameters:
 %  tin         - cell array of input tables
 %  reduce_axes - reduces new axes to largest common range if set '1' (default)
 %                if set to '0', it will merge the source axes to largest
 %                needed range, but the data of some tables will contain NaNs!
+%  i_mode      - interpolation mode (default: 'linear')
+%                note: use 'none' to disable the interpolation - it will just find
+%                'ax','xy' and return unchanged tables
 %
 % Returns:
 %  tout - cell array of the modfied tables
@@ -30,14 +37,23 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
 %  ay   - new y axis (empty if not exist) 
 %
 %
-% This is part of the TWM - TracePQM WattMeter.
-% (c) 2017, Stanislav Maslan, smaslan@cmi.cz
+% This is part of the TWM - TracePQM WattMeter (https://github.com/smaslan/TWM).
+% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
   % by default reduce axes to largest common range
   if ~exist('reduce_axes','var')
     reduce_axes = 1;
+  end
+  
+  % identify interpolation mode:
+  if ~exist('i_mode','var')
+    if exist('reduce_axes','var') && ischar(reduce_axes)
+      i_mode = reduce_axes;
+    else
+      i_mode = 'linear';
+    end
   end
   
   % tables count
@@ -90,6 +106,11 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
     [axi,ayi] = meshgrid(ax,ay);
   end
   
+  if strcmpi(i_mode,'none')
+    T = 0; % do not interpolate mode
+    tout = tin;
+  end
+  
   % --- now interpolate table data to new axes ---
   for t = 1:T
     % get one table:
@@ -112,23 +133,23 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
       if has_x && has_y && tab.size_x && tab.size_y
         % table has both axes, interpolate in 2D        
         qu = getfield(tab,qnames{q});
-        qu = interp2nan(xdata,ydata,qu,axi,ayi,'linear');
+        qu = interp2nan(xdata,ydata,qu,axi,ayi,i_mode);
         tab = setfield(tab,qnames{q},qu);
       elseif has_y && tab.size_y
         % only primary axis (Y), interpolate 1D
         qu = getfield(tab,qnames{q});
-        qu = interp1nan(ydata,qu,ay,'linear');               
+        qu = interp1nan(ydata,qu,ay,i_mode);               
         tab = setfield(tab,qnames{q},qu);
       elseif has_x && tab.size_x
         % only secondary axis (X), interpolate 1D
         qu = getfield(tab,qnames{q});
-        qu = interp1nan(xdata,qu,ax,'linear');        
+        qu = interp1nan(xdata,qu,ax,i_mode);        
         tab = setfield(tab,qnames{q},qu); 
       end
     end
     
     % overwrite axes by new axes:
-    if tab.has_x
+    if tab.size_x
       szx = numel(ax);
       if szx > 1
         tab = setfield(tab,tab.axis_x,ax);
@@ -137,7 +158,7 @@ function [tout,ax,ay] = correction_expand_tables(tin,reduce_axes)
       end
       tab.size_x = (szx > 1)*szx;        
     end
-    if tab.has_y
+    if tab.size_y
       szy = numel(ay);
       if szy > 1
         tab = setfield(tab,tab.axis_y,ay);
@@ -185,15 +206,21 @@ function [yi] = interp1nan(x,y,xi,varargin)
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
-    % maximum allowable tolerance: 
-    max_eps = 5*eps*xi;
-    
-    % try to interpolate with offsets xi = <xi +/- max_eps>:
-    tmp(:,:,1) = interp1(x,y,xi + max_eps,varargin{:});
-    tmp(:,:,2) = interp1(x,y,xi - max_eps,varargin{:});
-    
-    % select non NaN results from the candidates:
-    yi = nanmean(tmp,3);    
+    if any(isnan(y))
+
+        % maximum allowable tolerance: 
+        max_eps = 5*eps*xi;
+        
+        % try to interpolate with offsets xi = <xi +/- max_eps>:
+        tmp(:,:,1) = interp1(x,y,xi + max_eps,varargin{:});
+        tmp(:,:,2) = interp1(x,y,xi - max_eps,varargin{:});
+        
+        % select non NaN results from the candidates:
+        yi = nanmean(tmp,3);
+        
+    else
+        yi = interp1(x,y,xi,varargin{:});    
+    end   
 
 end
 
@@ -218,18 +245,65 @@ function [zi] = interp2nan(x,y,z,xi,yi,varargin)
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
-    % maximum allowable tolerance: 
-    max_eps_x = 5*eps*xi;
-    max_eps_y = 5*eps*yi;
+    persistent is_octave;  % speeds up repeated calls  
+    if isempty (is_octave)
+        is_octave = (exist ('OCTAVE_VERSION', 'builtin') > 0);
+    end
+
+    if any(isnan(z))
     
-    % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
-    tmp(:,:,1) = interp2(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
-    tmp(:,:,2) = interp2(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
-    tmp(:,:,3) = interp2(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
-    tmp(:,:,4) = interp2(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+        % maximum allowable tolerance: 
+        max_eps_x = 5*eps*xi;
+        max_eps_y = 5*eps*yi;
+        
+        if any(strcmpi(varargin,'linear')) || is_octave
     
-    % select non NaN results from the candidates:
-    zi = nanmean(tmp,3);    
+            % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
+            tmp(:,:,1) = interp2(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
+            tmp(:,:,2) = interp2(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
+            tmp(:,:,3) = interp2(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
+            tmp(:,:,4) = interp2(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+        
+        else
+        
+            % try to interpolate with offsets xi = <xi +/- max_eps>, yi = <yi +/- max_eps>:
+            tmp(:,:,1) = interp2p(x,y,z,xi + max_eps_x,yi + max_eps_y,varargin{:});
+            tmp(:,:,2) = interp2p(x,y,z,xi + max_eps_x,yi - max_eps_y,varargin{:});
+            tmp(:,:,3) = interp2p(x,y,z,xi - max_eps_x,yi - max_eps_y,varargin{:});
+            tmp(:,:,4) = interp2p(x,y,z,xi - max_eps_x,yi + max_eps_y,varargin{:});
+        
+        end
+      
+        % select non NaN results from the candidates:
+        zi = nanmean(tmp,3);
+    
+    else
+        
+        if any(strcmpi(varargin,'linear')) || is_octave    
+            zi = interp2(x,y,z,xi,yi,varargin{:});        
+        else
+            zi = interp2p(x,y,z,xi,yi,varargin{:});
+        end
+    end
+
+end
+
+function [zi] = interp2p(x,y,z,xi,yi,varargin)
+% very crude replacement of the interp2() to enable support for 'pchip' in 2D in Matlab
+% it is designed just for function in this file! Not general interp2 replacement!
+% note it was designed for long y-dim and short x-dim
+% when it is the other way, it will be painfully slow in Matlab 
+    
+    if sum(size(xi) > 1) > 1
+        % xi, yi are most likely meshes - reduce:
+        xi = xi(1,:);
+        yi = yi(:,1);
+    end
+    
+    tmp = interp1(x.',z.',xi,varargin{:}).';    
+    zi = interp1(y,tmp,yi,varargin{:});
+    %tmp = interp1(y,z,yi,varargin{:});
+    %zi = interp1(x.',tmp.',xi,varargin{:}).';
 
 end
 

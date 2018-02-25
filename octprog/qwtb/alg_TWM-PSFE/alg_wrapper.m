@@ -4,12 +4,11 @@ function dataout = alg_wrapper(datain, calcset)
 % See also qwtb
 %
 % Format input data --------------------------- %<<<1
-         
     
     % Restore orientations of the input vectors to originals (before passing via QWTB)
     % This is critical for the correction data! 
     [datain,cfg] = qwtb_restore_twm_input_dims(datain,1);
-        
+
     % try to obtain sampling rate from alternative input quantities [Hz]
     if isfield(datain, 'fs')
         Ts = 1./datain.fs.v;
@@ -40,7 +39,6 @@ function dataout = alg_wrapper(datain, calcset)
     % Rebuild TWM style correction tables:
     % This is not necessary but the TWM style tables are more comfortable to use then raw correction matrices
     tab = qwtb_restore_correction_tables(datain,cfg);
-    
     
     
     % --------------------------------------------------------------------
@@ -118,7 +116,6 @@ function dataout = alg_wrapper(datain, calcset)
         
         end        
                 
-        
         % Unite frequency/amplitude axes of the digitizer channel gain/phase corrections:
         [gp_tabs, ax_a, ax_f] = correction_expand_tables({tab.adc_gain, tab.adc_phi});
         
