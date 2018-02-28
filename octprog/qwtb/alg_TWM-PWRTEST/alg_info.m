@@ -129,6 +129,24 @@ function alginfo = alg_info() %<<<1
     [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','low ');
     [alginfo,pid] = add_ui_pair(alginfo,pid,1);
     
+    % ADC apperture effect correction:
+    % this set to non-zero value will enable auto correction of the aperture effect by algorithm
+    alginfo.inputs(pid).name = 'adc_aper_corr';
+    alginfo.inputs(pid).desc = 'ADC aperture effect correction switch';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','low ');
+    [alginfo,pid] = add_ui_pair(alginfo,pid,1);
+    % apperture value must be passed if the 'adc_aper_corr' is non-zero:
+    alginfo.inputs(pid).name = 'adc_aper';
+    alginfo.inputs(pid).desc = 'ADC aperture value';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;       
+    
     % ADC gain calibration matrix (2D dependence, rows: freqs., columns: harmonic amplitudes)
     alginfo.inputs(pid).name = 'adc_gain_f';
     alginfo.inputs(pid).desc = 'ADC gain transfer: frequency axis';
@@ -422,12 +440,32 @@ function alginfo = alg_info() %<<<1
     
     pid = 1;
     % outputs
+    alginfo.outputs(pid).name = 'U';
+    alginfo.outputs(pid).desc = 'RMS voltage';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'I';
+    alginfo.outputs(pid).desc = 'RMS current';
+    pid = pid + 1;
+        
     alginfo.outputs(pid).name = 'P';
-    alginfo.outputs(pid).desc = 'RMS power';
+    alginfo.outputs(pid).desc = 'Active power';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'S';
+    alginfo.outputs(pid).desc = 'Apparent power';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'Q';
+    alginfo.outputs(pid).desc = 'Reactive power';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'PF';
+    alginfo.outputs(pid).desc = 'Power factor';
     pid = pid + 1;
     
     alginfo.providesGUF = 0;
-    alginfo.providesMCM = 0;
+    alginfo.providesMCM = 0;    
 
 end
 

@@ -105,21 +105,21 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         pfx_tr = {};
         if cfg.has_y
             pfx_ch{end+1} = '';
-            pfx_tr{end+1} = '';
             if cfg.y_is_diff
                 pfx_ch{end+1} = 'lo_';
             end
+            pfx_tr{end+1} = '';
         elseif cfg.has_ui
             pfx_ch{end+1} = 'u_';
             pfx_ch{end+1} = 'i_';
-            pfx_tr{end+1} = 'u_';
-            pfx_tr{end+1} = 'i_';
             if cfg.u_is_diff
                 pfx_ch{end+1} = 'u_lo_';
             end
             if cfg.i_is_diff
                 pfx_ch{end+1} = 'i_lo_';
             end
+            pfx_tr{end+1} = 'u_';
+            pfx_tr{end+1} = 'i_';
         end
         
         % return the prefix lists for future use:
@@ -135,7 +135,7 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
             din = twm_qwtb_restore_input_dim_corr(din, [p 'adc_phi'], {[p 'adc_phi_f'];[p 'adc_phi_a']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, [p 'adc_sfdr'], {[p 'adc_sfdr_f'];[p 'adc_sfdr_a']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'adc_Yin_Cp'];[p 'adc_Yin_Gp']}, {[p 'adc_Yin_f']}, opt);           
-            %din = twm_qwtb_restore_input_dim_corr(din, {'crosstalk_re';'crosstalk_im'}, {'crosstalk_f'}, opt);
+            %din = twm_qwtb_restore_input_dim_corr(din, {'crosstalk_re';'crosstalk_im'}, {'crosstalk_f'}, opt); % to decide how to implement
         end
         
         % restore correction data vector orientations for transducer corrections:
@@ -149,6 +149,8 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zlo_Rp'];[p 'tr_Zlo_Cp']}, {[p 'tr_Zlo_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zca_Rs'];[p 'tr_Zca_Ls']}, {[p 'tr_Zca_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Yca_Cp'];[p 'tr_Yca_D']}, {[p 'tr_Yca_f']}, opt);
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zcal_Rs'];[p 'tr_Zcal_Ls']}, {[p 'tr_Zcal_f']}, opt);
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zcam'];[p 'tr_Zcam']}, {[p 'tr_Zcam_f']}, opt);            
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'Zcb_Rs'];[p 'Zcb_Ls']}, {[p 'Zcb_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'Ycb_Cp'];[p 'Ycb_D']}, {[p 'Ycb_f']}, opt);            
         end
@@ -156,19 +158,24 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         % create default digitizer timebase correction:
         din = qwtb_rtwm_inps_default(din,true,'adc_freq',0,0);
         
-        % create default digitizer aperture correction:
-        din = qwtb_rtwm_inps_default(din,true,'adc_aper_corr',0);
-        %  - create default aperture
+        % create default digitizer aperture correction (enabled by default!):
+        din = qwtb_rtwm_inps_default(din,cfg.has_y,'adc_aper_corr',1);        
+        din = qwtb_rtwm_inps_default(din,cfg.y_is_diff,'lo_adc_aper_corr',1);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'u_adc_aper_corr',1);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'i_adc_aper_corr',1);
+        din = qwtb_rtwm_inps_default(din,cfg.u_is_diff,'u_lo_adc_aper_corr',1);
+        din = qwtb_rtwm_inps_default(din,cfg.i_is_diff,'i_lo_adc_aper_corr',1);        
+        %  - create default aperture:
         din = qwtb_rtwm_inps_default(din,true,'adc_aper',0);
                 
         % create default jitter:
         din = qwtb_rtwm_inps_default(din,true,'jitter',0);
         
-        % create default time-stamp:
+        % create default time-stamp (y or u channel):
         din = qwtb_rtwm_inps_default(din,true,'time_stamp',0,0);
         
-        % create default time shift correction:
-        din = qwtb_rtwm_inps_default(din,true,'time_shift',0,0);             
+        % create default (i-u) high-side channel time shift:
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'time_shift',0,0);             
         
         % create default differential channel time shift corrections:
         din = qwtb_rtwm_inps_default(din,cfg.y_is_diff,'time_shift_lo',0,0);
@@ -197,8 +204,7 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
             if cfg.i_is_diff
                 din.i_lo.v = din.i_lo.v(:);
             end
-        end
-    
+        end    
     
     end
     

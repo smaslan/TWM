@@ -311,7 +311,7 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
     int_freq = F > F_max;
     
     % working frequency range:
-    F_w = numel(f);   
+    F_w = numel(f);    
     
     % total quantities (needed for the difference uncertainty evaluator):
     QT = 13;    
@@ -755,9 +755,7 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
     k_ph_tr = tr_phi.phi - p_org;
     
     % downsample the amplitude to selected working freqs:
-    if numel(f_org) > 1
-        A_tmp = interp1(f_org,Ai,f,'nearest','extrap');
-    end
+    A_tmp = interp1(f_org,Ai,f,'nearest','extrap');
     
     
     % get abs. uncertainties of the final transducer correction:
@@ -765,12 +763,10 @@ function [A,ph,u_A,u_ph] = correction_transducer_loading(tab,tran,f,F_max,A,ph,u
     u_trp = (tr_phi.u_phi.^2 + u_trp_int.^2).^0.5;
     
     % upsample the rms dependency to original freq spots:
-    if numel(f) > 1
-        k_A_tr = interp1(f,k_A_tr,f_org,int_mode,'extrap');  
-        k_ph_tr = interp1(f,k_ph_tr,f_org,int_mode,'extrap');
-        u_trg = interp1(f,u_trg,f_org,int_mode,'extrap');  
-        u_trp = interp1(f,u_trp,f_org,int_mode,'extrap');
-    end
+    k_A_tr = interp1(f,k_A_tr,f_org,int_mode,'extrap');  
+    k_ph_tr = interp1(f,k_ph_tr,f_org,int_mode,'extrap');
+    u_trg = interp1(f,u_trg,f_org,int_mode,'extrap');  
+    u_trp = interp1(f,u_trp,f_org,int_mode,'extrap');
     
     % very nasty guess of the inherent uncertainty of the algorithm:
     % ###todo: identify the true source of errors, remove this 
