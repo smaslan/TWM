@@ -166,7 +166,7 @@ function dataout = alg_wrapper(datain, calcset)
         
         % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
         if vc.ap_corr && ta > 1e-12 
-            vc.y = vc.y.*ap_gain;                    
+            vc.y = vc.y.*ap_gain;               
         end         
                 
         % for differential mode only:
@@ -280,7 +280,7 @@ function dataout = alg_wrapper(datain, calcset)
     S = U*I;        
     
     % calculate reactive power:
-    Q = (S^2 - P^2);
+    Q = (S^2 - P^2)^0.5;
     
     % calculate power factor:
     PF = P/S;

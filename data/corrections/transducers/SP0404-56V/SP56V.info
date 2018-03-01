@@ -1,0 +1,15 @@
+% type of the correction:
+type:: divider
+
+% name of the transducer:
+name:: SP-0404 56V divider 
+
+% serial number of the transducer:
+serial number:: n/a
+
+% nominal/DC ratio [Vin/Vout]:
+nominal ratio:: 69.9978648174184
+nominal ratio uncertainty:: 0.000070
+
+% nominal low-side impedance path:
+rvd low side impedance path:: csv\Z_low.csv

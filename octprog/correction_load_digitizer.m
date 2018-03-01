@@ -189,7 +189,7 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         table_cfg = struct();
         table_cfg.primary_ax = 'f';
         table_cfg.quant_names = {'Cp','Gp','u_Cp','u_Gp'};
-        table_cfg.default = {[],0.0,1e-6,0.0,0.0};
+        table_cfg.default = {[],0.0,1e-10,0.0,0.0};
         chn{c}.Yin = correction_parse_section(chn_root, cinf, minf, 'input admittance', table_cfg, c, rep_id, group_id);
         chn{c}.Yin.qwtb = qwtb_gen_naming('adc_Yin','f','',{'Cp','Gp'},{'u_Cp','u_Gp'},{'Cp','Gp'});
                 

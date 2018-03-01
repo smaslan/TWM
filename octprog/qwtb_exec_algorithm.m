@@ -241,7 +241,11 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
                 pchn_pfx = pchn_list{k};
                 
                 % try to find associated transducer:
-                cid = find(data.corr.phase_idx(:) == pid & xor(strcmpi({[data.corr.tran{:}].type},'shunt')',strcmpi(pchn_pfx,'i')));
+                is_shunt = []; % crippled for Matlab < 2016b
+                for t = 1:numel(data.corr.tran)
+                    is_shunt(t,1) = strcmpi(data.corr.tran{t}.type,'shunt');
+                end
+                cid = find(data.corr.phase_idx(:) == pid & ~xor(is_shunt,strcmpi(pchn_pfx,'i')));
                 
                 % check validity:
                 if isempty(cid)
@@ -264,11 +268,11 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
                     di.time_stamp.u = u_tm_stamp(:,tran.channels(1));
                     
                     % remember voltage transducer digitizer main channel (or high-side channel):
-                    u_tran_id = tran.channels(cid);
+                    u_tran_id = tran.channels(1);
                     
                 else
                     % -- current channel:                    
-                    i_tran_id = tran.channels(cid);
+                    i_tran_id = tran.channels(1);
                     
                     % store u/i channel timeshift:
                     di.time_shift.v =  diff(tm_stamp(:,[i_tran_id u_tran_id]),[],2);

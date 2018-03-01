@@ -456,6 +456,7 @@
 				</Item>
 				<Item Name="Info Insert Row to 2D Reals Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D Reals Array.vi"/>
 				<Item Name="Info Insert Row to 2D Int64 Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D Int64 Array.vi"/>
+				<Item Name="Info Insert Row to 2D String Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D String Array.vi"/>
 				<Item Name="Info Insert Row to 1D TimeStamps Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 1D TimeStamps Array.vi"/>
 				<Item Name="Info Insert Row to 1D String Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 1D String Array.vi"/>
 			</Item>

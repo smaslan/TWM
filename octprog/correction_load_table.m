@@ -209,7 +209,7 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
       % load csv portion with correction data
       vv = csv(d_row:end,2+(q-1)*A:1+q*A);
       R = size(vv,1);
-      
+            
       % detect invalids
       nanz = cellfun(@isempty,vv) | ~cellfun(@isnumeric,vv);
       
