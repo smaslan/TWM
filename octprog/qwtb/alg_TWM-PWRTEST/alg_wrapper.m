@@ -133,10 +133,10 @@ function dataout = alg_wrapper(datain, calcset)
     % --- estimate dominant power component:
     
     % apparent power components:
-    S = vcl{1}.Yd.*vcl{2}.Yd;
+    Sh = vcl{1}.Yd.*vcl{2}.Yd;
     
     % find dominant harmonic component:
-    [v,fid] = max(S);
+    [v,fid] = max(Sh);
     f0 = fh(fid); % fundamental frequency
     
     
@@ -161,7 +161,8 @@ function dataout = alg_wrapper(datain, calcset)
         ap = correction_interp_table(vc.tab.adc_phi,vc.Y(fid),f0);
         
         % apply high-side gain:
-        vc.y = vc.y.*ag.gain;
+        vc.y = vc.y.*ag.gain; % to time-domain signal        
+        vc.Y = vc.Y.*ag.gain; % to spectrum
         
         % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
         if vc.ap_corr && ta > 1e-12 
@@ -175,11 +176,13 @@ function dataout = alg_wrapper(datain, calcset)
             apl = correction_interp_table(vc.tab.lo_adc_phi,vc.Y(fid),f0);
             
             % apply high-side gain:
-            vc.y_lo = vc.y_lo.*ag.gain;
+            vc.y_lo = vc.y_lo.*ag.gain; % to time-domain signal
+            vc.Y_lo = vc.Y_lo.*ag.gain; % to spectrum
             
             % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
             if vc.ap_corr_lo && ta > 1e-12 
-                vc.y_lo = vc.y_lo.*ap_gain;                        
+                vc.y_lo = vc.y_lo.*ap_gain; % to time-domain signal
+                vc.Y_lo = vc.Y_lo.*ap_gain; % to spectrum                        
             end
             
             
@@ -204,7 +207,9 @@ function dataout = alg_wrapper(datain, calcset)
             end
             
             % calculate hi-lo difference:            
-            vc.y = vc.y - vc.y_lo;
+            vc.y = vc.y - vc.y_lo; % time-domain
+            vc.Y = vc.Y - vc.Y_lo; % spectrum
+            
         end        
         
         % estimate transducer correction tfer for dominant component 'f0':
@@ -213,8 +218,9 @@ function dataout = alg_wrapper(datain, calcset)
         [trg,trp,u_trg] = correction_transducer_loading(vc.tab,vc.tran,f0,[],1,0,0,0);
         
         % apply transducer correction:
-        vc.y = vc.y.*trg;
-        
+        vc.y = vc.y.*trg; % to time-domain signal        
+        vc.Y = vc.Y.*trg; % to spectrum
+                
         % store v.channel timeshift:
         vc.tsh = vc.tsh + trp/2/pi/f0;
         
@@ -268,7 +274,7 @@ function dataout = alg_wrapper(datain, calcset)
     I = W*mean((w.*i).^2).^0.5;
     
     % calculate RMS active power value:
-    P = W^2*mean((w.^2.*u.*i).^2).^0.5;
+    P = W^2*mean(w.^2.*u.*i);
     
     % calculate apperent power:
     S = U*I;        
@@ -280,13 +286,23 @@ function dataout = alg_wrapper(datain, calcset)
     PF = P/S;
         
     
-    % return quantities to QWTB:
+    % --- return quantities to QWTB:
+    
+    % power parameters:
     dataout.U.v = U;
     dataout.I.v = I;
     dataout.P.v = P;
     dataout.S.v = S;
     dataout.Q.v = Q;
     dataout.PF.v = PF;
+    
+    % raw spectra:
+    dataout.spec_f.v = fh(:);
+    dataout.spec_S.v = vcl{1}.Y.*vcl{2}.Y;
+    dataout.spec_U.v = vcl{1}.Y;
+    dataout.spec_I.v = vcl{2}.Y;
+    
+    
      
     % --------------------------------------------------------------------
     % End of the demonstration algorithm.

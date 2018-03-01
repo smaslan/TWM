@@ -464,6 +464,22 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Power factor';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'spec_f';
+    alginfo.outputs(pid).desc = 'Spectrum frequency';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'spec_U';
+    alginfo.outputs(pid).desc = 'Spectrum voltage channel';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'spec_I';
+    alginfo.outputs(pid).desc = 'Spectrum current channel';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'spec_S';
+    alginfo.outputs(pid).desc = 'Spectrum apparent power';
+    pid = pid + 1;
+    
     alginfo.providesGUF = 0;
     alginfo.providesMCM = 0;    
 
