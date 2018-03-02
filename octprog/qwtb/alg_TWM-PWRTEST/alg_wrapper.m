@@ -137,7 +137,9 @@ function dataout = alg_wrapper(datain, calcset)
     
     % find dominant harmonic component:
     [v,fid] = max(Sh);
-    f0 = fh(fid); % fundamental frequency
+    f0 = fh(fid) % fundamental frequency
+    
+    
     
     
     

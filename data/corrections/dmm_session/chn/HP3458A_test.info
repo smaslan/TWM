@@ -1,0 +1,59 @@
+% type of the correction
+type:: channel
+
+% correction name string
+name:: HP3458A test correction
+
+% device/channel identification as it appears in the digitizer identification
+% note: leave empty or remove if this correction should be independent of the instrument/channel
+channel identifier___::
+
+
+#startsection:: nominal gain
+
+  % 2D array with the list of values of the correction
+  % rows: primary parameter
+  % columns: secondary parameter
+  #startmatrix:: value
+    1.000000
+  #endmatrix:: value
+  #startmatrix:: uncertainty
+    0.000005
+  #endmatrix:: uncertainty
+
+#endsection:: nominal gain
+
+#startsection:: aperture correction 
+
+  % 2D array with the list of values of the correction
+  % rows: primary parameter
+  % columns: secondary parameter
+  #startmatrix:: value
+    1
+  #endmatrix:: value
+
+#endsection:: aperture correction
+
+
+%#startsection:: frequency dependence
+
+  % 2D array with the list of values of the correction
+  % rows: primary parameter
+  % columns: secondary parameter
+  #startmatrix:: frequency dependence
+    sb1_gain.csv;
+  #endmatrix:: frequency dependence
+
+%#endsection:: frequency dependence
+
+
+#startsection:: input admittance
+
+  % 2D array with the list of values of the correction
+  % rows: primary parameter
+  % columns: secondary parameter
+  #startmatrix:: input admittance
+    csv\Y_inp.csv;
+  #endmatrix:: input admittance
+  
+#endsection:: input admittance

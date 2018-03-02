@@ -1138,6 +1138,118 @@
 				<Property Name="TgtF_targetfileGUID" Type="Str">{19518978-F8E5-4558-9786-71904496379A}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM.exe</Property>
 			</Item>
+			<Item Name="HP3548A TWM drivers" Type="DLL">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{A42D2B73-5AEB-439A-9F0F-306D4FE81F7F}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{E3611D33-2BD7-41E3-A01A-A9985B96DB0F}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{8674AD37-BADE-4C34-A52C-C8A67202F921}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">HP3548A TWM drivers</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/HP3458A_dll</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{A13BC5E6-6954-4672-8661-5CD966DECE48}</Property>
+				<Property Name="Bld_version.build" Type="Int">6</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">TWM_HP3458A.dll</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/HP3458A_dll/TWM_HP3458A.dll</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/HP3458A_dll/data</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Dll_compatibilityWith2011" Type="Bool">false</Property>
+				<Property Name="Dll_delayOSMsg" Type="Bool">true</Property>
+				<Property Name="Dll_headerGUID" Type="Str">{25380317-A0BF-4A97-8078-CC9792F9318C}</Property>
+				<Property Name="Dll_libGUID" Type="Str">{8B128DEA-28CD-447C-BC52-D4F88032DDDF}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{074A55D8-8D80-4FB7-B8F4-77A8D9FA7937}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/drivers/3458A Virtual Digitizer.lvlib/3458A Initialize Virtual Channels.vi</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="Source[2].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[2].itemID" Type="Ref">/My Computer/drivers/3458A Virtual Digitizer.lvlib/3458A Digitizer Session.ctl</Property>
+				<Property Name="Source[2].type" Type="Str">VI</Property>
+				<Property Name="Source[3].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/3458A Virtual Digitizer.lvlib/3458A Fetch from Digitizing Process.vi</Property>
+				<Property Name="Source[3].type" Type="Str">VI</Property>
+				<Property Name="Source[4].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[0]VIProtoDir" Type="Int">4</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[0]VIProtoInputIdx" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[0]VIProtoLenInput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[0]VIProtoLenOutput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[0]VIProtoName" Type="Str">return value</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[0]VIProtoOutputIdx" Type="Int">0</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[0]VIProtoPassBy" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[1]VIProtoDir" Type="Int">0</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[1]VIProtoInputIdx" Type="Int">10</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[1]VIProtoLenInput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[1]VIProtoLenOutput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[1]VIProtoName" Type="Str">dmmVisa</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[1]VIProtoOutputIdx" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[1]VIProtoPassBy" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[2]VIProtoDir" Type="Int">2</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[2]VIProtoInputIdx" Type="Int">9</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[2]VIProtoLenInput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[2]VIProtoLenOutput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[2]VIProtoName" Type="Str">ssn</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[2]VIProtoOutputIdx" Type="Int">4</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[2]VIProtoPassBy" Type="Int">0</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[3]VIProtoDir" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[3]VIProtoInputIdx" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[3]VIProtoLenInput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[3]VIProtoLenOutput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[3]VIProtoName" Type="Str">dmmSIdnStrings</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[3]VIProtoOutputIdx" Type="Int">3</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[3]VIProtoPassBy" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[4]VIProtoDir" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[4]VIProtoInputIdx" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[4]VIProtoLenInput" Type="Int">6</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[4]VIProtoLenOutput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[4]VIProtoName" Type="Str">awgIdnString</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[4]VIProtoOutputIdx" Type="Int">2</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[4]VIProtoPassBy" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[5]VIProtoDir" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[5]VIProtoInputIdx" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[5]VIProtoLenInput" Type="Int">7</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[5]VIProtoLenOutput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[5]VIProtoName" Type="Str">syncUnitIdnString</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[5]VIProtoOutputIdx" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[5]VIProtoPassBy" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[6]VIProtoDir" Type="Int">3</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[6]VIProtoInputIdx" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[6]VIProtoLenInput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[6]VIProtoLenOutput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[6]VIProtoName" Type="Str">max_awglen</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[6]VIProtoOutputIdx" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[6]VIProtoPassBy" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[7]CallingConv" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[7]Name" Type="Str">twm_dmm_open</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[7]VIProtoDir" Type="Int">3</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[7]VIProtoInputIdx" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[7]VIProtoLenInput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[7]VIProtoLenOutput" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[7]VIProtoName" Type="Str">max_synclen</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[7]VIProtoOutputIdx" Type="Int">-1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfo[7]VIProtoPassBy" Type="Int">1</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfoCPTM" Type="Bin">%Q#!!!!!!!]!$%!B"H.U982V=Q!!#U!$!!2D&lt;W2F!!!11$$`````"H.P&gt;8*D:1!!&amp;E"1!!-!!!!"!!)*:8*S&lt;X)A&lt;X6U!"Z!-0````]5=XFO9S"V&lt;GFU)'FE&lt;C"T&gt;(*J&lt;G=!!"B!-0````]/98&gt;H)'FE&lt;C"T&gt;(*J&lt;G=!!"2!-0````]+;72O)(.U=GFO:Q!!)%"!!!(`````!!93:'VN+(-J)'FE&lt;C"T&gt;(*J&lt;G&gt;T!!!.1!5!"UZV&lt;76S;7-!&amp;%"!!!(`````!!A(=X.O)'^V&gt;!!%!!!!%%"!!!(`````!!A$=X.O!""!-0````]'5X2S;7ZH!!!71%!!!@````]!$!BE&lt;7UA&gt;GFT91!!6!$Q!!Q!!Q!%!!5!"Q!*!!I!#A!+!!I!#Q!.!!I$!!"Y!!!*!!!!#1!!!!E!!!!*!!!!#1!!!!!!!!!!!!!!!!!!!!!!!!!)!!!##!!!!!!!!!!!!1!/</Property>
+				<Property Name="Source[4].ExportedVI.VIProtoInfoVIProtoItemCount" Type="Int">8</Property>
+				<Property Name="Source[4].itemID" Type="Ref">/My Computer/drivers/3458A Virtual Digitizer.lvlib/DLL_wrapper/twm_dmm_open.vi</Property>
+				<Property Name="Source[4].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[4].type" Type="Str">ExportedVI</Property>
+				<Property Name="SourceCount" Type="Int">5</Property>
+				<Property Name="TgtF_companyName" Type="Str">.</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">HP3548A TWM drivers</Property>
+				<Property Name="TgtF_internalName" Type="Str">HP3548A TWM drivers</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2013 .</Property>
+				<Property Name="TgtF_productName" Type="Str">HP3548A TWM drivers</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{35CC4655-EFA4-4509-92BF-EDD2DE25F6EE}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">TWM_HP3458A.dll</Property>
+			</Item>
 		</Item>
 	</Item>
 </Project>
