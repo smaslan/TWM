@@ -246,12 +246,12 @@ function dataout = alg_wrapper(datain, calcset)
     tsh_n = round(tsh*fs);
     
     % shift the u/i channels if the shift is at least one sampling period: 
-    if tsh > 0
-        u = u(1:end-tsh);
-        i = i(1+tsh:end);            
-    elseif tsh < 0
-        u = u(1-tsh:end);
-        i = i(1:end+tsh);
+    if tsh_n > 0
+        u = u(1:end-tsh_n);
+        i = i(1+tsh_n:end);            
+    elseif tsh_n < 0
+        u = u(1-tsh_n:end);
+        i = i(1:end+tsh_n);
     end
     
     % align u/i to the same length:

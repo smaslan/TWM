@@ -58,6 +58,7 @@ function [tran] = correction_load_transducer(file)
     
     % store transducer type
     tran.type = t_type;
+    is_shunt = strcmpi(t_type,'shunt');
     
     
     if ~is_default
@@ -84,7 +85,7 @@ function [tran] = correction_load_transducer(file)
       
     % load relative frequency/rms dependence (gain):
     try
-        fdep_file = [root_fld infogettext(inf,'amplitude transfer path')];
+        fdep_file = [root_fld correction_load_transducer_get_file_key(inf,'amplitude transfer path')];
     catch
         % default (gain, unc.) 
         fdep_file = {[],[],1.0,0.0};         
@@ -92,21 +93,26 @@ function [tran] = correction_load_transducer(file)
     tran.tfer_gain = correction_load_table(fdep_file,'rms',{'f','gain','u_gain'});
     tran.tfer_gain.qwtb = qwtb_gen_naming('tr_gain','f','a',{'gain'},{'u_gain'},{''});
     
-    
+           
     % load frequency/rms dependence (phase):
     try
-        fdep_file = [root_fld infogettext(inf,'phase transfer path')];
+        fdep_file = [root_fld correction_load_transducer_get_file_key(inf,'phase transfer path')];
     catch
         % default (phase, unc.) 
         fdep_file = {[],[],0.0,0.0};         
     end
     tran.tfer_phi = correction_load_table(fdep_file,'rms',{'f','phi','u_phi'});
     tran.tfer_phi.qwtb = qwtb_gen_naming('tr_phi','f','a',{'phi'},{'u_phi'},{''});
-      
     
     % combine nominal gain and relative gain transfer to the absolute gain tfer.: 
     tran.tfer_gain.gain = tran.nominal*tran.tfer_gain.gain;
     tran.tfer_gain.u_gain = (tran.u_nominal^2 + tran.tfer_gain.u_gain.^2).^0.5;
+    
+    if is_shunt
+      % inverse ratio for the shunt:
+        tran.tfer_gain.gain = 1./tran.tfer_gain.gain;
+        tran.tfer_gain.u_gain = tran.tfer_gain.u_gain./tran.tfer_gain.gain.^2;
+    end
       
     
     % --- load loading effect corrections ---

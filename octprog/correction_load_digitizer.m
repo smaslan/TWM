@@ -79,7 +79,7 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
     table_cfg.primary_ax = '';
     table_cfg.second_ax = 'chn';
     table_cfg.quant_names = {'its','u_its'};
-    table_cfg.default = {[1:meas.channels_count],zeros(1,meas.channels_count),zeros(1,meas.channels_count)};
+    %table_cfg.default = {[1:meas.channels_count],zeros(1,meas.channels_count),zeros(1,meas.channels_count)};
     dig.time_shifts = correction_parse_section(cor_root, dinf, minf, 'interchannel timeshift', table_cfg, 1, rep_id, group_id);
     % note: this is passed manually, thus no 'qwtb' struct!
     

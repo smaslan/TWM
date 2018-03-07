@@ -20,7 +20,11 @@ name:: Two HP3458A dmms test
 #startsection:: interchannel timeshift
 
   #startmatrix:: value
-    0;0
+    0;0.00
   #endmatrix:: value 
+  #startmatrix:: uncertainty
+    0;0
+  #endmatrix:: uncertainty 
+
 
 #endsection:: interchannel timeshift

@@ -41,7 +41,7 @@ channel identifier___::
   % rows: primary parameter
   % columns: secondary parameter
   #startmatrix:: frequency dependence
-    sb1_gain.csv;
+    sb1_gain.csv
   #endmatrix:: frequency dependence
 
 %#endsection:: frequency dependence
@@ -52,8 +52,8 @@ channel identifier___::
   % 2D array with the list of values of the correction
   % rows: primary parameter
   % columns: secondary parameter
-  #startmatrix:: input admittance
-    csv\Y_inp.csv;
-  #endmatrix:: input admittance
+  #startmatrix:: value
+    csv\Y_inp.csv
+  #endmatrix:: value
   
 #endsection:: input admittance
