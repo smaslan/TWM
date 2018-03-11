@@ -217,11 +217,11 @@ function [tbl] = correction_interp_table(tbl,ax,ay,new_axis_name,new_axis_dim,i_
                 end
             elseif tbl.size_x
                 for q = 1:Q
-                    quants{q} = repmat(interp1nan(ox,quants{q},ax),size(ay));
+                    quants{q} = repmat(interp1nan(ox,quants{q},ax,i_mode),size(ay));
                 end
             elseif tbl.size_y
                 for q = 1:Q
-                    quants{q} = repmat(interp1nan(oy,quants{q},ay),size(ax));
+                    quants{q} = repmat(interp1nan(oy,quants{q},ay,i_mode),size(ax));
                 end
             else
                 for q = 1:Q
