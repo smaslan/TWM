@@ -103,20 +103,29 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         % build list of channel prefixes for the parameters:
         pfx_ch = {};
         pfx_tr = {};
+        pfx_ysub = {};
+        pfx_usub = {};
+        pfx_isub = {};
         if cfg.has_y
             pfx_ch{end+1} = '';
+            pfx_ysub{end+1} = 'y';
             if cfg.y_is_diff
                 pfx_ch{end+1} = 'lo_';
+                pfx_ysub{end+1} = 'y_lo';
             end
             pfx_tr{end+1} = '';
         elseif cfg.has_ui
             pfx_ch{end+1} = 'u_';
             pfx_ch{end+1} = 'i_';
+            pfx_usub{end+1} = 'u';
             if cfg.u_is_diff
                 pfx_ch{end+1} = 'u_lo_';
+                pfx_usub{end+1} = 'u_lo';
             end
+            pfx_isub{end+1} = 'i';
             if cfg.i_is_diff
                 pfx_ch{end+1} = 'i_lo_';
+                pfx_isub{end+1} = 'i_lo';
             end
             pfx_tr{end+1} = 'u_';
             pfx_tr{end+1} = 'i_';
@@ -150,7 +159,7 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zca_Rs'];[p 'tr_Zca_Ls']}, {[p 'tr_Zca_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Yca_Cp'];[p 'tr_Yca_D']}, {[p 'tr_Yca_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zcal_Rs'];[p 'tr_Zcal_Ls']}, {[p 'tr_Zcal_f']}, opt);
-            din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zcam'];[p 'tr_Zcam']}, {[p 'tr_Zcam_f']}, opt);            
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zcam']}, {[p 'tr_Zcam_f']}, opt);            
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'Zcb_Rs'];[p 'Zcb_Ls']}, {[p 'Zcb_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'Ycb_Cp'];[p 'Ycb_D']}, {[p 'Ycb_f']}, opt);            
         end

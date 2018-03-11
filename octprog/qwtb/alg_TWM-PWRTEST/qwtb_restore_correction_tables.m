@@ -65,9 +65,9 @@ function [tab] = qwtb_restore_correction_tables(din,cfg)
                  {{'tr_Zca_Rs';'tr_Zca_Ls'},   {'tr_Zca_f'},              {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zca'},
                  {{'tr_Yca_Cp';'tr_Yca_D'},    {'tr_Yca_f'},              {[1e-15],[1e-12]}, {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'tr_Yca'},
                  {{'tr_Zcal_Rs';'tr_Zcal_Ls'}, {'tr_Zcal_f'},             {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zcal'},
-                 {{'tr_Zcam'},                 {'tr_Zcam_f'},             {[1e-12]},         {[0]},     {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zcam'},
+                 {{'tr_Zcam'},                 {'tr_Zcam_f'},             {[1e-12]},         {[0]},     {[]},    {'M'},       {'f'},       'tr_Zcam'},
                  {{'Zcb_Rs';'Zcb_Ls'},         {'Zcb_f'},                 {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'Zcb'},
-                 {{'Ycb_Cp';'Ycb_D'},          {'Ycb_f'},                 {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'Ycb'}};
+                 {{'Ycb_Cp';'Ycb_D'},          {'Ycb_f'},                 {[1e-15],[1e-12]}, {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'Ycb'}};
 
     % channel/tranducer quantity prefix lists:
     p_lists = {cfg.pfx_ch,cfg.pfx_tr};

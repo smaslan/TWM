@@ -3,13 +3,11 @@ function alg_test(calcset) %<<<1
 %
 % See also qwtb
 
-    %### invalid - residue of other alg.
-
     % samples count to synthesize:
-    N = 1e4;
+    N = 1e5;
     
     % sampling rate [Hz]
-    din.fs.v = 10000;
+    din.fs.v = 100000;
     
     % ADC aperture [s]:
     din.aperture.v = 10e-6;
@@ -22,7 +20,8 @@ function alg_test(calcset) %<<<1
       
     
     % fundamental frequency [Hz]:
-    f0 = 53;
+    f0 = 400.3;
+    
     
     chns = {}; id = 0;    
     
@@ -30,26 +29,37 @@ function alg_test(calcset) %<<<1
     id = id + 1;
     % channel parameters:
     chns{id}.name = 'u';
+    chns{id}.type = 'rvd';
     % harmonic amplitudes:
-    chns{id}.A  = [1    0.5  0.2]';
+    chns{id}.A  = 50*[1   0.01  0.001]';
     % harmonic phases:
-    chns{id}.ph = [0   -0.8  0.2]'*pi;
-    % harmonic component index {1st, 2rd, ..., floor(N/2)}:
-    chns{id}.fk = [1    5    round(0.4*N)]';
+    chns{id}.ph =    [0   -0.8  0.2]'*pi;
+    % harmonic component index {1st, 2rd, ..., floor(0.4*fs/f0)}:
+    chns{id}.fk =    [1    5    round(0.4*din.fs.v/f0)]';
+    % differential mode: loop impedance:
+    %chns{id}.Zx = 0.1;
     
     % -- CURRENT:
     id = id + 1;
     % channel parameters:
     chns{id}.name = 'i';
+    chns{id}.type = 'shunt';
     % harmonic amplitudes:
-    chns{id}.A  = [0.5   0.5  0.2]';
+    chns{id}.A  = 0.3*[1     0.01  0.001]';
     % harmonic phases:
-    chns{id}.ph = [0.1  -0.8  0.2]'*pi;
-    % harmonic component index {1st, 2rd, ..., floor(N/2)}:
-    chns{id}.fk = [1     5    round(0.4*N)]';
+    chns{id}.ph =     [1/3  +0.8  0.2]'*pi;
+    % harmonic component index {1st, 2rd, ..., floor(0.4*fs/f0)}:
+    chns{id}.fk =     [1     5    round(0.4*din.fs.v/f0)]';
+    % differential mode: loop impedance:
+    chns{id}.Zx = 0.1;
         
     if true
         % -- voltage channel:
+        din.u_tr_Zlo_f.v  = [];
+        din.u_tr_Zlo_Rp.v = [200];
+        din.u_tr_Zlo_Cp.v = [1e-12];        
+        din.u_tr_Zlo_Rp.u = [1e-6];
+        din.u_tr_Zlo_Cp.u = [1e-12];
         % create some corretion table for the digitizer gain: 
         din.u_adc_gain_f.v = [0;1e3;1e6];
         din.u_adc_gain_a.v = [];
@@ -84,22 +94,19 @@ function alg_test(calcset) %<<<1
         % create some corretion table for the digitizer gain: 
         din.i_adc_gain_f = din.u_adc_gain_f;
         din.i_adc_gain_a = din.u_adc_gain_a;
-        din.i_adc_gain = din.u_adc_gain; 
+        din.i_adc_gain = din.u_adc_gain;
+        din.i_adc_gain.v = din.i_adc_gain.v*1.1; % change dig. tfer so u/i are not idnetical 
         din.i_adc_phi_f = din.u_adc_phi_f;
         din.i_adc_phi_a = din.u_adc_phi_a;
         din.i_adc_phi = din.u_adc_phi;
+        din.i_adc_phi.v = din.i_adc_phi.v + 0.01; % change dig. tfer so u/i are not idnetical
         % create some corretion table for the digitizer phase: 
-        din.u_adc_phi_f.v = [0;1e3;1e6];
-        din.u_adc_phi_a.v = [];
-        din.u_adc_phi.v = [0.0000; 0.000100; 0.1000];
-        din.u_adc_phi.u = [0.0001; 0.000020; 0.0010];
         din.i_lo_adc_gain_f = din.i_adc_gain_f;
         din.i_lo_adc_gain_a = din.i_adc_gain_a;
         din.i_lo_adc_gain = din.i_adc_gain;
         din.i_lo_adc_phi_f = din.i_adc_phi_f;
         din.i_lo_adc_phi_a = din.i_adc_phi_a;
-        din.i_lo_adc_phi = din.i_adc_phi;     
-        
+        din.i_lo_adc_phi = din.i_adc_phi;             
         % create some corretion table for the transducer gain: 
         din.i_tr_gain_f.v = [0;1e3;1e6];
         din.i_tr_gain_a.v = [];
@@ -108,8 +115,15 @@ function alg_test(calcset) %<<<1
         % create some corretion table for the transducer phase: 
         din.i_tr_phi_f.v = [0;1e3;1e6];
         din.i_tr_phi_a.v = [];
-        din.i_tr_phi.v = [0.00000; -0.00300; -0.3000];
-        din.i_tr_phi.u = [0.00010;  0.00020;  0.0030];
+        din.i_tr_phi.v = [0.00000; -0.00300; -0.3000] + 0.0;
+        din.i_tr_phi.u = [0.00010;  0.00020;  0.0030];        
+        % differential timeshift:
+        din.i_time_shift_lo.v = -2.133e-3;
+        din.i_time_shift_lo.u = 1e-5;
+                
+        % interchannel timeshift:
+        din.time_shift.v = 1.133e-4;
+        din.time_shift.u = 1e-5;
     
     end
            
@@ -117,22 +131,38 @@ function alg_test(calcset) %<<<1
     % Restore orientations of the input vectors to originals (before passing via QWTB)
     din.u.v = ones(10,1); % fake data vector just to make following function work!
     din.i.v = ones(10,1); % fake data vector just to make following function work!
-    [dout,cfg] = qwtb_restore_twm_input_dims(din,1);
+    if isfield(chns{1},'Zx')
+        din.u_lo.v = din.u.v;   
+    end
+    if isfield(chns{2},'Zx')
+        din.i_lo.v = din.i.v;   
+    end
+    [din,cfg] = qwtb_restore_twm_input_dims(din,1);
     % Rebuild TWM style correction tables:
     tab = qwtb_restore_correction_tables(din,cfg);
-    
+
     
     for c = 1:numel(chns)
     
         % get current channel:
         chn = chns{c};
         
+        % differential mode?
+        is_diff = isfield(chn,'Zx');
+                
+        % channel timeshift:
+        if chn.name == 'i'
+            tsh = din.time_shift.v;           
+        else
+            tsh = 0;
+        end              
+        
         % channel prefix (eg.: 'u_'):
         cpfx = [chn.name '_'];
-        % high-side channel prefix:
-        chpfx = [chn.name '_'];
-        % low-side channel prefix:
-        clpfx = [chn.name '_lo_'];
+                                        
+        % channel corrections:
+        tab_list = {'tr_gain','tr_phi','tr_Zca','tr_Yca','tr_Zcal','tr_Zcam','adc_Yin','lo_adc_Yin','Zcb','Ycb','tr_Zlo','adc_gain','adc_phi','lo_adc_gain','lo_adc_phi'};
+        chtab = conv_vchn_tabs(tab,chn.name,tab_list);
     
         % calculate actual frequencies of the harmonics:
         fx = chn.fk*f0;
@@ -141,47 +171,105 @@ function alg_test(calcset) %<<<1
         rms = sum(0.5*chn.A.^2)^0.5;        
         chns{c}.rms = rms;
         
-        % ###todo: implement differential mode
+        % --- apply transducer transfer:
+        A_syn = [];
+        ph_syn = [];
+        tsh_lo = [];
+        sctab = {};
+        sub_chn = {};
+        if is_diff
+            % -- differential connection (create two subchannels: high and low-side):            
+            [A_syn(:,1),ph_syn(:,1),A_syn(:,2),ph_syn(:,2)] = correction_transducer_sim(chtab,chn.type,fx,chn.A,chn.ph,0,0,'',chn.Zx);
+            % prepare digitizer sunchannel correction tables:
+            sctab{1}.adc_gain = chtab.adc_gain; % high-side
+            sctab{1}.adc_phi  = chtab.adc_phi;
+            sctab{2}.adc_gain = chtab.lo_adc_gain; % low-side
+            sctab{2}.adc_phi  = chtab.lo_adc_phi;
+            % prepare subchannel timeshifts:
+            tsh_lo(1) = 0; % high-side 
+            tsh_lo(2) = -getfield(getfield(din,[cpfx 'time_shift_lo']),'v'); % low-side
+            % subchannel waveform names:
+            sub_chn{1} = chn.name; % high-side
+            sub_chn{2} = [chn.name '_lo']; % low-side
+        else
+            % -- single-ended connection (create single channel):
+            [A_syn,ph_syn] = correction_transducer_sim(chtab,chn.type,fx,chn.A,chn.ph,0,0,'');
+            % prepare digitizer sunchannel correction tables:
+            sctab{1}.adc_gain = chtab.adc_gain;
+            sctab{1}.adc_phi  = chtab.adc_phi;
+            % prepare subchannel timeshifts:
+            tsh_lo(1) = 0;
+            % subchannel waveform names:
+            sub_chn{1} = chn.name;
+        end
         
-        % interpolate transducer gain/phase to the measured frequencies and rms amplitude:
-        k_gain = correction_interp_table(getfield(tab,[cpfx 'tr_gain']),rms,fx);   
-        k_phi =  correction_interp_table(getfield(tab,[cpfx 'tr_phi']), rms,fx);
+        % --- for each sub channel (low/high-side): 
+        for k = 1:size(A_syn,2)
         
-        % apply transducer gain:
-        A_syn = chn.A./k_gain.gain;
-        ph_syn = chn.ph - k_phi.phi;
-        
-        % interpolate digitizer gain/phase to the measured frequencies and amplitudes:
-        k_gain = correction_interp_table(getfield(tab,[chpfx 'adc_gain']),A_syn,fx,'f',1);    
-        k_phi =  correction_interp_table(getfield(tab,[chpfx 'adc_phi']), A_syn,fx,'f',1);
-        
-        % apply digitizer gain:
-        A_syn = A_syn./k_gain.gain;
-        ph_syn = ph_syn - k_phi.phi;
-        
-        % generate relative time <0;2*pi):
-        t(:,1) = [0:N-1]/din.fs.v*2*pi;
-        
-        % synthesize waveform (crippled for Matlab < 2016b):
-        % u = A_syn.*sin(t.*fk + ph_syn);
-        u = bsxfun(@times, A_syn', sin(bsxfun(@plus, bsxfun(@times, t, fx'), ph_syn')));
-        % sum the harmonic components to a single composite signal:
-        u = sum(u,2);
-        
-        % store to the QWTB input list:
-        din = setfield(din, chn.name, struct('v',u));
+            % interpolate digitizer gain/phase to the measured frequencies and amplitudes:
+            k_gain = correction_interp_table(sctab{k}.adc_gain, A_syn(:,k), fx,'f',1);   
+            k_phi =  correction_interp_table(sctab{k}.adc_phi,  A_syn(:,k), fx,'f',1);
+            
+            % apply digitizer gain:
+            Ac  = A_syn(:,k)./k_gain.gain;
+            phc = ph_syn(:,k) - k_phi.phi;
+            
+             
+            % generate time vector 2*pi*t:
+            % note: including time shift!
+            t = [];
+            t(:,1) = ([0:N-1]/din.fs.v + tsh + tsh_lo(k))*2*pi;
+            
+            % synthesize waveform (crippled for Matlab < 2016b):
+            % u = Av.*sin(t.*fx + phc);
+            u = bsxfun(@times, Ac', sin(bsxfun(@plus, bsxfun(@times, t, fx'), phc')));
+            % sum the harmonic components to a single composite signal:
+            u = sum(u,2);
+            
+            % store to the QWTB input list:
+            din = setfield(din, sub_chn{k}, struct('v',u));
+
+        end
     
     end    
 
     % --- execute the algorithm:
     dout = qwtb('TWM-PWRTEST',din);
     
-    U_ref = chns{1}.rms
-    I_ref = chns{2}.rms
+    % calculate reference values:
+    U_ref  = chns{1}.rms;
+    I_ref  = chns{2}.rms;
+    S_ref  = chns{1}.rms.*chns{2}.rms;
+    P_ref  = 0.5*sum(chns{1}.A.*chns{2}.A.*cos(chns{2}.ph - chns{1}.ph));    
+    Q_ref  = (S_ref^2 - P_ref.^2)^0.5;
+    PF_ref = P_ref/S_ref;
     
-    dout.U
-    dout.I
-    dout.P
+    % get calculated values:
+    Ux  = dout.U.v;
+    Ix  = dout.I.v;
+    Sx  = dout.S.v;
+    Px  = dout.P.v;
+    Qx  = dout.Q.v;
+    PFx = dout.PF.v;
+    
+    ref_list =  [U_ref,I_ref,S_ref,P_ref,Q_ref,PF_ref];    
+    dut_list =  [Ux,   Ix,   Sx,   Px,   Qx,   PFx];
+    name_list = {'U','I','S','P','Q','PF'};
+    
+    fprintf('   |     REF     |     DUT     |   ABS DEV   |  %%-DEV\n');
+    fprintf('---+-------------+-------------+-------------+----------\n');
+    for k = 1:numel(ref_list)
+        
+        ref = ref_list(k);
+        dut = dut_list(k);
+        name = name_list{k};
+        
+        fprintf('%-2s | %11.6f | %11.6f | %+11.6f | %+8.4f\n',name,ref,dut,dut - ref,100*(dut - ref)/ref);
+        
+    end
+      
+    
+    
     
     % --- compare calcualted results with desired:
 %     if any(abs([dout.amp.v(1+fk)] - A(:))./A(:) > 1e-6)
@@ -194,6 +282,23 @@ function alg_test(calcset) %<<<1
 %         error('TWM-TEST testing: calculated rms value does not match!');
 %     end
                                                                          
+    
+end
+
+
+% convert correction tables 'pfx'_list{:} to list{:}
+% i.e. get rid of prefix (usually 'u_' or 'i_')
+% list - names of the correction tables
+% pfx - prefix without '_' 
+function [tout] = conv_vchn_tabs(tin,pfx,list)
+    
+    tout = struct();
+    for t = 1:numel(list)    
+        name = [pfx '_' list{t}];
+        if isfield(tin,name)
+            tout = setfield(tout, list{t}, getfield(tin,name));
+        end
+    end
     
 end
    
