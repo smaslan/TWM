@@ -217,14 +217,19 @@ function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
         catch
           % value not stored in header, possibly it is in the complementary MAT file
           
-          % get variable name in the MAT file
-          value_var = infogettext(vinf, 'MAT file variable - value');
-          
-          % try to load the variable from MAT file
-          value = load(result_mat, mat_fmt, value_var);
-          if isstruct(value)
-            value = struct2cell(value);
-            value = value{:};
+          try
+            % is it string?
+            value = infogettext(vinf, 'value');
+          catch 
+            % get variable name in the MAT file
+            value_var = infogettext(vinf, 'MAT file variable - value');
+            
+            % try to load the variable from MAT file
+            value = load(result_mat, mat_fmt, value_var);
+            if isstruct(value)
+              value = struct2cell(value);
+              value = value{:};
+            end
           end
           
           

@@ -251,7 +251,7 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
         else
           % just one row, cannot interpolate
           tmp = vv(1:end,a);
-          vv(1:end,a) = NaN;
+          vv(1:end,a) = num2cell(repmat(NaN,[1:size(vv,1) 1]));
           vv(vid,a) = tmp(vid);
                  
         end

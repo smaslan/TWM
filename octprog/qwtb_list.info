@@ -10,6 +10,7 @@ type:: qwtb list
         SP-WFFT
         TWM-THDWFFT
 	TWM-PSFE
+	TWM-TEST
 	TWM-PWRTEST
 #endmatrix:: list of supported algorithms
 
@@ -139,3 +140,17 @@ type:: qwtb list
         #endmatrix:: graphs
         spectrum:: spec_S
 #endsection:: TWM-PWRTEST
+
+#startsection:: TWM-TEST
+        #startmatrix:: number formats
+		f;       si; 1e-6; 1e-6
+                amp;     si; 1e-7; 1e-6
+                phi;     f;  1e-7; 1e-6
+                rms;     si; 1e-7; 1e-6
+        #endmatrix:: number formats
+        #startmatrix:: graphs
+                f; amp
+                f; phi
+        #endmatrix:: graphs
+        spectrum:: amp
+#endsection:: TWM-TEST

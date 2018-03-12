@@ -312,12 +312,11 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.Q.v = Q;
     dataout.PF.v = PF;
     
-    % return spectra of the corrected waveforms:
-    dataout.spec_f.v = fh(:);    
+    % return spectra of the corrected waveforms:   
     [fh, dataout.spec_U.v] = ampphspectrum(u, fs, 0, 0, 'flattop_matlab', [], 0);
-    [fh, dataout.spec_I.v] = ampphspectrum(i, fs, 0, 0, 'flattop_matlab', [], 0);    
+    [fh, dataout.spec_I.v] = ampphspectrum(i, fs, 0, 0, 'flattop_matlab', [], 0);
     dataout.spec_S.v = dataout.spec_U.v.*dataout.spec_I.v;
-    
+    dataout.spec_f.v = fh(:); 
      
     % --------------------------------------------------------------------
     % End of the demonstration algorithm.

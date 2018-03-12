@@ -1,7 +1,7 @@
-- add ADC resolution attribute
 - QWTB result table filling failing at empty data!
 - disable display of DMMs to reduce noise (option)
-- corrections are stored to wrong folders
+- add close all graph button
+
 
 Digitizers panel:
  - hide selector of DMM idn - confusing
