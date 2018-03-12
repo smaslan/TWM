@@ -261,6 +261,14 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
                 % transducer:
                 tran = data.corr.tran{cid};
                 
+                % store transducer type:
+                if strcmpi(tran.type,'divider')
+                    tran_type_str = 'rvd';
+                else
+                    tran_type_str = 'shunt';
+                end
+                di = setfield(di,[pchn_pfx '_tr_type'],struct('v',tran_type_str));
+                
                 if pchn_pfx == 'u'
                     % -- voltage channel:
                     % store measurement time-stamps (one per record, but only for first phase-channel):
@@ -324,8 +332,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
             di = qwtb_alg_insert_corrs(di,data.corr.dig,'');
             
             %fieldnames(di)            
-            %error('dual input algoritms not implemented yet, broh...');
-           
+                       
             % execute algorithm
             dout = qwtb(alg_id,di);
             
@@ -340,7 +347,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
         end
           
     else  
-        % single input algorithm
+        % --- SINGLE INPUT ALGORITHM ---
         
         % store list of channels to results file         
         rinf = infosettextmatrix(rinf, 'list', channels);
@@ -363,14 +370,23 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
         
             % copy user parameters to the QWTB input quantities:
             di = inputs;
+            
+            % store transducer type:
+            if strcmpi(tran.type,'divider')
+                di.tr_type.v = 'rvd';
+            else
+                di.tr_type.v = 'shunt';
+            end
                        
             % store measurement time-stamps (one per record):
             di.time_stamp.v =   tm_stamp(:,tran.channels(1));
             di.time_stamp.u = u_tm_stamp(:,tran.channels(1));
             
+            %###TODO: add interchannel timeshifts like for u/i input algorithms!
+            
             % for differential mode store low-side channel timeshift:
             if tran.is_diff
-                di.time_shift_lo.v = diff(tm_stamp(:,tran.channels),[],2);
+                di.time_shift_lo.v =  diff(tm_stamp(:,tran.channels),[],2);
                 di.time_shift_lo.u = sum(u_tm_stamp(:,tran.channels).^2,2).^0.5; % uncertainty
                 % ###note: summing high+low side unc. which is maybe not correct?
             end

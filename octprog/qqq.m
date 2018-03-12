@@ -9,7 +9,8 @@ cd(mfld);
 addpath([mfld filesep() 'info']);
 addpath([mfld filesep() 'qwtb']);
 
-qwtb('TWM-PWRTEST','test')
+%qwtb('TWM-PWRTEST','test')
+qwtb('TWM-TEST','test')
 
 return
 
