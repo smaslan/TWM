@@ -55,6 +55,14 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     
+    % relative time stamp of reference channel ('y'):
+    alginfo.inputs(pid).name = 'time_stamp';
+    alginfo.inputs(pid).desc = 'Relative time-stamp of ''y''';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
     % --- flags:
     % note: presence of these parameters signalizes caller capabilities of the algoirthm
      
@@ -98,7 +106,8 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
+    [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');  
+    
     
     % ADC gain calibration matrix (2D dependence, rows: freqs., columns: harmonic amplitudes)
     alginfo.inputs(pid).name = 'adc_gain_f';
@@ -200,7 +209,13 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
-    
+    % Transducer type string (empty: no tran. correction; 'shunt': current shunt; 'rvd': resistive voltage divider)
+    alginfo.inputs(pid).name = 'tr_type';
+    alginfo.inputs(pid).desc = 'Transducer type string';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;    
     
     % Transducer phase calibration matrix (2D dependence, rows: freqs., columns: input rms levels)
     alginfo.inputs(pid).name = 'tr_gain_f';
