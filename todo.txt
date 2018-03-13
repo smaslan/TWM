@@ -1,7 +1,4 @@
-- QWTB result table filling failing at empty data!
-- disable display of DMMs to reduce noise (option)
-- add close all graph button
-
+- disably of DMMs to reduce noise (option)
 
 Digitizers panel:
  - hide selector of DMM idn - confusing

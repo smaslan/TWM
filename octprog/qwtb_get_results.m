@@ -27,8 +27,11 @@
 %%                             0 - group all phases for each variable together
 %%                             1 - group all variables for each phase together                             
 %%           cfg.phi_mode - display mode of the phase:
-%%                           0 - [rad]
-%%                           1 - [deg]
+%%                           0 - +-pi [rad]
+%%                           1 - 0 - 2*pi [rad]
+%%                           2 - +-180 [deg]
+%%                           3 - 0-360 [deg]
+%%
 %%
 %%   outputs:
 %%     txt - formatted CSV table data for displaying
@@ -72,10 +75,15 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
   res = results{1};
   % counts: [phases/channels, variables]
   R = numel(results);
+  C = numel(res);
+  V = numel(res{1})
   E = [numel(res) numel(res{1})];
   if cfg.group_mode
     E = fliplr(E);
   end
+  
+  
+  
   
   
 

@@ -7,14 +7,27 @@
 %%         where each cell contains quantities
 %%         So the order of indexes is:
 %%           res{avg_cycle}{phase/channel}{quantity}
+%%   cfg.phi_mode - display mode of the phase:
+%%                           0 - +-pi [rad]
+%%                           1 - 0 - 2*pi [rad]
+%%                           2 - +-180 [deg]
+%%                           3 - 0-360 [deg]
 %%
 %% outputs:
 %%   avg - vector of channels with averages quantities
 %%   unca - type A uncertainty of averaged quantities
 %%          note the 'unc' item of 'unca' is invalid  
 %% -----------------------------------------------------------------------------
-function [avg, unca] = qwtb_average_results(res)
+function [avg, unca] = qwtb_average_results(res,cfg)
 
+  if ~exist('cfg','var')
+    cfg = struct();
+  end
+  if ~isfield(cfg,'phi_mode')
+    % default phase display mode
+    cfg.phi_mode = 0;
+  end 
+  
   R = numel(res);
   P = numel(res{1});
   V = numel(res{1}{1});
@@ -58,6 +71,18 @@ function [avg, unca] = qwtb_average_results(res)
       end
       
       if ~skip
+      
+        if res{1}{p}{v}.is_phase
+          % wrap phase before averaging otherwise we may get wraparound errors on stdev():
+          if cfg.phi_mode == 0 || cfg.phi_mode == 2
+            % +-180 phase mode
+            val = mod(val + pi,2*pi) - pi;
+          else
+            % 0-360 phase mode
+            val = mod(val,2*pi);         
+          end
+        end
+      
         if R == 1
           avg{p}{v}.val = val;
           avg{p}{v}.unc = unc;

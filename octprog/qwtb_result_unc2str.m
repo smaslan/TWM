@@ -41,7 +41,14 @@ function [full_str,val_str,unc_str,unit_str] = qwtb_result_unc2str(value,index,c
     
   % select phase display mode
   if value.is_phase
-    if cfg.phi_mode == 1
+    if cfg.phi_mode == 0 || cfg.phi_mode == 2
+      % +-180
+      val = mod(val + pi,2*pi) - pi;
+    else
+      % 0-360
+      val = mod(val,2*pi);
+    end
+    if cfg.phi_mode >= 2
        val = val/pi*180.0;
        unc = unc/pi*180.0;
     end

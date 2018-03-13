@@ -66,6 +66,10 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
     % --- default configuration
     cfg = struct();   
   end
+  if ~isfield(cfg,'phi_ref_chn')
+    % default reference channel for phase (0: none):
+    cfg.phi_ref_chn = 0;
+  end  
   
   if ~exist('var_list','var') || ~iscell(var_list)
     var_list = {};
@@ -219,9 +223,53 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
   % find the reference result in the loaded list
   res_id = find(result_ids == res_id, 1);
   
+  
+  
+  % === align phase to phase/channel? ===
+  R = numel(results);
+  C = numel(results{1});
+  V = numel(results{1}{1});
+  if cfg.phi_ref_chn && C > 1
+    % yes and more than one channel:
+    
+    % channels to be aligned to reference:
+    did = 1:C;%setxor(1:C,cfg.phi_ref_chn);
+    D = numel(did);
+     
+    % for each quantity:
+    for v = 1:V
+      % get quantity:
+      qu = results{1}{1}{v};
+      
+      % is it phase? 
+      if qu.is_phase
+        % yes, subtract ref. channel value for each result and channel:
+        
+        % for each result:
+        for r = 1:R
+          % get reference phase:
+          ref = results{r}{cfg.phi_ref_chn}{v};          
+          ref_val = ref.val;
+          if isfield(ref,'unc')
+            ref_unc = ref.unc; % ###TODO implement uncertainty
+          end
+          
+          % for each channel:
+          for d = 1:D
+            % subtract reference phase
+            dut = results{r}{did(d)}{v};
+            dut.val = dut.val - ref_val;
+            results{r}{did(d)}{v} = dut;
+          end
+        end
+      end
+    end
+  end
+  
+  
   % === average averaging cycles === 
   if (are_scalar && isempty(var_list)) || is_avg
-    [avg, unca] = qwtb_average_results(results);
+    [avg, unca] = qwtb_average_results(results,cfg);
   end
   
   

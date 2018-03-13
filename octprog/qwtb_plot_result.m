@@ -25,8 +25,11 @@
 %%                             0 - group all phases for each variable together
 %%                             1 - group all variables for each phase together
 %%           cfg.phi_mode - display mode of the phase:
-%%                           0 - [rad]
-%%                           1 - [deg]
+%%                           0 - +-pi [rad]
+%%                           1 - 0 - 2*pi [rad]
+%%                           2 - +-180 [deg]
+%%                           3 - 0-360 [deg]
+%%
 %%     plot_cfg - structure of plot setup:
 %%                plot_cfg.xlog - is x logarithmic?                             
 %%                plot_cfg.ylog - is y logarithmic?
@@ -116,7 +119,14 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
       
       % phase display mode
       if y_var.is_phase
-        if cfg.phi_mode == 1
+        if cfg.phi_mode == 0 || cfg.phi_mode == 2
+          % +-180
+          y_data = mod(y_data + pi,2*pi) - pi;
+        else
+          % 0-360
+          y_data = mod(y_data,2*pi);
+        end
+        if cfg.phi_mode >= 2
           y_data = y_data/pi*180.0;  
         end
       end
@@ -126,9 +136,9 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
       
       % plot the graph
       plot(y_data,'x-','Color',colors{p});
-      title(sprintf('Quantity history: %s (%s)',y_var.name,y_var.desc));
+      title(escapify(sprintf('Quantity history: %s (%s)',y_var.name,y_var.desc)));
       xlabel('repetition cycle');
-      ylabel(y_var.name);
+      ylabel(escapify(y_var.name));
       hold on;
       
     end
@@ -158,7 +168,14 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
       % phase display mode
       y_data = y_var.val;
       if y_var.is_phase
-        if cfg.phi_mode == 1
+        if cfg.phi_mode == 0 || cfg.phi_mode == 2
+          % +-180
+          y_data = mod(y_data + pi,2*pi) - pi;
+        else
+          % 0-360
+          y_data = mod(y_data,2*pi);
+        end
+        if cfg.phi_mode >= 2
           y_data = y_data/pi*180.0;  
         end
       end
@@ -175,17 +192,17 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
         
         % plot it
         plot(x_var.val,y_data,'Color',colors{p});
-        title(sprintf('Function: %s(%s) (%s)',y_var.name,x_var.name,y_var.desc));
-        xlabel(x_var.name);
+        title(escapify(sprintf('Function: %s(%s) (%s)',y_var.name,x_var.name,y_var.desc)));
+        xlabel(escapify(x_var.name));
         
       else
         % no graph - display just Y values
         
         plot(y_data,'Color',colors{p});
-        title(sprintf('Quantity: %s (%s)',y_var.name,y_var.desc));
+        title(escapify(sprintf('Quantity: %s (%s)',y_var.name,y_var.desc)));
              
       end
-      ylabel(y_var.name);
+      ylabel(escapify(y_var.name));
       hold on;
       
     end
@@ -206,8 +223,17 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
   
   if ~isempty(plot_cfg.legend)
     % show legend
-    legend(leg_text,tolower(plot_cfg.legend));
+    legend(leg_text,'Location',lower(plot_cfg.legend));
   end
   
     
+end
+
+function [str] = escapify(str,list)  
+  if nargin < 2
+    list = ['_'];
+  end
+  for c = 1:numel(list)
+    str = strrep(str, list(c), ['\' list(c)]);
+  end
 end

@@ -58,27 +58,30 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
         % get values of the parameter 
         values = infogettextmatrix(qinf, name);    
         % try to convert them to numeric
-        num_values = cellfun('str2num', values, 'UniformOutput', false);
+        num_values = str2double(values);
         
         if ~isempty(values)
         
             % create empty parameter in the QWTB inputs list
             inputs = setfield(inputs, name, struct());
           
-            if all(cellfun('numel', num_values))
+            if ~any(isnan(num_values))
                 % all values are numeric, assume the parameter is numeric
-                   
-                eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', cell2mat(num_values));',name,name));
+                
+                inputs = setfield(inputs, name, struct('v',num_values));   
+                %eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', cell2mat(num_values));',name,name));
                           
             else
                 % at least some of the parameters are not numeric, assume string type
                 
                 if numel(values) == 1
                   % scalar - single string parameter
-                  eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', values{1});',name,name));
+                  inputs = setfield(inputs, name, struct('v',values{1})); 
+                  %eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', values{1});',name,name));
                 else
                   % vector - cell array of string parameters (note: possibly never used, but just in case...)
-                  eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', values);',name,name));
+                  inputs = setfield(inputs, name, struct('v',values));
+                  %eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', values);',name,name));
                 end
                   
             end

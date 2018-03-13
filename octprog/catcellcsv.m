@@ -15,7 +15,7 @@ function [csv] = catcellcsv(cc,colsep,rowsep)
     % cat columns    
     row = cat(1,cc(r,:),repmat({colsep},[1 C]));
     row = [row{:}];
-    rowss{r,1} = row(1:end-1);
+    rowss{r,1} = row(1:end-numel(colsep));
   end
 
   % cat rows

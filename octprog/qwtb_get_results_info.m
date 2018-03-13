@@ -9,17 +9,19 @@
 %%    res_files - CSV file data with list of the avalable results
 %%    res_exist - non-zero if result file exist
 %% -----------------------------------------------------------------------------
-function [res_files, res_exist] = qwtb_get_results_info(meas_root, alg_id)
+function [res_files, res_exist, chn_list] = qwtb_get_results_info(meas_root, alg_id)
 
   res_files = '';
   res_exist = 0;
+  chn_list = '';
   
   % path of the results header
   res_header = [meas_root filesep() 'results.info'];
   
   try
     % load results header
-    inf = infoload(res_header);    
+    inf = infoload(res_header);
+    inf = infoparse(inf);    
   catch
     return;
   end
@@ -54,6 +56,22 @@ function [res_files, res_exist] = qwtb_get_results_info(meas_root, alg_id)
   catch
     error('QWTB results viewer: Desired algorithm''s result not available in the results header! Possibly inconsitent results header file.');
   end
+  
+  % try to load first result file:
+  try 
+    % load the file:
+    result_file = [meas_root filesep() res_files{1}];
+    rinf = infoload(result_file);
+    
+    % try to get list of channels:
+    list = infogettextmatrix(rinf,'list');
+    
+    % convert to channel names list:
+    chn_list = catcellcsv(list,', ',';'); 
+    
+  catch
+    error('QWTB results viewer: Loading result file failed!');
+  end 
   
   % result file exist
   res_exist = 1;

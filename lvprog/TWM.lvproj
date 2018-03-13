@@ -685,6 +685,7 @@
 					</Item>
 					<Item Name="Meas Proc QWTB Calculation Setup.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Calculation Setup.ctl"/>
 					<Item Name="Meas Proc QWTB Setup.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Setup.ctl"/>
+					<Item Name="Meas Proc QWTB Viewer Asyn Session.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Viewer Asyn Session.ctl"/>
 					<Item Name="Meas Proc QWTB Algorithm Info.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Algorithm Info.ctl"/>
 					<Item Name="Meas Proc QWTB Algorithm Parameter Data.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Algorithm Parameter Data.ctl"/>
 					<Item Name="Meas Proc QWTB View Max Dim.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB View Max Dim.ctl"/>
@@ -697,6 +698,7 @@
 					<Item Name="Meas Proc QWTB Close Result Queue.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Close Result Queue.vi"/>
 					<Item Name="Meas Proc QWTB Notify Result Queue.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Notify Result Queue.vi"/>
 					<Item Name="Meas Proc QWTB Update Result View.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Update Result View.vi"/>
+					<Item Name="Meas Proc QWTB Update Result View Process.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Update Result View Process.vi"/>
 					<Item Name="Meas Proc QWTB Test.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Test.vi"/>
 					<Item Name="Meas Proc QWTB Load List of Algorithms.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Load List of Algorithms.vi"/>
 					<Item Name="Meas Proc QWTB Get Input Parameter Info.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Get Input Parameter Info.vi"/>
@@ -820,6 +822,7 @@
 		<Item Name="config.ini" Type="Document" URL="../config.ini"/>
 		<Item Name="LICENSE.txt" Type="Document" URL="../../LICENSE.txt"/>
 		<Item Name="readme.txt" Type="Document" URL="../../readme.txt"/>
+		<Item Name="Meas Proc QWTB Algorithm Flags.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Algorithm Flags.ctl"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
