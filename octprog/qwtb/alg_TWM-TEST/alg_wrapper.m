@@ -146,7 +146,6 @@ function dataout = alg_wrapper(datain, calcset)
         phi = bsxfun(@plus, phi,ap_phi);
     end
     
-           
     
     % --- now apply transducer gain/phase corrections:        
     if isempty(datain.tr_type.v)
@@ -167,7 +166,8 @@ function dataout = alg_wrapper(datain, calcset)
         [amp,phi,u_amp,u_phi] = correction_transducer_loading(tab,datain.tr_type.v,f_U,[], amp,phi,0*amp,0*phi);                
     end
     
-    
+    % wrap phase to +-pi:
+    phi = mod(phi + pi,2*pi) - pi;  
     
     if any(isnan(amp)) || any(isnan(phi))
         error('Transducer gain/phase correction data do not have sufficient frequency/rms range for the signal!');
@@ -185,6 +185,23 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.f.v = f_U;
     dataout.amp.v = amp;
     dataout.phi.v = phi;
+    
+    % get DFT bin id to extract
+    if isfield(datain,'bin')
+      % select bin explicitly:
+      bin = datain.bin.v+1;
+    elseif isfield(datain,'freq')
+      % select bin by freq (nearest):
+      bin = interp1(f_U,[1:numel(f_U)]',datain.freq.v,'nearest','extrap');
+    else
+      % default DC:
+      bin = 1;
+    end  
+    
+    % return selected DFT bin value:
+    dataout.bin_f.v = f_U(bin);
+    dataout.bin_A.v = amp(bin);
+    dataout.bin_phi.v = phi(bin);
     
     % --- NOTE ---
     % This was very basic calculation, the real stuff is not there:

@@ -182,7 +182,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     % --- apply ADC aperture corrections
     
     % calculate aperture tfer:
-    ta = corr.adc_aper.v;    
+    ta = mean(corr.adc_aper.v);   
     if ta > 1e-12 && corr.adc_aper_corr.v
         ap_tfer = pi*f*ta./sin(pi*f*ta);
     else
@@ -566,9 +566,9 @@ function [ax_min,ax_max] = tab_get_common_range(t_list,ax_name)
     ax_min = max(ax_min);
     ax_max = max(ax_max);
     
-    if isnan(ax_min) || isnan(ax_max)
+    if isempty(ax_min) || isempty(ax_max) || isnan(ax_min) || isnan(ax_max)
         ax_min = -inf;
-        ax_min = -inf;
+        ax_max = +inf;
     end
     
 end

@@ -29,9 +29,12 @@ function [f1] = thd_find_freq(x, y1, fit, zc_filter, verbose)
         
         %%%% find frequency from zero crossings %%%%              
         % filter wave by moving average with abs(f1) samples  
-        yf = conv(y1,ones(1,zc_filter));
-        % now cut of yf to original length manually because old conv() doesn't support 'same' option (damn!)
-        yf = yf(ceil((zc_filter-1)/2)+1:end-floor((zc_filter-1)/2));           
+        yf = conv(y1,ones(zc_filter,1));
+        % cut of start/end 
+        N = numel(y1);
+        M = numel(yf);
+        yf = yf(ceil((M-N)/2):end-ceil((M-N)/2));
+        x = x(1:numel(yf));
         
         % guess wave amplitude
         amp = (max(y1) + min(y1))/2;
@@ -60,11 +63,13 @@ function [f1] = thd_find_freq(x, y1, fit, zc_filter, verbose)
           fb = 1/pb(1);
           
           % get average from rising/falling edges
-          f1 += (fa + fb)/2;
+          f1 = f1 + (fa + fb)/2;
         
         end
         % average repeated tests
-        f1 /= (rep_test*2 + 1);
+        f1 = f1/(rep_test*2 + 1);
+        
+        
                
         
         if fit == 1
@@ -75,11 +80,15 @@ function [f1] = thd_find_freq(x, y1, fit, zc_filter, verbose)
         elseif(fit == 2)
           %%%% PSFE mode %%%%
           
-          f1 = PSFE(y1,x(2)-x(1),-f1);
+          f1 = PSFE(y1,x(2)-x(1));
           
-        elseif(fit != 0)
+          
+          
+        elseif(fit ~= 0)
           error('Unknown frequency measurement method!');
         end
+        
+
 
 end
 

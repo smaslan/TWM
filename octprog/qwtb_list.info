@@ -5,8 +5,6 @@ type:: qwtb list
 // note: enter algorithm ID's, e.g.: PSFE, SFDR, ...
 #startmatrix:: list of supported algorithms
         WRMS
-        PSFE
-        SP-FFT
         SP-WFFT
         TWM-THDWFFT
 	TWM-PSFE
@@ -52,35 +50,16 @@ type:: qwtb list
         spectrum:: A
 #endsection:: WRMS
 
-#startsection:: PSFE
+#startsection:: TWM-PSFE
         #startmatrix:: number formats
-                f; si; 1e-6; 1e-6
-                A; si; 1e-7; 1e-7
-                ph; f; 1e-7; 1e-7
+                f;  si; 1e-6; 1e-6
+                A;  si; 1e-7; 1e-7
+                phi; f; 1e-7; 1e-7
         #endmatrix:: number formats
         #startmatrix:: is phase
-                ph
+                phi
         #endmatrix:: is phase
-#endsection:: PSFE
-
-#startsection:: SP-FFT
-        #startmatrix:: exclude outputs
-                f
-        #endmatrix:: exclude outputs
-        #startmatrix:: graphs
-                f; A
-                f; ph
-        #endmatrix:: graphs
-        #startmatrix:: is phase
-                ph
-        #endmatrix:: is phase
-        spectrum:: A
-        #startmatrix:: number formats
-                f; si; 1e-6; 1e-6
-                A; si; 1e-6; 1e-6
-                ph; f; 1e-6; 1e-6
-        #endmatrix:: number formats
-#endsection:: SP-FFT
+#endsection:: TWM-PSFE
 
 #startsection:: SP-WFFT
         #startmatrix:: exclude outputs
@@ -147,7 +126,14 @@ type:: qwtb list
                 amp;     si; 1e-7; 1e-6
                 phi;     f;  1e-7; 1e-6
                 rms;     si; 1e-7; 1e-6
+                bin_f;   f;  1e-6; 1e-8
+                bin_A;   si; 1e-7; 1e-6
+                bin_phi; f;  1e-7; 1e-6
         #endmatrix:: number formats
+        #startmatrix:: is phase
+                phi
+                bin_phi
+        #endmatrix:: is phase        
         #startmatrix:: graphs
                 f; amp
                 f; phi

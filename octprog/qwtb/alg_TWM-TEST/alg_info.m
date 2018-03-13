@@ -12,6 +12,33 @@ function alginfo = alg_info() %<<<1
     
     
     pid = 1;
+    
+    % --- user parameters:
+    % DFT bin to extract:
+    alginfo.inputs(pid).name = 'bin';
+    alginfo.inputs(pid).desc = 'DFT bin id to extract from the spectrum';
+    alginfo.inputs(pid).alternative = 2;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    % DFT bin by freq. selection:
+    alginfo.inputs(pid).name = 'freq';
+    alginfo.inputs(pid).desc = 'Frequency DFT bin to extract from the spectrum';
+    alginfo.inputs(pid).alternative = 2;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+
+    
+    % ADC setup
+    alginfo.inputs(pid).name = 'adc_bits';
+    alginfo.inputs(pid).desc = 'ADC resolution';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
+    
     % sample data
     alginfo.inputs(pid).name = 'fs';
     alginfo.inputs(pid).desc = 'Sampling frequency';
@@ -73,12 +100,12 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     
-    alginfo.inputs(pid).name = 'support_multi_inputs';
-    alginfo.inputs(pid).desc = 'Algorithm supports processing of a multiple waveforms at once';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
+    %alginfo.inputs(pid).name = 'support_multi_inputs';
+    %alginfo.inputs(pid).desc = 'Algorithm supports processing of a multiple waveforms at once';
+    %alginfo.inputs(pid).alternative = 0;
+    %alginfo.inputs(pid).optional = 1;
+    %alginfo.inputs(pid).parameter = 0;
+    %pid = pid + 1;
     
     
     % --- parameters:
@@ -394,6 +421,17 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'spectrum phase [rad]';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'bin_f';
+    alginfo.outputs(pid).desc = 'Frequency of extracted DFT bin';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'bin_A';
+    alginfo.outputs(pid).desc = 'Amplitude of extracted DFT bin';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'bin_phi';
+    alginfo.outputs(pid).desc = 'Phase of extracted DFT bin';
+    pid = pid + 1;
     
     
     alginfo.providesGUF = 0;

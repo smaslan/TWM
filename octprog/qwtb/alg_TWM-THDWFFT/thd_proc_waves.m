@@ -116,7 +116,7 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
   
   if(verbose)
     disp('');
-    printf('Fundamental f = %s\n',unc2str_si(f_sig,f_std,' Hz'));    
+    fprintf('Fundamental f = %s\n',unc2str_si(f_sig,f_std,' Hz'));    
   end
    
 end
