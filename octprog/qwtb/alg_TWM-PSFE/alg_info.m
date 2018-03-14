@@ -65,6 +65,14 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     
+    alginfo.inputs(pid).name = 'comp_timestamp';
+    alginfo.inputs(pid).desc = 'Enable compensation of phase by timestamp (default off)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
+    
     
     % --- flags {support_multi_inputs, support_diff}:
     % note: presence of these parameters signalizes caller capabilities of the algoirthm
@@ -394,9 +402,7 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     
-    
-    
-    
+       
     
     pid = 1;
     % outputs    

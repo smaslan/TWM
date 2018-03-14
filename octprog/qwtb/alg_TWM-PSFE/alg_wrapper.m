@@ -25,6 +25,9 @@ function dataout = alg_wrapper(datain, calcset)
         % default:
         f_estimate = 1;
     end
+    
+    % timestamp phase compensation state:
+    tstmp_comp = isfield(datain, 'comp_timestamp') && ((isnumeric(datain.comp_timestamp.v) && datain.comp_timestamp.v) || (ischar(datain.comp_timestamp.v) && strcmpi(datain.comp_timestamp.v,'on')));
          
     if cfg.y_is_diff
         % Input data 'y' is differential: if it is not allowed, put error message here
@@ -93,10 +96,14 @@ function dataout = alg_wrapper(datain, calcset)
         % --- SE mode: apply corrections
 
         % apply time-stamp phase correction:
-        % note: assume frequency comming from digitizer tb., because the timestamp comes also from dig. timebase
-        ph = ph - datain.time_stamp.v*f_org*2*pi;
-        % calc. uncertainty contribution:
-        u_p_ts = datain.time_stamp.u*f_org*2*pi;
+        if tstmp_comp
+            % note: assume frequency comming from digitizer tb., because the timestamp comes also from dig. timebase
+            ph = ph - datain.time_stamp.v*f_org*2*pi;
+            % calc. uncertainty contribution:
+            u_p_ts = datain.time_stamp.u*f_org*2*pi;
+        else
+            u_p_ts = 0;
+        end
         
         
         % calculate aperture corrections (when enabled and some non-zero value entered for the aperture time):
