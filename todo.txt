@@ -2,6 +2,3 @@
 
 Digitizers panel:
  - hide selector of DMM idn - confusing
-
-RAW command config:
- - fix the demo for Matlab

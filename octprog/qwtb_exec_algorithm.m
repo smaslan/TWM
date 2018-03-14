@@ -11,12 +11,12 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
 % (c) 2018, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
-
-    % load measurement file header
-    inf = infoload(meas_file);
     
     % measuremet root path 
     meas_root = [fileparts(meas_file) filesep()];
+    
+    % load QWTB processing setup file
+    qwtb_file = [meas_root 'qwtb'];
     
     % default repetition cycle id
     if ~exist('avg_id','var')
@@ -25,9 +25,14 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
     
     % try to load QWTB processing info
     try
-        qinf = infogetsection(inf, 'QWTB processing setup');
+        % load the file:
+        qinf = infoload(qwtb_file);
+        %qinf = infoparse(qinf);
+        % try to get the content section:
+        qinf = infogetsection(qinf, 'QWTB processing setup');
     catch
         % not present - no calculation, no error
+        warning('QWTB algorithm executer: No QWTB calculation setup found for given measurement session!');
         return    
     end
     

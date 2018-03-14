@@ -8,11 +8,13 @@
 %%  outputs:
 %%    res_files - CSV file data with list of the avalable results
 %%    res_exist - non-zero if result file exist
+%%    chn_list - list of the phase/channels ('u1, i1;u2, i2' or 'u1;u2;u3' etc.)
 %% -----------------------------------------------------------------------------
-function [res_files, res_exist, chn_list] = qwtb_get_results_info(meas_root, alg_id)
+function [res_files, res_exist, alg_list, chn_list] = qwtb_get_results_info(meas_root, alg_id)
 
   res_files = '';
   res_exist = 0;
+  alg_list = '';
   chn_list = '';
   
   % path of the results header
@@ -49,6 +51,9 @@ function [res_files, res_exist, chn_list] = qwtb_get_results_info(meas_root, alg
   if ~numel(aid)
     error('QWTB results viewer: Index of the algorithm out of range of the available algorithms!');
   end
+  
+  % return the list with name of selected on top
+  alg_list = catcellcsv(cat(1,algs(aid),algs(:))');
   
   % list of calculated algorithms
   try 
