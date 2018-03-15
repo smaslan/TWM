@@ -77,6 +77,8 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
     
     % repeat measurements
     h_amps = repmat(h_amps,[1 avg]);
+    h_amps_org = h_amps;
+    
     
     % maximum used frequency
     f_max = 0.5*fs;
@@ -93,16 +95,22 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
         % get corrections
         c = p.corr;
         tab = p.tab;
-        
-        % get transducer gain transfer:
-        tr_gain = correction_interp_table(tab.tr_gain, a_rms, f);
-        if ~p.randomize
-            % discard uncertainty if mc randomization not allowed
-            tr_gain.u_gain = 0*tr_gain.u_gain;
-        end        
-        if any(isnan(tr_gain.gain))
+                                        
+        % apply transducer tfer: 
+        opt = '';
+        if p.randomize
+            opt = 'rand';    
+        end
+        for k = 1:size(h_amps,2)
+            h_amps(:,k) = correction_transducer_sim(tab,c.tr_type.v,f,h_amps(:,k),0*h_amps(:,k),0*h_amps(:,k),0*h_amps(:,k),opt);
+        end
+        if any(isnan(h_amps))
             error('THD simulator, corrections: Range of transducer correction not sufficient!');
         end
+        % effective transducer gain:
+        tr_gain = h_amps_org./h_amps;
+        
+        
         
         % get transducer SFDR:
         tr_sfdr = correction_interp_table(tab.tr_sfdr, h_amps(1,1), f);        
@@ -121,10 +129,8 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
             % discard SFDR if mc randomization not allowed 
             tr_sfdr = 0;
         end
-
         
-        % apply transducer gain and SFDR:
-        h_amps = h_amps./(tr_gain.gain + tr_gain.u_gain*randn(1));
+        % apply transducer SFDR:
         h_amps = bsxfun(@plus, h_amps, h_amps(1,:).*tr_sfdr);
         
         % maximum used amplitude:
@@ -160,9 +166,9 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
             adc_sfdr = 0;
         end
 
-        % apply digitizer gain and SFDR:
-        h_amps = h_amps./(adc_gain.gain + adc_gain.u_gain*randn(1));
-        h_amps = h_amps + h_amps(1,:).*adc_sfdr;
+        % apply digitizer gain and SFDR (crippled for MATLAB < 2016b):
+        h_amps = bsxfun(@rdivide,h_amps,(adc_gain.gain + adc_gain.u_gain*randn(1)));
+        h_amps = bsxfun(@plus,h_amps,h_amps(1,:).*adc_sfdr);
         
         
         % calculate gain error caused by the aperture:
@@ -180,15 +186,13 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
         
         % calculate total gain of all transfers/errors (crippled for MATLAB < 2016b):
         %   gain_tot = tr_gain.gain.*adc_gain.gain;        
-        gain_tot = bsxfun(@times, tr_gain.gain, adc_gain.gain);
+        gain_tot = bsxfun(@times, tr_gain, adc_gain.gain);               
         if c.adc_aper_corr.v
             % aperture error correction enabled, thus the alg. should return corrected value
             %   gain_tot = gain_tot.*gain_ap;
-            gain_tot = bsxfun(@times, gain_tot, 1./gain_ta);     
+            gain_tot = bsxfun(@rdivide, gain_tot, gain_ta);     
         end 
                         
-        % total gain of fundamental 
-        %gain = c.adc_gain.v(1,1)*c.tr_gain.v(1,1);
                 
         % get LSB value of the ADC
         if isfield(c,'lsb')

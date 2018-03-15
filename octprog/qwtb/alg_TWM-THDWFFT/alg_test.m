@@ -14,9 +14,9 @@ function alg_test(calcset) %<<<1
     din.adc_gain_a.v = [];
     
     % generate some transducer gain transfer:
-    din.tr_gain.v =   [2.0; 2.2; 3.3];
-    din.tr_gain.u =   [0.0; 0.0; 0.0];
-    din.tr_gain_f.v = [0;   1e4; 1e6];
+    din.tr_gain.v =   [2.000; 2.001; 2.002; 2.005; 2.10];
+    din.tr_gain.u =   [0.000; 0.000; 0.000; 0.000; 0.00];
+    din.tr_gain_f.v = [0;     1e2;   1e3;   1e4;   1e6];
     din.tr_gain_a.v = [];
     
     % generate some SFDR values for digitizer:
@@ -28,6 +28,9 @@ function alg_test(calcset) %<<<1
     din.tr_sfdr.v =   [180];
     din.tr_sfdr_f.v = [];
     din.tr_sfdr_a.v = [];
+    
+    % transducer type:
+    din.tr_type.v = 'shunt';
     
     % fake some digitizer parameters:
     din.adc_nrng.v = 1.0; % +/- range
@@ -104,12 +107,12 @@ function alg_test(calcset) %<<<1
     dout = qwtb('TWM-THDWFFT',din);
     
     % print results:
-    printf('\nResults:\n');
-    printf('  THD ref: %0.4f%%, calc: %0.4f%% +- %0.4f%%, dev: %0.4f%%, %%-of-spec: %-3.0f\n', k1_out, dout.thd.v, dout.thd.u, dout.thd.v - k1_out, abs(dout.thd.v - k1_out)/dout.thd.u*100);
-    printf('\nHarmonics:\n');
-    printf(    '  ID    REF         CALC                     DIFF         %%-OF-UNC\n');
+    fprintf('\nResults:\n');
+    fprintf('  THD ref: %0.4f%%, calc: %0.4f%% +- %0.4f%%, dev: %0.4f%%, %%-of-spec: %-3.0f\n', k1_out, dout.thd.v, dout.thd.u, dout.thd.v - k1_out, abs(dout.thd.v - k1_out)/dout.thd.u*100);
+    fprintf('\nHarmonics:\n');
+    fprintf(    '  ID    REF         CALC                     DIFF         %%-OF-UNC\n');
     for h = 1:dout.H.v
-        printf('  H%02d:  %0.7f   %0.7f +- %0.7f   %+0.7f   %-3.0f\n', h, h_amps(h), dout.h.v(h), dout.h.u(h), dout.h.v(h) - h_amps(h), abs(dout.h.v(h) - h_amps(h))/dout.h.u(h)*100);
+        fprintf('  H%02d:  %0.7f   %0.7f +- %0.7f   %+0.7f   %-3.0f\n', h, h_amps(h), dout.h.v(h), dout.h.u(h), dout.h.v(h) - h_amps(h), abs(dout.h.v(h) - h_amps(h))/dout.h.u(h)*100);
     end   
     
     % check result correctness:

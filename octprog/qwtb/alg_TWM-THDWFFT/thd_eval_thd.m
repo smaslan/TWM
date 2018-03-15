@@ -28,6 +28,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
 %   corr.lsb.v            - LSB voltage step of the ADC (opt. 1)
 %   corr.adc_nrng.v       - nominal range of the ADC (opt. 1)
 %   corr.adc_bits.v       - bit resolution of the ADC (opt. 1)
+%   corr.tr_type.v        - type of transducer ('': none, 'rvd': res. divider, 'shunt': res. shunt)
 %
 % 'tab' are TWM-style correction tables created from data passed from TWM system:
 % -------------------------------------------------------------------------------
@@ -208,46 +209,35 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     %   sig = sig.*adc_gain.gain
     sig = bsxfun(@times, sig, adc_gain.gain);
     
-  
-    % --- estimate rough RMS value on the input of the transducer
     
-    % calculate rms gain coeficient of the used window: 
-    WN = 100;
-    wc = window_coeff(window_type, WN, 'periodic');
-    w_gain = mean(wc); % amplitude gain - for denormalization of the spectrum
-    w_rms = sum(wc.^2)^0.5/WN^0.5; % rms gain
-      
-    % get rough estimate of the transducer gain frequency transfer:
-    tr_gain = nanmean(tab.tr_gain.gain,2);      
-    if numel(tr_gain) > 1
-        tr_gain = interp1(tab.tr_gain.f,tr_gain,f,'linear');
-    end
     
-    % get rough INPUT voltage/current for one of the measurements only:  
-    tr_sig = sig(:,1).*tr_gain;
-    
-    % estimate RMS value of the INPUT voltage/current signal:
-    tr_rms = sum(0.5*(tr_sig*w_gain).^2)^0.5/w_rms;
-  
-  
+    % --- estimate rough RMS value on the input of the transducer 
 
     % --- apply transducer gain correction 
+    % calculate effective transfer of the transducer:
+    if ~isempty(corr.tr_type.v)    
+        sig_tmp = mean(sig,2);
+        [tr_gain,ph_tmp,u_tr_gain] = correction_transducer_loading(tab,corr.tr_type.v,f,[],sig_tmp,0*sig_tmp,0*sig_tmp,0*sig_tmp);    
+        tr_gain = tr_gain./sig_tmp;
+        u_tr_gain = u_tr_gain./sig_tmp;
+    else
+        % no transducer defined - no correction:
+        tr_gain = 1;
+        u_tr_gain = 0;
+    end
     
-    % get correction coefs. for each frequency and rms level:
-    tr_gain = correction_interp_table(tab.tr_gain, tr_rms, f, 'f', 1);
-    
-    if any(isnan(tr_gain.gain))
+    if any(isnan(tr_gain))
         error('THD, corrections: Amplitude range of transducer correction not sufficient!');
     end
-          
-    % apply transducer gain correction (crippled for MATLAB < 2016b version):
-    %   sig = sig.*tr_gain.gain 
-    sig = bsxfun(@times, sig, tr_gain.gain);
     
-  
+    % apply transducer gain correction (crippled for MATLAB < 2016b version):
+    %   sig = sig.*tr_gain 
+    sig = bsxfun(@times, sig, tr_gain);
+    
     % combine relative gain uncertainty of digitizer and transducer (crippled for MATLAB < 2016b version):
-    %   gain_u = sqrt(tr_gain.u_gain.^2 + adc_gain.u_gain.^2) 
-    gain_u = bsxfun(@plus, tr_gain.u_gain.^2, adc_gain.u_gain.^2).^0.5; 
+    %   gain_u = sqrt(u_tr_gain.^2 + adc_gain.u_gain.^2) 
+    gain_u = bsxfun(@plus, u_tr_gain.^2, adc_gain.u_gain.^2).^0.5;
+     
   
   
    
@@ -387,7 +377,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     end
    
     % scale the LSB value to actual input quantity using DC gains (just estimate):
-    gain_dc = nanmean(tr_gain.gain(1,:))*nanmean(adc_gain.gain(1,:));
+    gain_dc = tr_gain(1)*nanmean(adc_gain.gain(1,:));
     lsb = lsb*gain_dc;
   
     % --- calculate input uncertaintis of the harmonics (without noise leakage effect):

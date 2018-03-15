@@ -124,6 +124,8 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     
+
+    
     % ADC apperture effect correction:
     % this set to non-zero value will enable auto correction of the aperture effect by algorithm
     alginfo.inputs(pid).name = 'adc_aper_corr';
@@ -207,14 +209,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     
-    % ADC timebase frequency correction:
-    alginfo.inputs(pid).name = 'adc_freq';
-    alginfo.inputs(pid).desc = 'ADC timebase freq. correction';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
-    
     % relative time stamp of reference channel ('y'):
     alginfo.inputs(pid).name = 'time_stamp';
     alginfo.inputs(pid).desc = 'Relative time-stamp of ''y''';
@@ -224,6 +218,14 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     
+    
+    % Transducer type string (empty: no tran. correction; 'shunt': current shunt; 'rvd': resistive voltage divider)
+    alginfo.inputs(pid).name = 'tr_type';
+    alginfo.inputs(pid).desc = 'Transducer type string';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
     
     % Transducer phase calibration matrix (2D dependence, rows: freqs., columns: input rms levels)
     alginfo.inputs(pid).name = 'tr_gain_f';

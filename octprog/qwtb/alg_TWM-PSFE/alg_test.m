@@ -34,7 +34,10 @@ function alg_test(calcset) %<<<1
     % generate some time-stamp of the digitizer channel:
     % note: the algorithm must 'unroll' the calculated phase accordingly,
     %       so whatever is put here should have no effect to the estimated phase         
-    din.time_stamp.v = 0.12345;
+    din.time_stamp.v = rand(1)*0.01; % random time-stamp
+    
+    % timestamp compensation:
+    din.comp_timestamp.v = 1;
         
     % create some corretion table for the digitizer gain: 
     din.adc_gain_f.v = [0;1e3;1e6];
@@ -121,7 +124,12 @@ function alg_test(calcset) %<<<1
        
     % apply time-stamp to the phase of the synthesized signals:
     % note: operate in local timebase, not actual time, because ts. are derived from local dig. timebase 
-    ph_syn = ph_syn + din.time_stamp.v*fk/(N/din.fs.v)*(1 + din.adc_freq.v)*2*pi;
+    if isfield(din,'comp_timestamp') && din.comp_timestamp.v
+        tstmp = din.time_stamp.v;
+    else
+        tstmp = 0;       
+    end
+    ph_syn = ph_syn + tstmp*fk/(N/din.fs.v)*(1 + din.adc_freq.v)*2*pi;
            
     % synthesize waveform (crippled for Matlab < 2016b):
     % u = A_syn.*sin(t.*fk + ph_syn);
@@ -141,8 +149,7 @@ function alg_test(calcset) %<<<1
         
 
     % --- execute the algorithm:
-    dout = qwtb('TWM-PSFE',din);
-    
+    dout = qwtb('TWM-PSFE',din);    
     
     % check frequency estimate:
     assert(abs(dout.f.v - fx(1))./fx(1) < 1e-8, 'Estimated freq. does not match generated one.');

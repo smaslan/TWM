@@ -44,6 +44,9 @@ function alg_test(calcset) %<<<1
         
         % define some timestamp (high-side channel):
         din.time_stamp.v = rand(1)*0.01; % random time-stamp
+        
+        % timestamp compensation:
+        din.comp_timestamp.v = 1;
                 
         
         % ADC aperture correction:
@@ -139,8 +142,13 @@ function alg_test(calcset) %<<<1
         
         % generate relative time 2*pi*t:
         % note: include time-shift and timestamp delay:
+        if isfield(din,'comp_timestamp') && din.comp_timestamp.v
+            tstmp = din.time_stamp.v;
+        else
+            tstmp = 0;
+        end
         t = [];
-        t(:,1) = ([0:N-1]/din.fs.v + tsh(c) + din.time_stamp.v)*2*pi;
+        t(:,1) = ([0:N-1]/din.fs.v + tsh(c) + tstmp)*2*pi;
         
         % synthesize waveform (crippled for Matlab < 2016b):
         % u = Ac.*sin(t.*fx + phc);
@@ -224,8 +232,8 @@ function alg_test(calcset) %<<<1
         
  
     % --- compare calcualted results with desired:
-    assert(any(abs([dout.amp.v(1+fk)] - A(:))./A(:) < 1e-6),'TWM-TEST testing: calculated amplitudes do not match!')
-    assert(abs([dout.phi.v(1+fk)] - ph(:)) < 5e-6,'TWM-TEST testing: calculated phases do not match!');          
+    assert(all(abs([dout.amp.v(1+fk)] - A(:))./A(:) < 1e-6),'TWM-TEST testing: calculated amplitudes do not match!')
+    assert(all(abs([dout.phi.v(1+fk)] - ph(:)) < 5e-6),'TWM-TEST testing: calculated phases do not match!');          
     assert(abs(dout.rms.v - rms_ref)/rms_ref < 1e-6,'TWM-TEST testing: calculated rms value does not match!');
     
 end
