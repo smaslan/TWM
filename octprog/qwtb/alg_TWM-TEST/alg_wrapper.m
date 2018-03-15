@@ -18,6 +18,9 @@ function dataout = alg_wrapper(datain, calcset)
     else
         fs = 1/mean(diff(datain.t.v));
     end
+    
+    % timestamp phase compensation state:
+    tstmp_comp = isfield(datain, 'comp_timestamp') && ((isnumeric(datain.comp_timestamp.v) && datain.comp_timestamp.v) || (ischar(datain.comp_timestamp.v) && strcmpi(datain.comp_timestamp.v,'on')));
          
     if cfg.y_is_diff
         % Input data 'y' is differential: if it is not allowed, put error message here
@@ -131,7 +134,9 @@ function dataout = alg_wrapper(datain, calcset)
     end
     
     % --- correct time-stamp:
-    phi = bsxfun(@minus,phi,datain.time_stamp.v*f_U*2*pi);
+    if tstmp_comp
+        phi = bsxfun(@minus,phi,datain.time_stamp.v*f_U*2*pi);
+    end
     
     % --- ADC aperture correction:
     if datain.adc_aper_corr.v && datain.adc_aper.v > 1e-12
@@ -202,6 +207,11 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.bin_f.v = f_U(bin);
     dataout.bin_A.v = amp(bin);
     dataout.bin_phi.v = phi(bin);
+    
+    % calculate THD when the 'bin' is fundamental:
+    h_list = amp(bin:bin:end);
+    dataout.bin_thd.v = sum(h_list(2:end).^2).^0.5/h_list(1)*100;
+    
     
     % --- NOTE ---
     % This was very basic calculation, the real stuff is not there:

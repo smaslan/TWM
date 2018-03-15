@@ -1,8 +1,8 @@
-function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
+function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, group_id)
 % TWM: Executes QWTB algorithm based on the setup from meas. session
 %  inputs:
 %   meas_file - full path of the measurement header
-%   calc_unc - uncertainty calculation mode {0: no, 1: estimate, 2: MCM}
+%   calc_unc - uncertainty calculation mode override (use '' to default from QWTB session file)
 %   is_last_avg - 1 if last averaging cycle was measured, 0 otherwise
 %   avg_id - id of the repetition cycle to process (optional)
 %          - use 0 or leave empty to use last available 
@@ -43,6 +43,20 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
         % processing should be done when all averages are done, but this is not last averaging cycle - do nothing
         return
     end
+    
+    % uncertainty mode:
+    unc_mode = infogettext(qinf,'uncertainty mode');
+    
+    % override uncertainty:
+    if ~isempty(unc_mode)
+        unc_mode = calc_unc;
+    end
+    
+    % set uncertainty mode to calc. setup:
+    if isempty(unc_mode)
+        unc_mode = 'none';
+    end
+    calcset.unc = unc_mode;
     
     % get QWTB algorithm ID
     alg_id = infogettext(qinf, 'algorithm id');
@@ -342,7 +356,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
             %fieldnames(di)            
                        
             % execute algorithm
-            dout = qwtb(alg_id,di);
+            dout = qwtb(alg_id,di,calcset);
             
             % store current channel phase setup info (index; U, I tag)
             phase_info.index = data.corr.phase_idx(p);
@@ -431,7 +445,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
             %fieldnames(di)
            
             % execute algorithm
-            dout = qwtb(alg_id,di);
+            dout = qwtb(alg_id,di,calcset);
             
             % store current channel phase setup info (index; U, I tag)
             phase_info.index = data.corr.phase_idx(p);

@@ -698,6 +698,7 @@
 					<Item Name="Meas Proc QWTB Viewer References.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Viewer References.ctl"/>
 					<Item Name="Meas Proc QWTB View Phase Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB View Phase Mode.ctl"/>
 					<Item Name="Meas Proc QWTB Algorithm Flags.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Algorithm Flags.ctl"/>
+					<Item Name="Meas Proc QWTB Uncertainty Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Uncertainty Mode.ctl"/>
 					<Item Name="Meas Proc QWTB Initialize Result Queue.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Initialize Result Queue.vi"/>
 					<Item Name="Meas Proc QWTB Close Result Queue.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Close Result Queue.vi"/>
 					<Item Name="Meas Proc QWTB Notify Result Queue.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Notify Result Queue.vi"/>
@@ -743,6 +744,7 @@
 				<Item Name="Assist Panel Setup.ctl" Type="VI" URL="../measure/Assist/Assist Panel Setup.ctl"/>
 				<Item Name="Assist Sampling Setup Panel.vi" Type="VI" URL="../measure/Assist/Assist Sampling Setup Panel.vi"/>
 				<Item Name="Assist Sampling Setup Calculate Coherent.vi" Type="VI" URL="../measure/Assist/Assist Sampling Setup Calculate Coherent.vi"/>
+				<Item Name="Assist Sampling Measure Freq Panel.vi" Type="VI" URL="../measure/Assist/Assist Sampling Measure Freq Panel.vi"/>
 			</Item>
 			<Item Name="Meas Session.ctl" Type="VI" URL="../measure/Meas Session.ctl"/>
 			<Item Name="Meas Sampling Configuration.ctl" Type="VI" URL="../measure/Meas Sampling Configuration.ctl"/>

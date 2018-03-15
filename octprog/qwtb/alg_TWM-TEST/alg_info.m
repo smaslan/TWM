@@ -28,6 +28,13 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
+    % compesate timestamp phase shift:
+    alginfo.inputs(pid).name = 'comp_timestamp';
+    alginfo.inputs(pid).desc = 'Enable compensation of phase by timestamp (default off)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
 
     
     % ADC setup
@@ -431,6 +438,10 @@ function alginfo = alg_info() %<<<1
     
     alginfo.outputs(pid).name = 'bin_phi';
     alginfo.outputs(pid).desc = 'Phase of extracted DFT bin';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'bin_thd';
+    alginfo.outputs(pid).desc = 'THD [%] related to the component ''bin_f''';
     pid = pid + 1;
     
     

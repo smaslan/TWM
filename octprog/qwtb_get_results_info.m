@@ -52,8 +52,13 @@ function [res_files, res_exist, alg_list, chn_list] = qwtb_get_results_info(meas
     error('QWTB results viewer: Index of the algorithm out of range of the available algorithms!');
   end
   
-  % return the list with name of selected on top
-  alg_list = catcellcsv(cat(1,algs(aid),algs(:))');
+  % return the list of algorithms:
+  % 1     - last alg.
+  % 2     - selected
+  % 3-end - list of available
+  alg_list = cat(1,{last_alg},{alg_id});
+  alg_list = cat(1,alg_list,algs(:));
+  alg_list = catcellcsv(alg_list');
   
   % list of calculated algorithms
   try 

@@ -94,6 +94,9 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
   % parse the results header:
   inf = infoparse(inf);
   
+  % algortihm was selected explicitly:
+  alg_sel = ~isempty(alg_id);
+  
   % try load last algorithm ID
   try 
     last_alg = infogettext(inf, 'last algorithm');
@@ -102,17 +105,6 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
   end
   if isempty(alg_id)
     alg_id = last_alg;
-  end
-
-  
-  % try to load last restul ID
-  try 
-    last_res = infogetnumber(inf, 'last result id');
-  catch
-    last_res = 0;
-  end
-  if res_id < 0
-    res_id = last_res;
   end
   
   % list of calculated algorithms
@@ -129,12 +121,28 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
     error('QWTB results viewer: Index of the algorithm out of range of the available algorithms!');
   end
   
-  % list of calculated algorithms
+  % list of calculated results
   try 
     res_files = infogettextmatrix(inf, algs{aid});
   catch
     error('QWTB results viewer: Desired algorithm''s result not available in the results header! Possibly inconsitent results header file.');
   end
+  
+  % try to load last result ID:
+  try 
+    last_res = infogetnumber(inf, 'last result id');
+  catch
+    last_res = 0;
+  end
+  if res_id < 0
+    
+    if alg_sel
+      res_id = numel(res_files);
+    else    
+      res_id = last_res;
+    end
+  end
+  
   
   if res_id == 0
     % average mode - select first averaging cycle as reference result
