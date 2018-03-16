@@ -1,0 +1,37 @@
+// type of the correction
+type:: shunt
+
+// name of the transducer
+name:: CMI 1A/3/13
+
+// serial number of the transducer
+serial number:: 1A/3/13
+
+// nominal/DC ratio [V/A]:
+nominal ratio:: 0.6000011
+nominal ratio uncertainty:: 0.000009
+
+// path to the CSV file with frequency and level dependence of the transducer coefficient
+// note: leave empty or remove if not used (loader will assume freq./level independent value) 
+amplitude transfer path::
+phase transfer path::
+
+// --- For loading corrections only ---
+// Following parameters are used for the optional loading corrections of the transducers.
+// It takes place especially above 100 kHz. However finite input resistance of digitizer
+// may affect transfer of high output-Z transducers even at DC. 
+
+// low side impedance of the RVD divider
+// note: this is needed only for RVD dividers
+// note: leave empty or remove if not used
+rvd low side impedance path:: 
+
+// effective impedance of the transducer output connection (series Zs and shunting Ys)   
+// note: leave empty or remove if not used
+output terminals series impedance path:: 
+output terminals shunting admittance path::
+
+// effective impedance of the output cable between transducer and digitizer input
+// note: leave empty or remove if not used
+output cable series impedance path::
+output cable shunting admittance path::  

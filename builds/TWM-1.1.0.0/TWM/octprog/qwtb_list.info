@@ -1,0 +1,142 @@
+// filter of the algorithms
+type:: qwtb list
+
+// === list of the supported algorithms ===
+// note: enter algorithm ID's, e.g.: PSFE, SFDR, ...
+#startmatrix:: list of supported algorithms
+        WRMS
+        SP-WFFT
+        TWM-THDWFFT
+	TWM-PSFE
+	TWM-TEST
+	TWM-PWRTEST
+#endmatrix:: list of supported algorithms
+
+
+// === setup for the particular algorithms ===
+// These are optional sections, one for each algorithm. Name of the section must be equal to the value
+// in the 'list of supported algorithms'. These are used to configurate the algorithm behaviour.
+//
+// parameters:
+//  exclude outputs: matrix of output quantities that will be excluded from display (usually time vector)
+//  graphs: 2D matrix of graph-like outputs (frequency dependence, ...), one row per graph, column: x, y qunatity
+//          example: f; A
+//  spectrum: output quantity that will be displayed as default frequency spectrum
+//  is phase: matrix of output quantities that are phase (used for phase unit display mode selection [rad/deg])
+//  number formats: 2D matrix of configurations for particular variables, one row per variable, columns:
+//                  variable name; format specifier; minimum absolute uncertainty; minimum relative uncertainty;
+//
+//                    variable name - name of the output variable
+//                    format specifier - number format:
+//                                       'f': float (no exponent)
+//                                       'si': SI prefix
+//                    minimum absolute uncertainty - minimum absolute uncertainty of the quantity
+//                                                 - this will have effect in case no uncertainty is available
+//                    minimum relative uncertainty - minimum relative uncertainty of the quantity (unit-less)
+//                                                 - this will have effect in case no uncertainty is available
+//
+//                  example: f; si; 1e-6; 0.0001
+//
+
+#startsection:: WRMS
+        #startmatrix:: number formats
+                rms; si; 1e-7; 1e-7
+                f; si; 1e-6; 1e-6
+                A; si; 1e-7; 1e-7
+        #endmatrix:: number formats
+        #startmatrix:: graphs
+                f; A
+        #endmatrix:: graphs
+        spectrum:: A
+#endsection:: WRMS
+
+#startsection:: TWM-PSFE
+        #startmatrix:: number formats
+                f;  si; 1e-6; 1e-6
+                A;  si; 1e-7; 1e-7
+                phi; f; 1e-7; 1e-7
+        #endmatrix:: number formats
+        #startmatrix:: is phase
+                phi
+        #endmatrix:: is phase
+#endsection:: TWM-PSFE
+
+#startsection:: SP-WFFT
+        #startmatrix:: exclude outputs
+                f
+        #endmatrix:: exclude outputs
+        #startmatrix:: graphs
+                f; A
+                f; ph
+        #endmatrix:: graphs
+        #startmatrix:: is phase
+                ph
+        #endmatrix:: is phase
+        spectrum:: A
+        #startmatrix:: number formats
+                f; si; 1e-6; 1e-6
+                A; si; 1e-6; 1e-6
+                ph; f; 1e-6; 1e-6
+        #endmatrix:: number formats
+#endsection:: SP-WFFT
+
+
+#startsection:: TWM-THDWFFT
+        #startmatrix:: number formats
+                H;       f;  1e-7; 1e-7
+                f;       si; 1e-6; 1e-6
+                h;       si; 1e-8; 1e-5
+                h_raw;   si; 1e-8; 1e-5
+                thd;     f;  1e-5; 1e-5
+                thd_raw; f;  1e-5; 1e-5
+                spec_f;  si; 1e-6; 1e-6
+                spec_a;  si; 1e-8; 1e-6
+        #endmatrix:: number formats
+        #startmatrix:: graphs
+                f; h
+                f; h_raw
+                spec_f; spec_A
+        #endmatrix:: graphs
+        spectrum:: spec_A
+#endsection:: TWM-THDWFFT
+
+#startsection:: TWM-PWRTEST
+        #startmatrix:: number formats
+                U;       si; 1e-7; 1e-6
+                I;       si; 1e-7; 1e-6
+                P;       si; 1e-7; 1e-6
+                S;       si; 1e-7; 1e-6
+                Q;       si; 1e-7; 1e-6
+                spec_f;  si; 1e-6; 1e-6
+                spec_U;  si; 1e-7; 1e-6
+                spec_I;  si; 1e-7; 1e-6
+                spec_S;  si; 1e-7; 1e-6
+        #endmatrix:: number formats
+        #startmatrix:: graphs
+                spec_f; spec_U
+                spec_f; spec_I
+                spec_f; spec_S
+        #endmatrix:: graphs
+        spectrum:: spec_S
+#endsection:: TWM-PWRTEST
+
+#startsection:: TWM-TEST
+        #startmatrix:: number formats
+		f;       si; 1e-6; 1e-6
+                amp;     si; 1e-7; 1e-6
+                phi;     f;  1e-7; 1e-6
+                rms;     si; 1e-7; 1e-6
+                bin_f;   f;  1e-6; 1e-8
+                bin_A;   si; 1e-7; 1e-6
+                bin_phi; f;  1e-7; 1e-6
+        #endmatrix:: number formats
+        #startmatrix:: is phase
+                phi
+                bin_phi
+        #endmatrix:: is phase        
+        #startmatrix:: graphs
+                f; amp
+                f; phi
+        #endmatrix:: graphs
+        spectrum:: amp
+#endsection:: TWM-TEST
