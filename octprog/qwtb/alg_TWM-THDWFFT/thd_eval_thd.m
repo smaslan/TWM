@@ -186,9 +186,11 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     ta = mean(corr.adc_aper.v);   
     if ta > 1e-12 && corr.adc_aper_corr.v
         ap_tfer = pi*f*ta./sin(pi*f*ta);
+        ap_tfer(isnan(ap_tfer)) = 1;
     else
         ap_tfer = 1;      
-    end
+    end  
+    
     
     % apply aperture correction (crippled for MATLAB < 2016b version):
     %   sig = sig.*ap_tfer

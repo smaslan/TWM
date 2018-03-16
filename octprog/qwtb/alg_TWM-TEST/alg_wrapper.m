@@ -4,7 +4,6 @@ function dataout = alg_wrapper(datain, calcset)
 % See also qwtb
 %
 % Format input data --------------------------- %<<<1
-         
     
     % Restore orientations of the input vectors to originals (before passing via QWTB)
     % This is critical for the correction data! 
@@ -171,12 +170,12 @@ function dataout = alg_wrapper(datain, calcset)
         [amp,phi,u_amp,u_phi] = correction_transducer_loading(tab,datain.tr_type.v,f_U,[], amp,phi,0*amp,0*phi);                
     end
     
-    % wrap phase to +-pi:
-    phi = mod(phi + pi,2*pi) - pi;  
-    
     if any(isnan(amp)) || any(isnan(phi))
         error('Transducer gain/phase correction data do not have sufficient frequency/rms range for the signal!');
     end
+    
+    % wrap phase to +-pi:
+    phi = mod(phi + pi,2*pi) - pi;  
 
     
     % --- now we have the spectrum of signal on the transducer input

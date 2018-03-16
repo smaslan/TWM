@@ -2,7 +2,7 @@
 type:: shunt
 
 % name of the transducer
-name:: Dummy shunt
+name:: Dummy shunt with unity transfer
 
 % serial number of the transducer
 serial number:: n/a
@@ -10,17 +10,3 @@ serial number:: n/a
 % nominal/DC ratio [V/A]
 nominal ratio:: 1.0
 nominal ratio uncertainty:: 0.0
-
-% path to the CSV file with frequency dependence of the transducer coefficient
-% note: leave empty or remove if not used
-frequency dependence path::
-
-% relative change of the monimal value on the input rms level
-% note: leave empty or remove if not used
-level dependence:: 
-
-% output series impedance frequency dependence
-% note: used for loading corrections, needed at least for HF measurements
-% note: the output impedance includes impedance of the output cable
-% note: leave empty or remove if not used
-output impedance path::  

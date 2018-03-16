@@ -90,7 +90,9 @@ function dataout = alg_wrapper(datain, calcset)
     if cfg.y_is_diff
         % diff. mode: invalidate everything but frequency: 
         A = NaN;
-        ph = NaN;
+        ph = NaN;        
+        u_g = 0;
+        u_p = 0;
         
     else
         % --- SE mode: apply corrections
@@ -100,7 +102,7 @@ function dataout = alg_wrapper(datain, calcset)
             % note: assume frequency comming from digitizer tb., because the timestamp comes also from dig. timebase
             ph = ph - datain.time_stamp.v*f_org*2*pi;
             % calc. uncertainty contribution:
-            u_p_ts = datain.time_stamp.u*f_org*2*pi;
+            u_p_ts = 2*pi*((datain.time_stamp.u*f_org)^2 + (datain.time_stamp.v*u_af)^2)^0.5;
         else
             u_p_ts = 0;
         end
@@ -150,35 +152,32 @@ function dataout = alg_wrapper(datain, calcset)
                 
         % apply the digitizer transfer correction:
         A = A.*adc_gain.gain;
-        ph = ph + adc_phi.phi;
-        
-        % get digitizer correction uncertainty contribution:
-        u_ag = adc_gain.u_gain;
-        u_ap = adc_phi.u_phi;
-        
+        ph = ph + adc_phi.phi;      
         
         
         % --- now apply transducer gain/phase corrections:
-        % this will be more tricky, because trans. correction data are dependent on the input rms value so,
         
-        % unite frequency/amplitude axes of the transducer gain/phase corrections: 
-        [tabs,ax_a,ax_f] = correction_expand_tables({tab.tr_gain, tab.tr_phi});
-        % extract modified tables:
-        tr_gain = tabs{1};
-        tr_phi = tabs{2};
-                
-        % check if correction data have sufficient range for the measured spectrum components:
-        % note: isempty() tests is used to identify if the correction is not dependent on the axis, therefore the error check does not apply
-        if ~isempty(ax_f) && (f < min(ax_f) || f > max(ax_f))
-            error('Transducer gain/phase correction data do not have sufficient frequency range!');
-        end    
-        if ~isempty(ax_a) && (A < min(ax_a) || A > max(ax_a))
-            error('Transducer gain/phase correction data do not have sufficient amplitude range!');
+        if isempty(datain.tr_type.v)
+            % -- transducer type not defined:
+            warning('Transducer type not defined! Not applying tran. correction!');
+            u_A  = A*u_ag;
+            u_ph = ph*u_ap;
+        else
+            % -- tran. type defined, apply correction:
+            [A,ph,u_A,u_ph] = correction_transducer_loading(tab,datain.tr_type.v,f,[], A,ph,A.*adc_gain.u_gain,ph.*adc_phi.u_phi);                
         end
         
-        % interpolate the gain/phase tfer table to the measured frequencies but NOT amplitudes:        
-        tr_gain = correction_interp_table(tr_gain,[],f);
-        tr_phi = correction_interp_table(tr_phi,[],f);
+        if any(isnan(A))
+            error('Transducer gain/phase correction data or terminal/cable impedances do not have sufficient range!');
+        end
+        
+        % interpolate the gain/phase tfer table to the measured frequencies but NOT rms:        
+        tr_gain = correction_interp_table(tab.tr_gain,[],f);
+        tr_phi  = correction_interp_table(tab.tr_phi, [],f);
+        
+        % interpolate the gain/phase tfer table to the measured frequencies with rms estimate from single A component:        
+        tr_gain_rms = correction_interp_table(tab.tr_gain, (0.5*A^2)^0.5, f);
+        tr_phi_rms  = correction_interp_table(tab.tr_phi,  (0.5*A^2)^0.5, f);
         
         % get the rms-independent tfer:
         % note: for this alg. it is not possible to evaluate RMS easily, so lets assume the correction is not dependent on it...
@@ -191,13 +190,8 @@ function dataout = alg_wrapper(datain, calcset)
             error('Transducer gain/phase correction data do not have sufficient frequency range!');
         end
         
-        % apply the tfer to the signal to get INPUT signal estimate:
-        A = A.*kgain;
-        ph = ph + kphi;
-                
-        
         % get transducer correction uncertainty contribution:
-        % as we ignored the correction might be rms-dependent, lets assume the uncertainty has two parts:
+        % correction may be rms dependent, but we have not RMS value, so lets estimate worst case error from:
         % 1) the worst uncertainty for all rms-values
         % 2) the difference between max and min correction value for all rms-values
         % that should give decent worst case estimate
@@ -208,7 +202,12 @@ function dataout = alg_wrapper(datain, calcset)
         
         % 2) largest difference of all corr. data from mean corr. data (rectangular distr.):
         d_tg = max(max(tr_gain.gain,[],2) - kgain, kgain - min(tr_gain.gain,[],2));
-        d_tp = max(max(tr_phi.phi,[],2) - kphi, kphi - min(tr_phi.phi,[],2));        
+        d_tp = max(max(tr_phi.phi,[],2) - kphi, kphi - min(tr_phi.phi,[],2));
+        
+        % note: the loading correction function already added uncertainty of tfer,
+        % we need to subtract it from the uncertainty so the the 1) is not included twice in the end:
+        u_tg_rms = tr_gain_rms.u_gain;
+        u_tp_rms = tr_phi_rms.u_phi;           
         
         % combine:
         if ~isnan(d_tg)
@@ -218,10 +217,6 @@ function dataout = alg_wrapper(datain, calcset)
             u_tp = (u_tp.^2 + d_tp.^2/3).^0.5;        
         end
         
-        % wrap phase to interval <-pi;+pi>:
-        ph = mod(ph + pi,2*pi) - pi;
-                                
-        
         % --- now calculate estimate of the uncertainty:
         % note: only contributions of correction applied yet
         % ###TODO: 1) contribution of the PSFE itself
@@ -229,11 +224,15 @@ function dataout = alg_wrapper(datain, calcset)
         %          3) sampling jitter effect
         
         % absolute uncertainty of the gain corrections:
-        u_g = A.*(u_tg.^2 + u_ag.^2).^0.5;
+        u_g = ((A.*u_tg).^2 + u_A.^2 - (A.*u_tg_rms).^2).^0.5;
         
         % absolute uncertainty of the phase corrections:
-        u_p = (u_tp.^2 + u_ap.^2 + u_p_ts.^2).^0.5;
+        u_p = (u_tp.^2 + u_ph.^2 + u_p_ts.^2 - u_tp_rms.^2).^0.5;
         
+        
+        % wrap phase to interval <-pi;+pi>:
+        ph = mod(ph + pi,2*pi) - pi;
+
     end
     
     % absolute uncertainty of the frequency:         
@@ -245,11 +244,9 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.f.u = u_f;    
     dataout.A.v = A;
     dataout.phi.v = ph;
-    if ~cfg.y_is_diff
-        dataout.A.u = u_g;
-        dataout.phi.u = u_p;
-    end
-    
+    dataout.A.u = u_g;
+    dataout.phi.u = u_p;
+        
     % return warning(s):
     dataout.warning.v = warn;      
         

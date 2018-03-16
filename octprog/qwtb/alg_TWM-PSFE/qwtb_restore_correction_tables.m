@@ -31,7 +31,9 @@ function [tab] = qwtb_restore_correction_tables(din,cfg)
 %           *tr_phi  - phase transfer of the transducer (dependent on 'f' and 'rms')
 %           *tr_sfdr - SFDR of the transducer (dependent on 'f' and 'rms')
 %           *tr_Zlo  - low-side impedance of RVD transducer (dependent on 'f')
-%           *tr_Zca  - output series Z of transducer (dependent on 'f')
+%           *tr_Zca  - output series Z of transducer, (dependent on 'f')
+%           *tr_Zcal - output series Z of transducer, low-side (dependent on 'f')
+%           *tr_Zcam - mutual indunctance of the transducer terminals (dependent on 'f')
 %           *tr_Yca  - output shunting Y of transducer (dependent on 'f')
 %           *Zcb     - output series Z of cable to transducer (dependent on 'f')
 %           *Ycb     - output shunting Y of cable to transducer (dependent on 'f')
@@ -56,14 +58,16 @@ function [tab] = qwtb_restore_correction_tables(din,cfg)
                  {{'adc_Yin_Cp';'adc_Yin_Gp'}, {'adc_Yin_f'},               {[1e-15],[1e-15]}, {[0],[0]}, {[]},    {'Cp';'Gp'}, {'f'},     'adc_Yin'}};
              
     % list of default transducer quantities:
-    t_list{2} = {{{'tr_gain'},               {'tr_gain_f';'tr_gain_a'}, {1},               {0},       {[],[]}, {'gain'},    {'f';'rms'}, 'tr_gain'},
-                 {{'tr_phi'},                {'tr_phi_f';'tr_phi_a'},   {0},               {0},       {[],[]}, {'phi'},     {'f';'rms'}, 'tr_phi'}, 
-                 {{'tr_sfdr'},               {'tr_sfdr_f';'tr_sfdr_a'}, {180},             {},        {[],[]}, {'sfdr'},    {'f';'rms'}, 'tr_sfdr'},
-                 {{'tr_Zlo_Rp';'tr_Zlo_Cp'}, {'tr_Zlo_f'},              {[1e9],[1e-15]},   {[0],[0]}, {[]},    {'Rp';'Cp'}, {'f'},       'tr_Zlo'},
-                 {{'tr_Zca_Rs';'tr_Zca_Ls'}, {'tr_Zca_f'},              {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zca'},
-                 {{'tr_Yca_Cp';'tr_Yca_D'},  {'tr_Yca_f'},              {[1e-15],[1e-12]}, {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'tr_Yca'},
-                 {{'Zcb_Rs';'Zcb_Ls'},       {'Zcb_f'},                 {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'Zcb'},
-                 {{'Ycb_Cp';'Ycb_D'},        {'Ycb_f'},                 {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'Ycb'}};
+    t_list{2} = {{{'tr_gain'},                 {'tr_gain_f';'tr_gain_a'}, {1},               {0},       {[],[]}, {'gain'},    {'f';'rms'}, 'tr_gain'},
+                 {{'tr_phi'},                  {'tr_phi_f';'tr_phi_a'},   {0},               {0},       {[],[]}, {'phi'},     {'f';'rms'}, 'tr_phi'}, 
+                 {{'tr_sfdr'},                 {'tr_sfdr_f';'tr_sfdr_a'}, {180},             {},        {[],[]}, {'sfdr'},    {'f';'rms'}, 'tr_sfdr'},
+                 {{'tr_Zlo_Rp';'tr_Zlo_Cp'},   {'tr_Zlo_f'},              {[1e9],[1e-15]},   {[0],[0]}, {[]},    {'Rp';'Cp'}, {'f'},       'tr_Zlo'},
+                 {{'tr_Zca_Rs';'tr_Zca_Ls'},   {'tr_Zca_f'},              {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zca'},
+                 {{'tr_Yca_Cp';'tr_Yca_D'},    {'tr_Yca_f'},              {[1e-15],[1e-12]}, {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'tr_Yca'},
+                 {{'tr_Zcal_Rs';'tr_Zcal_Ls'}, {'tr_Zcal_f'},             {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zcal'},
+                 {{'tr_Zcam'},                 {'tr_Zcam_f'},             {[1e-12]},         {[0]},     {[]},    {'M'},       {'f'},       'tr_Zcam'},
+                 {{'Zcb_Rs';'Zcb_Ls'},         {'Zcb_f'},                 {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'Zcb'},
+                 {{'Ycb_Cp';'Ycb_D'},          {'Ycb_f'},                 {[1e-15],[1e-12]}, {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'Ycb'}};
 
     % channel/tranducer quantity prefix lists:
     p_lists = {cfg.pfx_ch,cfg.pfx_tr};

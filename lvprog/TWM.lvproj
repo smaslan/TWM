@@ -14,19 +14,24 @@
 		<Item Name="octprog" Type="Folder">
 			<Item Name="info" Type="Folder">
 				<Item Name="infogetmatrix.m" Type="Document" URL="../../octprog/info/infogetmatrix.m"/>
-				<Item Name="infogetmatrixstr.m" Type="Document" URL="../../octprog/info/infogetmatrixstr.m"/>
 				<Item Name="infogetnumber.m" Type="Document" URL="../../octprog/info/infogetnumber.m"/>
 				<Item Name="infogetsection.m" Type="Document" URL="../../octprog/info/infogetsection.m"/>
 				<Item Name="infogettext.m" Type="Document" URL="../../octprog/info/infogettext.m"/>
 				<Item Name="infoload.m" Type="Document" URL="../../octprog/info/infoload.m"/>
 				<Item Name="infosave.m" Type="Document" URL="../../octprog/info/infosave.m"/>
 				<Item Name="infosetmatrix.m" Type="Document" URL="../../octprog/info/infosetmatrix.m"/>
-				<Item Name="infosetmatrixstr.m" Type="Document" URL="../../octprog/info/infosetmatrixstr.m"/>
 				<Item Name="infosetnumber.m" Type="Document" URL="../../octprog/info/infosetnumber.m"/>
 				<Item Name="infosetsection.m" Type="Document" URL="../../octprog/info/infosetsection.m"/>
 				<Item Name="infosettext.m" Type="Document" URL="../../octprog/info/infosettext.m"/>
 				<Item Name="__readme__.txt" Type="Document" URL="../../octprog/info/__readme__.txt"/>
 				<Item Name="strsplit.m" Type="Document" URL="../../octprog/info/strsplit.m"/>
+				<Item Name="infogettextmatrix.m" Type="Document" URL="../../octprog/info/infogettextmatrix.m"/>
+				<Item Name="infogettime.m" Type="Document" URL="../../octprog/info/infogettime.m"/>
+				<Item Name="infogettimematrix.m" Type="Document" URL="../../octprog/info/infogettimematrix.m"/>
+				<Item Name="infoparse.m" Type="Document" URL="../../octprog/info/infoparse.m"/>
+				<Item Name="infosettextmatrix.m" Type="Document" URL="../../octprog/info/infosettextmatrix.m"/>
+				<Item Name="infosettime.m" Type="Document" URL="../../octprog/info/infosettime.m"/>
+				<Item Name="infosettimematrix.m" Type="Document" URL="../../octprog/info/infosettimematrix.m"/>
 			</Item>
 			<Item Name="qwtb" Type="Folder">
 				<Item Name="alg_ADEV" Type="Folder">
@@ -179,6 +184,86 @@
 					<Item Name="window_coeff.m" Type="Document" URL="../../octprog/qwtb/alg_WRMS/window_coeff.m"/>
 					<Item Name="wrms.m" Type="Document" URL="../../octprog/qwtb/alg_WRMS/wrms.m"/>
 				</Item>
+				<Item Name="alg_TWM-PSFE" Type="Folder">
+					<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/alg_info.m"/>
+					<Item Name="alg_test.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/alg_test.m"/>
+					<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/alg_wrapper.m"/>
+					<Item Name="correction_expand_tables.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/correction_expand_tables.m"/>
+					<Item Name="correction_interp_table.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/correction_interp_table.m"/>
+					<Item Name="correction_transducer_loading.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/correction_transducer_loading.m"/>
+					<Item Name="correction_transducer_sim.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/correction_transducer_sim.m"/>
+					<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/LICENSE.txt"/>
+					<Item Name="LICENSE_PSFE.txt" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/LICENSE_PSFE.txt"/>
+					<Item Name="PSFE.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/PSFE.m"/>
+					<Item Name="qwtb_build_correction_table.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/qwtb_build_correction_table.m"/>
+					<Item Name="qwtb_restore_correction_tables.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/qwtb_restore_correction_tables.m"/>
+					<Item Name="qwtb_restore_twm_input_dims.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PSFE/qwtb_restore_twm_input_dims.m"/>
+				</Item>
+				<Item Name="alg_TWM-PWRTEST" Type="Folder">
+					<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/alg_info.m"/>
+					<Item Name="alg_test.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/alg_test.m"/>
+					<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/alg_wrapper.m"/>
+					<Item Name="ampphspectrum.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/ampphspectrum.m"/>
+					<Item Name="correction_interp_table.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/correction_interp_table.m"/>
+					<Item Name="correction_transducer_loading.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/correction_transducer_loading.m"/>
+					<Item Name="correction_transducer_sim.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/correction_transducer_sim.m"/>
+					<Item Name="flattop.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/flattop.m"/>
+					<Item Name="hanning.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/hanning.m"/>
+					<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/LICENSE.txt"/>
+					<Item Name="LICENSE_PSFE.txt" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/LICENSE_PSFE.txt"/>
+					<Item Name="PSFE.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/PSFE.m"/>
+					<Item Name="qwtb_build_correction_table.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/qwtb_build_correction_table.m"/>
+					<Item Name="qwtb_restore_correction_tables.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/qwtb_restore_correction_tables.m"/>
+					<Item Name="qwtb_restore_twm_input_dims.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/qwtb_restore_twm_input_dims.m"/>
+					<Item Name="window_coeff.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-PWRTEST/window_coeff.m"/>
+				</Item>
+				<Item Name="alg_TWM-TEST" Type="Folder">
+					<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-TEST/alg_info.m"/>
+					<Item Name="alg_test.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-TEST/alg_test.m"/>
+					<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-TEST/alg_wrapper.m"/>
+					<Item Name="ampphspectrum.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-TEST/ampphspectrum.m"/>
+					<Item Name="correction_interp_table.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-TEST/correction_interp_table.m"/>
+					<Item Name="correction_transducer_loading.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-TEST/correction_transducer_loading.m"/>
+					<Item Name="correction_transducer_sim.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-TEST/correction_transducer_sim.m"/>
+					<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_TWM-TEST/LICENSE.txt"/>
+					<Item Name="qwtb_build_correction_table.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-TEST/qwtb_build_correction_table.m"/>
+					<Item Name="qwtb_restore_correction_tables.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-TEST/qwtb_restore_correction_tables.m"/>
+					<Item Name="qwtb_restore_twm_input_dims.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-TEST/qwtb_restore_twm_input_dims.m"/>
+				</Item>
+				<Item Name="alg_TWM-THDWFFT" Type="Folder">
+					<Item Name="alg_info.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/alg_info.m"/>
+					<Item Name="alg_test.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/alg_test.m"/>
+					<Item Name="alg_wrapper.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/alg_wrapper.m"/>
+					<Item Name="ampphspectrum.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/ampphspectrum.m"/>
+					<Item Name="correction_expand_tables.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/correction_expand_tables.m"/>
+					<Item Name="correction_interp_table.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/correction_interp_table.m"/>
+					<Item Name="correction_transducer_loading.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/correction_transducer_loading.m"/>
+					<Item Name="correction_transducer_sim.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/correction_transducer_sim.m"/>
+					<Item Name="fft_window_leak_fix_amp.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/fft_window_leak_fix_amp.m"/>
+					<Item Name="fft_window_leak_gen_lookup.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/fft_window_leak_gen_lookup.m"/>
+					<Item Name="flattop.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/flattop.m"/>
+					<Item Name="FPNLSF.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/FPNLSF.m"/>
+					<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/LICENSE.txt"/>
+					<Item Name="PSFE.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/PSFE.m"/>
+					<Item Name="qwtb_build_correction_table.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/qwtb_build_correction_table.m"/>
+					<Item Name="qwtb_restore_correction_tables.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/qwtb_restore_correction_tables.m"/>
+					<Item Name="qwtb_restore_twm_input_dims.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/qwtb_restore_twm_input_dims.m"/>
+					<Item Name="README.txt" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/README.txt"/>
+					<Item Name="scovint.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/scovint.m"/>
+					<Item Name="str_insert_escapes.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/str_insert_escapes.m"/>
+					<Item Name="sumsq.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/sumsq.m"/>
+					<Item Name="thd_eval_harmonic.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/thd_eval_harmonic.m"/>
+					<Item Name="thd_eval_thd.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/thd_eval_thd.m"/>
+					<Item Name="thd_find_freq.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/thd_find_freq.m"/>
+					<Item Name="thd_plot_spectrum.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/thd_plot_spectrum.m"/>
+					<Item Name="thd_proc_waves.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/thd_proc_waves.m"/>
+					<Item Name="thd_sim_wave.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/thd_sim_wave.m"/>
+					<Item Name="thd_wfft.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/thd_wfft.m"/>
+					<Item Name="thd_window_spectrum.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/thd_window_spectrum.m"/>
+					<Item Name="unc2str.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/unc2str.m"/>
+					<Item Name="unc2str_si.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/unc2str_si.m"/>
+					<Item Name="window_coeff.m" Type="Document" URL="../../octprog/qwtb/alg_TWM-THDWFFT/window_coeff.m"/>
+				</Item>
 				<Item Name="LICENSE.txt" Type="Document" URL="../../octprog/qwtb/LICENSE.txt"/>
 				<Item Name="notes.md" Type="Document" URL="../../octprog/qwtb/notes.md"/>
 				<Item Name="qwtb.m" Type="Document" URL="../../octprog/qwtb/qwtb.m"/>
@@ -186,6 +271,19 @@
 				<Item Name="qwtb_example_2.m" Type="Document" URL="../../octprog/qwtb/qwtb_example_2.m"/>
 				<Item Name="qwtb_test.m" Type="Document" URL="../../octprog/qwtb/qwtb_test.m"/>
 				<Item Name="__readme__.txt" Type="Document" URL="../../octprog/qwtb/__readme__.txt"/>
+			</Item>
+			<Item Name="source" Type="Folder">
+				<Item Name="correction_expand_tables.m" Type="Document" URL="../../octprog/source/correction_expand_tables.m"/>
+				<Item Name="correction_interp_table.m" Type="Document" URL="../../octprog/source/correction_interp_table.m"/>
+				<Item Name="interp1nan.m" Type="Document" URL="../../octprog/source/interp1nan.m"/>
+				<Item Name="interp2nan.m" Type="Document" URL="../../octprog/source/interp2nan.m"/>
+				<Item Name="make.bat" Type="Document" URL="../../octprog/source/make.bat"/>
+				<Item Name="make_head.m" Type="Document" URL="../../octprog/source/make_head.m"/>
+			</Item>
+			<Item Name="utils" Type="Folder">
+				<Item Name="qwtb_build_correction_table.m" Type="Document" URL="../../octprog/utils/qwtb_build_correction_table.m"/>
+				<Item Name="qwtb_restore_correction_tables.m" Type="Document" URL="../../octprog/utils/qwtb_restore_correction_tables.m"/>
+				<Item Name="qwtb_restore_twm_input_dims.m" Type="Document" URL="../../octprog/utils/qwtb_restore_twm_input_dims.m"/>
 			</Item>
 			<Item Name="correction_compare_attributes.m" Type="Document" URL="../../octprog/correction_compare_attributes.m"/>
 			<Item Name="correction_interp_parameter.m" Type="Document" URL="../../octprog/correction_interp_parameter.m"/>
@@ -220,6 +318,16 @@
 			<Item Name="correction_expand_tables.m" Type="Document" URL="../../octprog/correction_expand_tables.m"/>
 			<Item Name="correction_load_table.m" Type="Document" URL="../../octprog/correction_load_table.m"/>
 			<Item Name="isOctave.m" Type="Document" URL="../../octprog/isOctave.m"/>
+			<Item Name="correction_add2table.m" Type="Document" URL="../../octprog/correction_add2table.m"/>
+			<Item Name="correction_interp_table.m" Type="Document" URL="../../octprog/correction_interp_table.m"/>
+			<Item Name="correction_load_digitizer.m" Type="Document" URL="../../octprog/correction_load_digitizer.m"/>
+			<Item Name="correction_transducer_loading.m" Type="Document" URL="../../octprog/correction_transducer_loading.m"/>
+			<Item Name="correction_transducer_sim.m" Type="Document" URL="../../octprog/correction_transducer_sim.m"/>
+			<Item Name="correction_wsum_tables.m" Type="Document" URL="../../octprog/correction_wsum_tables.m"/>
+			<Item Name="interp1nan.m" Type="Document" URL="../../octprog/interp1nan.m"/>
+			<Item Name="interp2nan.m" Type="Document" URL="../../octprog/interp2nan.m"/>
+			<Item Name="tab.m" Type="Document" URL="../../octprog/tab.m"/>
+			<Item Name="uncc.m" Type="Document" URL="../../octprog/uncc.m"/>
 		</Item>
 		<Item Name="ADC" Type="Folder">
 			<Item Name="Utilities" Type="Folder">
@@ -820,6 +928,51 @@
 			<Item Name="ini_load_variables.vi" Type="VI" URL="../ini/ini_load_variables.vi"/>
 			<Item Name="ini_save_variables.vi" Type="VI" URL="../ini/ini_save_variables.vi"/>
 		</Item>
+		<Item Name="data" Type="Folder">
+			<Item Name="corrections" Type="Folder">
+				<Item Name="digitizer" Type="Folder">
+					<Item Name="HP3458A_session" Type="Folder">
+						<Item Name="chn1" Type="Folder">
+							<Item Name="csv" Type="Folder">
+								<Item Name="Y_inp.csv" Type="Document" URL="../../data/corrections/digitizer/HP3458A_session/chn1/csv/Y_inp.csv"/>
+							</Item>
+							<Item Name="HP3458A_chn1.info" Type="Document" URL="../../data/corrections/digitizer/HP3458A_session/chn1/HP3458A_chn1.info"/>
+						</Item>
+						<Item Name="chn2" Type="Folder">
+							<Item Name="csv" Type="Folder">
+								<Item Name="Y_inp.csv" Type="Document" URL="../../data/corrections/digitizer/HP3458A_session/chn2/csv/Y_inp.csv"/>
+							</Item>
+							<Item Name="HP3458A_chn2.info" Type="Document" URL="../../data/corrections/digitizer/HP3458A_session/chn2/HP3458A_chn2.info"/>
+						</Item>
+						<Item Name="HP3458A_2x.info" Type="Document" URL="../../data/corrections/digitizer/HP3458A_session/HP3458A_2x.info"/>
+					</Item>
+				</Item>
+				<Item Name="transducers" Type="Folder">
+					<Item Name="dummy.cs" Type="Folder">
+						<Item Name="dummy.info" Type="Document" URL="../../data/corrections/transducers/dummy.cs/dummy.info"/>
+					</Item>
+					<Item Name="dummy.vd" Type="Folder">
+						<Item Name="dummy.info" Type="Document" URL="../../data/corrections/transducers/dummy.vd/dummy.info"/>
+					</Item>
+					<Item Name="shunt_1A313" Type="Folder">
+						<Item Name="shunt_1A313.info" Type="Document" URL="../../data/corrections/transducers/shunt_1A313/shunt_1A313.info"/>
+					</Item>
+					<Item Name="SP0401-4V" Type="Folder">
+						<Item Name="csv" Type="Folder">
+							<Item Name="Z_low.csv" Type="Document" URL="../../data/corrections/transducers/SP0401-4V/csv/Z_low.csv"/>
+						</Item>
+						<Item Name="SP4V.info" Type="Document" URL="../../data/corrections/transducers/SP0401-4V/SP4V.info"/>
+					</Item>
+					<Item Name="SP0404-56V" Type="Folder">
+						<Item Name="csv" Type="Folder">
+							<Item Name="Z_low.csv" Type="Document" URL="../../data/corrections/transducers/SP0404-56V/csv/Z_low.csv"/>
+						</Item>
+						<Item Name="SP56V.info" Type="Document" URL="../../data/corrections/transducers/SP0404-56V/SP56V.info"/>
+					</Item>
+				</Item>
+			</Item>
+			<Item Name="readme.txt" Type="Document" URL="../../data/readme.txt"/>
+		</Item>
 		<Item Name="doc" Type="Folder" URL="../../doc">
 			<Property Name="NI.DISK" Type="Bool">true</Property>
 		</Item>
@@ -1092,7 +1245,7 @@
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.patch" Type="Int">3</Property>
+				<Property Name="Bld_version.minor" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1104,8 +1257,12 @@
 				<Property Name="Destination[2].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="Destination[3].destName" Type="Str">doc</Property>
 				<Property Name="Destination[3].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME/doc</Property>
-				<Property Name="DestinationCount" Type="Int">4</Property>
-				<Property Name="Source[0].itemID" Type="Str">{35F5B64F-70D6-4717-A1F8-0CFC3DABF0E0}</Property>
+				<Property Name="Destination[3].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[4].destName" Type="Str">data</Property>
+				<Property Name="Destination[4].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME/data</Property>
+				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="DestinationCount" Type="Int">5</Property>
+				<Property Name="Source[0].itemID" Type="Str">{F870F203-968E-4DC6-B217-EC132C06CABF}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1117,13 +1274,10 @@
 				<Property Name="Source[2].itemID" Type="Ref">/My Computer/octprog</Property>
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[2].type" Type="Str">Container</Property>
-				<Property Name="Source[3].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[3].itemID" Type="Ref">/My Computer/config.ini</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[4].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[5].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[5].itemID" Type="Ref">/My Computer/octave/golpi/lv_proc.dll</Property>
 				<Property Name="Source[5].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[6].Container.applyDestination" Type="Bool">true</Property>
@@ -1132,17 +1286,21 @@
 				<Property Name="Source[6].itemID" Type="Ref">/My Computer/doc</Property>
 				<Property Name="Source[6].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[6].type" Type="Str">Container</Property>
-				<Property Name="Source[7].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[7].itemID" Type="Ref">/My Computer/LICENSE.txt</Property>
 				<Property Name="Source[7].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[8].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[8].itemID" Type="Ref">/My Computer/readme.txt</Property>
 				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="SourceCount" Type="Int">9</Property>
+				<Property Name="Source[9].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[9].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[9].destinationIndex" Type="Int">4</Property>
+				<Property Name="Source[9].itemID" Type="Ref">/My Computer/data</Property>
+				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[9].type" Type="Str">Container</Property>
+				<Property Name="SourceCount" Type="Int">10</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{19518978-F8E5-4558-9786-71904496379A}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM.exe</Property>

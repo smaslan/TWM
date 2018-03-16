@@ -42,7 +42,7 @@ function [fs_out, N_out, err] = twm_find_coherent(f0, t_min, t_max, rate, max_er
   end
   
   % get minimum desired sampling rate [Hz]
-  fs_min = rate.fs_min;
+  fs_min = rate.fs_min - eps;
   
   % get maximum desired sampling rate [Hz]
   if isfield(rate,'fs_rel_tol')

@@ -47,8 +47,9 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     % uncertainty mode:
     unc_mode = infogettext(qinf,'uncertainty mode');
     
-    % override uncertainty:
-    if ~isempty(unc_mode)
+    % override uncertainty setup from file:
+    if ~isempty(calc_unc)
+        % yaha
         unc_mode = calc_unc;
     end
     

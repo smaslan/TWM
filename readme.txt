@@ -10,7 +10,7 @@ http://tracepqm.cmi.cz/
 
 Version:
 
-V1.0, 2017-11-20
+V1.1, 2018-03-16
 
 
 

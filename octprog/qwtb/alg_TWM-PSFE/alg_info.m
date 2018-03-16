@@ -246,6 +246,13 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     
+    % Transducer type string (empty: no tran. correction; 'shunt': current shunt; 'rvd': resistive voltage divider)
+    alginfo.inputs(pid).name = 'tr_type';
+    alginfo.inputs(pid).desc = 'Transducer type string';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;    
     
     % Transducer phase calibration matrix (2D dependence, rows: freqs., columns: input rms levels)
     alginfo.inputs(pid).name = 'tr_gain_f';
@@ -330,6 +337,43 @@ function alginfo = alg_info() %<<<1
     
     alginfo.inputs(pid).name = 'tr_Zca_Rs';
     alginfo.inputs(pid).desc = 'Transducer terminals series impedance: series resistance';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    % Transducer output terminals series impedance matrix (1D dependence, rows: freqs.)
+    alginfo.inputs(pid).name = 'tr_Zcal_f';
+    alginfo.inputs(pid).desc = 'Transducer terminals series impedance (low side): frequency axis';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'tr_Zcal_Ls';
+    alginfo.inputs(pid).desc = 'Transducer terminals series impedance (low side): series inductance';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'tr_Zcal_Rs';
+    alginfo.inputs(pid).desc = 'Transducer terminals series impedance (low side): series resistance';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    % Transducer output terminals mutual impedance matrix (1D dependence, rows: freqs.)
+    alginfo.inputs(pid).name = 'tr_Zcam_f';
+    alginfo.inputs(pid).desc = 'Transducer terminals mutual inductance: frequency axis';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'tr_Zcam';
+    alginfo.inputs(pid).desc = 'Transducer terminals mutual inductance';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;

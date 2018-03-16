@@ -1,4 +1,2 @@
-- disably of DMMs to reduce noise (option)
-
 Digitizers panel:
  - hide selector of DMM idn - confusing

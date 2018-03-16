@@ -7,6 +7,12 @@
 	<Item Name="PICOTEST U62XXA series.lvlib" Type="Library" URL="../Picotest U62XXA/PICOTEST U62XXA series.lvlib"/>
 	<Item Name="Counter Session.ctl" Type="VI" URL="../Counter Session.ctl"/>
 	<Item Name="Counter Type.ctl" Type="VI" URL="../Counter Type.ctl"/>
+	<Item Name="Counter Coupling Mode.ctl" Type="VI" URL="../Counter Coupling Mode.ctl"/>
+	<Item Name="Counter Trigger Edge.ctl" Type="VI" URL="../Counter Trigger Edge.ctl"/>
+	<Item Name="Counter Sensitivity.ctl" Type="VI" URL="../Counter Sensitivity.ctl"/>
+	<Item Name="Counter Freq Mode Setup.ctl" Type="VI" URL="../Counter Freq Mode Setup.ctl"/>
+	<Item Name="Counter Setup Freq Mode.vi" Type="VI" URL="../Counter Setup Freq Mode.vi"/>
+	<Item Name="Counter Get Freq Reading.vi" Type="VI" URL="../Counter Get Freq Reading.vi"/>
 	<Item Name="Counter Open.vi" Type="VI" URL="../Counter Open.vi"/>
 	<Item Name="Counter Close.vi" Type="VI" URL="../Counter Close.vi"/>
 	<Item Name="Counter Get Delta T.vi" Type="VI" URL="../Counter Get Delta T.vi"/>

@@ -40,13 +40,14 @@ Current version does not support correction files for the digitizers nor transdu
 Important changes and news:
 - 2017-11-20: First release.
 - 2017-12-08: Matlab support.
+- 2018-03-16: Improved GUI, few algorithms added.
 
 
 ## Download
 
 Here you can download build only:
 
-[Current build, V1.0.1.0, 2017.11.29 (ZIP file)](./builds/TWM.zip)
+[Current build, V1.1.0.0, 2018.03.16 (ZIP file)](./builds/TWM.zip)
 
 ## License
 The TWM is distributed under [MIT license](./LICENSE.txt). Note the algorithms in the QWTB toolbox may have different licenses. 

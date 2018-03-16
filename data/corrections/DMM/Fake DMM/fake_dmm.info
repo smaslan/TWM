@@ -1,7 +1,0 @@
-% type of the correction
-type:: channel
-
-% correction name string
-name:: Fake channel correction (testing purposes)
-
-
