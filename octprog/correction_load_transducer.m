@@ -167,7 +167,7 @@ function [tran] = correction_load_transducer(file)
     tran.Zcb.qwtb = qwtb_gen_naming('Zcb','f','',{'Rs','Ls'},{'u_Rs','u_Ls'},{'Rs','Ls'});
     % load cable shunting admittance (optional):
     try
-        Ycb_file = [root_fld correction_load_transducer_get_file_key(inf,'output terminals shunting admittance path')];
+        Ycb_file = [root_fld correction_load_transducer_get_file_key(inf,'output cable shunting admittance path')];
     catch
         % default value {0 F, 0 D}
         Ycb_file = {[], 1e-15, 0.0, 0.0, 0.0};         
@@ -179,15 +179,15 @@ function [tran] = correction_load_transducer(file)
     try
         Zlo_file = [root_fld correction_load_transducer_get_file_key(inf,'rvd low side impedance path')];
     catch
-        % default value {0 Ohm, 0 Ohm}
-        Zlo_file = {[], 1e9, 1e-15, 0.0, 0.0};         
+        % default value {1 kOhm, 0 F}
+        Zlo_file = {[], 1e3, 0, 0.0, 0.0};         
     end
     tran.Zlo = correction_load_table(Zlo_file,'',{'f','Rp','Cp','u_Rp','u_Cp'});
     tran.Zlo.qwtb = qwtb_gen_naming('tr_Zlo','f','',{'Rp','Cp'},{'u_Rp','u_Cp'},{'Rp','Cp'});
     
     % load SFDR (optional):
     try
-        sfdr_file = [root_fld correction_load_transducer_get_file_key(inf,'sfdr')];
+        sfdr_file = [root_fld correction_load_transducer_get_file_key(inf,'sfdr path')];
     catch
         % default value {180 dB}
         sfdr_file = {[], [], 180};         
