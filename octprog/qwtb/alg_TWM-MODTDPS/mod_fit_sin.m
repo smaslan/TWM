@@ -1,4 +1,12 @@
-function [dc,f0,A0,fm,Am,phm] = mod_fit_sin(fs,u)
+function [me, dc,f0,A0, fm,Am,phm] = mod_fit_sin(fs,u,wshape)
+% Simple algorithm for detection of modulation envelope and estimation
+% of modulation parameters.
+%
+% License:
+% --------
+% This is part of the modulation detector algorithm TDPS.
+% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% The script is distributed under MIT license, https://opensource.org/licenses/MIT
 
     % samples count:
     N = numel(u);
@@ -26,7 +34,8 @@ function [dc,f0,A0,fm,Am,phm] = mod_fit_sin(fs,u)
     t_max = (N-1)/fs;
     ida = find(txa >= 0    & txb >= 0    & txc >= 0,1);
     idb = find(txa < t_max & txb < t_max & txc < t_max,1,'last');    
-    ure  = interp1(txa,u,txa(ida:idb),imode,'extrap');
+    %ure  = interp1(txa,u,txa(ida:idb),imode,'extrap');
+    ure  = u(ida:idb);
     uimp = interp1(txa,u,txb(ida:idb),imode,'extrap');
     uimm = interp1(txa,u,txc(ida:idb),imode,'extrap');
     txa = txa(ida:idb);
@@ -37,15 +46,26 @@ function [dc,f0,A0,fm,Am,phm] = mod_fit_sin(fs,u)
     ucm = complex(ure,uimm);
     
     % detect envelope:
-    uc = 0.5*abs(ucp + conj(ucm));
+    me = 0.5*abs(ucp + conj(ucm));
     
     % estimate modulation frequency:
-    [fm,Am,phm] = PSFE(uc,1/fs);    
+    [fm,Am,phm] = PSFE(me,1/fs);    
     phm = phm - txa(1)*fm*2*pi;
     
     % estimate DC value of envelope - carrier amplitude:
     w = blackman(Nx);
-    A0 = mean(uc.*w)/mean(w);
+    A0 = mean(me.*w)/mean(w);
+    
+    if strcmpi(wshape,'sine')
+        % --- SINE WAVE:
+        
+        
+    else
+        % --- RECTANGULAR WAVE:
+        
+        % TODO: todo
+                    
+    end
                 
     % fit the envelope by sine:
     %[Am,fm,phm,A0] = FPNLSF(txa,uc,fm,0);

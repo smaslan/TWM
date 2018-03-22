@@ -73,9 +73,9 @@ end
 toc
 
 
-%hold on;
-%plot(ux,'r')
-%hold off;
+hold on;
+plot(ux,'r')
+hold off;
 
 
 f0i

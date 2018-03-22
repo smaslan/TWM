@@ -12,7 +12,8 @@ addpath([mfld filesep() 'qwtb']);
 %qwtb('TWM-THDWFFT','test')
 %qwtb('TWM-PWRTEST','test')
 %qwtb('TWM-TEST','test')
-qwtb('TWM-PSFE','test')
+%qwtb('TWM-PSFE','test')
+qwtb('TWM-MODTDPS','test')
 
 return
 
