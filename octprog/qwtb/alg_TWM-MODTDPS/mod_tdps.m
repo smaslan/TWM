@@ -57,7 +57,7 @@ function [me, dc,f0,A0, fm,Am] = mod_tdps(fs,u,wshape,comp_err)
             ux = mod_synth(fs,N, dci, f0i,A0i,0, fmi,Ami,phmi);
             
             % calculate parameters of the model:
-            [me, dcx,f0x,A0x, fmx,Amx,phmx] = mod_fit_sin(fs,ux,wshape);
+            [me_t, dcx,f0x,A0x, fmx,Amx,phmx] = mod_fit_sin(fs,ux,wshape);
             
             % update the model to next iteration
             dci = dci + (dci - dcx);

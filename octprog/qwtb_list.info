@@ -10,6 +10,7 @@ type:: qwtb list
 	TWM-PSFE
 	TWM-TEST
 	TWM-PWRTEST
+        TWM-MODTDPS
 #endmatrix:: list of supported algorithms
 
 
@@ -140,3 +141,19 @@ type:: qwtb list
         #endmatrix:: graphs
         spectrum:: amp
 #endsection:: TWM-TEST
+
+#startsection:: TWM-MODTDPS
+        #startmatrix:: number formats
+                f0;      si; 1e-7; 1e-6
+                A0;      si; 1e-7; 1e-6
+                dc;      si; 1e-7; 1e-6
+                f_mod;   si; 1e-7; 1e-6
+                A_mod;   si; 1e-7; 1e-6
+                mod;     f;  1e-6; 1e-6
+                env;     si; 1e-7; 1e-6
+                env_t;   si; 1e-7; 1e-6
+        #endmatrix:: number formats
+        #startmatrix:: graphs
+                env_t; env
+        #endmatrix:: graphs
+#endsection:: TWM-MODTDPS

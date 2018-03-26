@@ -63,7 +63,33 @@ function [me, dc,f0,A0, fm,Am,phm] = mod_fit_sin(fs,u,wshape)
     else
         % --- RECTANGULAR WAVE:
         
-        % TODO: todo
+        if f0/fm > 4
+            % suitable modulation freq.:
+            
+            % modulation signal phase:
+            mod_ph = mod(txa*fm*2*pi + phm,2*pi);
+            
+            %plot(txa,me)
+            %hold on;
+            %plot(txa,mod_ph > 0.25*pi & mod_ph < 0.75*pi,'r');
+            %hold off;
+            
+            % detect tops and lows of the rect.:
+            u_tops = me(mod_ph > 0.25*pi & mod_ph < 0.75*pi);
+            u_lows = me(mod_ph > 1.25*pi & mod_ph < 1.75*pi);
+            
+            % modulation amplitude:
+            Am = 0.5*abs(mean(u_tops) - mean(u_lows));
+            
+            % carrier amplitude:
+            A0 = 0.5*abs(mean(u_tops) + mean(u_lows));
+            
+        else
+            % to high mod f:
+            error('Modulation frequency is too high for the rectangular modulation estimator! f_mod/f0 must be lower than 0.25.');
+        end
+        
+        
                     
     end
                 

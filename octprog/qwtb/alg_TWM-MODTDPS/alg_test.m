@@ -28,8 +28,7 @@ function alg_test(calcset) %<<<1
     plot(dout.env_t.v,dout.env.v)
     
     dout = rmfield(dout,'env');        
-    dout = rmfield(dout,'env_t');
-    
+    dout = rmfield(dout,'env_t');   
     dout
     
 end

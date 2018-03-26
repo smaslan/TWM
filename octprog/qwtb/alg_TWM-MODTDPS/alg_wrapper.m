@@ -47,62 +47,36 @@ function dataout = alg_wrapper(datain, calcset)
     % Start of the algorithm
     % --------------------------------------------------------------------
     
-    
-    % note: following code is residue of multichannel (power) algorithm,
-    %       where u/i channels were converted to virtual channels and then process
-    %       sequentially by the same code. 
-    %       now the algorithm is used just for one channel, so the v.channels may be removed in future
-       
         
-    % list of involved correction tables without 'u_' or 'i_' prefices
-    tab_list = {'tr_gain','tr_phi','tr_Zca','tr_Yca','tr_Zcal','tr_Zcam','adc_Yin','lo_adc_Yin','Zcb','Ycb','tr_Zlo','adc_gain','adc_phi','lo_adc_gain','lo_adc_phi'};
-    clear vcl; id = 0; % virt. chn. list     
-    % -- build virtual channel (U):
-    id = id + 1;
-    vcl{id}.tran = datain.tr_type.v;
-    vcl{id}.is_diff = cfg.y_is_diff;
-    vcl{id}.y = datain.y.v;
-    vcl{id}.ap_corr = datain.adc_aper_corr.v;
+    
+    % build channel data to process:     
+    vc.tran = datain.tr_type.v;
+    vc.is_diff = cfg.y_is_diff;
+    vc.y = datain.y.v;
+    vc.ap_corr = datain.adc_aper_corr.v;
     if cfg.u_is_diff
-        vcl{id}.y_lo = datain.y_lo.v;
-        vcl{id}.tsh_lo = datain.time_shift_lo; % low-high side channel time shift
-        vcl{id}.ap_corr_lo = datain.lo_adc_aper_corr.v;    
-    end        
-    vcl{id}.tab = tab;       
-    vcl{id}.tsh = 0; % high-side channel shift (do not change!)    
+        vc.y_lo = datain.y_lo.v;
+        vc.tsh_lo = datain.time_shift_lo; % low-high side channel time shift
+        vc.ap_corr_lo = datain.lo_adc_aper_corr.v;    
+    end 
     
     
     
     % --- Find dominant harmonic component --- 
      
-    % --- get channel spectra:    
-    % for each virtual channel:
-    for k = 1:numel(vcl)
-        % get channel:
-        vc = vcl{k};
+    % estimate dominant harmonic component:
+    % note: this should be carrier frequency
+    [f0, A0] = PSFE(vc.y, 1/fs);
         
-        % estimate dominant harmonic component:
-        [vc.f0, vc.A0] = PSFE(vc.y, 1/fs);
-        
-        % get spectrum:
-        [fh, vc.Y, vc.ph] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
-        
-        if vc.is_diff
-            % get low-side spectrum:
-            [fh, vc.Y_lo, vc.ph_lo] = ampphspectrum(vc.y_lo, fs, 0, 0, 'flattop_matlab', [], 0);
-        end
-        
-        vcl{k} = vc;
+    % get spectrum:
+    [fh, vc.Y, vc.ph] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);    
+    if vc.is_diff
+        % get low-side spectrum:
+        [fh, vc.Y_lo, vc.ph_lo] = ampphspectrum(vc.y_lo, fs, 0, 0, 'flattop_matlab', [], 0);
     end
-    
-    % --- estimate carrier component:
-    
-    % use the estimates dominant harmonic frequency:    
-    f0 = vcl{id}.f0;
-    
+          
     % get id of the dominant DFT bin coresponding to 'f0':
     [v,fid] = min(abs(f0 - fh));
-    
     
     
     
@@ -116,130 +90,199 @@ function dataout = alg_wrapper(datain, calcset)
     ap_phi  =  pi*ta*f0; % phase is not needed - should be identical for all channels
          
     
-    % --- for each virtual channel:
-    for k = 1:numel(vcl)
-        % get channel:
-        vc = vcl{k};
         
-        % dominant component vector:
-        A0  = vc.Y(fid);
-        ph0 = vc.ph(fid);
+    % dominant component vector:
+    A0_hi  = vc.Y(fid);
+    ph0_hi = vc.ph(fid);
+    
+    % get gain/phase correction for the dominant component (high-side ADC):
+    ag = correction_interp_table(tab.adc_gain, A0_hi, f0);
+    ap = correction_interp_table(tab.adc_phi,  A0_hi, f0);
+    
+    % apply high-side gain:
+    vc.y = vc.y.*ag.gain; % to time-domain signal        
+    
+    % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
+    if vc.ap_corr && ta > 1e-12 
+        vc.y = vc.y.*ap_gain;               
+    end
+            
+    
+    if vc.is_diff
+        % -- differential mode:
+    
+        % dominant component vector (low-side):
+        A0_lo  = vc.Y_lo(fid);
+        ph0_lo = vc.ph_lo(fid);
         
-        % get gain/phase correction for the dominant component (high-side ADC):
-        ag = correction_interp_table(vc.tab.adc_gain, A0, f0);
-        ap = correction_interp_table(vc.tab.adc_phi,  A0, f0);
+        % get gain/phase correction for the dominant component (low-side ADC):
+        ag =  correction_interp_table(tab.lo_adc_gain, A0_lo, f0);
+        apl = correction_interp_table(tab.lo_adc_phi,  A0_lo, f0);
         
         % apply high-side gain:
-        vc.y = vc.y.*ag.gain; % to time-domain signal        
+        vc.y_lo = vc.y_lo.*ag.gain; % to time-domain signal
         
         % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
-        if vc.ap_corr && ta > 1e-12 
-            vc.y = vc.y.*ap_gain;               
-        end         
-                
+        if vc.ap_corr_lo && ta > 1e-12 
+            vc.y_lo = vc.y_lo.*ap_gain; % to time-domain signal                        
+        end
+                    
+        % phase correction of the low-side channel: 
+        lo_ph = apl.phi - ap.phi;
+        % phase correction converted to time:
+        lo_ph_t = lo_ph/2/pi/f0 + vc.tsh_lo.v;
+       
+        % generate time vectors for high/low-side channels (with timeshift):
+        N = numel(vc.y);
+        t_max    = (N-1)/fs;
+        thi      = [];
+        thi(:,1) = [0:N-1]/fs; % high-side
+        tlo      = thi + lo_ph_t; % low-side
         
-        if vc.is_diff
-            % -- differential mode:
+        % resample (interpolate) the high/low side waveforms to compensate timeshift:    
+        imode = 'spline'; % using 'spline' mode as it shows lowest errors on harmonic waveforms
+        ida = find(thi >= 0    & tlo >= 0   ,1);
+        idb = find(thi < t_max & tlo < t_max,1,'last');    
+        vc.y    = interp1(thi,vc.y   , thi(ida:idb), imode,'extrap');
+        vc.y_lo = interp1(thi,vc.y_lo, tlo(ida:idb), imode,'extrap');
+        N = numel(vc.y);
         
-            % dominant component vector (low-side):
-            A0_lo  = vc.Y_lo(fid);
-            ph0_lo = vc.ph_lo(fid);
-            
-            % get gain/phase correction for the dominant component (low-side ADC):
-            ag =  correction_interp_table(vc.tab.lo_adc_gain, A0_lo, f0);
-            apl = correction_interp_table(vc.tab.lo_adc_phi,  A0_lo, f0);
-            
-            % apply high-side gain:
-            vc.y_lo = vc.y_lo.*ag.gain; % to time-domain signal
-            
-            % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
-            if vc.ap_corr_lo && ta > 1e-12 
-                vc.y_lo = vc.y_lo.*ap_gain; % to time-domain signal                        
-            end
-                        
-            % phase correction of the low-side channel: 
-            lo_ph = apl.phi - ap.phi;
-            % phase correction converted to time:
-            lo_ph_t = lo_ph/2/pi/f0 + vc.tsh_lo.v;
-           
-            % generate time vectors for high/low-side channels (with timeshift):
-            N = numel(vc.y);
-            t_max    = (N-1)/fs;
-            thi      = [];
-            thi(:,1) = [0:N-1]/fs; % high-side
-            tlo      = thi + lo_ph_t; % low-side
-            
-            % resample (interpolate) the high/low side waveforms to compensate timeshift:    
-            imode = 'spline'; % using 'spline' mode as it shows lowest errors on harmonic waveforms
-            ida = find(thi >= 0    & tlo >= 0   ,1);
-            idb = find(thi < t_max & tlo < t_max,1,'last');    
-            vc.y    = interp1(thi,vc.y   , thi(ida:idb), imode,'extrap');
-            vc.y_lo = interp1(thi,vc.y_lo, tlo(ida:idb), imode,'extrap');
-            N = numel(vc.y);
-                     
-            % store high-side channel timeshift:
-            % note: this is needed to correctly align u/i channels 
-            lo_ph_t = -thi(ida);
-            vc.tsh = lo_ph_t*(lo_ph_t < 0);
-            
-            % calculate hi-lo difference:            
-            vc.y = vc.y - vc.y_lo; % time-domain
-                                    
-            % estimate transducer correction tfer for dominant component 'f0':
-            % note: The transfer is aproximated from windowed-FFT bins nearest to 
-            %       the analyzed freq. despite the sampling was is coherent.
-            %       The absolute values of the DFT bin vectors are wrong due to the window effects, 
-            %       but the ratio of the high/low-side vectors is unaffected, 
-            %       so they can be used to calculate the tfer which is then normalized.
-            % note: the corrections is relative correction to the difference of digitizer voltages (y - y_lo)
-            % note: corrector estimates rms just from the component 'f0', so it may not be accurate
-            if ~isempty(vc.tran)
-                Y0    = A0.*exp(j*ph0);
-                Y0_lo = A0_lo.*exp(j*ph0_lo);
-                [trg,trp,u_trg] = correction_transducer_loading(vc.tab,vc.tran,f0,[], A0,ph0,0,0, A0_lo,ph0_lo,0,0);            
-                trg = trg./abs(Y0 - Y0_lo);
-                trp = trp - angle(Y0 - Y0_lo);
-            else
-                trg = 1;
-                trp = 0;
-            end
-            
+        % calculate hi-lo difference:            
+        vc.y = vc.y - vc.y_lo; % time-domain
+                                
+        % estimate transducer correction tfer for dominant component 'f0':
+        % note: The transfer is aproximated from windowed-FFT bins nearest to 
+        %       the analyzed freq. despite the sampling was is coherent.
+        %       The absolute values of the DFT bin vectors are wrong due to the window effects, 
+        %       but the ratio of the high/low-side vectors is unaffected, 
+        %       so they can be used to calculate the tfer which is then normalized.
+        % note: the corrections is relative correction to the difference of digitizer voltages (y - y_lo)
+        % note: corrector estimates rms just from the component 'f0', so it may not be accurate
+        if ~isempty(vc.tran)
+            Y0    = A0_hi.*exp(j*ph0_hi);
+            Y0_lo = A0_lo.*exp(j*ph0_lo);
+            [trg,trp,u_trg] = correction_transducer_loading(tab,vc.tran,f0,[], A0_hi,ph0_hi,0,0, A0_lo,ph0_lo,0,0);            
+            trg = trg./abs(Y0 - Y0_lo);
+            trp = trp - angle(Y0 - Y0_lo);            
         else
-            % -- single-ended mode:
+            trg = 1;
+            trp = 0;
+        end
         
-            % estimate transducer correction tfer for dominant component 'f0':
-            % note: corrector estimates rms just from the component 'f0', so it may not be accurate
-            if ~isempty(vc.tran)
-                [trg,trp,u_trg] = correction_transducer_loading(vc.tab,vc.tran,f0,[],A0,0,0,0);
-                trg = trg./A0;
-            else
-                trg = 1;
-                trp = 0;
-            end
-        
-        end        
-        
-        % apply transducer correction:
-        vc.y = vc.y.*trg; % to time-domain signal        
-                
-        % store total v.channel timeshift:
-        vc.tsh = vc.tsh + (trp + ap.phi)/2/pi/f0;
-        
-        if any(isnan(vc.y))
-            error('Correction data have insufficient range for the signal!');
-        end             
-        
-        vcl{k} = vc;
+    else
+        % -- single-ended mode:
+    
+        % estimate transducer correction tfer for dominant component 'f0':
+        % note: corrector estimates rms just from the component 'f0', so it may not be accurate
+        if ~isempty(vc.tran)
+            [trg,trp,u_trg] = correction_transducer_loading(tab,vc.tran,f0,[],A0,0,0,0);
+            trg = trg./A0;
+        else
+            trg = 1;
+            trp = 0;
+        end
+    
+    end        
+    
+    % apply transducer correction:
+    vc.y = vc.y.*trg; % to time-domain signal        
+    
+    if any(isnan(vc.y))
+        error('Correction data have insufficient range for the signal!');
     end
     
+                     
     
-    % --- main algorithm --- 
     
-    % get corrected signal:
-    u = vcl{1}.y;
+    % --- main algorithm start --- 
     
     % estimate the modulation:
-    [me, dc,f0,A0, fm,Am] = mod_tdps(fs,u,wave_shape,comp_err);
+    [me, dc,f0,A0, fm,Am] = mod_tdps(fs,vc.y,wave_shape,comp_err);
+    
+    
+    
+    
+    % --- now the fun part - estimate uncertainty ---
+    
+    % build virtual list of involved freqs.:
+    fc = [f0, f0+fm, f0-fm];
+    
+    % find freq IDs in the spectrum:
+    [v,fid] = min(abs(bsxfun(@minus,fc,fh(:))),[],1);
+    fid = fid.';    
+    
+    % dominant component vector:
+    A0_hi  = vc.Y(fid);
+    ph0_hi = vc.ph(fid);
+    
+    % get gain/phase correction for the dominant component (high-side ADC):
+    ag = correction_interp_table(tab.adc_gain, A0_hi, fc);
+    ap = correction_interp_table(tab.adc_phi,  A0_hi, fc);
+    
+    if vc.is_diff
+        % -- differential mode:
+    
+        % dominant component vector (low-side):
+        A0_lo  = vc.Y_lo(fid);
+        ph0_lo = vc.ph_lo(fid);
+        
+        % get gain/phase correction for the dominant component (low-side ADC):
+        agl = correction_interp_table(tab.lo_adc_gain, A0_lo, fc);
+        apl = correction_interp_table(tab.lo_adc_phi,  A0_lo, fc);
+                                
+        % estimate transducer correction tfer for dominant component 'f0':
+        % note: The transfer is aproximated from windowed-FFT bins nearest to 
+        %       the analyzed freq. despite the sampling was is coherent.
+        %       The absolute values of the DFT bin vectors are wrong due to the window effects, 
+        %       but the ratio of the high/low-side vectors is unaffected, 
+        %       so they can be used to calculate the tfer which is then normalized.
+        % note: the corrections is relative correction to the difference of digitizer voltages (y - y_lo)
+        % note: corrector estimates rms just from the component 'f0', so it may not be accurate
+        if ~isempty(vc.tran)
+            Y0    = A0_hi.*exp(j*ph0_hi);
+            Y0_lo = A0_lo.*exp(j*ph0_lo);
+            [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,vc.tran,fc,[], A0_hi,ph0_hi,A0_hi*(1+ag.u_gain),ag.u_phi, A0_lo,ph0_lo,A0_lo*(1+agl.u_gain),agl.u_phi);            
+            trg = trg./abs(Y0 - Y0_lo);
+            trp = trp - angle(Y0 - Y0_lo);
+            trg = u_trg./abs(Y0 - Y0_lo);            
+        else
+            trg = repmat(1,size(fc));
+            trp = repmat(0,size(fc));
+            u_trg = 0*trg;
+        end
+        
+    else
+        % -- single-ended mode:
+    
+        % estimate transducer correction tfer for dominant component 'f0':
+        % note: corrector estimates rms just from the component 'f0', so it may not be accurate
+        if ~isempty(vc.tran)
+            [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,vc.tran,fc,[],A0,0,A0.*(1+ag.u_gain),0);
+            trg = trg./A0;
+            u_trg = u_trg./A0;
+        else
+            trg = repmat(1,size(fc));
+            trp = repmat(0,size(fc));
+            u_trg = 0*trg;
+        end
+    
+    end
+    
+    % carrier relative unc. from corrections:
+    ur_A0 = u_trg(1);
+    u_A0 = A0.*ur_A0;
+    
+    % -- modulation relative unc. from corrections:
+    % difference of sideband correction values from the carrier (because we used carrier freq for entire signal):
+    ur_mod = sum((trg(2:end) - trg(1)).^2).^0.5/3^0.5;
+    % max uncertainty of the side bands:
+    ur_mod = (ur_mod.^2 + max(u_trg(2:end)).^2/3).^0.5;
+    % add uncertainty of the carrier:
+    % note: ignoring correlation A0-Am
+    ur_mod = (ur_mod.^2 + ur_A0.^2).^0.5
+    
+    % modulating amplitude abs unc.:    
+    u_Am = Am.*ur_mod;
     
     
     % --- returning results ---
@@ -249,14 +292,17 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.env_t.v = [0:numel(me)-1]'/fs;
     
     % return carrier:
-    dataout.f0.v   = f0;
+    dataout.f0.v = f0;
     dataout.A0.v = A0;
+    dataout.A0.u = u_A0;
     dataout.dc.v = dc;
     
     % return modulation signal parameters:
     dataout.f_mod.v = fm;
     dataout.A_mod.v = Am;
+    dataout.A_mod.u = u_Am;
     dataout.mod.v = 100*Am/A0;
+    dataout.mod.u = 100*ur_mod;
            
     % --------------------------------------------------------------------
     % End of the demonstration algorithm.

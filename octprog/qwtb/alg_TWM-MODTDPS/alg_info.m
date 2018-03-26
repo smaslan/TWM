@@ -1,5 +1,5 @@
 function alginfo = alg_info() %<<<1
-% Part of QWTB. Info script for algorithm FFT.
+% Part of QWTB. Info script for algorithm TWM-MODTDPS.
 %
 % See also qwtb
 
@@ -67,13 +67,6 @@ function alginfo = alg_info() %<<<1
     
     alginfo.inputs(pid).name = 'comp_err';
     alginfo.inputs(pid).desc = 'Enable self-compensation of the algorithm error';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 1;
-    pid = pid + 1;
-        
-    alginfo.inputs(pid).name = 'comp_timestamp';
-    alginfo.inputs(pid).desc = 'Enable compensation of phase by timestamp (default off)';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
@@ -490,7 +483,7 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     
-    alginfo.providesGUF = 1;
+    alginfo.providesGUF = 0;
     alginfo.providesMCM = 0;
 
 end
