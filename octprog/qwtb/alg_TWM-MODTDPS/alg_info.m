@@ -5,7 +5,7 @@ function alginfo = alg_info() %<<<1
 
     alginfo.id = 'TWM-MODTDPS';
     alginfo.name = 'TWM tool wrapper: Modulation estimator';
-    alginfo.desc = 'Simple algorithm that detects envelope of modulated signal and estimates modulation parameters. The envelope detector is based on timeshifting input signal by pi/2 (related to the carrier frequency).';
+    alginfo.desc = 'Simple algorithm that detects envelope of modulated signal and estimates modulation parameters. The envelope detector is based on timeshifting of input signal by pi/2 (related to the carrier frequency) and using the shifted signal as imaginary complement to the original signal. The magnitude of the complex signal is roughly equal to the modulation envelope.';
     alginfo.citation = 'none';
     alginfo.remarks = 'At least two periods of the modulating signal should be recorded.';
     alginfo.license = 'MIT License';
@@ -238,12 +238,12 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     % relative time stamp of reference channel ('y'):
-    alginfo.inputs(pid).name = 'time_stamp';
-    alginfo.inputs(pid).desc = 'Relative time-stamp of ''y''';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
+%     alginfo.inputs(pid).name = 'time_stamp';
+%     alginfo.inputs(pid).desc = 'Relative time-stamp of ''y''';
+%     alginfo.inputs(pid).alternative = 0;
+%     alginfo.inputs(pid).optional = 1;
+%     alginfo.inputs(pid).parameter = 0;
+%     pid = pid + 1;
     
     
     % Transducer type string (empty: no tran. correction; 'shunt': current shunt; 'rvd': resistive voltage divider)

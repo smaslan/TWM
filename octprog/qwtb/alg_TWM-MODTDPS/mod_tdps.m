@@ -1,4 +1,4 @@
-function [me, dc,f0,A0, fm,Am] = mod_tdps(fs,u,wshape,comp_err)
+function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am] = mod_tdps(fs,u,wshape,comp_err)
 % Simple algorithm for detection of modulation envelope and estimation
 % of modulation parameters.
 %
@@ -31,10 +31,10 @@ function [me, dc,f0,A0, fm,Am] = mod_tdps(fs,u,wshape,comp_err)
     N = numel(u);
     
     % detect envelope and estimate parameters:
-    [me, dc,f0,A0, fm,Am,phm] = mod_fit_sin(fs,u,wshape);
+    [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am] = mod_fit_sin(fs,u,wshape);
 
     
-    if comp_err && strcmpi(wshape,'sine')
+    if strcmpi(wshape,'sine')
         % --- error self-compesantion ---
         % 1) this code will reconstruct the wave model from the detected parameters
         % 2) then in few iterations it will fiddle the model parameters so the 
@@ -68,14 +68,41 @@ function [me, dc,f0,A0, fm,Am] = mod_tdps(fs,u,wshape,comp_err)
             phmi = phmi + mod((phm - phmx) + pi,2*pi) - pi;            
         end
         
-        % override initial estimation:
-        dc = dci;
-        f0 = f0i;
-        A0 = A0i;
-        fm = fmi;
-        Am = Ami;
-        phm = phmi;
+        if comp_err
+            % override initial estimation:
+            dc = dci;
+            f0 = f0i;
+            A0 = A0i;
+            fm = fmi;
+            Am = Ami;
+            phm = phmi;
+        else
+            % do not override, just estimate uncertainty:
+            
+            u_A0 = (u_A0^2 + abs(A0-A0i)^2/3)^0.5;
+            u_Am = (u_Am^2 + abs(Am-Ami)^2/3)^0.5;        
+        end
         
     end
+    
+    A0x = [];
+    Amx = [];
+    M = 10;    
+    for k = 1:M
+        
+        % try various mod phases:
+        phi = 2*pi*(k-1)/M;
+        
+        % synth signal form the current model:
+        ux = mod_synth(fs,N, dc, f0,A0,phi, fm,Am,phm);
+        
+        % calculate parameters of the model:
+        [me_t, dcx,f0x,A0x(k), fmx,Amx(k),phmx] = mod_fit_sin(fs,ux,wshape);
+                
+    end
+    
+    % add some estimate of unc. of the modulating signal initial phase shift:
+    u_Am = (u_Am^2 + 4*std(Amx)^2/3)^0.5;
+    u_A0 = (u_A0^2 + 4*std(A0x)^2/3)^0.5;
 
 end

@@ -1,4 +1,4 @@
-function [me, dc,f0,A0, fm,Am,phm] = mod_fit_sin(fs,u,wshape)
+function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am] = mod_fit_sin(fs,u,wshape)
 % Simple algorithm for detection of modulation envelope and estimation
 % of modulation parameters.
 %
@@ -59,6 +59,9 @@ function [me, dc,f0,A0, fm,Am,phm] = mod_fit_sin(fs,u,wshape)
     if strcmpi(wshape,'sine')
         % --- SINE WAVE:
         
+        % no estimate of the unc. for sine:
+        u_A0 = 0;
+        u_Am = 0;
         
     else
         % --- RECTANGULAR WAVE:
@@ -69,10 +72,12 @@ function [me, dc,f0,A0, fm,Am,phm] = mod_fit_sin(fs,u,wshape)
             % modulation signal phase:
             mod_ph = mod(txa*fm*2*pi + phm,2*pi);
             
-            %plot(txa,me)
-            %hold on;
-            %plot(txa,mod_ph > 0.25*pi & mod_ph < 0.75*pi,'r');
-            %hold off;
+%             figure(2)
+%             plot(txa,me)
+%             hold on;
+%             plot(txa,mod_ph > 0.25*pi & mod_ph < 0.75*pi,'r');
+%             hold off;
+                        
             
             % detect tops and lows of the rect.:
             u_tops = me(mod_ph > 0.25*pi & mod_ph < 0.75*pi);
@@ -80,9 +85,11 @@ function [me, dc,f0,A0, fm,Am,phm] = mod_fit_sin(fs,u,wshape)
             
             % modulation amplitude:
             Am = 0.5*abs(mean(u_tops) - mean(u_lows));
+            u_Am = (std(u_tops)^2 + std(u_lows)^2)^0.5;
             
             % carrier amplitude:
             A0 = 0.5*abs(mean(u_tops) + mean(u_lows));
+            u_A0 = u_Am;
             
         else
             % to high mod f:
@@ -92,8 +99,5 @@ function [me, dc,f0,A0, fm,Am,phm] = mod_fit_sin(fs,u,wshape)
         
                     
     end
-                
-    % fit the envelope by sine:
-    %[Am,fm,phm,A0] = FPNLSF(txa,uc,fm,0);
 
 end
