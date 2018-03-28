@@ -11,6 +11,7 @@ type:: qwtb list
 	TWM-TEST
 	TWM-PWRTEST
         TWM-MODTDPS
+        TWM-FPNLSF
 #endmatrix:: list of supported algorithms
 
 
@@ -61,6 +62,17 @@ type:: qwtb list
                 phi
         #endmatrix:: is phase
 #endsection:: TWM-PSFE
+
+#startsection:: TWM-FPNLSF
+        #startmatrix:: number formats
+                f;  si; 1e-6; 1e-6
+                A;  si; 1e-7; 1e-7
+                phi; f; 1e-7; 1e-7
+        #endmatrix:: number formats
+        #startmatrix:: is phase
+                phi
+        #endmatrix:: is phase
+#endsection:: TWM-FPNLSF
 
 #startsection:: SP-WFFT
         #startmatrix:: exclude outputs

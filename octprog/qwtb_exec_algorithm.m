@@ -194,13 +194,10 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     its = bsxfun(@minus,its,its(:,1)); % make it relative to 1. channel
     
     % combine the timestamp and time shift correction to get absolute record start shifts:
-    tm_stamp   = bsxfun(@plus,tm_stamp,its);
+    tm_stamp   = bsxfun(@plus,tm_stamp,its)
     u_tm_stamp = repmat(data.corr.dig.time_shifts.u_its,[size(tm_stamp,1) 1]); % uncertainty   
     
     % ####todo: in future here should be override of time-shift calibration data by self-calibration
-    
-     
-    
     
     
     
