@@ -76,7 +76,7 @@ function [tab] = qwtb_build_correction_table(din,names,name_ax,default,default_u
         q_names{end+1} = var_names{k};
         % uncertainty:
         if numel(default_unc) >= k && ~isempty(default_unc)
-            q_data{end+1} = default_unc{1};
+            q_data{end+1} = default_unc{k};
             q_names{end+1} = ['u_' var_names{k}];
         end
     end

@@ -61,7 +61,7 @@ function [tab] = qwtb_restore_correction_tables(din,cfg)
     t_list{2} = {{{'tr_gain'},                 {'tr_gain_f';'tr_gain_a'}, {1},               {0},       {[],[]}, {'gain'},    {'f';'rms'}, 'tr_gain'},
                  {{'tr_phi'},                  {'tr_phi_f';'tr_phi_a'},   {0},               {0},       {[],[]}, {'phi'},     {'f';'rms'}, 'tr_phi'}, 
                  {{'tr_sfdr'},                 {'tr_sfdr_f';'tr_sfdr_a'}, {180},             {},        {[],[]}, {'sfdr'},    {'f';'rms'}, 'tr_sfdr'},
-                 {{'tr_Zlo_Rp';'tr_Zlo_Cp'},   {'tr_Zlo_f'},              {[1e9],[1e-15]},   {[0],[0]}, {[]},    {'Rp';'Cp'}, {'f'},       'tr_Zlo'},
+                 {{'tr_Zlo_Rp';'tr_Zlo_Cp'},   {'tr_Zlo_f'},              {[1e3],[1e-15]},   {[0],[0]}, {[]},    {'Rp';'Cp'}, {'f'},       'tr_Zlo'},
                  {{'tr_Zca_Rs';'tr_Zca_Ls'},   {'tr_Zca_f'},              {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zca'},
                  {{'tr_Yca_Cp';'tr_Yca_D'},    {'tr_Yca_f'},              {[1e-15],[1e-12]}, {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'tr_Yca'},
                  {{'tr_Zcal_Rs';'tr_Zcal_Ls'}, {'tr_Zcal_f'},             {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zcal'},

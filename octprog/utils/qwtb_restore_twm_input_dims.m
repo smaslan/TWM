@@ -37,6 +37,9 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
 %            pfx_ch    - list of channel prefixes ('', 'u_' and 'i_' for single-ended,
 %                        'lo_', 'lo_u_' and 'lo_i_' for differential complement, ...)
 %            pfx_tr    - list of transducer channel prefixes ('', 'u_' and 'i_')
+%            ysub      - list of transducer subchannels ('y' or {'y','y_lo'})
+%            usub      - list of voltage transducer subchannels ('u' or {'u','u_lo'})
+%            isub      - the same for current 'i_'
 %
 % License:
 % --------
@@ -134,6 +137,9 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         % return the prefix lists for future use:
         cfg.pfx_ch = pfx_ch;
         cfg.pfx_tr = pfx_tr;
+        cfg.ysub = pfx_ysub;
+        cfg.usub = pfx_usub;
+        cfg.isub = pfx_isub;
         
         % restore correction data vector orientations for channel corrections:
         for k = 1:numel(pfx_ch)
@@ -161,8 +167,13 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zcal_Rs'];[p 'tr_Zcal_Ls']}, {[p 'tr_Zcal_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zcam']}, {[p 'tr_Zcam_f']}, opt);            
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'Zcb_Rs'];[p 'Zcb_Ls']}, {[p 'Zcb_f']}, opt);
-            din = twm_qwtb_restore_input_dim_corr(din, {[p 'Ycb_Cp'];[p 'Ycb_D']}, {[p 'Ycb_f']}, opt);            
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'Ycb_Cp'];[p 'Ycb_D']}, {[p 'Ycb_f']}, opt);
         end
+        
+        % create default transducer type(s):
+        din = qwtb_rtwm_inps_default(din,cfg.has_y,'tr_type','');
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'u_tr_type','');
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'i_tr_type','');
         
         % create default digitizer timebase correction:
         din = qwtb_rtwm_inps_default(din,true,'adc_freq',0,0);
