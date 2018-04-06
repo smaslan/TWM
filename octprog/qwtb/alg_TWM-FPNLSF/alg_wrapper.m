@@ -23,6 +23,17 @@ function dataout = alg_wrapper(datain, calcset)
     
     % timestamp phase compensation state:
     tstmp_comp = isfield(datain, 'comp_timestamp') && ((isnumeric(datain.comp_timestamp.v) && datain.comp_timestamp.v) || (ischar(datain.comp_timestamp.v) && strcmpi(datain.comp_timestamp.v,'on')));
+    
+    % --- get ADC LSB value
+    if isfield(datain,'lsb')
+        % get LSB value directly
+        lsb = datain.lsb.v;
+    elseif isfield(datain,'adc_nrng') && isfield(datain,'adc_bits')
+        % get LSB value estimate from nominal range and resolution
+        lsb = 2*datain.adc_nrng.v*2^(-datain.adc_bits.v);    
+    else
+        error('FPNLSF, corrections: Correction data contain no information about ADC resolution+range or LSB value!');
+    end
          
     if cfg.y_is_diff
         % Input data 'y' is differential: if it is not allowed, put error message here
@@ -37,6 +48,9 @@ function dataout = alg_wrapper(datain, calcset)
     % Rebuild TWM style correction tables:
     % This is not necessary but the TWM style tables are more comfortable to use then raw correction matrices
     tab = qwtb_restore_correction_tables(datain,cfg);
+    
+    % this file folder:
+    mfld = [fileparts(mfilename('fullpath')) filesep()];
     
     
     % --------------------------------------------------------------------
@@ -72,11 +86,18 @@ function dataout = alg_wrapper(datain, calcset)
     % fix frequency estimate by timebase error:
     f_est = f_est.*(1 + datain.adc_freq.v);
     
+    % improved FPNLSF() parameters:
+    cfg.max_try = 100; % max retry cycles
+    cfg.max_time = 60; % max total calculation time [s]
+    cfg.max_dev = 500e-6; % max rel deviation of freq. from freq. estimate [-] 
     
     % estimate signal parameters:
-    [Ax, fx, phx, ox] = FPNLSF(t, vc.y, f_est, calcset.verbose);
+    [Ax, fx, phx, ox] = FPNLSF_loop(t, vc.y, f_est, calcset.verbose, cfg);    
+    if isinf(fx)
+        error('Fitting algorithm failed! Check waveform and initial frequency estimate accruacy!');
+    end
     
-    
+        
     % store original frequency before tb. correction:
     f_org = fx;
     % apply timebase frequency correction:    
@@ -203,10 +224,13 @@ function dataout = alg_wrapper(datain, calcset)
         end
         
         % estimate signal parameters (from differential signal):            
-        [Ax, fx, phx, ox] = FPNLSF(t, vc.y, f_est, calcset.verbose);
+        [Ax, fx, phx, ox] = FPNLSF_loop(t, vc.y, f_est, calcset.verbose, cfg);
+        if isinf(fx)
+            error('Fitting algorithm failed! Check waveform and initial frequency estimate accruacy!');
+        end
         
         % apply timebase frequency correction:    
-        % note: it is relative correction of timebase error, so apply inverse correction to measured f.  
+        %  note: it is relative correction of timebase error, so apply inverse correction to measured f.  
         fx = fx./(1 + datain.adc_freq.v);    
         
         % apply transducer correction:
@@ -231,6 +255,70 @@ function dataout = alg_wrapper(datain, calcset)
         
     else        
         % --- SINGLE-ENDED TRANSDUCER MODE
+        
+        % -- uncertainty estimator:
+        
+        % get high-side spectrum:
+        [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
+        
+        % harmonic components:
+        fhx = [fx:fx:max(fh)];
+        fid = round(fhx/fs*N) + 1;
+        
+        % get harmonic DFT bins:
+        wind_w = 7;
+        sid = [];
+        for k = 1:numel(fhx)
+            sid = [sid,(fid(k) - wind_w):(fid(k) + wind_w)];    
+        end
+        sid = unique(sid);
+        % get noise DFT bins:
+        nid = setxor([1:numel(fh)],sid);
+        nid = nid(nid > wind_w); % get rid of DC
+        
+        % estimate RMS of noise:
+        noise_rms = sum(0.5*Y(nid).^2).^0.5;        
+        noise_rms = noise_rms*(numel(fh)/numel(nid))^0.5; % expand to cover limited selection of DFT bins
+        
+        % signal RMS estimate:
+        sig_rms = Ax*2^-0.5;
+        
+        % SNR estimate:
+        snr = -10*log10((noise_rms/sig_rms)^2);
+        
+        % SNR equivalent time jitter:
+        tj = 10^(-snr/20)/2/pi/fx;
+      
+        % estimate SFDR of the signal:
+        Y_max = max([Y(10:(fid-10));Y((fid + 10):end)]);
+        sfdr = -20*log10(Y_max/Ax);
+        
+        % estimate SFDR of the system:
+        adc_sfdr = correction_interp_table(tab.adc_sfdr, Ax, fx);
+        tr_sfdr  = correction_interp_table(tab.tr_sfdr,  Ax, fx);        
+        sfdr_sys = -20*log10(10^(-adc_sfdr.sfdr/20) + 10^(-tr_sfdr.sfdr/20));        
+        
+        % total SFDR estimate:
+        sfdr = min(sfdr_sys,sfdr);        
+                
+                        
+        % periods count of 'fx' in signal:
+        ax.f0_per.val = N*fx/fs;
+        % sampling rate to 'fx' ratio:
+        ax.fs_rat.val = fs/fx;
+        % total used ADC bits for the signal:
+        ax.bits.val = log2(2*(Ax + abs(ox))/lsb);
+        % jitter relative to frequency:
+        ax.jitt.val = (datain.jitter.v^2 + tj^2)^0.5*fx;
+        % SFDR estimate: 
+        ax.sfdr.val = sfdr;
+            
+        % try to estimate uncertainty:   
+        %unc = interp_lut([mfld 'unc_lut.mat'],ax)
+        
+        
+        
+        
         
         % calculate aperture gain/phase correction (for f0):
         ap_gain = (pi*ta*fx)./sin(pi*ta*fx);
@@ -293,6 +381,86 @@ function dataout = alg_wrapper(datain, calcset)
 
 
 end % function
+
+
+function [Ax, fx, phx, ox] = FPNLSF_loop(t,u,f_est,verbose,cfg)
+% Wrapper for the FPNLSF algorithm.
+% Retries to calculation when deviation of the fx from f_est exceeds limit.
+% Also includes initial phase estimate which seems to be necessary for the 
+% Octave version.
+% Note the time vector 't' must start with 0.
+%
+% Parameters:
+%   cfg.max_try - maximum retries (default 100).
+%   cfg.max_time - maximum timeout (default 60s)
+%   cfg.max_dev - maximum relative deviation of fit freq from f_est (default 0.0005)
+
+    % create default setup:
+    if nargin < 5
+        cfg = struct();
+    end
+    if ~isfield(cfg,'max_try')
+        cfg.max_try = 100;
+    end
+    if ~isfield(cfg,'max_time')
+        cfg.max_time = 60;
+    end
+    if ~isfield(cfg,'max_dev')
+        cfg.max_dev = 0.0005;
+    end
+    
+    % initial time:
+    tid = tic();
+    
+    % try to estimate initial phase:
+    phi_zc = phase_zero_cross(u);
+    
+    % --- retry loop:
+    for tr = 1:cfg.max_try
+        
+        % randomize initial guess (from second try):
+        rand_p = randn(1)*0.01*pi*(tr > 1); % phase
+        rand_f = cfg.max_dev*randn(1)*f_est*(tr > 1); % frequency
+        rand_o = 0.001*randn(1)*(tr > 1); % offset
+        
+        % randomize offeset:
+        ux = u + rand_o;
+        
+        if isinf(phi_zc)
+            % failed zero-cross - generate random estimate:
+            phi_est = randn(1)*pi;
+        else
+            % zero-cross estimate ok - tiny randomization for the retries:
+            phi_est = phi_zc + rand_p; 
+        end
+        
+        % try to fit waveform:            
+        [Ax, fx, phx, ox] = FPNLSF(t,ux,f_est*(1+rand_f),verbose,phi_est);
+        ox = ox - rand_o;
+                    
+        if ~isinf(fx) && abs(fx/f_est-1) < cfg.max_dev
+            % result possibly ok - leave
+            fail = 0; 
+            break;
+        elseif tr == cfg.max_try || toc(tid) > cfg.max_time 
+            disp('Warning: No convergence even after all retrires! Dunno what to do now...');
+            fail = 1;
+            break;
+        end
+        % retry because we got no convergence or too high phase deviation
+                   
+    end
+    
+    if fail
+        % invalidate result if retries failed:
+        Ax = inf;
+        fx = inf;
+        phx = inf;
+        ox = inf;
+    end
+            
+end
+
 
 
 % vim settings modeline: vim: foldmarker=%<<<,%>>> fdm=marker fen ft=octave textwidth=80 tabstop=4 shiftwidth=4

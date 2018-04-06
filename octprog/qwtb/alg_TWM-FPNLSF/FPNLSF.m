@@ -1,4 +1,4 @@
-function [A, f, ph, O] = FPNLSF(t, y, estf, verbose);
+function [A, f, ph, O] = FPNLSF(t, y, estf, verbose, pint);
 % Fits a sine wave to the recorded data by means of non-linear least squares using four
 % parameter model. Requires good estimate of frequency. Different functions are
 % used when run in MATLAB or GNU Octave.
@@ -21,10 +21,18 @@ estA = max(y) - (max(y)+min(y))/2;
 % 2DO not really good estimate (however zero estimate is not really good one
 % because of minimization method):
 estph = 1;
-estO = mean(y);
+% DC offset:
+%estO = mean(y); % ###note: problem at non-coherent sampling
+% estimate DC offset using windowing:
+w = blackman(numel(y));
+estO = mean(y.*w)/mean(w);
 
 % estimates vector:
 est=[estA estf estph estO];
+
+if nargin > 4
+    est(3) = pint;
+end
 
 if isOctave
     % fitting:

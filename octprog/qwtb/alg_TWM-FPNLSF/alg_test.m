@@ -23,10 +23,10 @@ function alg_test(calcset) %<<<1
     Zx = 0.5;
     
     % non-zero to generate differential input signal:
-    is_diff = 1;
+    is_diff = 0;
                
     % noise level:
-    adc_std_noise = 1e-6;
+    adc_std_noise = 0e-6;
         
     
     
