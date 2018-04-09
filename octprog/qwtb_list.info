@@ -101,7 +101,12 @@ type:: qwtb list
                 h;       si; 1e-8; 1e-5
                 h_raw;   si; 1e-8; 1e-5
                 thd;     f;  1e-5; 1e-5
+                thd2;    f;  1e-5; 1e-5
+                thdn;    f;  1e-5; 1e-5
+                thdn2;   f;  1e-5; 1e-5
+                noise;   si; 1e-7; 1e-7
                 thd_raw; f;  1e-5; 1e-5
+                thd2_raw;f;  1e-5; 1e-5
                 spec_f;  si; 1e-6; 1e-6
                 spec_a;  si; 1e-8; 1e-6
         #endmatrix:: number formats

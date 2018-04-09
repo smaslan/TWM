@@ -119,6 +119,26 @@ function dataout = alg_wrapper(datain, calcset)
     % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
     dataout.thd.u = max(r.k1_comp - r.k1_comp_a, r.k1_comp_b - r.k1_comp);
     
+    % calculated THD (rms referenced):
+    dataout.thd2.v = r.k2_comp;
+    % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
+    dataout.thd2.u = max(r.k2_comp - r.k2_comp_a, r.k2_comp_b - r.k2_comp);
+    
+    % calculated THD+N (fundamental referenced):
+    dataout.thdn.v = r.k3_comp;
+    % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
+    dataout.thdn.u = 0;%max(r.k3_comp - r.k3_comp_a, r.k3_comp_b - r.k3_comp);
+    
+    % calculated THD+N (rms referenced):
+    dataout.thdn2.v = r.k4_comp;
+    % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
+    dataout.thdn2.u = 0;%max(r.k4_comp - r.k4_comp_a, r.k4_comp_b - r.k4_comp);
+    
+    % return rms noise estimate:
+    dataout.noise.v = r.noise;
+    dataout.noise.u = 0;
+    
+    
     % harmonic frequencies:
     dataout.f.v = r.f_lst;
     
@@ -140,6 +160,11 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.thd_raw.v = r.k1;
     % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
     dataout.thd_raw.u = max(r.k1 - r.k1_a, r.k1_b - r.k1);
+    
+    % uncorrected calculated THD (rms referenced):
+    dataout.thd2_raw.v = r.k2;
+    % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
+    dataout.thd2_raw.u = max(r.k2 - r.k2_a, r.k2_b - r.k2);
     
     % uncorrected harmonic amplitudes:
     dataout.h_raw.v = r.a_lst;

@@ -370,6 +370,22 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Total Harmonic Distortion';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'thd2';
+    alginfo.outputs(pid).desc = 'Total Harmonic Distortion, second definition (RMS referenced)';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'thdn';
+    alginfo.outputs(pid).desc = 'Total Harmonic Distortion + Noise';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'thdn2';
+    alginfo.outputs(pid).desc = 'Total Harmonic Distortion + Noise, second definition (RMS referenced)';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'noise';
+    alginfo.outputs(pid).desc = 'Noise RMS value estimate';
+    pid = pid + 1;
+    
     alginfo.outputs(pid).name = 'h';
     alginfo.outputs(pid).desc = 'Harmonic amplitudes';
     pid = pid + 1;
@@ -389,6 +405,10 @@ function alginfo = alg_info() %<<<1
     
     alginfo.outputs(pid).name = 'thd_raw';
     alginfo.outputs(pid).desc = 'Uncorrected Total Harmonic Distortion';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'thd2_raw';
+    alginfo.outputs(pid).desc = 'Uncorrected Total Harmonic Distortion, second definition (RMS denominator)';
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'h_raw';

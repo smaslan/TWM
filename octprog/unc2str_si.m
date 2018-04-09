@@ -32,6 +32,10 @@ function [str,str_val,str_unc,str_int,si] = unc2str_si(val,unc,unit,cfg)
   else
     unit = unit;
   end
+  
+  if isfield(cfg,'min_unc_abs')
+    cfg.min_unc_abs = cfg.min_unc_abs/mul;
+  end
     
   [str,str_val,str_unc,str_int] = unc2str(val/mul,unc/mul,'',cfg);  
   str = ['(' str ')' spc si unit];
