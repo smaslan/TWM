@@ -137,12 +137,14 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     % build list of harmonic frequencies:
     f_list(:,1) = f_sig*[1:h_num];
     
+    % alimit max freq by nyquist:
+    h_f_max = min(0.4*fs,h_f_max);
+    
     % limit harmonics count by max. frequency and sampling rate:
-    f_list = f_list(find(f_list<min(0.4*fs,h_f_max)));
+    f_list = f_list(find(f_list<h_f_max));
     
     % harmonics count:
     H = length(f_list);
-      
     
     % get range of used DFT bins: 
     [v,idmin] = min(abs(f_list(1) - f));
@@ -155,6 +157,9 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     % max/min used frequency - required range of correction data:
     f_min = f(min_fid);
     f_max = f(max_fid);
+    
+    % get total needed bw:
+    f_max = max(f_max,h_f_max);
     
   
     % --- check frequency ranges of the corrections data
@@ -335,7 +340,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     u_noise_est = U_noise(2:end)/noise_gain;
     
     % interpolate noise level to entire used bandwidth:
-    noise_est = interp1(f_noise_est,u_noise_est,[f(f < f_max)],'nearest','extrap');
+    noise_est = interp1(f_noise_est,u_noise_est,[f(f <= f_max)],'nearest','extrap');
     
     % estimate noise-rms:
     noise_rms = sum((0.5*noise_est).^2)^0.5;
@@ -558,6 +563,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     
     % return THD
     thd.noise = noise_rms;
+    thd.noise_bw = f_max;
     thd.k1_comp = k1_fix_m; % rms(spur)/amp(fundamental)
     thd.k1_comp_a = k1_fix_a;
     thd.k1_comp_b = k1_fix_b;
@@ -577,7 +583,6 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     thd.k2_a = k2_org_a;
     thd.k2_b = k2_org_b;
     thd.H = H;
-  
   
 end
 

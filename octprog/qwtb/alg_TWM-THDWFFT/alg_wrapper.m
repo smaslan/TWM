@@ -138,6 +138,10 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.noise.v = r.noise;
     dataout.noise.u = 0;
     
+    % return rms noise bandwidth:
+    dataout.noise_bw.v = r.noise_bw;
+    dataout.noise_bw.u = 0;
+    
     
     % harmonic frequencies:
     dataout.f.v = r.f_lst;

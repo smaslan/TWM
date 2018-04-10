@@ -13,7 +13,7 @@ function alg_test(calcset) %<<<1
     rand_unc = 0;
     
     % harmonic amplitudes:
-    A =  [1       0.001  0.002]';
+    A =  [1       0.0005  0.0001]';
     % harmonic phases:
     ph = [0.5/pi -0.8  0.2]'*pi;
     % harmonic freq. [Hz]:
@@ -99,6 +99,20 @@ function alg_test(calcset) %<<<1
     din.tr_Zlo_Rp.u = [  0.05];
     din.tr_Zlo_Cp.v = [1e-12];
     din.tr_Zlo_Cp.u = [1e-12];
+    
+    
+    if ~rand_unc
+        % discard all correction uncertainties:
+        
+        corrz = fieldnames(din);        
+        for k = 1:numel(corrz)
+            c_data = getfield(din,corrz{k});
+            if isfield(c_data,'u')
+                c_data.u = 0*c_data.u;
+                din = setfield(din,corrz{k},c_data);
+            end            
+        end
+    end
     
     
     % remember original input quantities:
@@ -219,11 +233,11 @@ function alg_test(calcset) %<<<1
     u_fx  = dout.f.u*2;
     u_Ax  = dout.A.u*2;
     u_phx = dout.phi.u*2;
-    if ~rand_unc
-        u_fx  = f0*1e-8;
-        u_Ax  = Ar*1e-6;
-        u_phx = 1e-6;
-    end
+%     if ~rand_unc
+%         u_fx  = f0*1e-8;
+%         u_Ax  = Ar*1e-6;
+%         u_phx = 1e-6;
+%     end
     
     
     % print results:

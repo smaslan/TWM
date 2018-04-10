@@ -104,7 +104,7 @@ function dataout = alg_wrapper(datain, calcset)
     % note: it is relative correction of timebase error, so apply inverse correction to measured f.  
     fx = fx./(1 + datain.adc_freq.v);    
     % calculate correction uncertainty (absolute):
-    u_fx = fx.*datain.adc_freq.u; 
+    u_fx = fx.*datain.adc_freq.u;
 
              
     if cfg.y_is_diff
@@ -253,6 +253,8 @@ function dataout = alg_wrapper(datain, calcset)
         
         % todo: handle the offset, it will be wrong because of the timedomain corrections at fx are not the same as for DC
         
+        % todo: implement some unc. estimate even for the differential mode...
+        
     else        
         % --- SINGLE-ENDED TRANSDUCER MODE
         
@@ -301,24 +303,34 @@ function dataout = alg_wrapper(datain, calcset)
         % total SFDR estimate:
         sfdr = min(sfdr_sys,sfdr);        
                 
-                        
-        % periods count of 'fx' in signal:
-        ax.f0_per.val = N*fx/fs;
-        % sampling rate to 'fx' ratio:
-        ax.fs_rat.val = fs/fx;
-        % total used ADC bits for the signal:
-        ax.bits.val = log2(2*(Ax + abs(ox))/lsb);
-        % jitter relative to frequency:
-        ax.jitt.val = (datain.jitter.v^2 + tj^2)^0.5*fx;
-        % SFDR estimate: 
-        ax.sfdr.val = sfdr;
+        
+        if true
             
-        % try to estimate uncertainty:   
-        %unc = interp_lut([mfld 'unc_lut.mat'],ax)
-        
-        
-        
-        
+            ax = struct();            
+            % periods count of 'fx' in signal:
+            ax.f0_per.val = N*fx/fs;
+            % sampling rate to 'fx' ratio:
+            ax.fs_rat.val = fs/fx;
+            % total used ADC bits for the signal:
+            ax.bits.val = log2(2*(Ax + abs(ox))/lsb);
+            % jitter relative to frequency:
+            ax.jitt.val = (datain.jitter.v^2 + tj^2)^0.5*fx;
+            % SFDR estimate: 
+            ax.sfdr.val = sfdr;
+            
+            ax
+                
+            % try to estimate uncertainty:   
+            unc = interp_lut([mfld 'unc.lut'],ax);
+          
+        else
+          
+            unc.dpx.val = 0;
+            unc.dfx.val = 0;
+            unc.dAx.val = 0;
+            unc.dox.val = 0;
+                      
+        end
         
         % calculate aperture gain/phase correction (for f0):
         ap_gain = (pi*ta*fx)./sin(pi*ta*fx);
@@ -341,6 +353,12 @@ function dataout = alg_wrapper(datain, calcset)
         u_Ax = Ax.*ag.u_gain;
         u_phx = ap.u_phi;
         
+        
+        % add alg. uncertainty contribution:
+        u_Ax = (u_Ax^2 + (Ax.*unc.dAx.val)^2)^0.5;
+        u_phx = (u_phx^2 + unc.dpx.val^2)^0.5;
+        u_fx = (u_fx^2 + (fx*unc.dfx.val)^2)^0.5;
+                
         % apply gain correction to offset:
         % todo: decide if I should take the DC component from correction data because the correction data may not be present down to 0Hz?
         
@@ -363,7 +381,7 @@ function dataout = alg_wrapper(datain, calcset)
     end
     % apply timestamp uncertainty to phase:
     u_phx = (u_phx^2 + u_p_ts^2)^0.5;
-       
+           
     
     % --- returning results ---    
     dataout.f.v = fx;

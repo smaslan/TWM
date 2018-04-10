@@ -403,6 +403,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
             di.time_stamp.u = u_tm_stamp(:,tran.channels(1));
             
             %###TODO: add interchannel timeshifts like for u/i input algorithms!
+            % note: already is working, I think..
             
             % for differential mode store low-side channel timeshift:
             if tran.is_diff
@@ -441,7 +442,11 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
             di = qwtb_alg_insert_corrs(di,data.corr.dig,'');
             
             %fieldnames(di)
-           
+            
+            if ~strcmpi(calcset.unc,'none')
+                qwtb_add_unc(din,alginfo.inputs);
+            end
+            
             % execute algorithm
             dout = qwtb(alg_id,di,calcset);
             
@@ -626,4 +631,26 @@ function [di] = qwtb_alg_conv_corr(di,tab,prefix)
         di = setfield(di, [prefix qw.v_names{q}], qu);
     end
 
+end
+
+
+function [din] = qwtb_add_unc(din,pin)
+% this will create fake uncertainty for each non-parameter quantity
+% ###TODO: to be removed, when QWTB will support no-unc checking
+% It is just a temporary workaround.
+
+    names = fieldnames(din);
+    N = numel(names);
+    
+    p_names = {pin(:).name};
+    
+    for k = 1:N
+        if ~any(strcmpi(p_names,names{k}))
+            v_data = getfield(din,names{k});
+            if ~isfield(v_data,'u')
+                v_data.u = 0*v_data.v;
+                din = setfield(din,names{k},v_data);
+            end
+        end        
+    end    
 end

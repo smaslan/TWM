@@ -105,6 +105,7 @@ type:: qwtb list
                 thdn;    f;  1e-5; 1e-5
                 thdn2;   f;  1e-5; 1e-5
                 noise;   si; 1e-7; 1e-7
+                noise_bw;si; 1e-6; 1e-6
                 thd_raw; f;  1e-5; 1e-5
                 thd2_raw;f;  1e-5; 1e-5
                 spec_f;  si; 1e-6; 1e-6

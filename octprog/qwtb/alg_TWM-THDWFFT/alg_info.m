@@ -70,7 +70,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
-    
+       
     alginfo.inputs(pid).name = 'band';
     alginfo.inputs(pid).desc = 'Maximum analyzed bandwidth';
     alginfo.inputs(pid).alternative = 0;
@@ -364,6 +364,10 @@ function alginfo = alg_info() %<<<1
     % outputs
     alginfo.outputs(pid).name = 'H';
     alginfo.outputs(pid).desc = 'Number of calculated used harmonics';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'noise_bw';
+    alginfo.outputs(pid).desc = 'Bandwidth used for noise RMS estimation';
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'thd';

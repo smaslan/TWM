@@ -46,8 +46,13 @@ function [val] = interp_lut(lut,ax,res)
     elseif ischar(lut)    
         % LUT is possibly a file?
         % try to load it:
-        lut = load(lut,'-v7','lut');
-    end 
+        if isOctave
+            lut = load(lut,'-v7','lut');
+        else
+            lut = load(lut,'-mat','lut');
+        end
+        lut = lut.lut;
+    end
     
     % get required axes:
     ax_names = fieldnames(lut.ax);
@@ -221,6 +226,20 @@ function [val] = interp_lut(lut,ax,res)
     end
 
 
+end
+
+
+%%
+%% Return: true if the environment is Octave.
+%%
+function retval = isOctave()
+  persistent cacheval;  % speeds up repeated calls
+
+  if isempty (cacheval)
+    cacheval = (exist ('OCTAVE_VERSION', 'builtin') > 0);
+  end
+
+  retval = cacheval;
 end
 
 
