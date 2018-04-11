@@ -464,7 +464,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
             % store global digitizer corrections:
             di = qwtb_alg_insert_corrs(di,data.corr.dig,'');
             
-            %fieldnames(di)            
+            %fieldnames(di)         
             
             if ~strcmpi(calcset.unc,'none')
                 % generates fake uncertainty vectors complementary to the data:
