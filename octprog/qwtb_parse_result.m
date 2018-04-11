@@ -55,7 +55,7 @@ function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
   
   % read QWTB algorithm setup
   try 
-    alg_cfg = infogetsection(inf, 'algorithm configuration', {'QWTB parameters'});
+    alg_cfg = infogetsection(inf, 'algorithm configuration', {'QWTB processing setup'});
   catch
     alg_cfg = '';
   end
