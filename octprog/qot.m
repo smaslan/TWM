@@ -19,9 +19,11 @@ addpath([mfld filesep() 'qwtb']);
 %meas = [mfld '\..\temp\test_3chn\session'];
 meas = [mfld '\..\temp\test_3chn\ss_dual'];
 
+unc = 'none';
+
 tic
 %data = tpq_load_record(meas);
-qwtb_exec_algorithm(meas);
+qwtb_exec_algorithm(meas,unc);
 toc
 
 

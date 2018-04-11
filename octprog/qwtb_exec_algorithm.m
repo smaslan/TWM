@@ -26,8 +26,8 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     % try to load QWTB processing info
     try
         % load the file:
-        qinf = infoload(qwtb_file);
-        %qinf = infoparse(qinf);
+        qinf_txt = infoload(qwtb_file);
+        qinf = infoparse(qinf_txt);
         % try to get the content section:
         qinf = infogetsection(qinf, 'QWTB processing setup');
     catch
@@ -47,8 +47,25 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     % uncertainty mode:
     unc_mode = infogettext(qinf,'uncertainty mode');
     
+    % try to load MC cycles count:
+    if strcmpi(unc_mode,'mcm')
+        try
+            calcset.mcm.repeats = infogetnumber(qinf, 'monte carlo cycles');
+        catch
+            calcset.mcm.repeats = 100;
+        end
+    end
+    
+    % try to load unc. coverage interval:
+    try
+        calcset.unc_covint = 0.01*infogetnumber(qinf, 'coverage interval [%]');
+    catch
+        calcset.unc_covint = 0.95;
+    end
+        
+    
     % override uncertainty setup from file:
-    if ~isempty(calc_unc)
+    if exist('calc_unc','var') && ~isempty(calc_unc)
         % yaha
         unc_mode = calc_unc;
     end
@@ -58,6 +75,10 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         unc_mode = 'none';
     end
     calcset.unc = unc_mode;
+    calcset.cor.req = 0;
+    calcset.cor.gen = 0;
+    calcset.dof.req = 0;
+    calcset.dof.gen = 0;
     
     % get QWTB algorithm ID
     alg_id = infogettext(qinf, 'algorithm id');
@@ -88,20 +109,17 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
             if ~any(isnan(num_values))
                 % all values are numeric, assume the parameter is numeric
                 
-                inputs = setfield(inputs, name, struct('v',num_values));   
-                %eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', cell2mat(num_values));',name,name));
+                inputs = setfield(inputs, name, struct('v',num_values));
                           
             else
                 % at least some of the parameters are not numeric, assume string type
                 
                 if numel(values) == 1
-                  % scalar - single string parameter
-                  inputs = setfield(inputs, name, struct('v',values{1})); 
-                  %eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', values{1});',name,name));
+                    % scalar - single string parameter
+                    inputs = setfield(inputs, name, struct('v',values{1})); 
                 else
-                  % vector - cell array of string parameters (note: possibly never used, but just in case...)
-                  inputs = setfield(inputs, name, struct('v',values));
-                  %eval(sprintf('inputs.%s = setfield(inputs.%s, ''v'', values);',name,name));
+                    % vector - cell array of string parameters (note: possibly never used, but just in case...)
+                    inputs = setfield(inputs, name, struct('v',values));
                 end
                   
             end
@@ -194,7 +212,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     its = bsxfun(@minus,its,its(:,1)); % make it relative to 1. channel
     
     % combine the timestamp and time shift correction to get absolute record start shifts:
-    tm_stamp   = bsxfun(@plus,tm_stamp,its)
+    tm_stamp   = bsxfun(@plus,tm_stamp,its);
     u_tm_stamp = repmat(data.corr.dig.time_shifts.u_its,[size(tm_stamp,1) 1]); % uncertainty   
     
     % ####todo: in future here should be override of time-shift calibration data by self-calibration
@@ -224,7 +242,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     if exist([result_path '.info'],'file') delete([result_path '.info']); end
       
     % insert copy of QWTB parameters to the result
-    rinf = infosetsection('QWTB parameters', qinf);
+    rinf = qinf_txt;
     
     
     % --- execute algorithms:
@@ -351,7 +369,12 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
             % store global digitizer corrections:
             di = qwtb_alg_insert_corrs(di,data.corr.dig,'');
             
-            %fieldnames(di)            
+            %fieldnames(di)
+            
+            if ~strcmpi(calcset.unc,'none')
+                % generates fake uncertainty vectors complementary to the data:
+                di = qwtb_add_unc(di,alginfo.inputs); % ###TODO: remove when QWTB can ignore missing uncertainty
+            end            
                        
             % execute algorithm
             dout = qwtb(alg_id,di,calcset);
@@ -441,10 +464,11 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
             % store global digitizer corrections:
             di = qwtb_alg_insert_corrs(di,data.corr.dig,'');
             
-            %fieldnames(di)
+            %fieldnames(di)            
             
             if ~strcmpi(calcset.unc,'none')
-                qwtb_add_unc(din,alginfo.inputs);
+                % generates fake uncertainty vectors complementary to the data:
+                di = qwtb_add_unc(di,alginfo.inputs); % ###TODO: remove when QWTB can ignore missing uncertainty
             end
             
             % execute algorithm
@@ -465,82 +489,82 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
 
   
   
-  % --- build results header
-  
-  % full file path to the results header
-  results_header = [meas_root 'results.info'];
-  
-  rinf = '';
-  try 
-    % try to load the results header
-    rinf = infoload(results_header);
+    % --- build results header
     
-    % try to get algorithms list
-    algs = infogettextmatrix(rinf, 'algorithms');
+    % full file path to the results header
+    results_header = [meas_root 'results.info'];
     
-  catch
-    % no algorithms yet
-    algs = {};
+    rinf = '';
+    try 
+        % try to load the results header
+        rinf = infoload(results_header);
+        
+        % try to get algorithms list
+        algs = infogettextmatrix(rinf, 'algorithms');
+      
+    catch
+        % no algorithms yet
+        algs = {};
+      
+    end
+  
+    % load lists of available results for each algorithm
+    algs_hist = {};
+    for a = 1:numel(algs)
+        algs_hist{a,1} = infogettextmatrix(rinf, algs{a});   
+    end
     
-  end
-
-  % load lists of available results for each algorithm
-  algs_hist = {};
-  for a = 1:numel(algs)
-    algs_hist{a,1} = infogettextmatrix(rinf, algs{a});   
-  end
-  
-  % check if this algorithm is already listed?
-  aid = strcmpi(algs, alg_id);
-  if any(aid)
-    % yaha - find its index in the list    
-    aid = find(aid, 1);
-  else
-    % nope - add new into the list
-    algs{end+1,1} = alg_id;
-    algs_hist{end+1,1} = {};
-    aid = numel(algs);      
-  end
-  
-  % get list of results for this algorithm 
-  alg_res_list = algs_hist{aid};
-  
-  % try to find if there is already this result (previous call of the QWTB with the same algorithm)
-  rid = strcmpi(alg_res_list, result_rel_path);
-  if any(rid)
-    % found - overwrite
-    rid = find(rid,1);
-    alg_res_list{rid,1} = result_rel_path;
-  else
-    % not found - add
-    alg_res_list{end+1,1} = result_rel_path;
-    rid = numel(alg_res_list);
-  end
-  
-  % sort results
-  alg_res_list = sort(alg_res_list);  
-  rid = find(strcmpi(alg_res_list,result_rel_path),1);
-  
-  % store back the results list for this algorithm
-  algs_hist{aid} = alg_res_list;
+    % check if this algorithm is already listed?
+    aid = strcmpi(algs, alg_id);
+    if any(aid)
+        % yaha - find its index in the list    
+        aid = find(aid, 1);
+    else
+        % nope - add new into the list
+        algs{end+1,1} = alg_id;
+        algs_hist{end+1,1} = {};
+        aid = numel(algs);      
+    end
     
-  
-  rinf = '';
-  
-  % store last calculated algorithm id
-  rinf = infosettext(rinf, 'last algorithm', alg_id);
-  rinf = infosetnumber(rinf, 'last result id', rid);
-  
-  % store updated list of algorithms
-  rinf = infosettextmatrix(rinf, 'algorithms', algs);
+    % get list of results for this algorithm 
+    alg_res_list = algs_hist{aid};
     
-  % store lists of results for each algorithm
-  for a = 1:numel(algs)
-    rinf = infosettextmatrix(rinf, algs{a}, algs_hist{a});    
-  end
-  
-  % write updated results header back to the file 
-  infosave(rinf, results_header, 1, 1);  
+    % try to find if there is already this result (previous call of the QWTB with the same algorithm)
+    rid = strcmpi(alg_res_list, result_rel_path);
+    if any(rid)
+        % found - overwrite
+        rid = find(rid,1);
+        alg_res_list{rid,1} = result_rel_path;
+    else
+        % not found - add
+        alg_res_list{end+1,1} = result_rel_path;
+        rid = numel(alg_res_list);
+    end
+    
+    % sort results
+    alg_res_list = sort(alg_res_list);  
+    rid = find(strcmpi(alg_res_list,result_rel_path),1);
+    
+    % store back the results list for this algorithm
+    algs_hist{aid} = alg_res_list;
+      
+    
+    rinf = '';
+    
+    % store last calculated algorithm id
+    rinf = infosettext(rinf, 'last algorithm', alg_id);
+    rinf = infosetnumber(rinf, 'last result id', rid);
+    
+    % store updated list of algorithms
+    rinf = infosettextmatrix(rinf, 'algorithms', algs);
+      
+    % store lists of results for each algorithm
+    for a = 1:numel(algs)
+        rinf = infosettextmatrix(rinf, algs{a}, algs_hist{a});    
+    end
+    
+    % write updated results header back to the file 
+    infosave(rinf, results_header, 1, 1);  
   
 end
 
@@ -641,8 +665,8 @@ function [din] = qwtb_add_unc(din,pin)
 
     names = fieldnames(din);
     N = numel(names);
-    
-    p_names = {pin(:).name};
+
+    p_names = {pin(~~[pin.parameter]).name};
     
     for k = 1:N
         if ~any(strcmpi(p_names,names{k}))
