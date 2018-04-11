@@ -8,7 +8,7 @@ function alg_test(calcset) %<<<1
 
     % --- correction data ---
     % generate some digitizer gain transfer:
-    din.adc_gain.v =   [1.0; 0.5; 0.2];
+    din.adc_gain.v =   [1.0; 0.95; 0.90];
     din.adc_gain.u =   [0.0; 0.0; 0.0];
     din.adc_gain_f.v = [0;   1e4; 1e6];
     din.adc_gain_a.v = [];
@@ -87,8 +87,9 @@ function alg_test(calcset) %<<<1
         sim.A_max = 1000e-6;
     % harmonics count to generate (including fundamental):
     sim.H = din.H.v;
-    % ADC noise level in DFT spectrum [V]:
+    % ADC rms noise [V]:
     sim.adc_noise_lev = 1e-6;
+    sim.adc_noise_bw = 0.4*sim.fs; % noise level related to this bw
     % enable randomization of quantities with uncertainties (to simulate uncertainty):
     %   note: disabling this will also ignore SFDR errors, jitter
     sim.randomize = 0;

@@ -32,9 +32,12 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
     
     % get signal noise level
     if isfield(p,'adc_noise_lev')
-        adc_noise_lev = p.adc_noise_lev;
+        adc_noise_rms = p.adc_noise_lev;
+        if isfield(p,'adc_noise_bw')
+            adc_noise_rms = adc_noise_rms*(0.5*p.fs/p.adc_noise_bw)^0.5;
+        end
     else
-        adc_noise_lev = 0.0;
+        adc_noise_rms = 0.0;
     end
     
     % get sampling rate
@@ -214,7 +217,7 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
 
     
     % generate signal noise with desired level (sample, average)
-    adc_noise = randn(N,avg)*adc_noise_lev/4*N^0.5;
+    adc_noise = randn(N,avg)*adc_noise_rms;
         
     % generate time vectors (sample, average)
     t_nom = reshape(0:N - 1,[N 1])./fs;

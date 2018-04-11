@@ -1,4 +1,4 @@
-function [ws,wfbin,flat,norm_fac] = thd_window_spectrum(f_real,f_bin,f_bin_step,wtype)
+function [ws,wfbin,flat] = thd_window_spectrum(f_real,f_bin,f_bin_step,wtype)
 % Part of non-coherent, windowed FFT, THD meter
 % (c) 2013-2017, Stanislav Maslan, smaslan@cmi.cz, CMI
 % Distributed under GNU Lesser General Public License (LGPL).
@@ -32,9 +32,6 @@ function [ws,wfbin,flat,norm_fac] = thd_window_spectrum(f_real,f_bin,f_bin_step,
   else
     error(sprintf('Not defined scalloping loss for window ''%s''!',wtype));
   end
-  
-  % get window normalising coefficient:
-  norm_fac = mean(w);
       
   % calculate symmetric spectrum
   k = 100;

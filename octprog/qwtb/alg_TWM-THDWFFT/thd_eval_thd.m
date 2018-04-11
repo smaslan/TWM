@@ -95,7 +95,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
   
     % --- obtain parameters of the window
     % window +/-0.5*bin relative flatness [-]:
-    [a,b,flat,norm_fac] = thd_window_spectrum(1000,1000,10,window_type);
+    [a,b,flat] = thd_window_spectrum(1000,1000,10,window_type);
     clear a,b;    
     if fix_scalloping
         % when scalloping error correction enabled, assume about 50% flatness improvement (pessimistic guess):
@@ -105,6 +105,16 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         % ###note: is not nice solution, but works, rest of the algorithm is even more empirical... 
         flat = flat*1.4;
     end
+    
+    % samples count:
+    N = 2*size(sig,1);
+    
+    % get window used for processing:    
+    w = window_coeff('flattop_248D',N);    
+    % get window gain factor:
+    win_gain = mean(w);
+    % get window rms: 
+    win_rms = mean(w.^2)^0.5;
     
    
         
@@ -335,16 +345,17 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     end
   
     % --- estimate noise amplitude for entire freq range:
+    %  ###todo: should come from entire spectrum, but for now lets use just the noise level estimates
     % use noise estimates from 2nd harmonic:
     f_noise_est = f_harm(2:end);
-    u_noise_est = U_noise(2:end)/noise_gain;
+    u_noise_est = U_noise(2:end);
     
     % interpolate noise level to entire used bandwidth:
     noise_est = interp1(f_noise_est,u_noise_est,[f(f <= f_max)],'nearest','extrap');
     
-    % estimate noise-rms:
-    noise_rms = sum((0.5*noise_est).^2)^0.5;
-        
+    % estimate noise-rms:     
+    noise_rms = sum(0.5*noise_est.^2)^0.5/win_rms*win_gain;
+           
   
   
     % get fundamental harmonic parameters:
