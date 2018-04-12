@@ -134,7 +134,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     %        noise_rel_f_range     noise_start
     %     
     noise_rel_f_range = round(0.45*f_sig/f_bin_step);
-    noise_start = 11; % this should be higher then width of the window
+    noise_start = 12; % this should be higher then width of the window
     
     
     
@@ -345,11 +345,18 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     end
   
     % --- estimate noise amplitude for entire freq range:
-    %  ###todo: should come from entire spectrum, but for now lets use just the noise level estimates
+    %  ###todo: should come from entire spectrum
     % use noise estimates from 2nd harmonic:
     f_noise_est = f_harm(2:end);
     u_noise_est = U_noise(2:end);
     
+    % add post harmonics section of spectrum so we estimate full rms of the signal:
+    nid = find(f > f_noise_est(end) & f <= f_max);
+    if ~isempty(nid)
+        f_noise_est = [f_noise_est; f(nid)];
+        u_noise_est = [u_noise_est; sig_m(nid)];
+    end
+
     % interpolate noise level to entire used bandwidth:
     noise_est = interp1(f_noise_est,u_noise_est,[f(f <= f_max)],'nearest','extrap');
     
