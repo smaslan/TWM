@@ -9,25 +9,27 @@ function alg_test(calcset) %<<<1
     % sampling rate [Hz]
     din.fs.v = 100000;
     
-    % randomize uncertainties:
+    % randomize correction uncertainties:     
     rand_unc = 0;
+     
     
     % harmonic amplitudes:
-    A =  [1       0.0005  0.0001]';
+    A =  [1       logrand(1e-6,0.01)  logrand(1e-6,0.01)]';
     % harmonic phases:
-    ph = [0.5/pi -0.8  0.2]'*pi;
+    ph = [0.5/pi  2*rand()            2*rand()]'*pi;
     % harmonic freq. [Hz]:
-    fx = [1000   5000  10000]';
+    fx = [1000   (5000+1000*rand())  (10000+2000*rand())]';
     
     % current loop impedance (used for simulation of differential transducer):
     Zx = 0.5;
     
     % non-zero to generate differential input signal:
-    is_diff = 0;
+    is_diff = 1;
                
-    % noise level:
-    adc_std_noise = 0e-6;
+    % ADC rms noise level:
+    adc_std_noise = 10e-6;
         
+    
     
     
          
@@ -100,7 +102,7 @@ function alg_test(calcset) %<<<1
     din.tr_Zlo_Cp.v = [1e-12];
     din.tr_Zlo_Cp.u = [1e-12];
     
-    
+        
     if ~rand_unc
         % discard all correction uncertainties:
         
@@ -215,10 +217,16 @@ function alg_test(calcset) %<<<1
         datain = setfield(datain, cfg.ysub{c}, struct('v',u));
     
     end
+    
+    % add fake uncertainties to allow uncertainty calculation:
+    %  ###todo: to be removed when QWTB supports no uncertainty checking 
+    alginf = qwtb('TWM-FPNLSF','info');
+    qwtb('TWM-FPNLSF','addpath');    
+    datain = qwtb_add_unc(datain,alginf.inputs);
         
 
     % --- execute the algorithm:
-    calcset.unc = 'none';
+    calcset.unc = 'guf';
     dout = qwtb('TWM-FPNLSF',datain,calcset);
     
     % get reference values:
@@ -272,5 +280,32 @@ function alg_test(calcset) %<<<1
         assert(abs(phx - phr) < u_phx, 'Estimated phase does not match generated one.'); 
     end                                                     
     
+end
+
+
+function [rnd] = logrand(A_min,A_max)
+    rnd = 10.^(log10(A_min) + (log10(A_max) - log10(A_min))*rand());
+end
+
+
+function [din] = qwtb_add_unc(din,pin)
+% this will create fake uncertainty for each non-parameter quantity
+% ###TODO: to be removed, when QWTB will support no-unc checking
+% It is just a temporary workaround.
+
+    names = fieldnames(din);
+    N = numel(names);
+
+    p_names = {pin(~~[pin.parameter]).name};
+    
+    for k = 1:N
+        if ~any(strcmpi(p_names,names{k}))
+            v_data = getfield(din,names{k});
+            if ~isfield(v_data,'u')
+                v_data.u = 0*v_data.v;
+                din = setfield(din,names{k},v_data);
+            end
+        end        
+    end    
 end
    

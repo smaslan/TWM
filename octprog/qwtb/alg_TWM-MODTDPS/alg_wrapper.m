@@ -172,7 +172,7 @@ function dataout = alg_wrapper(datain, calcset)
         
     else
         % -- single-ended mode:
-    
+            
         % estimate transducer correction tfer for dominant component 'f0':
         % note: corrector estimates rms just from the component 'f0', so it may not be accurate
         if ~isempty(vc.tran)
@@ -182,6 +182,7 @@ function dataout = alg_wrapper(datain, calcset)
             trg = 1;
             trp = 0;
         end
+
     
     end        
     
@@ -193,8 +194,6 @@ function dataout = alg_wrapper(datain, calcset)
         error('Correction data have insufficient range for the signal!');
     end
     
-                     
-    
     
     % --- main algorithm start --- 
     
@@ -202,8 +201,91 @@ function dataout = alg_wrapper(datain, calcset)
     [me, dc,f0,A0, fm,Am,phm, n_A0,n_Am] = mod_tdps(fs,vc.y,wave_shape,comp_err);
     
     
+    
 
     % --- now the fun part - estimate uncertainty ---
+    
+    if strcmpi(calcset.unc,'guf')
+        % --- GUF + estimator:
+        
+        % get ADC LSB value (high-side):
+        if isfield(datain,'lsb')
+            % get LSB value directly
+            lsb = datain.lsb.v;
+        elseif isfield(datain,'adc_nrng') && isfield(datain,'adc_bits')
+            % get LSB value estimate from nominal range and resolution
+            lsb = 2*datain.adc_nrng.v*2^(-datain.adc_bits.v);    
+        else
+            error('FPNLSF, corrections: Correction data contain no information about ADC resolution+range or LSB value!');
+        end
+        
+        if vc.is_diff
+            % -- differential mode:
+    
+            % get adc SFDR: 
+            adc_sfdr =    correction_interp_table(tab.adc_sfdr, vc.Y(fid), f0);
+            adc_sfdr_lo = correction_interp_table(tab.adc_sfdr_lo, vc.Y_lo(fid), f0);
+            
+            % effective ADC SFDR [dB]:
+            adc_sfdr = -20*log10(((vc.Y(fid)*10^(-adc_sfdr.sfdr/20))^2 + (vc.Y_lo(fid)*10^(-adc_sfdr_lo.sfdr/20))^2)^0.5/(A0/tot_gain));
+            
+            % get transducer SFDR:
+            tr_sfdr  = correction_interp_table(tab.tr_sfdr,  2^-0.5*A0, f0);
+            
+            % calculate effective system SFDR:
+            sfdr_sys = -20*log10(10^(-adc_sfdr.sfdr/20) + 10^(-tr_sfdr.sfdr/20));
+            
+            
+            % get ADC LSB value (low-side):
+            if isfield(datain,'lo_lsb')
+                % get LSB value directly
+                lsb_lo = datain.lo_lsb.v;
+            elseif isfield(datain,'lo_adc_nrng') && isfield(datain,'lo_adc_bits')
+                % get LSB value estimate from nominal range and resolution
+                lsb_lo = 2*datain.lo_adc_nrng.v*2^(-datain.lo_adc_bits.v);    
+            else
+                error('FPNLSF, corrections: Correction data contain no information about ADC resolution+range or LSB value!');
+            end
+            
+            % effective LSB value:
+            lsb = (lsb^2 + lsb_lo^2)^0.5*tot_gain;
+            
+            % recalculate spectrum from the difference signal:
+            [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
+            
+            % effective jitter value:
+            jitt = (datain.jitter.v^2 + datain.lo_jitter.v^2)^0.5; 
+            
+        else
+            % -- single-ended mode:
+            
+            % get SFDR: 
+            adc_sfdr = correction_interp_table(tab.adc_sfdr, A0/tot_gain, f0);
+            tr_sfdr  = correction_interp_table(tab.tr_sfdr,  2^-0.5*A0, f0);
+            
+            % get system SFDR estimate:
+            sfdr_sys = -20*log10(10^(-adc_sfdr.sfdr/20) + 10^(-tr_sfdr.sfdr/20));             
+
+            % get LSB absolute value scaled to input signal:
+            lsb = lsb*tot_gain;
+            
+            % signal spectrum:
+            Y = vc.Y;
+            
+            % jitter value [s]:
+            jitt = datain.jitter.v;
+            
+        end
+        
+        unc = unc_estimate(dc,f0,A0,fm,Am,phm, numel(vc.y),fh,Y,fs, sfdr_sys,lsb,jitt, wave_shape,comp_err);        
+    
+    else
+        % -- no uncertainty:
+    
+    end
+    
+
+  
     
     % build virtual list of involved freqs. (sine mod. components):
     % note: we use it even for square
@@ -295,6 +377,104 @@ function dataout = alg_wrapper(datain, calcset)
 
 
 end % function
+
+
+
+function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_shape,comp_err)
+% Uncertainty estimator
+
+    % freq. component count:
+    F = numel(fh);
+    
+    % get window:
+    w = window_coeff('flattop_matlab',N);
+    % get window scaling factor:
+    w_gain = mean(w);
+    % get window rms:
+    w_rms = mean(w.^2).^0.5;
+    
+
+    % peak signal value:
+    Apk = A0 + Am + abs(dc)
+    
+    % sine mod main freq component central DFT bins:
+    fid = round([f0;f0-fm;f0+fm]/fs*N) + 1;
+    
+    % remove harmonic DFT bins:
+    wind_w = 7;
+    sid = [];
+    for k = 1:numel(fid)
+        sid = [sid,(fid(k) - wind_w):(fid(k) + wind_w)];    
+    end
+    % remove them from spectrum:
+    sid = unique(sid);    
+    nid = setdiff([1:F],sid);
+    nid = nid(nid <= F & nid > 0);
+    % now 'nid' DFT bins should contain only spurrs and noise...
+    
+    % remove DC offset from DFT residue:
+    nid = nid(nid > 10);
+    
+    % identify and remove top harmonics:
+    h_max = [];
+    for k = 1:50
+        % find maximum:
+        [h_max(k),id] = max(Y(nid));
+        % identify sorounding DFT bins: 
+        sid = [(nid(id) - wind_w):(nid(id) + wind_w)];
+        % remove it:
+        nid = setdiff(nid,sid);
+        nid = nid(nid <= numel(fh) & nid > 0);
+    end
+    % now 'nid' should contain only residual noise and small harmonics...
+    
+    
+    % noise level estimate from the spectrum residue to full bw.:
+    Y_noise = interp1(fh(nid),Y(nid),fh,'nearest','extrap');
+    
+    % estimate full bw. rms noise:    
+    noise_rms = sum(0.5*Y_noise.^2).^0.5/w_rms*w_gain;
+    
+    % signal SFDR estimate [dB]:
+    sfdr_sig = -20*log10(max(h_max)/A0);
+    
+    % select worst SFDR source [dB]:
+    sfdr = min(sfdr_sig,sfdr);    
+    
+    % signal RMS estimate:
+    sig_rms = A0*2^-0.5;
+    
+    % SNR estimate:
+    snr = -10*log10((noise_rms/sig_rms)^2);
+    
+    % SNR equivalent time jitter:
+    tj = 10^(-snr/20)/2/pi/f0;
+    
+    
+    ax = struct();            
+    % total used ADC bits for the signal:
+    ax.bits.val = log2(2*Apk/lsb);
+    % jitter relative to frequency:
+    ax.jitt.val = (jitt^2 + tj^2)^0.5*f0;
+    % SFDR estimate: 
+    ax.sfdr.val = sfdr;
+    % modulating/carrier frequency ratio: 
+    ax.fmf0_rat.val = fm/f0;
+    % sampling rate to carrier ratio:
+    ax.fsf0_rat.val = fs/f0;
+    % modulating depth [-]:
+    ax.modd.val = Am/A0;
+    % periods count of carrier:
+    ax.fm_per.val = N/fs*f0;
+    
+    ax         
+        
+        
+
+end
+
+
+
 
 
 % vim settings modeline: vim: foldmarker=%<<<,%>>> fdm=marker fen ft=octave textwidth=80 tabstop=4 shiftwidth=4

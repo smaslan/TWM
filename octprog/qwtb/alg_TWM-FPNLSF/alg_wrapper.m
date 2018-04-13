@@ -124,9 +124,11 @@ function dataout = alg_wrapper(datain, calcset)
         [fh, vc.Y, vc.ph] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);    
         % get low-side spectrum:
         [fh, vc.Y_lo, vc.ph_lo] = ampphspectrum(vc.y_lo, fs, 0, 0, 'flattop_matlab', [], 0);
-        
+                        
         % identify DFT bin with the estimated freq. component:
         [v,fid] = min(abs(fh - f_est));
+               
+        
         
         % get rough voltage vectors for high- and low-side channels from DFT:
         A0    = vc.Y(fid);
@@ -223,11 +225,54 @@ function dataout = alg_wrapper(datain, calcset)
             trp = 0;
         end
         
+        
         % estimate signal parameters (from differential signal):            
         [Ax, fx, phx, ox] = FPNLSF_loop(t, vc.y, f_est, calcset.verbose, cfg);
         if isinf(fx)
             error('Fitting algorithm failed! Check waveform and initial frequency estimate accruacy!');
         end
+        
+        if strcmpi(calcset.unc,'guf')
+            % GUF - use estimator:
+            
+            % --- get ADC LSB value
+            if isfield(datain,'lo_lsb')
+                % get LSB value directly
+                lsb = datain.lo_lsb.v;
+            elseif isfield(datain,'lo_adc_nrng') && isfield(datain,'lo_adc_bits')
+                % get LSB value estimate from nominal range and resolution
+                lsb = 2*datain.lo_adc_nrng.v*2^(-datain.lo_adc_bits.v);    
+            else
+                error('FPNLSF, corrections: Correction data contain no information about ADC resolution+range or LSB value!');
+            end
+                       
+            
+            % effective LSB:
+            lsb_ef = ((lsb/vc.Y(fid))^2 + (lsb/vc.Y_lo(fid))^2)^0.5;
+            
+            
+            % get spectrum:
+            [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
+            
+            % estimate uncertainty:
+            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb_ef*(Ax+abs(ox)),datain.jitter.v,tab);
+            
+            % expand uncertainty - very naive approximation of difference of two signals:
+            unc.dpx.val = unc.dpx.val*1.5;
+            unc.dfx.val = unc.dfx.val*1.5;
+            unc.dAx.val = unc.dAx.val*1.5;
+            unc.dox.val = unc.dox.val*1.5;
+          
+        else
+            % other modes - do nothing: 
+          
+            unc.dpx.val = 0;
+            unc.dfx.val = 0;
+            unc.dAx.val = 0;
+            unc.dox.val = 0;
+                      
+        end
+
         
         % apply timebase frequency correction:    
         %  note: it is relative correction of timebase error, so apply inverse correction to measured f.  
@@ -251,6 +296,11 @@ function dataout = alg_wrapper(datain, calcset)
         u_Ax = Ax.*u_trg;
         u_phx = u_trp;
         
+        % add alg. uncertainty contribution:
+        u_Ax = (u_Ax^2 + (Ax.*unc.dAx.val)^2)^0.5;
+        u_phx = (u_phx^2 + unc.dpx.val^2)^0.5;
+        u_fx = (u_fx^2 + (fx*unc.dfx.val)^2)^0.5;
+                
         % todo: handle the offset, it will be wrong because of the timedomain corrections at fx are not the same as for DC
         
         % todo: implement some unc. estimate even for the differential mode...
@@ -260,70 +310,18 @@ function dataout = alg_wrapper(datain, calcset)
         
         % -- uncertainty estimator:
         
-        % get high-side spectrum:
-        [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
         
-        % harmonic components:
-        fhx = [fx:fx:max(fh)];
-        fid = round(fhx/fs*N) + 1;
-        
-        % get harmonic DFT bins:
-        wind_w = 7;
-        sid = [];
-        for k = 1:numel(fhx)
-            sid = [sid,(fid(k) - wind_w):(fid(k) + wind_w)];    
-        end
-        sid = unique(sid);
-        % get noise DFT bins:
-        nid = setxor([1:numel(fh)],sid);
-        nid = nid(nid > wind_w); % get rid of DC
-        
-        % estimate RMS of noise:
-        noise_rms = sum(0.5*Y(nid).^2).^0.5;        
-        noise_rms = noise_rms*(numel(fh)/numel(nid))^0.5; % expand to cover limited selection of DFT bins
-        
-        % signal RMS estimate:
-        sig_rms = Ax*2^-0.5;
-        
-        % SNR estimate:
-        snr = -10*log10((noise_rms/sig_rms)^2);
-        
-        % SNR equivalent time jitter:
-        tj = 10^(-snr/20)/2/pi/fx;
-      
-        % estimate SFDR of the signal:
-        Y_max = max([Y(10:(fid-10));Y((fid + 10):end)]);
-        sfdr = -20*log10(Y_max/Ax);
-        
-        % estimate SFDR of the system:
-        adc_sfdr = correction_interp_table(tab.adc_sfdr, Ax, fx);
-        tr_sfdr  = correction_interp_table(tab.tr_sfdr,  Ax, fx);        
-        sfdr_sys = -20*log10(10^(-adc_sfdr.sfdr/20) + 10^(-tr_sfdr.sfdr/20));        
-        
-        % total SFDR estimate:
-        sfdr = min(sfdr_sys,sfdr);        
-                
-        
-        if true
+        if strcmpi(calcset.unc,'guf')
+            % GUF - use estimator:
             
-            ax = struct();            
-            % periods count of 'fx' in signal:
-            ax.f0_per.val = N*fx/fs;
-            % sampling rate to 'fx' ratio:
-            ax.fs_rat.val = fs/fx;
-            % total used ADC bits for the signal:
-            ax.bits.val = log2(2*(Ax + abs(ox))/lsb);
-            % jitter relative to frequency:
-            ax.jitt.val = (datain.jitter.v^2 + tj^2)^0.5*fx;
-            % SFDR estimate: 
-            ax.sfdr.val = sfdr;
+            % get spectrum:
+            [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
             
-            ax
-                
-            % try to estimate uncertainty:   
-            unc = interp_lut([mfld 'unc.lut'],ax);
+            % estimate uncertainty:
+            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,datain.jitter.v,tab);
           
         else
+            % other modes - do nothing: 
           
             unc.dpx.val = 0;
             unc.dfx.val = 0;
@@ -399,6 +397,95 @@ function dataout = alg_wrapper(datain, calcset)
 
 
 end % function
+
+
+
+
+function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,tab)
+% Uncertainty estimator:
+    
+    % harmonic components:
+    fhx = [fx:fx:max(fh)];
+    fid = round(fhx/fs*N) + 1;
+    
+    % get harmonic DFT bins:
+    wind_w = 7;
+    sid = [];
+    for k = 1:numel(fhx)
+        sid = [sid,(fid(k) - wind_w):(fid(k) + wind_w)];    
+    end
+    % remove them from spectrum:
+    sid = unique(sid);    
+    nid = setxor([1:numel(fh)],sid);
+    nid = nid(nid <= numel(fh) & nid > 0);
+    
+    % remove top harmonics:
+    for k = 1:20
+        % find maximum:
+        [v,id] = max(Y(nid));
+        % identify sorounding DFT bins: 
+        sid = [(nid(id) - wind_w):(nid(id) + wind_w)];
+        % remove it:
+        nid = setdiff(nid,sid);
+        nid = nid(nid <= numel(fh) & nid > 0);                
+    end   
+    
+    % get noise DFT bins:    
+    nid = nid(nid > wind_w & nid <= numel(nid)); % get rid of DC and limit to valid range
+    
+    % estimate RMS of noise:
+    noise_rms = sum(0.5*Y(nid).^2).^0.5;        
+    noise_rms = noise_rms*(numel(fh)/numel(nid))^0.5; % expand to cover limited selection of DFT bins
+    
+    % signal RMS estimate:
+    sig_rms = Ax*2^-0.5;
+    
+    % SNR estimate:
+    snr = -10*log10((noise_rms/sig_rms)^2);
+    
+    % SNR equivalent time jitter:
+    tj = 10^(-snr/20)/2/pi/fx;
+  
+    % estimate SFDR of the signal:
+    Y_max = max([Y(10:(fid-10));Y((fid + 10):end)]);
+    sfdr = -20*log10(Y_max/Ax);
+    
+    % estimate SFDR of the system:
+    adc_sfdr = correction_interp_table(tab.adc_sfdr, Ax, fx);
+    tr_sfdr  = correction_interp_table(tab.tr_sfdr,  Ax, fx);        
+    sfdr_sys = -20*log10(10^(-adc_sfdr.sfdr/20) + 10^(-tr_sfdr.sfdr/20));        
+    
+    % total SFDR estimate:
+    sfdr = min(sfdr_sys,sfdr);        
+    
+        
+    ax = struct();            
+    % periods count of 'fx' in signal:
+    ax.f0_per.val = N*fx/fs;
+    % sampling rate to 'fx' ratio:
+    ax.fs_rat.val = fs/fx;
+    % total used ADC bits for the signal:
+    ax.bits.val = log2(2*(Ax + abs(ox))/lsb);
+    % jitter relative to frequency:
+    ax.jitt.val = (jitt^2 + tj^2)^0.5*fx;
+    % SFDR estimate: 
+    ax.sfdr.val = sfdr;
+    
+    % current folder:
+    mfld = [fileparts(mfilename('fullpath')) filesep()];
+        
+    % try to estimate uncertainty:       
+    unc = interp_lut([mfld 'unc.lut'],ax);
+    
+    % scale down to (k = 1):
+    unc.dpx.val = 0.5*unc.dpx.val;
+    unc.dfx.val = 0.5*unc.dfx.val;
+    unc.dAx.val = 0.5*unc.dAx.val;
+    unc.dox.val = 0.5*unc.dox.val;
+
+end
+
+
 
 
 function [Ax, fx, phx, ox] = FPNLSF_loop(t,u,f_est,verbose,cfg)

@@ -28,6 +28,12 @@ function alg_test(calcset) %<<<1
     % enable algorithm self-compensation?
     din.comp_err.v = 1;
     
+    % enable differential sensor connection?
+    is_diff = 0;
+    
+    % randomize uncertainties?
+    rand_unc = 0;
+    
     
     % store some input quantities:
     din.fs.v = fs;    
@@ -81,11 +87,27 @@ function alg_test(calcset) %<<<1
         din.tr_Zlo_Cp.v = [1e-12];        
         din.tr_Zlo_Rp.u = [1e-6];
         din.tr_Zlo_Cp.u = [1e-12];    
+    
     end
     
-    % uncomment to enable differential transducer simulation:
+    if ~rand_unc
+        % discard all correction uncertainties:        
+        corrz = fieldnames(din);        
+        for k = 1:numel(corrz)
+            c_data = getfield(din,corrz{k});
+            if isfield(c_data,'u')
+                c_data.u = 0*c_data.u;
+                din = setfield(din,corrz{k},c_data);
+            end            
+        end
+    end
+    
+    
+    % enable differential transducer simulation?
     %  note: current loop low-impedance
-    %Zx = 0.5;
+    if is_diff
+        Zx = 0.5;
+    end
     
     
   
@@ -202,8 +224,15 @@ function alg_test(calcset) %<<<1
     
     end
     
+    % workaround for QWTB uncertainty checking
+    %  ###todo: to be removed when QWTB fixed
+    alginf = qwtb('TWM-MODTDPS','info');
+    qwtb('TWM-MODTDPS','addpath');
+    din_org = qwtb_add_unc(din_org,alginf.inputs);
+    
     % --- execute the algorithm:
-    dout = qwtb('TWM-MODTDPS',din_org);
+    calcset.unc = 'guf';
+    dout = qwtb('TWM-MODTDPS',din_org,calcset);
     
     
     % get calculated values:
@@ -239,5 +268,27 @@ function alg_test(calcset) %<<<1
     fprintf('------+------------+------------+-----------+----------+---------\n\n');
        
     
+end
+
+
+function [din] = qwtb_add_unc(din,pin)
+% this will create fake uncertainty for each non-parameter quantity
+% ###TODO: to be removed, when QWTB will support no-unc checking
+% It is just a temporary workaround.
+
+    names = fieldnames(din);
+    N = numel(names);
+
+    p_names = {pin(~~[pin.parameter]).name};
+    
+    for k = 1:N
+        if ~any(strcmpi(p_names,names{k}))
+            v_data = getfield(din,names{k});
+            if ~isfield(v_data,'u')
+                v_data.u = 0*v_data.v;
+                din = setfield(din,names{k},v_data);
+            end
+        end        
+    end    
 end
    
