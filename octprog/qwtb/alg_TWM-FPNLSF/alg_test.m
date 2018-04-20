@@ -24,7 +24,7 @@ function alg_test(calcset) %<<<1
     Zx = 0.5;
     
     % non-zero to generate differential input signal:
-    is_diff = 1;
+    is_diff = 0;
                
     % ADC rms noise level:
     adc_std_noise = 10e-6;

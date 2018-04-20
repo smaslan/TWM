@@ -10,17 +10,17 @@ function alg_test(calcset) %<<<1
     fs = 10000;
     
     % carrier:
-    f0 = 50.3;
-    A0 = 50;
+    f0 = rounddig(logrand(50,1000,1),4);
+    A0 = 1;
     
     % modulating signal:    
-    fm = 2.321;
-    Am = A0*0.333333;    
+    fm = rounddig(logrand(3/(N/fs),0.3*f0,1),4);
+    Am = A0*rounddig(logrand(0.02,0.98,1),4);    
     phm = rand(1)*2*pi; % random phase
     wshape = 'sine';
     
     % digitizer std noise:    
-    adc_std_noise = 1e-6;
+    adc_std_noise = 100e-6;
     
     % digitizer jitter:
     jitter = 100e-9;
@@ -34,13 +34,17 @@ function alg_test(calcset) %<<<1
     % randomize uncertainties?
     rand_unc = 0;
     
+    % add random spurrs [+dB]
+    %  note generates random valued spurrs, one around each f0 harmonic     
+    sim_sfdr = 80;
+    
     
     % store some input quantities:
     din.fs.v = fs;    
     din.wave_shape.v = wshape;
         
     % store correction data:
-    if true
+    if false
         % create some corretion table for the digitizer gain: 
         din.adc_gain_f.v = [0;1e3;1e6];
         din.adc_gain_a.v = [];
@@ -142,16 +146,35 @@ function alg_test(calcset) %<<<1
     end
     
     
+    % generate spurr frequencies:    
+    fh(:,1) = [2*f0:f0:0.4*fs];
+    fh = fh + (2-2*rand(size(fh)))*0.1*f0;
+    
+    % generate spurrs:
+    Ah = logrand(A0*1e-9,A0*10^(-sim_sfdr/20),size(fh));
+    phh = rand(size(fh))*2*pi;
+    
+    % add the to the generating list:
+    f = [f;fh];
+    A = [A;Ah];        
+    ph = [ph;phh];
+    
+    %loglog(f,A)     
         
     
     % apply transducer transfer:
+    if rand_unc
+        randtxt = 'rand';         
+    else
+        randtxt = '';
+    end
     A_syn = [];
     ph_syn = [];
     sctab = {};
     tsh = [];
     if cfg.y_is_diff
         % -- differential connection:
-        [A_syn(:,1),ph_syn(:,1),A_syn(:,2),ph_syn(:,2)] = correction_transducer_sim(tab,din.tr_type.v,f, A,ph,0*A,0*ph,'',Zx);
+        [A_syn(:,1),ph_syn(:,1),A_syn(:,2),ph_syn(:,2)] = correction_transducer_sim(tab,din.tr_type.v,f, A,ph,0*A,0*ph,randtxt,Zx);
         % subchannel correction tables:
         sctab{1}.adc_gain = tab.adc_gain;
         sctab{1}.adc_phi  = tab.adc_phi;
@@ -162,7 +185,7 @@ function alg_test(calcset) %<<<1
         tsh(2) = din.time_shift_lo.v; % low-side channel
     else
         % -- single-ended connection:
-        [A_syn(:,1),ph_syn(:,1)] = correction_transducer_sim(tab,din.tr_type.v,f, A,ph,0*A,0*ph,'');
+        [A_syn(:,1),ph_syn(:,1)] = correction_transducer_sim(tab,din.tr_type.v,f, A,ph,0*A,0*ph,randtxt);
         % subchannel correction tables:
         sctab{1}.adc_gain = tab.adc_gain;
         sctab{1}.adc_phi  = tab.adc_phi;
@@ -192,8 +215,8 @@ function alg_test(calcset) %<<<1
         k_phi =  correction_interp_table(sctab{c}.adc_phi, A_syn(:,c),f,'f',1);
         
         % apply digitizer gain:
-        Ac  = A_syn(:,c)./k_gain.gain;
-        phc = ph_syn(:,c) - k_phi.phi;
+        Ac  = A_syn(:,c)./(k_gain.gain + k_gain.u_gain.*randn(size(k_gain.u_gain))*rand_unc);
+        phc = ph_syn(:,c) - k_phi.phi + k_phi.u_phi.*randn(size(k_phi.u_phi))*rand_unc;
         
         % generate relative time 2*pi*t:
         % note: include time-shift and jitter:
@@ -212,7 +235,13 @@ function alg_test(calcset) %<<<1
         elseif strcmpi(wshape,'rect')
             % SQUARE modulation:
             
-            u = sin(t*f + phc).*(Ac + 2*Ac*Am/A0*(0.5 - (mod(t*fm + phm,2*pi) > pi)));
+            u = sin(t*f(1) + phc(1)).*(Ac(1) + 2*Ac(1)*Am/A0*(0.5 - (mod(t*fm + phm,2*pi) > pi)));
+            
+            % synthesize spurrs (crippled for Matlab < 2016b):
+            % u = Ac.*sin(t.*f + phc);
+            us = bsxfun(@times, Ac(2:end)', sin(bsxfun(@plus, bsxfun(@times, t, f(2:end)'), phc(2:end)')));
+            % sum the harmonic components to a single composite signal:
+            u = u + sum(us,2);            
         
         end
         
@@ -243,9 +272,11 @@ function alg_test(calcset) %<<<1
     modx   = dout.mod.v;   
     u_modx = dout.mod.u*2;    
     f0x   = dout.f0.v;
-    u_f0x = dout.f0.u;    
+    u_f0x = dout.f0.u*2;    
     fmx   = dout.f_mod.v;
-    u_fmx = dout.f_mod.u;
+    u_fmx = dout.f_mod.u*2;
+    ofsx   = dout.dc.v;
+    u_ofsx = inf;
     
     % prepare reference values:
     modr = 100*Am/A0;
@@ -254,20 +285,45 @@ function alg_test(calcset) %<<<1
     r_list = [A0    Am    modr   f0    fm];
     x_list = [A0x   Amx   modx   f0x   fmx];
     u_list = [u_A0x u_Amx u_modx u_f0x u_fmx];
+    un_list = {'V','V','%','Hz','Hz'};
+    fmt_list = {'si','si','f','si','si'};
     n_list = {'A0','Am','mod','f0','fm'};
+        
     
     % print results table:
-    fprintf('\n------+------------+------------+-----------+----------+---------\n');
-    fprintf(' NAME |    REF     |    CALC    |    DEV    |    UNC   | %%-UNC\n');
-    fprintf('------+------------+------------+-----------+----------+---------\n');
+    fprintf('\n------------+-------------+----------------------------+-------------+---------\n');
+    fprintf('    NAME    |     REF     |     CALC +- UNCERTAINTY    |     DEV     | %%-UNC\n');
+    fprintf('------------+-------------+----------------------------+-------------+---------\n');
     for k = 1:numel(n_list)
     
-        fprintf('%5s | %10.6f | %10.6f | %10.6f| %8.6f | %+3.0f\n',n_list{k},r_list(k),x_list(k),x_list(k)-r_list(k),u_list(k),(x_list(k)-r_list(k))/u_list(k)*100);
+%         if strcmpi(fmt_list{k},'si')
+%             [ss,sv,su,sn] = unc2str_si(x_list(k),u_list(k),un_list{k});
+%             [ss,dv,ss,sn] = unc2str_si(x_list(k)-r_list(k),u_list(k),un_list{k});
+%             [ss,rv,ss,sn] = unc2str_si(r_list(k),u_list(k),un_list{k});
+%             sn = ['[' sn ']'];
+%         else
+            [ss,sv,su] = unc2str(x_list(k),u_list(k));
+            [ss,dv] = unc2str(x_list(k)-r_list(k),u_list(k));
+            [ss,rv] = unc2str(r_list(k),u_list(k));
+            sn = ['[' un_list{k} ']'];
+%        end
+        fprintf('%5s %-5s | %11s | %11s +- %-11s | %11s | %+3.0f\n',n_list{k},sn,rv,sv,su,dv,(x_list(k)-r_list(k))/u_list(k)*100);
             
     end
-    fprintf('------+------------+------------+-----------+----------+---------\n\n');
+    fprintf('------------+-------------+----------------------------+-------------+---------\n\n');
        
     
+end
+
+function [rnd] = logrand(A_min,A_max,sz)
+    rnd = 10.^(log10(A_min) + (log10(A_max) - log10(A_min))*rand(sz));
+end
+
+
+function y = rounddig(x,d)
+    digits = ceil(log10(x));    
+    round_base = 10.^-(digits - d);    
+    y = round(x.*round_base)./round_base;
 end
 
 

@@ -66,7 +66,7 @@ function dataout = alg_wrapper(datain, calcset)
      
     % estimate dominant harmonic component:
     % note: this should be carrier frequency
-    [f0, A0] = PSFE(vc.y, 1/fs);
+    [f0,A0] = PSFE(vc.y, 1/fs);
         
     % get spectrum:
     [fh, vc.Y, vc.ph] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);    
@@ -224,7 +224,7 @@ function dataout = alg_wrapper(datain, calcset)
     
             % get adc SFDR: 
             adc_sfdr =    correction_interp_table(tab.adc_sfdr, vc.Y(fid), f0);
-            adc_sfdr_lo = correction_interp_table(tab.adc_sfdr_lo, vc.Y_lo(fid), f0);
+            adc_sfdr_lo = correction_interp_table(tab.lo_adc_sfdr, vc.Y_lo(fid), f0);
             
             % effective ADC SFDR [dB]:
             adc_sfdr = -20*log10(((vc.Y(fid)*10^(-adc_sfdr.sfdr/20))^2 + (vc.Y_lo(fid)*10^(-adc_sfdr_lo.sfdr/20))^2)^0.5/(A0/tot_gain));
@@ -233,7 +233,7 @@ function dataout = alg_wrapper(datain, calcset)
             tr_sfdr  = correction_interp_table(tab.tr_sfdr,  2^-0.5*A0, f0);
             
             % calculate effective system SFDR:
-            sfdr_sys = -20*log10(10^(-adc_sfdr.sfdr/20) + 10^(-tr_sfdr.sfdr/20));
+            sfdr_sys = -20*log10(10^(-adc_sfdr/20) + 10^(-tr_sfdr.sfdr/20));
             
             
             % get ADC LSB value (low-side):
@@ -254,7 +254,7 @@ function dataout = alg_wrapper(datain, calcset)
             [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
             
             % effective jitter value:
-            jitt = (datain.jitter.v^2 + datain.lo_jitter.v^2)^0.5; 
+            jitt = 2^0.5*datain.jitter.v^2; 
             
         else
             % -- single-ended mode:
@@ -277,10 +277,16 @@ function dataout = alg_wrapper(datain, calcset)
             
         end
         
-        unc = unc_estimate(dc,f0,A0,fm,Am,phm, numel(vc.y),fh,Y,fs, sfdr_sys,lsb,jitt, wave_shape,comp_err);        
+        % run unc. estimator: 
+        unc = unc_estimate(dc,f0,A0,fm,Am,phm, numel(vc.y),fh,Y*tot_gain,fs, sfdr_sys,lsb,jitt, wave_shape,comp_err);        
     
     else
         % -- no uncertainty:
+        
+        unc.df0.val = 0;
+        unc.dA0.val = 0;
+        unc.dfm.val = 0;
+        unc.dmod.val = 0;
     
     end
     
@@ -297,29 +303,29 @@ function dataout = alg_wrapper(datain, calcset)
     % revert amplitudes back to pre-corrections state:
     Ac = Ac./tot_gain;
         
-    if ~vc.is_diff
     
-        % get gain/phase correction for the dominant component (high-side ADC):
-        ag = correction_interp_table(tab.adc_gain, Ac, fc, 'f', 1);
-        ap = correction_interp_table(tab.adc_phi,  Ac, fc, 'f', 1);
-        
-        % apply digitizer tfer:            
-        A0_hi = Ac.*ag.gain;
-        ph0_hi = phc + ap.phi;
-        u_A0_hi = Ac.*ag.u_gain;
-        u_ph0_hi = phc.*ap.u_phi;
-        
-        % apply transducer correction:
-        if ~isempty(vc.tran)
-            [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,vc.tran,fc,[], A0_hi,ph0_hi,u_A0_hi,u_ph0_hi);            
-            u_trg = u_trg./trg;
-            trg = trg./Ac;
-        else
-            u_trg = u_A0_hi./Ac;
-            trg = A0_hi./Ac;             
-        end
     
+    % get gain/phase correction for the dominant component (high-side ADC):
+    ag = correction_interp_table(tab.adc_gain, Ac, fc, 'f', 1);
+    ap = correction_interp_table(tab.adc_phi,  Ac, fc, 'f', 1);
+    
+    % apply digitizer tfer:            
+    A0_hi = Ac.*ag.gain;
+    ph0_hi = phc + ap.phi;
+    u_A0_hi = Ac.*ag.u_gain;
+    u_ph0_hi = phc.*ap.u_phi;
+    
+    % apply transducer correction:
+    if ~isempty(vc.tran)
+        [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,vc.tran,fc,[], A0_hi,ph0_hi,u_A0_hi,u_ph0_hi);            
+        u_trg = u_trg./trg;
+        trg = trg./Ac;
     else
+        u_trg = u_A0_hi./Ac;
+        trg = A0_hi./Ac;             
+    end
+    
+    if ~vc.is_diff
         % DIFF mode:
         % note: uncertainty not implemented!
         
@@ -334,7 +340,13 @@ function dataout = alg_wrapper(datain, calcset)
     % carrier relative unc. from corrections:
     ur_A0 = u_trg(1);
     u_A0 = A0.*ur_A0;
-    u_A0 = (u_A0.^2 + n_A0.^2).^0.5;
+    u_A0 = (u_A0.^2 + n_A0.^2 + (A0*unc.dA0.val)^2).^0.5;
+    
+    % carrier frequency uncertainty:
+    u_f0 = unc.df0.val*f0;
+    
+    % modulating frequency uncertainty:
+    u_fm = unc.dfm.val*fm;
     
     % -- modulation relative unc. from corrections:
     % difference of sideband correction values from the carrier (because we used carrier freq for entire signal):
@@ -343,11 +355,10 @@ function dataout = alg_wrapper(datain, calcset)
     ur_mod = (ur_mod.^2 + sum(u_trg(2:end).^2/3)).^0.5;
     ur_mod_tmp = ur_mod;
     % add parameter estimator noise:
-    ur_mod = (ur_mod^2 + (n_A0/A0)^2 + (n_Am/Am)^2)^0.5;
-    
-    
+    ur_mod = (ur_mod^2 + (n_A0/A0)^2 + (n_Am/Am)^2 + unc.dmod.val^2)^0.5;
+        
     % modulating amplitude abs unc.:    
-    u_Am = Am.*(ur_mod_tmp.^2 + ur_A0.^2 + (n_Am/Am)^2).^0.5;
+    u_Am = Am.*(ur_mod_tmp.^2 + ur_A0.^2 + (n_Am/Am)^2 + (unc.dmod.val/Am)^2).^0.5;
     
     
     % --- returning results ---
@@ -358,14 +369,16 @@ function dataout = alg_wrapper(datain, calcset)
     
     % return carrier:
     dataout.f0.v = f0;
-    dataout.f0.u = 1e-4*f0; % estimate
+    dataout.f0.u = u_f0;
     dataout.A0.v = A0;
     dataout.A0.u = u_A0;
     dataout.dc.v = dc;
     
     % return modulation signal parameters:
     dataout.f_mod.v = fm;
-    dataout.f_mod.u = 1e-4*fm; % estimate
+    dataout.f_mod.u = u_fm;
+    dataout.cpm.v = 120*fm;
+    dataout.cpm.u = 120*u_fm;
     dataout.A_mod.v = Am;
     dataout.A_mod.u = u_Am;
     dataout.mod.v = 100*Am/A0;
@@ -395,7 +408,7 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     
 
     % peak signal value:
-    Apk = A0 + Am + abs(dc)
+    Apk = A0 + Am + abs(dc);
     
     % sine mod main freq component central DFT bins:
     fid = round([f0;f0-fm;f0+fm]/fs*N) + 1;
@@ -436,7 +449,7 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     noise_rms = sum(0.5*Y_noise.^2).^0.5/w_rms*w_gain;
     
     % signal SFDR estimate [dB]:
-    sfdr_sig = -20*log10(max(h_max)/A0);
+    sfdr_sig = -20*log10(max(h_max)/Y(fid(1)));
     
     % select worst SFDR source [dB]:
     sfdr = min(sfdr_sig,sfdr);    
@@ -465,11 +478,29 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     % modulating depth [-]:
     ax.modd.val = Am/A0;
     % periods count of carrier:
-    ax.fm_per.val = N/fs*f0;
+    ax.fm_per.val = N/fs*fm;
     
-    ax         
+    %ax
+    
+    % current folder:
+    mfld = [fileparts(mfilename('fullpath')) filesep()];
         
+    if strcmpi(wave_shape,'sine') && comp_err
+        % try to estimate uncertainty:       
+        unc = interp_lut([mfld 'sine_corr_unc.lut'],ax);
         
+    else
+        % no uncertainty:
+        
+        error('Uncertainty estimator for given parameters of the algorithm is not avilable! Only ''sine'' mod with error compensation available.');
+        
+    end
+    
+    % scale down to (k = 1):
+    unc.df0.val = 0.5*unc.df0.val;
+    unc.dA0.val = 0.5*unc.dA0.val;
+    unc.dfm.val = 0.5*unc.dfm.val;
+    unc.dmod.val = 0.5*unc.dmod.val;
 
 end
 

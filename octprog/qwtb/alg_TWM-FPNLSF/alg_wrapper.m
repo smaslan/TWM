@@ -235,27 +235,39 @@ function dataout = alg_wrapper(datain, calcset)
         if strcmpi(calcset.unc,'guf')
             % GUF - use estimator:
             
-            % --- get ADC LSB value
-            if isfield(datain,'lo_lsb')
-                % get LSB value directly
-                lsb = datain.lo_lsb.v;
-            elseif isfield(datain,'lo_adc_nrng') && isfield(datain,'lo_adc_bits')
-                % get LSB value estimate from nominal range and resolution
-                lsb = 2*datain.lo_adc_nrng.v*2^(-datain.lo_adc_bits.v);    
-            else
-                error('FPNLSF, corrections: Correction data contain no information about ADC resolution+range or LSB value!');
-            end
-                       
-            
-            % effective LSB:
-            lsb_ef = ((lsb/vc.Y(fid))^2 + (lsb/vc.Y_lo(fid))^2)^0.5;
-            
-            
             % get spectrum:
             [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
             
+            % --- get ADC LSB value
+            if isfield(datain,'lo_lsb')
+                % get LSB value directly
+                lsb_lo = datain.lo_lsb.v;
+            elseif isfield(datain,'lo_adc_nrng') && isfield(datain,'lo_adc_bits')
+                % get LSB value estimate from nominal range and resolution
+                lsb_lo = 2*datain.lo_adc_nrng.v*2^(-datain.lo_adc_bits.v);    
+            else
+                error('FPNLSF, corrections: Correction data contain no information about ADC resolution+range or LSB value!');
+            end
+            
+            % effective LSB:
+            lsb_ef = Ax*((lsb/vc.Y(fid))^2 + (lsb/vc.Y_lo(fid))^2)^0.5;
+            
+            % get adc SFDR: 
+            adc_sfdr =    correction_interp_table(tab.adc_sfdr, vc.Y(fid), fx);
+            adc_sfdr_lo = correction_interp_table(tab.lo_adc_sfdr, vc.Y_lo(fid), fx);
+            
+            % effective ADC SFDR [dB]:
+            adc_sfdr = -20*log10(((vc.Y(fid)*10^(-adc_sfdr.sfdr/20))^2 + (vc.Y_lo(fid)*10^(-adc_sfdr_lo.sfdr/20))^2)^0.5/Y(fid));
+                                                                                                                           
+            % get transducer SFDR:
+            tr_sfdr  = correction_interp_table(tab.tr_sfdr, Ax*2^-0.5, fx);
+            
+            % calculate effective system SFDR:
+            sfdr_sys = -20*log10(10^(-adc_sfdr/20) + 10^(-tr_sfdr.sfdr/20));
+            
+            
             % estimate uncertainty:
-            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb_ef*(Ax+abs(ox)),datain.jitter.v,tab);
+            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb_ef,datain.jitter.v,sfdr_sys);
             
             % expand uncertainty - very naive approximation of difference of two signals:
             unc.dpx.val = unc.dpx.val*1.5;
@@ -309,16 +321,19 @@ function dataout = alg_wrapper(datain, calcset)
         % --- SINGLE-ENDED TRANSDUCER MODE
         
         % -- uncertainty estimator:
-        
-        
         if strcmpi(calcset.unc,'guf')
             % GUF - use estimator:
+            
+            % get effective ADC + transdcuer SFDR:
+            adc_sfdr = correction_interp_table(tab.adc_sfdr, Ax, fx);
+            tr_sfdr  = correction_interp_table(tab.tr_sfdr,  Ax, fx);        
+            sfdr_sys = -20*log10(10^(-adc_sfdr.sfdr/20) + 10^(-tr_sfdr.sfdr/20));
             
             % get spectrum:
             [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
             
             % estimate uncertainty:
-            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,datain.jitter.v,tab);
+            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,datain.jitter.v,sfdr_sys);
           
         else
             % other modes - do nothing: 
@@ -401,8 +416,16 @@ end % function
 
 
 
-function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,tab)
+function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr)
 % Uncertainty estimator:
+    
+    % get window:
+    w = window_coeff('flattop_matlab',N);
+    % get window scaling factor:
+    w_gain = mean(w);
+    % get window rms:
+    w_rms = mean(w.^2).^0.5;
+    
     
     % harmonic components:
     fhx = [fx:fx:max(fh)];
@@ -420,7 +443,7 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,tab)
     nid = nid(nid <= numel(fh) & nid > 0);
     
     % remove top harmonics:
-    for k = 1:20
+    for k = 1:50
         % find maximum:
         [v,id] = max(Y(nid));
         % identify sorounding DFT bins: 
@@ -428,14 +451,16 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,tab)
         % remove it:
         nid = setdiff(nid,sid);
         nid = nid(nid <= numel(fh) & nid > 0);                
-    end   
+    end
     
     % get noise DFT bins:    
     nid = nid(nid > wind_w & nid <= numel(nid)); % get rid of DC and limit to valid range
     
-    % estimate RMS of noise:
-    noise_rms = sum(0.5*Y(nid).^2).^0.5;        
-    noise_rms = noise_rms*(numel(fh)/numel(nid))^0.5; % expand to cover limited selection of DFT bins
+    % noise level estimate from the spectrum residue to full bw.:
+    Y_noise = interp1(fh(nid),Y(nid),fh,'nearest','extrap');
+    
+    % estimate full bw. rms noise:    
+    noise_rms = sum(0.5*Y_noise.^2).^0.5/w_rms*w_gain;
     
     % signal RMS estimate:
     sig_rms = Ax*2^-0.5;
@@ -448,15 +473,10 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,tab)
   
     % estimate SFDR of the signal:
     Y_max = max([Y(10:(fid-10));Y((fid + 10):end)]);
-    sfdr = -20*log10(Y_max/Ax);
-    
-    % estimate SFDR of the system:
-    adc_sfdr = correction_interp_table(tab.adc_sfdr, Ax, fx);
-    tr_sfdr  = correction_interp_table(tab.tr_sfdr,  Ax, fx);        
-    sfdr_sys = -20*log10(10^(-adc_sfdr.sfdr/20) + 10^(-tr_sfdr.sfdr/20));        
-    
+    sfdr_sig = -20*log10(Y_max/Ax);
+
     % total SFDR estimate:
-    sfdr = min(sfdr_sys,sfdr);        
+    sfdr = min(sfdr,sfdr_sig);        
     
         
     ax = struct();            
@@ -471,11 +491,14 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,tab)
     % SFDR estimate: 
     ax.sfdr.val = sfdr;
     
+    ax
+    
     % current folder:
     mfld = [fileparts(mfilename('fullpath')) filesep()];
         
     % try to estimate uncertainty:       
     unc = interp_lut([mfld 'unc.lut'],ax);
+    
     
     % scale down to (k = 1):
     unc.dpx.val = 0.5*unc.dpx.val;
