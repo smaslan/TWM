@@ -30,7 +30,7 @@ function alg_test(calcset) %<<<1
     i_mode = 'pchip';
     
     % randomize corrections uncertainty:
-    rand_unc = 0;
+    rand_unc = 1;
     
     
     chns = {}; id = 0;    
@@ -63,23 +63,23 @@ function alg_test(calcset) %<<<1
     % differential mode: loop impedance:
     %chns{id}.Zx = 0.1;
         
-    if true
+    if false
         % -- voltage channel:
         din.u_tr_Zlo_f.v  = [];
         din.u_tr_Zlo_Rp.v = [200];
         din.u_tr_Zlo_Cp.v = [1e-12];        
-        din.u_tr_Zlo_Rp.u = [1e-6];
-        din.u_tr_Zlo_Cp.u = [1e-12];
+        din.u_tr_Zlo_Rp.u = [0e-6];
+        din.u_tr_Zlo_Cp.u = [0e-12];
         % create some corretion table for the digitizer gain: 
         din.u_adc_gain_f.v = [0;1e3;1e6];
         din.u_adc_gain_a.v = [];
         din.u_adc_gain.v = [1.000000; 1.010000; 1.100000];
-        din.u_adc_gain.u = [0.000005; 0.000020; 0.000300]; 
+        din.u_adc_gain.u = [0.000002; 0.000010; 0.000050]; 
         % create some corretion table for the digitizer phase: 
         din.u_adc_phi_f.v = [0;1e3;1e6];
         din.u_adc_phi_a.v = [];
-        din.u_adc_phi.v = [0.0000; 0.000100; 0.1000];
-        din.u_adc_phi.u = [0.0001; 0.000020; 0.0010];
+        din.u_adc_phi.v = [0.000000; 0.000100; 0.001000];
+        din.u_adc_phi.u = [0.000002; 0.000007; 0.000080];
         % create identical low-side channel:
         din.u_lo_adc_gain_f = din.u_adc_gain_f;
         din.u_lo_adc_gain_a = din.u_adc_gain_a;
@@ -92,16 +92,16 @@ function alg_test(calcset) %<<<1
         % create some corretion table for the transducer gain: 
         din.u_tr_gain_f.v = [0;1e3;1e6];
         din.u_tr_gain_a.v = [];
-        din.u_tr_gain.v = [70.00000; 70.80000; 70.600];
-        din.u_tr_gain.u = [ 0.00010;  0.00020;  0.005]; 
+        din.u_tr_gain.v = [70.00000; 70.80000; 70.60000];
+        din.u_tr_gain.u = [ 0.00010;  0.00020;  0.00050]; 
         % create some corretion table for the transducer phase: 
         din.u_tr_phi_f.v = [0;1e3;1e6];
         din.u_tr_phi_a.v = [];
-        din.u_tr_phi.v = [0.00000; -0.00300; -0.3000];
-        din.u_tr_phi.u = [0.00010;  0.00020;  0.0030];
+        din.u_tr_phi.v = [0.000000; -0.000300; -0.003000];
+        din.u_tr_phi.u = [0.000003;  0.000007;  0.000250];
         % differential timeshift:
-        din.u_time_shift_lo.v = -1.133e-3;
-        din.u_time_shift_lo.u = 1e-5;
+        din.u_time_shift_lo.v = +103e-6;
+        din.u_time_shift_lo.u =  0.8e-6;
         
         
         % -- current channel:
@@ -125,20 +125,20 @@ function alg_test(calcset) %<<<1
         % create some corretion table for the transducer gain: 
         din.i_tr_gain_f.v = [0;1e3;1e6];
         din.i_tr_gain_a.v = [];
-        din.i_tr_gain.v = [ 0.500000; 0.510000; 0.60000];
-        din.i_tr_gain.u = [ 0.000010; 0.000020; 0.00050]; 
+        din.i_tr_gain.v = [ 0.500000; 0.510000; 0.520000];
+        din.i_tr_gain.u = [ 0.000005; 0.000010; 0.000050]; 
         % create some corretion table for the transducer phase: 
         din.i_tr_phi_f.v = [0;1e3;1e6];
         din.i_tr_phi_a.v = [];
-        din.i_tr_phi.v = [0.00000; -0.00300; -0.3000] + 0.0;
-        din.i_tr_phi.u = [0.00010;  0.00020;  0.0030];        
+        din.i_tr_phi.v = [0.000000; -0.000400; -0.002000] + 0.0;
+        din.i_tr_phi.u = [0.000003;  0.000006;  0.000200];        
         % differential timeshift:
-        din.i_time_shift_lo.v = -2.133e-3;
-        din.i_time_shift_lo.u = 1e-5;
+        din.i_time_shift_lo.v = -217e-6;
+        din.i_time_shift_lo.u =  0.7e-6;
                 
         % interchannel timeshift:
-        din.time_shift.v = 1.133e-4;
-        din.time_shift.u = 1e-5;
+        din.time_shift.v = 113.30e-6;
+        din.time_shift.u =   0.07e-6;
     
     end
     
@@ -294,27 +294,31 @@ function alg_test(calcset) %<<<1
     Q_ref  = (S_ref^2 - P_ref.^2)^0.5;
     PF_ref = P_ref/S_ref;
     
-    % get calculated values:
-    Ux  = dout.U.v;
-    Ix  = dout.I.v;
-    Sx  = dout.S.v;
-    Px  = dout.P.v;
-    Qx  = dout.Q.v;
-    PFx = dout.PF.v;
-    
-    ref_list =  [U_ref,I_ref,S_ref,P_ref,Q_ref,PF_ref];    
-    dut_list =  [Ux,   Ix,   Sx,   Px,   Qx,   PFx];
+    ref_list =  [U_ref,    I_ref,    S_ref,    P_ref,    Q_ref,    PF_ref];    
+    dut_list =  [dout.U.v, dout.I.v, dout.S.v, dout.P.v, dout.Q.v, dout.PF.v];
+    unc_list =  [dout.U.u, dout.I.u, dout.S.u, dout.P.u, dout.Q.u, dout.PF.u]*2;
     name_list = {'U','I','S','P','Q','PF'};
+        
     
-    fprintf('   |     REF     |     DUT     |   ABS DEV   |  %%-DEV\n');
-    fprintf('---+-------------+-------------+-------------+----------\n');
+    fprintf('   |     REF     |     DUT                    |   ABS DEV   |  %%-DEV   |  %%-UNC\n');
+    fprintf('---+-------------+----------------------------+-------------+----------+----------\n');
     for k = 1:numel(ref_list)
         
         ref = ref_list(k);
         dut = dut_list(k);
+        unc = unc_list(k);
         name = name_list{k};
         
-        fprintf('%-2s | %11.6f | %11.6f | %+11.6f | %+8.4f\n',name,ref,dut,dut - ref,100*(dut - ref)/ref);
+        dev = dut - ref;
+        
+        puc = 100*dev/unc;
+        
+        [ss,sv,su] = unc2str(dut,unc);
+        [ss,dv] = unc2str(dev,unc);
+        [ss,rv] = unc2str(ref,unc);
+        %sn = ['[' un_list{k} ']'];
+        
+        fprintf('%-2s | %11s | %11s +- %-11s | %11s | %+8.4f | %+3.0f\n',name,rv,sv,su,dv,100*dev/ref,puc);
         
     end
       
