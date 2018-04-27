@@ -1,4 +1,4 @@
-function [y_out, first, last] = td_fft_filter(y, fs, fft_size, f,gain,phi, i_mode)
+function [y_out, first, last, fr,fg,fp] = td_fft_filter(y, fs, fft_size, f,gain,phi, i_mode, nyquist_fix)
 % Wrapper for "Frequency Dependant Phase and Gain Compensation" function
 % sFreqDep_PG_Comp() made by Kristian Ellingsberg.
 %
@@ -17,6 +17,12 @@ function [y_out, first, last] = td_fft_filter(y, fs, fft_size, f,gain,phi, i_mod
         i_mode = 'pchip';
     end
     
+    % nyquist problem fix value:
+    %  this defines portion of the near nyquist band where the algorithm will not apply phase correction  
+    if nargin < 8
+        nyquist_fix = 0.01;
+    end
+    
     
     % --- build the filter:
     
@@ -30,24 +36,39 @@ function [y_out, first, last] = td_fft_filter(y, fs, fft_size, f,gain,phi, i_mod
     fg = interp1nan(f,gain,fr,i_mode);
     fp = interp1nan(f,phi,fr,i_mode);
     
+    % -- near-nyquist errors fix: 
+    if nyquist_fix > 0
+        % maskout phase correction near nyquist to prevent massive errors at the end of spectrum
+        % but it's not possible to just mask the DFT bins phase, it must be smooth, so apply window
+        % to the end of phase correction data:
+        
+        % mask width (size from nyquist bin):
+        msk_w = round(nyquist_fix*fft_half);
+        
+        % generate mask:
+        msk = 0.5 + 0.5*cos([0:msk_w]'/msk_w*pi);
+        
+        % apply the mask to the end of spectrum:
+        fp((end-msk_w):end) = fp((end-msk_w):end).*msk;
+    
+    end
+               
     % generate first half of the filter:
     ff(:,1) = fg.*exp(j*fp);
     % remove DC phase:
     ff(1) = fg(1);
     % build the upper half of the spectrum:
     ff(fft_half+2:fft_size) = conj(ff(end-1:-1:2));
+    
     % ###todo: fix this very bad solution for the nyquist bin
     %  It is not right because the nyq. DFT bin is equal to: A_nyquist*sin(phi_nyquist),
     %  so it is not possible to just multiply it by the correction vector as the other DFT bins...
     ff(fft_half+1) = 1*fg(end)*cos(fp(end));
     
     
-    
     % --- run the filter:
     [y_out, first, last] = sFreqDep_PG_Comp(y.', fft_size, ff.');    
     y_out = y_out.';
-    
-    
     
 end
 

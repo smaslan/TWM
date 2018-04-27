@@ -4,13 +4,13 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     % samples count to synthesize:
-    N = 1e5;
+    N = 1e4;
     
     % sampling rate [Hz]
-    din.fs.v = 100000;
+    din.fs.v = 20000;
     
     % ADC aperture [s]:
-    din.adc_aper.v = 10e-6;
+    din.adc_aper.v = 1e-6;
     
     % aperture correction state:
     din.u_adc_aper_corr.v = 1;
@@ -30,7 +30,7 @@ function alg_test(calcset) %<<<1
     i_mode = 'pchip';
     
     % randomize corrections uncertainty:
-    rand_unc = 1;
+    rand_unc = 0;
     
     
     chns = {}; id = 0;    
@@ -63,7 +63,7 @@ function alg_test(calcset) %<<<1
     % differential mode: loop impedance:
     %chns{id}.Zx = 0.1;
         
-    if false
+    if true
         % -- voltage channel:
         din.u_tr_Zlo_f.v  = [];
         din.u_tr_Zlo_Rp.v = [200];

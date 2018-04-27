@@ -57,6 +57,7 @@ function dataout = alg_wrapper(datain, calcset)
     % -- build virtual channel (U):
     id = id + 1;
     vcl{id}.tran = 'rvd';
+    vcl{id}.name = 'u'; 
     vcl{id}.is_diff = cfg.u_is_diff;
     vcl{id}.y = datain.u.v;
     vcl{id}.ap_corr = datain.u_adc_aper_corr.v;
@@ -70,6 +71,7 @@ function dataout = alg_wrapper(datain, calcset)
     % -- build virtual channel (I):
     id = id + 1;
     vcl{id}.tran = 'shunt';
+    vcl{id}.name = 'i';
     vcl{id}.is_diff = cfg.i_is_diff;
     vcl{id}.y = datain.i.v;
     vcl{id}.ap_corr = datain.i_adc_aper_corr.v;
@@ -116,7 +118,7 @@ function dataout = alg_wrapper(datain, calcset)
     
     % get used window coherent gain:
     %  get window:
-    w = window_coeff('flattop_248D',N);
+    w = reshape(window_coeff('flattop_248D',N),[N 1]);
     %  get window scaling factor:
     w_gain = mean(w);
     %  get window rms:
@@ -178,6 +180,11 @@ function dataout = alg_wrapper(datain, calcset)
         vc.adc_gain = ag;
         vc.adc_phi = ap;
         
+        % obtain ADC LSB value:
+        vc.lsb = adc_get_lsb(datain,[vc.name '_']);
+        % apply ADC gain to it:
+        vc.lsb = vc.lsb.*ag.gain.*ap_gain;
+        
         if vc.is_diff
             % -- differential mode:
         
@@ -217,7 +224,11 @@ function dataout = alg_wrapper(datain, calcset)
             vc.adc_gain_lo = agl;
             vc.adc_phi_lo = apl;
             
-            
+            % obtain ADC LSB value for low-side:
+            vc.lsb_lo = adc_get_lsb(datain,[vc.name '_lo_']);
+            % apply ADC gain to it:
+            vc.lsb_lo = vc.lsb_lo.*agl.gain.*ap_gain;
+                        
             
             % estimate transducer correction tfer from the spectrum estimates:
             % note: The transfer is aproximated from windowed-FFT bins 
@@ -230,26 +241,41 @@ function dataout = alg_wrapper(datain, calcset)
             % note: using window gain so the rms of signal is correct
             % high-side:            
               Y  = vc.Y.*exp(j*vc.ph)*w_gain;
-            u_Y  = vc.Y.*(vc.ag.u_gain./vc.ag.u_gain);
-            u_ph = vc.ap.u_phi;
+            u_Y  = vc.Y.*(ag.u_gain./ag.gain);
+            u_ph = ap.u_phi;
             % low-side:
               Y_lo  = vc.Y_lo.*exp(j*vc.ph_lo)*w_gain;
-            u_Y_lo  = vc.Y.*(vc.agl.u_gain./vc.agl.u_gain);
-            u_ph_lo = vc.apl.u_phi;
+            u_Y_lo  = vc.Y.*(agl.u_gain./agl.gain);
+            u_ph_lo = apl.u_phi;
             % calculate transducer tfer:
             [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo);
             % store relative tfer:
-            vc.tr_gain = trg./abs(Y - Y_lo);
-            vc.tr_phi  = trp - angle(Y - Y_lo);
+            %vc.tr_gain = trg./abs(Y - Y_lo);
+            %vc.tr_phi  = trp - angle(Y - Y_lo);
             %vc.u_tr_gain = u_trg./abs(Y - Y_lo);
             %vc.u_tr_phi = u_trp;
             
+            %semilogx(fh,trg)
+            
+            % combine ADC and transducer tfers:
+            %  note: so we will apply just one filter instead of two
+            tr_gain = trg./abs(Y - Y_lo);
+            tr_phi = trp - angle(Y - Y_lo);
+            vc.adc_gain.gain = vc.adc_gain.gain.*tr_gain;                                                                                  
+            vc.adc_phi.phi   = vc.adc_phi.phi + tr_phi;                                 
+            vc.adc_gain_lo.gain = vc.adc_gain_lo.gain.*tr_gain;                                                                                  
+            vc.adc_phi_lo.phi   = vc.adc_phi_lo.phi + tr_phi;
+            
+            % calculate effective differential LSB value:            
+            vc.lsb = (vc.lsb.^2 + vc.lsb_lo.^2).^0.5.*tr_gain;
+           
+                        
             % store differential signal spectrum estimate after the correction:
             %  i.e. this is now equivalent of single-ended channel spectrum 
             vc.Y = trg/w_gain;
             vc.ph = trp;
             vc.u_Y = u_trg/w_gain;
-            vc.u_ph = u_trp;
+            vc.u_ph = u_trp;                       
 
         else
             % -- single-ended mode:
@@ -262,16 +288,12 @@ function dataout = alg_wrapper(datain, calcset)
             [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh,[], Y,zz,u_Y,u_ph);
             Y = max(Y,eps); % to prevent div-by-zero
             trg = trg./Y;
-            u_trg = u_trg./Y;
-            %(u_trg./trg)(51) 
+            u_trg = u_trg./Y;            
                         
-            if any(isnan(trg))
-                error('Transducer gain correction: not sufficient range of correction data!');
-                
-            end
-            if any(isnan(trp))
-                error('Transducer phase correction: not sufficient range of correction data!');
-            end
+            %semilogx(fh,vc.adc_phi.phi)
+            %semilogx(fh,vc.adc_gain.gain)
+            %semilogx(fh,trp)
+            %semilogx(fh,trg)
             
             % combine ADC and transducer tfers:
             %  note: so we will apply just one filter instead of two            
@@ -280,12 +302,22 @@ function dataout = alg_wrapper(datain, calcset)
             %vc.adc_gain.u_gain = vc.adc_gain.gain.*u_trg; % note the uncertainty from the ADC correction is already part of u_trg, so override ADC unc
             %vc.adc_phi.u_phi = u_trp; % note the uncertainty from the ADC correction is already part of u_trp, so override ADC unc
             
+            % apply tfer to LSB:
+            vc.lsb = vc.lsb.*trg;
+            
             % apply transducer tfer to the spectrum estimate: 
             vc.u_Y = vc.Y.*u_trg;
             vc.u_ph = u_trp;
             vc.Y = vc.Y.*trg;
             vc.ph = vc.ph + trp;
                         
+        end
+        
+        if any(isnan(trg))
+            error('Transducer gain correction: not sufficient range of correction data!');                
+        end
+        if any(isnan(trp))
+            error('Transducer phase correction: not sufficient range of correction data!');
         end
                 
         vcl{k} = vc;
@@ -295,9 +327,9 @@ function dataout = alg_wrapper(datain, calcset)
     
     % --- Apply the calcualted correction in the time-domain:
     % note: here we subtract phase of ref. channel from all others in order to reduces
-    %       total absolute value of the phase correction
+    %       total absolute value of the phase corrections
     
-    % reference channel phase (voltage, high-side):
+    % reference channel phase (voltage, high-side):    
     ap_ref = vcl{1}.adc_phi;
        
     % for each virtual (u/i) channel:
@@ -305,48 +337,68 @@ function dataout = alg_wrapper(datain, calcset)
         % get v.channel:
         vc = vcl{k};
         
+        
+        % estimate DC offset of channel:
+        %vc.dc = mean(vc.y.*w).*w_rms^2;
+        % remove it from signal:
+        %  note: this is needed to make the filter work with acceptable errors near DC
+        %vc.y = vc.y - vc.dc;
+        
+                
         % subtract reference channel phase:
         %  note: this is to reduce total phase correction value
-        vc.adc_phi.phi   = vc.adc_phi.phi - ap_ref.phi; 
+        vc.adc_phi.phi   = vc.adc_phi.phi - ap_ref.phi;
+        
+        % apply tfer filter for high-side:
+        [vc.y, a,b, ff,fg,fp] = td_fft_filter(vc.y, fs, fft_size, fh,vc.adc_gain.gain,vc.adc_phi.phi ,i_mode);
+        
+        % calculate actual phase correction made:
+        adc_phi_real = interp1(ff,fp,fh,i_mode,'extrap');
+        
+        % phase correction uncertainty contribution:
+        u_phi_corr = abs(adc_phi_real - vc.adc_phi.phi)/3^0.5;
+        
+        % add uncertainty to the spectrum estimate components:
+        vc.u_ph = (vc.u_ph.^2 + u_phi_corr.^2).^0.5;
+        
+        
+        %semilogx(fh,vc.adc_phi.phi)
+        %semilogx(fh,vc.adc_gain.gain) 
         
         if vc.is_diff
             % -- differential mode:
             
+            % estimate DC offset of channel:
+            %vc.dc_lo = mean(vc.y_lo.*w).*w_rms^2;
+            % remove it from signal:
+            %  note: this is needed to make the filter work with acceptable errors near DC
+            %vc.y_lo = vc.y_lo - dc_lo;
+            
             % subtract reference channel phase:
             %  note: this is to reduce total phase correction value 
-            vc.adc_phi_lo.phi   = vc.adc_phi_lo.phi - ap_ref.phi; 
+            vc.adc_phi_lo.phi   = vc.adc_phi_lo.phi - ap_ref.phi;
             
-            % apply ADC tfer filter:
-            vc.y = td_fft_filter(vc.y, fs, fft_size, fh,vc.adc_gain.gain,vc.adc_phi.phi);
-            vc.y_lo = td_fft_filter(vc.y_lo, fs, fft_size, fh,vc.adc_gain_lo.gain,vc.adc_phi_lo.phi);
+            % apply tfer filter for low-side:
+            [vc.y_lo, a,b, ff,fg,fp] = td_fft_filter(vc.y_lo, fs, fft_size, fh,vc.adc_gain_lo.gain,vc.adc_phi_lo.phi, i_mode);
             
-            % calculate high-low difference:
+            % calculate actual phase correction made:
+            adc_phi_real = interp1(ff,fp,fh,i_mode,'extrap');
+            
+            % phase correction uncertainty contribution:
+            u_phi_corr = abs(adc_phi_real - vc.adc_phi_lo.phi)/3^0.5;
+            
+            % add uncertainty to the spectrum estimate components:
+            vc.u_ph = (vc.u_ph.^2 + u_phi_corr.^2).^0.5;
+            
+            % calculate high-low-side difference:
             vc.y = vc.y - vc.y_lo;
-            
-            % apply transducer tfer filter:
-            [vc.y,vc.start,vc.end] = td_fft_filter(vc.y, fs, fft_size, fh,vc.tr_gain,vc.tr_phi, i_mode);
                         
-        else
-            % -- single-ended mode:
-
-            % apply combined ADC+transducer tfer to the time series:
-            [vc.y] = td_fft_filter(vc.y, fs, fft_size, fh,vc.adc_gain.gain,vc.adc_phi.phi);
-            
-            % valid waveform section start/end:
-            vc.start = 1;
-            vc.end = numel(vc.y);
-            
         end
         
         % store v.channel:
         vcl{k} = vc;            
-    end    
-    % crop the waveform to the mathing lengths for diff/no-diff transducer combinations:
-    if vcl{1}.is_diff && ~vcl{2}.is_diff
-        vcl{2}.y = vcl{2}.y(vcl{1}.start:vcl{1}.end);
-    elseif vcl{2}.is_diff && ~vcl{1}.is_diff
-        vcl{1}.y = vcl{1}.y(vcl{2}.start:vcl{2}.end);
     end
+        
     
     
     % --- Calculate uncertainty ---
@@ -367,7 +419,7 @@ function dataout = alg_wrapper(datain, calcset)
     [v,idu] = max(Uh);
     
     % max. analyzed harmonics:
-    h_max = 50;
+    h_max = 10;
     
     % not processed DFT bins:
     msk = [idu:N];
@@ -508,6 +560,25 @@ function dataout = alg_wrapper(datain, calcset)
 
 end % function
 
+
+function [lsb] = adc_get_lsb(din,pfx)
+% obtain ADC resolution for channel starting with prefix 'pfx', e.g.:
+% adc_get_lsb(datain,'u_lo_') will load LSB value from 'datain.u_lo_adc_lsb'
+% if LSB is not found, it tries to calculate the value from bit resolution and nominal range
+% 
+    if isfield(din,[pfx 'adc_lsb'])
+        % direct LSB value: 
+        lsb = getfield(din,[pfx 'lsb']); lsb = lsb.v;
+    elseif isfield(din,[pfx 'adc_bits']) && isfield(din,[pfx 'adc_nrng'])
+        % LSB value from nom. range and bit resolution:
+        bits = getfield(din,[pfx 'adc_bits']); bits = bits.v;
+        nrng = getfield(din,[pfx 'adc_nrng']); nrng = nrng.v;        
+        lsb = nrng*2^(bits-1);        
+    else
+        % nope - its not there...
+        error('PWDTDI algorithm: Missing ADC LSB value or ADC range and bit resolution!');
+    end
+end
 
 % convert correction tables 'pfx'_list{:} to list{:}
 % i.e. get rid of prefix (usually 'u_' or 'i_')
