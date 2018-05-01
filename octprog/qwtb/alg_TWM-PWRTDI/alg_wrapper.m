@@ -351,6 +351,11 @@ function dataout = alg_wrapper(datain, calcset)
         
         % apply tfer filter for high-side:
         [vc.y, a,b, ff,fg,fp] = td_fft_filter(vc.y, fs, fft_size, fh,vc.adc_gain.gain,vc.adc_phi.phi ,i_mode);
+        %vc.y = vc.y(a:b);
+        
+               
+        %kp = mean(vc.adc_phi.phi(fh>0)./fh(fh>0))
+               
         
         % calculate actual phase correction made:
         adc_phi_real = interp1(ff,fp,fh,i_mode,'extrap');
@@ -443,14 +448,19 @@ function dataout = alg_wrapper(datain, calcset)
         msk = msk(msk <= N & msk > 0);
         
     end
+    H = numel(h_list);
     
     % build list of relevant harmonics:
+    fx = fh(h_list);
     Ux = Uh(h_list);
     Ix = Ih(h_list);
+    Sx = (0.5*Ux.*Ix);
     phx = ph(h_list);
     u_Ux = u_Uh(h_list);
     u_Ix = u_Ih(h_list);
     u_phx = u_ph(h_list);
+    Ux_lsb = vcl{1}.lsb(h_list);
+    Ix_lsb = vcl{2}.lsb(h_list);
     
     % estimate noise levels for the removed harmonics components:
     Uns = interp1(fh(msk),Uh(msk),fh,'nearest','extrap');
@@ -460,16 +470,107 @@ function dataout = alg_wrapper(datain, calcset)
     U_noise = sum(0.5*Uns.^2)^0.5/w_rms*w_gain;
     I_noise = sum(0.5*Ins.^2)^0.5/w_rms*w_gain;
     
+    % calculate bits per harmonic pk-pk range:
+    Ux_bits = log2(Ux./Ux_lsb);
+    Ix_bits = log2(Ix./Ix_lsb);
     
-    
-      
-    
-    %u_Ux./Ux
-    %u_Ix./Ix
     
     % estimate powers (from spectrum):
     P = sum((0.5*Ux.*Ix.*cos(phx)).^2).^0.5;
     S = sum((0.5*Ux.*Ix).^2).^0.5;
+       
+    
+    % load single-tone wrms LUT data:
+    mfld = fileparts(mfilename('fullpath'));    
+    lut = load([mfld filesep() 'wrms_single_tone_unc.lut'],'-v7','lut');
+    lut_st = lut.lut;
+    
+    
+    % corrected signal samples count:
+    M = numel(vcl{1}.y);
+    
+    % fundamental periods in the record:
+    f0_per = fx(1)*M/fs;
+    
+    % samples per period of fundamental:
+    fs_rat = fs/fx(1);
+    
+    % process all harmonics
+    u_P_st = [];
+    u_S_st = [];
+    for h = 1:H
+    
+        % get U single-tone wrms uncertainty components:
+        [dPx,dSx,dUx] = wrms_unc_st(lut_st, Ux(h),Ux(h), U_noise,U_noise, Ux_bits(h),Ux_bits(h), f0_per,fs_rat);
+        
+        % get P,S,I single-tone wrms uncertainty components:
+        [dPx,dSx,dIx] = wrms_unc_st(lut_st, Ux(h),Ix(h), U_noise,I_noise, Ux_bits(h),Ix_bits(h), f0_per,fs_rat);
+        
+        % minimum uncertainty:
+        %  ###todo: temporary, remove 
+        dPx = max(dPx,0.1e-6);
+        dSx = max(dSx,0.1e-6);
+        dIx = max(dIx,0.1e-6);
+        dUx = max(dUx,0.1e-6);
+        
+        % calculate absolute uncertainty of the components:
+        u_P_st(h) = dPx.*Sx(h)/3^0.5;
+        u_S_st(h) = dSx.*Sx(h)/3^0.5;
+        u_I_st(h) = 2^-0.5*dIx.*Ix(h)/3^0.5;
+        u_U_st(h) = 2^-0.5*dUx.*Ux(h)/3^0.5;
+        
+    end
+    
+    % sum component uncertainties:
+    u_P_st = sum(u_P_st.^2).^0.5;
+    u_S_st = sum(u_S_st.^2).^0.5;
+    u_Q_st = ((S^2*u_S_st^2 + P^2*u_P_st^2)/(S^2 - P^2))^0.5;
+    u_U_st = sum(u_U_st.^2).^0.5;
+    u_I_st = sum(u_I_st.^2).^0.5;
+    u_PF_st = ((u_P_st/P)^2 + (u_S_st/S)^2)^0.5;
+    
+    
+    
+    
+    % load single-tone wrms LUT data:
+    mfld = fileparts(mfilename('fullpath'));    
+    lut = load([mfld filesep() 'wrms_spurr_unc.lut'],'-v7','lut');
+    lut_sp = lut.lut;
+    
+    % process all harmonics
+    u_P_sp = [];
+    u_S_sp = [];
+    u_U_sp = [];
+    u_I_sp = [];
+    for h = 2:H
+    
+        % relative spurr position:
+        f_spurr = (fx(h) - fx(1))/(fs/2 - fx(1));
+        
+        % get U single-tone wrms uncertainty components:
+        [dPx,dSx,dUx,dIx] = wrms_unc_spurr(lut_sp, Ux(1),Ix(1), f_spurr,Ux(h),Ix(h), f0_per,fs_rat);
+                
+        % calc. absolute uncertainty components:
+        u_P_sp(end+1) = dPx*Sx(1)/3^0.5;
+        u_S_sp(end+1) = dSx*Sx(1)/3^0.5;
+        u_U_sp(end+1) = dUx*Ux(1)/3^0.5;
+        u_I_sp(end+1) = dIx*Ix(1)/3^0.5;
+                
+    end
+    % sum component uncertainties:
+    u_P_sp = sum(u_P_sp.^2).^0.5;
+    u_S_sp = sum(u_S_sp.^2).^0.5;
+    u_Q_sp = ((S^2*u_S_sp^2 + P^2*u_P_sp^2)/(S^2 - P^2))^0.5;
+    u_U_sp = sum(u_U_sp.^2).^0.5;
+    u_I_sp = sum(u_I_sp.^2).^0.5;
+    u_PF_sp = ((u_P_sp/P)^2 + (u_S_sp/S)^2)^0.5;
+        
+    
+        
+    %u_Ux./Ux
+    %u_Ix./Ix
+    
+    
     
     % estimate uncertainty from relevant harmonics:
     u_U = sum(0.5*u_Ux.^2).^0.5;
@@ -478,6 +579,15 @@ function dataout = alg_wrapper(datain, calcset)
     u_P = sum((0.5*((Ix.*cos(phx).*u_Ux).^2 + (Ux.*cos(phx).*u_Ix).^2 + (Ux.*Ix.*sin(phx).*u_phx).^2).^0.5).^2).^0.5;
     u_Q = sum((0.5*((Ix.*sin(phx).*u_Ux).^2 + (Ux.*sin(phx).*u_Ix).^2 + (Ux.*Ix.*cos(phx).*u_phx).^2).^0.5).^2).^0.5;
     u_PF = ((u_P./P).^2 + (u_S./S).^2).^0.5;
+    
+    % ass single-tone WRMS algorithm uncertainties:
+    u_U = (u_U.^2 + u_U_st.^2 + u_U_sp.^2).^0.5;
+    u_I = (u_I.^2 + u_I_st.^2 + u_I_sp.^2).^0.5;
+    u_P = (u_P.^2 + u_P_st.^2 + u_P_sp.^2).^0.5;
+    u_S = (u_S.^2 + u_S_st.^2 + u_S_sp.^2).^0.5;
+    u_Q = (u_Q.^2 + u_Q_st.^2 + u_Q_sp.^2).^0.5;
+    u_PF = (u_PF.^2 + u_PF_st.^2 + u_PF_sp.^2).^0.5;
+    
         
     
     
@@ -493,8 +603,8 @@ function dataout = alg_wrapper(datain, calcset)
     N = numel(u);
 
     % generate window for the RMS algorithm (periodic):
-    w = hanning(N + 1);
-    w = w(1:end-1);
+    w = blackmanharris(N,'periodic');
+    %w = w(1:end-1);
     w = w(:);
     
     % calculate inverse RMS of the window (needed for scaling of the result): 
@@ -543,10 +653,10 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.spec_S.v = dataout.spec_U.v.*dataout.spec_I.v;
     dataout.spec_f.v = fh(:);
     
-    %figure;
-    %loglog(fh,dataout.spec_U.v)
-    %figure;
-    %loglog(fh,dataout.spec_I.v)  
+    figure;
+    loglog(fh,dataout.spec_U.v)
+    figure;
+    loglog(fh,dataout.spec_I.v)  
     
     
      
@@ -573,7 +683,7 @@ function [lsb] = adc_get_lsb(din,pfx)
         % LSB value from nom. range and bit resolution:
         bits = getfield(din,[pfx 'adc_bits']); bits = bits.v;
         nrng = getfield(din,[pfx 'adc_nrng']); nrng = nrng.v;        
-        lsb = nrng*2^(bits-1);        
+        lsb = nrng*2^-(bits-1);        
     else
         % nope - its not there...
         error('PWDTDI algorithm: Missing ADC LSB value or ADC range and bit resolution!');

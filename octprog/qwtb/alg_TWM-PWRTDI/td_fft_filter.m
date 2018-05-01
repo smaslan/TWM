@@ -50,6 +50,17 @@ function [y_out, first, last, fr,fg,fp] = td_fft_filter(y, fs, fft_size, f,gain,
         
         % apply the mask to the end of spectrum:
         fp((end-msk_w):end) = fp((end-msk_w):end).*msk;
+        %fg((end-msk_w):end) = fg((end-msk_w):end).*msk;
+        
+        % -- apply mask for nead dc
+        % mask width (size from nyquist bin):
+        msk_w = 4;
+        
+        % generate mask:
+        msk = 0.5 + 0.5*cos([msk_w:-1:0]'/msk_w*pi);
+
+        % apply the mask to the end of spectrum:
+        fp(1:msk_w+1) = fp(1:msk_w+1).*msk;
     
     end
                

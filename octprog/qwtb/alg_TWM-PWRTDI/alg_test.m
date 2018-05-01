@@ -4,10 +4,10 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     % samples count to synthesize:
-    N = 1e4;
+    N = 5000;1e4;
     
     % sampling rate [Hz]
-    din.fs.v = 20000;
+    din.fs.v = 10000;
     
     % ADC aperture [s]:
     din.adc_aper.v = 1e-6;
@@ -35,6 +35,9 @@ function alg_test(calcset) %<<<1
     
     chns = {}; id = 0;    
     
+    
+    f_harm = 2.5;
+    
     % -- VOLTAGE:
     id = id + 1;
     % channel parameters:
@@ -45,7 +48,7 @@ function alg_test(calcset) %<<<1
     % harmonic phases:
     chns{id}.ph =    [0   -0.8  0.2]'*pi;
     % harmonic component index {1st, 2rd, ..., floor(0.4*fs/f0)}:
-    chns{id}.fk =    [1    5    round(0.4*din.fs.v/f0)]';
+    chns{id}.fk =    [1    f_harm    round(0.4*din.fs.v/f0)]';
     % differential mode: loop impedance:
     %chns{id}.Zx = 100;
     
@@ -59,7 +62,7 @@ function alg_test(calcset) %<<<1
     % harmonic phases:
     chns{id}.ph =     [1/3  +0.8  0.2]'*pi;
     % harmonic component index {1st, 2rd, ..., floor(0.4*fs/f0)}:
-    chns{id}.fk =     [1     5    round(0.4*din.fs.v/f0)]';
+    chns{id}.fk =     [1     f_harm    round(0.4*din.fs.v/f0)]';
     % differential mode: loop impedance:
     %chns{id}.Zx = 0.1;
         
@@ -293,6 +296,7 @@ function alg_test(calcset) %<<<1
     P_ref  = 0.5*sum(chns{1}.A.*chns{2}.A.*cos(chns{2}.ph - chns{1}.ph));    
     Q_ref  = (S_ref^2 - P_ref.^2)^0.5;
     PF_ref = P_ref/S_ref;
+        
     
     ref_list =  [U_ref,    I_ref,    S_ref,    P_ref,    Q_ref,    PF_ref];    
     dut_list =  [dout.U.v, dout.I.v, dout.S.v, dout.P.v, dout.Q.v, dout.PF.v];

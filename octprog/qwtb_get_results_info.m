@@ -18,7 +18,7 @@ function [res_files, res_exist, alg_list, chn_list] = qwtb_get_results_info(meas
   chn_list = '';
   
   % path of the results header
-  res_header = [meas_root filesep() 'results.info'];
+  res_header = [meas_root filesep() 'results.info'];  
   
   try
     % load results header
