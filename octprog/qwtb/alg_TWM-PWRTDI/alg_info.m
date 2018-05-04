@@ -83,6 +83,16 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     
+    % --- configuration:
+    % supress DC component
+    alginfo.inputs(pid).name = 'ac_coupling';
+    alginfo.inputs(pid).desc = 'Enable AC coupling (removal of DC offset)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
+    
     % --- flags:
     % note: presence of these parameters signalizes caller capabilities of the algoirthm
      

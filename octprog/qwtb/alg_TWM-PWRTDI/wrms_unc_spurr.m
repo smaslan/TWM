@@ -33,7 +33,7 @@ function [dPx,dSx,dIx,dUx] = wrms_unc_spurr(lut, amp_a,amp_b, f_spurr,a_spurr,b_
     
     % -- P,S unc calculation:
     
-    % default uncertainty multiploier:
+    % default uncertainty multiplier:
     mult = 1;
     
     % under U/I range multiplier:
@@ -53,10 +53,10 @@ function [dPx,dSx,dIx,dUx] = wrms_unc_spurr(lut, amp_a,amp_b, f_spurr,a_spurr,b_
     axi.ab_rat.val = amp_b/amp_a;
     axi.f0_per.val = f0_per;
     axi.fs_rat.val = fs_rat;
-    axi.s_amp.val = a_spurr*mult;
     axi.s_freq.val = f_spurr;
                 
     % get no noise unc. value:
+    axi.s_amp.val = a_spurr*mult_a;
     unc_PS_a = interp_lut(lut.lut_PS,axi);
     
     
@@ -68,27 +68,26 @@ function [dPx,dSx,dIx,dUx] = wrms_unc_spurr(lut, amp_a,amp_b, f_spurr,a_spurr,b_
     end
     
     % get no noise unc. value (second channel):
-    axi.s_amp.val = b_spurr*mult;
+    axi.s_amp.val = b_spurr*mult_b;
     unc_PS_b = interp_lut(lut.lut_PS,axi);
         
     
     
-    % -- ref level unc calculation:    
+    % -- U/I unc calculation:    
     % set LUT axes:           
     axi = struct();
     axi.f0_per.val = f0_per;
     axi.fs_rat.val = fs_rat;
-    axi.s_amp.val = a_spurr/amp_a;
     axi.s_freq.val = f_spurr;
         
     % get reference unc. value:
+    axi.s_amp.val = a_spurr/amp_a;
     unc_I_a = interp_lut(lut.lut_I,axi);
     
     % get reference unc. value:
     axi.s_amp.val = b_spurr/amp_b;
     unc_I_b = interp_lut(lut.lut_I,axi);
-    
-    
+      
     
     % calculate alg. errors:
     dPx = (unc_PS_a.dP.val^2 + unc_PS_b.dP.val^2)^0.5;

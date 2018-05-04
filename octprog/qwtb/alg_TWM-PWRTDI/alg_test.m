@@ -3,14 +3,17 @@ function alg_test(calcset) %<<<1
 %
 % See also qwtb
 
-    % samples count to synthesize:
-    N = 5000;1e4;
     
+    % samples count to synthesize:
+    %N = 7000;1e4;
+    N = round(logrand(5000,20000))
+    %N = 100000
+        
     % sampling rate [Hz]
     din.fs.v = 10000;
     
     % ADC aperture [s]:
-    din.adc_aper.v = 1e-6;
+    din.adc_aper.v = 10e-6;
     
     % aperture correction state:
     din.u_adc_aper_corr.v = 1;
@@ -18,11 +21,15 @@ function alg_test(calcset) %<<<1
     din.i_adc_aper_corr = din.u_adc_aper_corr;
     din.i_lo_adc_aper_corr = din.u_adc_aper_corr;
     
+    % enable AC coupling:
+    din.ac_coupling.v = 1;
+    
     % ADC rms noise [s]:
     adc_std_noise = 1e-6;     
     
     % fundamental frequency [Hz]:
-    f0 = 50.3;
+    %f0 = 50.3;
+    f0 = logrand(50.3,403.0);
     
     % corretions interpolation mode:
     %  note: must be the same as in the alg. itself!
@@ -30,13 +37,17 @@ function alg_test(calcset) %<<<1
     i_mode = 'pchip';
     
     % randomize corrections uncertainty:
-    rand_unc = 0;
+    rand_unc = 1;
+    
+    % randomize SFDR:
+    rand_sfdr = 1;
     
     
     chns = {}; id = 0;    
     
-    
-    f_harm = 2.5;
+    % interharmonic ratio:
+    %f_harm = 2.5;
+    f_harm = logrand(1.3,2.9);
     
     % -- VOLTAGE:
     id = id + 1;
@@ -45,12 +56,17 @@ function alg_test(calcset) %<<<1
     chns{id}.type = 'rvd';
     % harmonic amplitudes:
     chns{id}.A  = 50*[1   0.01  0.001]';
+    %chns{id}.A  = logrand(5,50)*[1   logrand(0.01,0.1)  0.001]';
     % harmonic phases:
-    chns{id}.ph =    [0   -0.8  0.2]'*pi;
+    %chns{id}.ph =    [0   -0.8  0.2]'*pi;
+    chns{id}.ph =    [0   linrand(-0.8,0.8)  0.2]'*pi;
     % harmonic component index {1st, 2rd, ..., floor(0.4*fs/f0)}:
-    chns{id}.fk =    [1    f_harm    round(0.4*din.fs.v/f0)]';
+    chns{id}.fk =    [1   f_harm             round(0.4*din.fs.v/f0)]';
+    % DC component:
+    chns{id}.dc = 0.5;
     % differential mode: loop impedance:
     %chns{id}.Zx = 100;
+     
     
     % -- CURRENT:
     id = id + 1;
@@ -58,11 +74,16 @@ function alg_test(calcset) %<<<1
     chns{id}.name = 'i';
     chns{id}.type = 'shunt';
     % harmonic amplitudes:
-    chns{id}.A  = 0.3*[1     0.01  0.001]';
+    chns{id}.A  = 0.3*[1     0.01 0.001]';
+    %chns{id}.A  = logrand(0.1,0.9)*[1    logrand(0.01,0.1)  0.001]';
     % harmonic phases:
-    chns{id}.ph =     [1/3  +0.8  0.2]'*pi;
+    PF = 0.5;round(linrand(0.1,1.0)*100)/100;
+    %chns{id}.ph =     [1/3  +0.8  0.2]'*pi;
+    chns{id}.ph =      [acos(PF)/pi  linrand(-0.8,0.8)  0.2]'*pi;
     % harmonic component index {1st, 2rd, ..., floor(0.4*fs/f0)}:
-    chns{id}.fk =     [1     f_harm    round(0.4*din.fs.v/f0)]';
+    chns{id}.fk =     [1    f_harm             round(0.4*din.fs.v/f0)]';
+    % DC component:
+    chns{id}.dc = 0.03;
     % differential mode: loop impedance:
     %chns{id}.Zx = 0.1;
         
@@ -73,24 +94,38 @@ function alg_test(calcset) %<<<1
         din.u_tr_Zlo_Cp.v = [1e-12];        
         din.u_tr_Zlo_Rp.u = [0e-6];
         din.u_tr_Zlo_Cp.u = [0e-12];
-        % create some corretion table for the digitizer gain: 
-        din.u_adc_gain_f.v = [0;1e3;1e6];
+        % create some corretion table for the digitizer gain/phase: 
+        [din.u_adc_gain_f,din.u_adc_gain,din.u_adc_phi] = gen_adc_tfer(din.fs.v/2+1,50, 1.05,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03,
+                                                                       linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
+        din.u_adc_phi_f = din.u_adc_gain_f;         
         din.u_adc_gain_a.v = [];
-        din.u_adc_gain.v = [1.000000; 1.010000; 1.100000];
-        din.u_adc_gain.u = [0.000002; 0.000010; 0.000050]; 
-        % create some corretion table for the digitizer phase: 
-        din.u_adc_phi_f.v = [0;1e3;1e6];
         din.u_adc_phi_a.v = [];
-        din.u_adc_phi.v = [0.000000; 0.000100; 0.001000];
-        din.u_adc_phi.u = [0.000002; 0.000007; 0.000080];
+%         din.u_adc_gain_f.v = [0;1e3;1e6];
+%         din.u_adc_gain_a.v = [];        
+%         din.u_adc_gain.v = [1.000000; 1.010000; 1.100000];
+%         din.u_adc_gain.u = [0.000002; 0.000010; 0.000050]; 
+%         din.u_adc_phi_f.v = [0;1e3;1e6];        
+%         din.u_adc_phi_a.v = [];
+%         din.u_adc_phi.v = [0.000000; 0.000100; 0.001000];
+%         din.u_adc_phi.u = [0.000002; 0.000007; 0.000080];
+        % digitizer SFDR value:
+        din.u_adc_sfdr_a.v = [];
+        din.u_adc_sfdr_f.v = [];
+        din.u_adc_sfdr.v = [110];
         % create identical low-side channel:
         din.u_lo_adc_gain_f = din.u_adc_gain_f;
         din.u_lo_adc_gain_a = din.u_adc_gain_a;
         din.u_lo_adc_gain = din.u_adc_gain;
+        din.u_lo_adc_gain.v = din.u_adc_gain.v*0.95;
         din.u_lo_adc_phi_f = din.u_adc_phi_f;
         din.u_lo_adc_phi_a = din.u_adc_phi_a;
         din.u_lo_adc_phi = din.u_adc_phi;
         din.u_lo_adc_phi.v(2:end) = din.u_lo_adc_phi.v(2:end) + 0.005; % change dig. tfer so u/i are not idnetical
+        % digitizer SFDR value (low-side):
+        din.u_lo_adc_sfdr_a.v = din.u_adc_sfdr_a.v;
+        din.u_lo_adc_sfdr_f.v = din.u_adc_sfdr_f.v;
+        din.u_lo_adc_sfdr.v = din.u_adc_sfdr.v;
+        
         
         % create some corretion table for the transducer gain: 
         din.u_tr_gain_f.v = [0;1e3;1e6];
@@ -102,29 +137,49 @@ function alg_test(calcset) %<<<1
         din.u_tr_phi_a.v = [];
         din.u_tr_phi.v = [0.000000; -0.000300; -0.003000];
         din.u_tr_phi.u = [0.000003;  0.000007;  0.000250];
+        % transducer SFDR value:
+        din.u_tr_sfdr_a.v = [];
+        din.u_tr_sfdr_f.v = [];
+        din.u_tr_sfdr.v = [100];
         % differential timeshift:
-        din.u_time_shift_lo.v = +103e-6;
+        din.u_time_shift_lo.v = +53e-6;
         din.u_time_shift_lo.u =  0.8e-6;
         
         
         % -- current channel:
-        % create some corretion table for the digitizer gain: 
-        din.i_adc_gain_f = din.u_adc_gain_f;
-        din.i_adc_gain_a = din.u_adc_gain_a;
-        din.i_adc_gain = din.u_adc_gain;
-        din.i_adc_gain.v = din.i_adc_gain.v*1.1; % change dig. tfer so u/i are not idnetical 
-        din.i_adc_phi_f = din.u_adc_phi_f;
-        din.i_adc_phi_a = din.u_adc_phi_a;
-        din.i_adc_phi = din.u_adc_phi;
-        din.i_adc_phi.v = din.i_adc_phi.v;
-        din.i_adc_phi.v(2:end) = din.i_adc_phi.v(2:end) + 0.005; % change dig. tfer so u/i are not idnetical
+        % create some corretion table for the digitizer gain/phase tfer: 
+        [din.i_adc_gain_f,din.i_adc_gain,din.i_adc_phi] = gen_adc_tfer(din.fs.v/2+1,50, 0.95,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03,
+                                                                       linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
+        din.i_adc_phi_f = din.i_adc_gain_f;         
+        din.i_adc_gain_a.v = [];
+        din.i_adc_phi_a.v = [];        
+%         din.i_adc_gain_f = din.u_adc_gain_f;
+%         din.i_adc_gain_a = din.u_adc_gain_a;
+%         din.i_adc_gain = din.u_adc_gain;
+%         din.i_adc_gain.v = din.i_adc_gain.v*1.1; % change dig. tfer so u/i are not idnetical 
+%         din.i_adc_phi_f = din.u_adc_phi_f;
+%         din.i_adc_phi_a = din.u_adc_phi_a;
+%         din.i_adc_phi = din.u_adc_phi;
+%         din.i_adc_phi.v = din.i_adc_phi.v;
+%         din.i_adc_phi.v(2:end) = din.i_adc_phi.v(2:end) + 0.005; % change dig. tfer so u/i are not idnetical
+        % digitizer SFDR value:
+        din.i_adc_sfdr_a.v = [];
+        din.i_adc_sfdr_f.v = [];
+        din.i_adc_sfdr.v = [110];
         % create some corretion table for the digitizer phase: 
         din.i_lo_adc_gain_f = din.i_adc_gain_f;
         din.i_lo_adc_gain_a = din.i_adc_gain_a;
         din.i_lo_adc_gain = din.i_adc_gain;
+        din.i_lo_adc_gain.v = din.i_adc_gain.v*1.05;
         din.i_lo_adc_phi_f = din.i_adc_phi_f;
         din.i_lo_adc_phi_a = din.i_adc_phi_a;
-        din.i_lo_adc_phi = din.i_adc_phi;             
+        din.i_lo_adc_phi = din.i_adc_phi;
+        din.i_lo_adc_phi.v(2:end) = din.i_lo_adc_phi.v(2:end) + 0.002; % change dig. tfer so u/i are not idnetical
+        % digitizer SFDR value (low-side):
+        din.i_lo_adc_sfdr_a.v = din.i_adc_sfdr_a.v;
+        din.i_lo_adc_sfdr_f.v = din.i_adc_sfdr_f.v;
+        din.i_lo_adc_sfdr.v = din.i_adc_sfdr.v;             
+        
         % create some corretion table for the transducer gain: 
         din.i_tr_gain_f.v = [0;1e3;1e6];
         din.i_tr_gain_a.v = [];
@@ -134,14 +189,18 @@ function alg_test(calcset) %<<<1
         din.i_tr_phi_f.v = [0;1e3;1e6];
         din.i_tr_phi_a.v = [];
         din.i_tr_phi.v = [0.000000; -0.000400; -0.002000] + 0.0;
-        din.i_tr_phi.u = [0.000003;  0.000006;  0.000200];        
+        din.i_tr_phi.u = [0.000003;  0.000006;  0.000200];
+        % transducer SFDR value:
+        din.i_tr_sfdr_a.v = [];
+        din.i_tr_sfdr_f.v = [];
+        din.i_tr_sfdr.v = [100];        
         % differential timeshift:
-        din.i_time_shift_lo.v = -217e-6;
+        din.i_time_shift_lo.v = -27e-6;
         din.i_time_shift_lo.u =  0.7e-6;
                 
         % interchannel timeshift:
-        din.time_shift.v = 113.30e-6;
-        din.time_shift.u =   0.07e-6;
+        din.time_shift.v =  33.30e-6;
+        din.time_shift.u =   0.02e-6;
     
     end
     
@@ -196,17 +255,44 @@ function alg_test(calcset) %<<<1
         cpfx = [chn.name '_'];
                                         
         % channel corrections:
-        tab_list = {'tr_gain','tr_phi','tr_Zca','tr_Yca','tr_Zcal','tr_Zcam','adc_Yin','lo_adc_Yin','Zcb','Ycb','tr_Zlo','adc_gain','adc_phi','lo_adc_gain','lo_adc_phi'};
+        tab_list = {'tr_gain','tr_phi','tr_Zca','tr_Yca','tr_Zcal','tr_Zcam','adc_Yin','lo_adc_Yin','Zcb','Ycb','tr_Zlo','adc_gain','adc_phi','lo_adc_gain','lo_adc_phi','tr_sfdr','adc_sfdr','lo_adc_sfdr'};
         chtab = conv_vchn_tabs(tab,chn.name,tab_list);
     
         % calculate actual frequencies of the harmonics:
         fx = chn.fk*f0;
         
+        % insert DC component
+        fx = [eps;fx];
+        chn.A = [chn.dc;chn.A];
+        chn.ph = [pi/2;chn.ph];
+                
         % rms level of the input signal:
-        rms = sum(0.5*chn.A.^2)^0.5;        
+        rms = sum(0.5*chn.A(2:end).^2)^0.5;
+        
+        % include DC:
+        if ~din.ac_coupling.v
+            rms = (rms^2 + chn.A(1)^2)^0.5;
+        end                
         chns{c}.rms = rms;
         
         
+        % spurr frequencies:
+        f_sp = [];
+        f_sp(:,1) = 2*fx(2):fx(2):floor(0.45*din.fs.v);
+        
+        % generate TR spurrs:
+        tr_sfdr = correction_interp_table(chtab.tr_sfdr, rms, fx(2),'f',1, i_mode);
+        A_spurr = chn.A(2)*10^(-tr_sfdr.sfdr/20)*rand(size(f_sp));
+        
+        % add the spurrs to the signal to generate:
+        if rand_sfdr
+            fx = [fx;f_sp];
+            chn.Ag = [chn.A;A_spurr];
+            chn.phg = [chn.ph;rand(size(f_sp))*2*pi];
+        else
+            chn.Ag = chn.A;
+            chn.phg = chn.ph;
+        end
                 
         
         % --- apply transducer transfer:
@@ -218,12 +304,14 @@ function alg_test(calcset) %<<<1
         sub_chn = {};        
         if is_diff
             % -- differential connection (create two subchannels: high and low-side):            
-            [A_syn(:,1),ph_syn(:,1),A_syn(:,2),ph_syn(:,2)] = correction_transducer_sim(chtab,chn.type,fx,chn.A,chn.ph,0,0,rand_unc_str,chn.Zx);
+            [A_syn(:,1),ph_syn(:,1),A_syn(:,2),ph_syn(:,2)] = correction_transducer_sim(chtab,chn.type,fx,chn.Ag,chn.phg,0,0,rand_unc_str,chn.Zx);
             % prepare digitizer sunchannel correction tables:
             sctab{1}.adc_gain = chtab.adc_gain; % high-side
             sctab{1}.adc_phi  = chtab.adc_phi;
+            sctab{1}.adc_sfdr  = chtab.adc_sfdr;
             sctab{2}.adc_gain = chtab.lo_adc_gain; % low-side
             sctab{2}.adc_phi  = chtab.lo_adc_phi;
+            sctab{2}.adc_sfdr  = chtab.lo_adc_sfdr;
             % prepare subchannel timeshifts:
             tsh_lo(1) = 0; % high-side
             tslo = getfield(din,[cpfx 'time_shift_lo']); 
@@ -234,10 +322,11 @@ function alg_test(calcset) %<<<1
             sub_chn{2} = [chn.name '_lo']; % low-side
         else
             % -- single-ended connection (create single channel):
-            [A_syn,ph_syn] = correction_transducer_sim(chtab,chn.type,fx,chn.A,chn.ph,0,0,rand_unc_str);
+            [A_syn,ph_syn] = correction_transducer_sim(chtab,chn.type,fx,chn.Ag,chn.phg,0,0,rand_unc_str);
             % prepare digitizer sunchannel correction tables:
             sctab{1}.adc_gain = chtab.adc_gain;
             sctab{1}.adc_phi  = chtab.adc_phi;
+            sctab{1}.adc_sfdr  = chtab.adc_sfdr;
             % prepare subchannel timeshifts:
             tsh_lo(1) = 0;
             % subchannel waveform names:
@@ -264,6 +353,23 @@ function alg_test(calcset) %<<<1
             % apply digitizer gain:
             Ac  = A_syn(:,k)./(k_gain.gain + randn(size(A_syn(:,k))).*k_gain.u_gain*rand_unc);
             phc = ph_syn(:,k) - k_phi.phi + randn(size(ph_syn(:,k))).*k_phi.u_phi*rand_unc;
+            
+            % get ADC sfdr value:
+            sfdr = correction_interp_table(sctab{k}.adc_sfdr, A_syn(1,k), fx(1),'f',1, i_mode);
+            
+            if rand_sfdr
+                % ADC spurrs:
+                adc_spurr = A_syn(2,k)*10^(-sfdr.sfdr/20)*rand(size(f_sp));
+                
+                % add spurrs to the signal to generate:
+                Ac((numel(chn.A)+1):end) = Ac((numel(chn.A)+1):end) + adc_spurr;
+                
+            end
+            
+            
+            % frquency with zeroed DC component frequency:
+            fx_temp = fx;
+            fx_temp(1) = 0;                                               
                          
             % generate time vector 2*pi*t:
             % note: including time shift!
@@ -271,13 +377,16 @@ function alg_test(calcset) %<<<1
             t(:,1) = ([0:N-1]/din.fs.v + tsh + tsh_lo(k))*2*pi;
             
             % synthesize waveform (crippled for Matlab < 2016b):
-            % u = Av.*sin(t.*fx + phc);
-            u = bsxfun(@times, Ac', sin(bsxfun(@plus, bsxfun(@times, t, fx'), phc')));
+            % u = Av.*sin(t.*fx_temp + phc);
+            u = bsxfun(@times, Ac', sin(bsxfun(@plus, bsxfun(@times, t, fx_temp'), phc')));
             % sum the harmonic components to a single composite signal:
             u = sum(u,2);
             
             % add some noise:
-            u = u + randn(size(u))*adc_std_noise; 
+            u = u + randn(size(u))*adc_std_noise;
+            
+            %figure;
+            %plot(u)
             
             % store to the QWTB input list:
             din_alg = setfield(din_alg, sub_chn{k}, struct('v',u));
@@ -293,7 +402,10 @@ function alg_test(calcset) %<<<1
     U_ref  = chns{1}.rms;
     I_ref  = chns{2}.rms;
     S_ref  = chns{1}.rms.*chns{2}.rms;
-    P_ref  = 0.5*sum(chns{1}.A.*chns{2}.A.*cos(chns{2}.ph - chns{1}.ph));    
+    P_ref  = 0.5*sum(chns{1}.A.*chns{2}.A.*cos(chns{2}.ph - chns{1}.ph));
+    if ~din.ac_coupling.v
+        P_ref  = P_ref + (chns{1}.dc*chns{2}.dc);
+    end    
     Q_ref  = (S_ref^2 - P_ref.^2)^0.5;
     PF_ref = P_ref/S_ref;
         
@@ -304,8 +416,9 @@ function alg_test(calcset) %<<<1
     name_list = {'U','I','S','P','Q','PF'};
         
     
-    fprintf('   |     REF     |     DUT                    |   ABS DEV   |  %%-DEV   |  %%-UNC\n');
-    fprintf('---+-------------+----------------------------+-------------+----------+----------\n');
+    fprintf('---+-------------+----------------------------+-------------+----------+----------+----------\n');
+    fprintf('   |     REF     |        CALC +- UNC         |   ABS DEV   |  %%-DEV   |  %%-UNC   |  %%-UNC\n');
+    fprintf('---+-------------+----------------------------+-------------+----------+----------+----------\n');
     for k = 1:numel(ref_list)
         
         ref = ref_list(k);
@@ -322,9 +435,10 @@ function alg_test(calcset) %<<<1
         [ss,rv] = unc2str(ref,unc);
         %sn = ['[' un_list{k} ']'];
         
-        fprintf('%-2s | %11s | %11s +- %-11s | %11s | %+8.4f | %+3.0f\n',name,rv,sv,su,dv,100*dev/ref,puc);
+        fprintf('%-2s | %11s | %11s +- %-11s | %11s | %+8.4f | %+8.4f | %+3.0f\n',name,rv,sv,su,dv,100*dev/ref,unc/dut*100,puc);
         
     end
+    fprintf('---+-------------+----------------------------+-------------+----------+----------+----------\n');
       
     
     
@@ -341,6 +455,20 @@ function alg_test(calcset) %<<<1
 %     end
                                                                          
     
+end
+
+function [rnd] = logrand(A_min,A_max,N)
+    if nargin < 3
+        N = [1 1];
+    end
+    rnd = 10.^(log10(A_min) + (log10(A_max) - log10(A_min))*rand(N));
+end
+
+function [rnd] = linrand(A_min,A_max,N)
+    if nargin < 3
+        N = [1 1];
+    end
+    rnd = rand(N)*(A_max - A_min) + A_min;
 end
 
 

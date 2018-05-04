@@ -20,7 +20,7 @@ function [y_out, first, last, fr,fg,fp] = td_fft_filter(y, fs, fft_size, f,gain,
     % nyquist problem fix value:
     %  this defines portion of the near nyquist band where the algorithm will not apply phase correction  
     if nargin < 8
-        nyquist_fix = 0.01;
+        nyquist_fix = 0.02;
     end
     
     
@@ -33,8 +33,8 @@ function [y_out, first, last, fr,fg,fp] = td_fft_filter(y, fs, fft_size, f,gain,
     fr(:,1) = [0:fft_half]/fft_size*fs;
     
     % interpolate filter data to filter frequencies:
-    fg = interp1nan(f,gain,fr,i_mode);
-    fp = interp1nan(f,phi,fr,i_mode);
+    fg = interp1(f,gain,fr,i_mode,'extrap');
+    fp = interp1(f,phi,fr,i_mode,'extrap');
     
     % -- near-nyquist errors fix: 
     if nyquist_fix > 0
