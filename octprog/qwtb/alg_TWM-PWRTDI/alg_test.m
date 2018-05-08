@@ -6,14 +6,16 @@ function alg_test(calcset) %<<<1
     
     % samples count to synthesize:
     %N = 7000;1e4;
-    N = round(logrand(5000,20000))
-    %N = 100000
+    N = round(logrand(5000,20000));
+    %N = 8520
+    fprintf('N = %.0f samples\n',N);
         
     % sampling rate [Hz]
     din.fs.v = 10000;
+    fprintf('fs = %0.4f Hz\n',din.fs.v);
     
     % ADC aperture [s]:
-    din.adc_aper.v = 10e-6;
+    din.adc_aper.v = 5e-6;
     
     % aperture correction state:
     din.u_adc_aper_corr.v = 1;
@@ -28,8 +30,19 @@ function alg_test(calcset) %<<<1
     adc_std_noise = 1e-6;     
     
     % fundamental frequency [Hz]:
-    %f0 = 50.3;
-    f0 = logrand(50.3,403.0);
+    %f0 = 61.3460;
+    f0 = round(logrand(50.3,403.0)*1000)/1000;    
+    fprintf('f0 = %0.4f Hz\n',f0);
+    
+    
+    % fundamental periods in the record:
+    f0_per = f0*N/din.fs.v;
+    fprintf('f0 periods = %0.2f\n',f0_per);
+        
+    % samples per period of fundamental:
+    fs_rat = din.fs.v/f0;
+    fprintf('fs/f0 ratio = %0.2f\n',fs_rat);
+
     
     % corretions interpolation mode:
     %  note: must be the same as in the alg. itself!
@@ -55,8 +68,8 @@ function alg_test(calcset) %<<<1
     chns{id}.name = 'u';
     chns{id}.type = 'rvd';
     % harmonic amplitudes:
-    chns{id}.A  = 50*[1   0.01  0.001]';
-    %chns{id}.A  = logrand(5,50)*[1   logrand(0.01,0.1)  0.001]';
+    %chns{id}.A  = 50*[1   0.01  0.001]';
+    chns{id}.A  = logrand(5,50)*[1   logrand(0.01,0.1)  0.001]';
     % harmonic phases:
     %chns{id}.ph =    [0   -0.8  0.2]'*pi;
     chns{id}.ph =    [0   linrand(-0.8,0.8)  0.2]'*pi;
@@ -74,10 +87,10 @@ function alg_test(calcset) %<<<1
     chns{id}.name = 'i';
     chns{id}.type = 'shunt';
     % harmonic amplitudes:
-    chns{id}.A  = 0.3*[1     0.01 0.001]';
-    %chns{id}.A  = logrand(0.1,0.9)*[1    logrand(0.01,0.1)  0.001]';
+    %chns{id}.A  = 0.3*[1     0.01 0.001]';
+    chns{id}.A  = logrand(0.1,0.9)*[1    logrand(0.01,0.1)  0.001]';
     % harmonic phases:
-    PF = 0.5;round(linrand(0.1,1.0)*100)/100;
+    PF = round(linrand(0.1,1.0)*100)/100;
     %chns{id}.ph =     [1/3  +0.8  0.2]'*pi;
     chns{id}.ph =      [acos(PF)/pi  linrand(-0.8,0.8)  0.2]'*pi;
     % harmonic component index {1st, 2rd, ..., floor(0.4*fs/f0)}:
@@ -95,8 +108,9 @@ function alg_test(calcset) %<<<1
         din.u_tr_Zlo_Rp.u = [0e-6];
         din.u_tr_Zlo_Cp.u = [0e-12];
         % create some corretion table for the digitizer gain/phase: 
-        [din.u_adc_gain_f,din.u_adc_gain,din.u_adc_phi] = gen_adc_tfer(din.fs.v/2+1,50, 1.05,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03,
-                                                                       linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
+        [din.u_adc_gain_f,din.u_adc_gain,din.u_adc_phi] \
+          = gen_adc_tfer(din.fs.v/2+1,50, 1.05,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03,
+                         linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
         din.u_adc_phi_f = din.u_adc_gain_f;         
         din.u_adc_gain_a.v = [];
         din.u_adc_phi_a.v = [];
@@ -120,18 +134,16 @@ function alg_test(calcset) %<<<1
         din.u_lo_adc_phi_f = din.u_adc_phi_f;
         din.u_lo_adc_phi_a = din.u_adc_phi_a;
         din.u_lo_adc_phi = din.u_adc_phi;
-        din.u_lo_adc_phi.v(2:end) = din.u_lo_adc_phi.v(2:end) + 0.005; % change dig. tfer so u/i are not idnetical
+        din.u_lo_adc_phi.v(2:end) = din.u_lo_adc_phi.v(2:end) + 0.002; % change dig. tfer so u/i are not idnetical
         % digitizer SFDR value (low-side):
         din.u_lo_adc_sfdr_a.v = din.u_adc_sfdr_a.v;
         din.u_lo_adc_sfdr_f.v = din.u_adc_sfdr_f.v;
         din.u_lo_adc_sfdr.v = din.u_adc_sfdr.v;
-        
-        
         % create some corretion table for the transducer gain: 
         din.u_tr_gain_f.v = [0;1e3;1e6];
         din.u_tr_gain_a.v = [];
         din.u_tr_gain.v = [70.00000; 70.80000; 70.60000];
-        din.u_tr_gain.u = [ 0.00010;  0.00020;  0.00050]; 
+        din.u_tr_gain.u = [0.000005; 0.000007; 0.000050].*din.u_tr_gain.v; 
         % create some corretion table for the transducer phase: 
         din.u_tr_phi_f.v = [0;1e3;1e6];
         din.u_tr_phi_a.v = [];
@@ -183,8 +195,8 @@ function alg_test(calcset) %<<<1
         % create some corretion table for the transducer gain: 
         din.i_tr_gain_f.v = [0;1e3;1e6];
         din.i_tr_gain_a.v = [];
-        din.i_tr_gain.v = [ 0.500000; 0.510000; 0.520000];
-        din.i_tr_gain.u = [ 0.000005; 0.000010; 0.000050]; 
+        din.i_tr_gain.v = [0.500000; 0.510000; 0.520000];
+        din.i_tr_gain.u = [0.000005; 0.000007; 0.000050].*din.i_tr_gain.v; 
         % create some corretion table for the transducer phase: 
         din.i_tr_phi_f.v = [0;1e3;1e6];
         din.i_tr_phi_a.v = [];
@@ -200,7 +212,7 @@ function alg_test(calcset) %<<<1
                 
         % interchannel timeshift:
         din.time_shift.v =  33.30e-6;
-        din.time_shift.u =   0.02e-6;
+        din.time_shift.u =   0.01e-6;
     
     end
     
@@ -395,8 +407,15 @@ function alg_test(calcset) %<<<1
     
     end    
 
+    % add fake uncertainties to allow uncertainty calculation:
+    %  ###todo: to be removed when QWTB supports no uncertainty checking 
+    alginf = qwtb('TWM-PWRTDI','info');
+    qwtb('TWM-PWRTDI','addpath');    
+    din_alg = qwtb_add_unc(din_alg,alginf.inputs);
+
     % --- execute the algorithm:
-    dout = qwtb('TWM-PWRTDI',din_alg);
+    calcset.unc = 'none';
+    dout = qwtb('TWM-PWRTDI',din_alg,calcset);
     
     % calculate reference values:
     U_ref  = chns{1}.rms;
@@ -416,7 +435,7 @@ function alg_test(calcset) %<<<1
     name_list = {'U','I','S','P','Q','PF'};
         
     
-    fprintf('---+-------------+----------------------------+-------------+----------+----------+----------\n');
+    fprintf('\n---+-------------+----------------------------+-------------+----------+----------+----------\n');
     fprintf('   |     REF     |        CALC +- UNC         |   ABS DEV   |  %%-DEV   |  %%-UNC   |  %%-UNC\n');
     fprintf('---+-------------+----------------------------+-------------+----------+----------+----------\n');
     for k = 1:numel(ref_list)
@@ -486,5 +505,26 @@ function [tout] = conv_vchn_tabs(tin,pfx,list)
         end
     end
     
+end
+
+function [din] = qwtb_add_unc(din,pin)
+% this will create fake uncertainty for each non-parameter quantity
+% ###TODO: to be removed, when QWTB will support no-unc checking
+% It is just a temporary workaround.
+
+    names = fieldnames(din);
+    N = numel(names);
+
+    p_names = {pin(~~[pin.parameter]).name};
+    
+    for k = 1:N
+        if ~any(strcmpi(p_names,names{k}))
+            v_data = getfield(din,names{k});
+            if ~isfield(v_data,'u')
+                v_data.u = 0*v_data.v;
+                din = setfield(din,names{k},v_data);
+            end
+        end        
+    end    
 end
    

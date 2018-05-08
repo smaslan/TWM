@@ -1,4 +1,6 @@
-function [] = td_fft_filter_unc(fs, N, fft_size, f,gain,phi, i_mode, fhr,Yh)
+function [uAmp,uPhi] = td_fft_filter_unc(fs, N, fft_size, f,gain,phi, i_mode, fhr,Yh)
+% simple uncertainty estimator of the td_fft_filter() function (FFT filter)
+%
 
     fhr = fhr(:)';
     Yh = Yh(:)'; 
@@ -63,32 +65,39 @@ function [] = td_fft_filter_unc(fs, N, fft_size, f,gain,phi, i_mode, fhr,Yh)
         fid = round(fh/fs*M + 1);
         
         % extract harmonics from the spectra:
-        Ur = U(:,1);
-        Uf = U(:,2);
+        Ur = U(fid,1);
+        Uf = U(fid,2);
         
         % phase correction value:
-        fphib = interp1(fr,fp,fx,'pchip','extrap');
+        fphib = interp1(fr,fp,fh(:),'pchip','extrap');
         
         % amplitude correction value:
-        fampb = interp1(fr,fg,fx,'pchip','extrap');
+        fampb = interp1(fr,fg,fh(:),'pchip','extrap');
         
-        % apply filter correction to the reference signal:
-        Ur = Ur.*fampb.*exp(j*fphib);
+        % window scalloping error correction:
+        kWg = Yh(:)./abs(Ur);
+        kWp = mod(ph(:) - angle(Ur) + pi,2*pi) - pi;           
         
-        w_size = 10;
+        % reference harmonics values:
+        Ur = Yh(:).*fampb;
+        phr = ph(:) + fphib;
         
-        % calcualte RMSs:
-        Ur_rms = sum(0.5*abs(Uf(w_size:end)).^2)^0.5/w_rms*w_gain;
-        Uf_rms = sum(0.5*abs(Ur(w_size:end)).^2)^0.5/w_rms*w_gain;
+        % calculate RMS level:
+        %W = mean(w.^2)^-0.5;
+        %Uf_rms = W*mean((w.*yf).^2).^0.5;
         
-        % store deviations:
-        dR(v) = Ur_rms./Uf_rms - 1;
-        dA(:,v) = abs(Ur(fid))./abs(Uf(fid)) - 1;
-        dP(:,v) = mod(angle(Ur(fid)) - angle(Uf(fid)) + pi,2*pi) - pi;
+        % calculate desired RMS level:
+        %Ur_rms = sum(0.5*Ur.^2)^0.5; 
+                
+        %dR(v) = Ur_rms./Uf_rms - 1;       
+        dA(:,v) = kWg.*abs(Uf)./Ur - 1;
+        dP(:,v) = mod(angle(Uf) + kWp - phr + pi,2*pi) - pi;
+
     end
     
-    max(abs(dA),[],2)(1:3)
-    max(abs(dP),[],2)(1:3)
-    max(abs(dR),[],2)
-
+    % estimate max error:
+    uAmp = Yh(:).*max(abs(dA),[],2)/3^0.5;
+    uPhi = max(abs(dP),[],2)/3^0.5;
+    %uRms =max(abs(dR),[],2)/3^0.5;
+    
 end

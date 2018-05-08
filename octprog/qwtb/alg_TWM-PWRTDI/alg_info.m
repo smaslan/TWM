@@ -5,9 +5,9 @@ function alginfo = alg_info() %<<<1
 
     alginfo.id = 'TWM-PWRTDI';
     alginfo.name = 'Power calculation algorithm using Time-Domain-Integration.';
-    alginfo.desc = 'Calculation of power in time-domain from windowed u/i signals. Frequency dependent corrections are made using FFT filtering.';
+    alginfo.desc = 'Calculation of power in time-domain from windowed voltage and current signals. Frequency dependent corrections are made using FFT filtering.';
     alginfo.citation = 'K. B. Ellingsberg, ''''Predictable maximum RMS-error for windowed RMS (RMWS),'''' 2012 Conference on Precision electromagnetic Measurements, Washington, DC, 2012, pp. 308-309. doi: 10.1109/CPEM.2012.6250925';
-    alginfo.remarks = 'Algorithm requires at least 32 periods of fundamental frequency and no freq. component should be above 0.1*nyquist.';
+    alginfo.remarks = 'Algorithm requires at least some 10 periods of fundamental component, at least some 10 samples per period of the fundamental and also no significant freq. component should be above 0.5*nyquist or so. To make the uncertainty estimator work, the spacing between frequency components should be higher than 20 DFT bins.';
     alginfo.license = 'MIT';
     
     
@@ -490,13 +490,13 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Spectrum apparent power';
     pid = pid + 1;
     
-    alginfo.providesGUF = 0;
+    alginfo.providesGUF = 1;
     alginfo.providesMCM = 0;    
 
 end
 
 
-% create a differential complement of the last input parameter
+% create a differential complement of the last input parameter in the list 'par'
 function [par,pid] = add_diff_par(par,pid,prefix,name_prefix)
     par.inputs(pid) = par.inputs(pid - 1);
     par.inputs(pid).name = [prefix par.inputs(pid).name];
@@ -504,7 +504,7 @@ function [par,pid] = add_diff_par(par,pid,prefix,name_prefix)
     pid = pid + 1;    
 end
 
-% creates pair of voltage/current inputs from last quantity 
+% creates pair of voltage/current inputs from last quantity in the list 'par'
 function [par,pid] = add_ui_pair(par,pid,has_lo)
     for k = 1:1+has_lo
         par.inputs(pid) = par.inputs(pid - (1 + has_lo));
