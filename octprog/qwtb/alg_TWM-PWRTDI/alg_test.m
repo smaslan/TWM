@@ -1,13 +1,25 @@
 function alg_test(calcset) %<<<1
 % Part of QWTB. Test script for algorithm TWM-PWRTDI.
 %
+% This is part of the TWM - TracePQM WattMeter.
+% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% The script is distributed under MIT license, https://opensource.org/licenses/MIT.   
+%
 % See also qwtb
 
     
+    % calculation setup:
+    calcset.verbose = 1;
+    calcset.unc = 'guf'; % uncertainty mode
+    % MonteCarlo (for 'mcm' uncertainty mode) setup:
+    calcset.mcm.repeats = 100; % cycles
+    calcset.mcm.method = 'multistation'; % parallelization mode
+    calcset.mcm.procno = 0; % no. of parallel processes (0 to not start slaves)
+    calcset.mcm.tmpdir = 'c:\work\_mc_jobs_'; % jobs sharing folder for 'multistation' mode
+    
     % samples count to synthesize:
-    %N = 7000;1e4;
-    N = round(logrand(5000,20000));
-    %N = 8520
+    %N = 2000;
+    N = round(logrand(5000,20000));    
     fprintf('N = %.0f samples\n',N);
         
     % sampling rate [Hz]
@@ -24,10 +36,13 @@ function alg_test(calcset) %<<<1
     din.i_lo_adc_aper_corr = din.u_adc_aper_corr;
     
     % enable AC coupling:
-    din.ac_coupling.v = 1;
+    din.ac_coupling.v = 0;
     
     % ADC rms noise [s]:
-    adc_std_noise = 1e-6;     
+    adc_std_noise = 1e-6;
+    
+    % ADC jitter [s]:
+    din.adc_jitt.v = 1e-9;     
     
     % fundamental frequency [Hz]:
     %f0 = 61.3460;
@@ -50,7 +65,7 @@ function alg_test(calcset) %<<<1
     i_mode = 'pchip';
     
     % randomize corrections uncertainty:
-    rand_unc = 1;
+    rand_unc = 0;
     
     % randomize SFDR:
     rand_sfdr = 1;
@@ -69,7 +84,8 @@ function alg_test(calcset) %<<<1
     chns{id}.type = 'rvd';
     % harmonic amplitudes:
     %chns{id}.A  = 50*[1   0.01  0.001]';
-    chns{id}.A  = logrand(5,50)*[1   logrand(0.01,0.1)  0.001]';
+    U0 = logrand(5,50);
+    chns{id}.A  = U0*[1   logrand(0.01,0.1)  0.001]';
     % harmonic phases:
     %chns{id}.ph =    [0   -0.8  0.2]'*pi;
     chns{id}.ph =    [0   linrand(-0.8,0.8)  0.2]'*pi;
@@ -88,7 +104,8 @@ function alg_test(calcset) %<<<1
     chns{id}.type = 'shunt';
     % harmonic amplitudes:
     %chns{id}.A  = 0.3*[1     0.01 0.001]';
-    chns{id}.A  = logrand(0.1,0.9)*[1    logrand(0.01,0.1)  0.001]';
+    I0 = logrand(0.1,0.9);
+    chns{id}.A  = I0*[1    logrand(0.01,0.1)  0.001]';
     % harmonic phases:
     PF = round(linrand(0.1,1.0)*100)/100;
     %chns{id}.ph =     [1/3  +0.8  0.2]'*pi;
@@ -139,6 +156,16 @@ function alg_test(calcset) %<<<1
         din.u_lo_adc_sfdr_a.v = din.u_adc_sfdr_a.v;
         din.u_lo_adc_sfdr_f.v = din.u_adc_sfdr_f.v;
         din.u_lo_adc_sfdr.v = din.u_adc_sfdr.v;
+        % digitizer resolution:
+        din.u_adc_bits.v = 24;
+        din.u_adc_nrng.v = 1;
+        din.u_lo_adc_bits.v = 24;
+        din.u_lo_adc_nrng.v = 1;
+        % digitizer offset:
+        din.u_adc_offset.v = 0.01;
+        din.u_adc_offset.u = 0.0001;
+        din.u_lo_adc_offset.v = -0.01;
+        din.u_lo_adc_offset.u = 0.0001;                
         % create some corretion table for the transducer gain: 
         din.u_tr_gain_f.v = [0;1e3;1e6];
         din.u_tr_gain_a.v = [];
@@ -155,13 +182,14 @@ function alg_test(calcset) %<<<1
         din.u_tr_sfdr.v = [100];
         % differential timeshift:
         din.u_time_shift_lo.v = +53e-6;
-        din.u_time_shift_lo.u =  0.8e-6;
+        din.u_time_shift_lo.u =  0.8e-6;        
         
         
         % -- current channel:
         % create some corretion table for the digitizer gain/phase tfer: 
-        [din.i_adc_gain_f,din.i_adc_gain,din.i_adc_phi] = gen_adc_tfer(din.fs.v/2+1,50, 0.95,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03,
-                                                                       linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
+        [din.i_adc_gain_f,din.i_adc_gain,din.i_adc_phi] \
+          = gen_adc_tfer(din.fs.v/2+1,50, 0.95,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03,
+                         linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
         din.i_adc_phi_f = din.i_adc_gain_f;         
         din.i_adc_gain_a.v = [];
         din.i_adc_phi_a.v = [];        
@@ -190,8 +218,17 @@ function alg_test(calcset) %<<<1
         % digitizer SFDR value (low-side):
         din.i_lo_adc_sfdr_a.v = din.i_adc_sfdr_a.v;
         din.i_lo_adc_sfdr_f.v = din.i_adc_sfdr_f.v;
-        din.i_lo_adc_sfdr.v = din.i_adc_sfdr.v;             
-        
+        din.i_lo_adc_sfdr.v = din.i_adc_sfdr.v;
+        % digitizer resolution:
+        din.i_adc_bits.v = 24;
+        din.i_adc_nrng.v = 1;
+        din.i_lo_adc_bits.v = 24;
+        din.i_lo_adc_nrng.v = 1;
+        % digitizer offset:
+        din.i_adc_offset.v = 0.01;
+        din.i_adc_offset.u = 0.0001;
+        din.i_lo_adc_offset.v = -0.01;
+        din.i_lo_adc_offset.u = 0.0001;
         % create some corretion table for the transducer gain: 
         din.i_tr_gain_f.v = [0;1e3;1e6];
         din.i_tr_gain_a.v = [];
@@ -225,8 +262,8 @@ function alg_test(calcset) %<<<1
             c_data = getfield(din,corrz{k});
             if isfield(c_data,'u')
                 c_data.u = 0*c_data.u;
-                din = setfield(din,corrz{k},c_data);
-            end            
+                din = setfield(din,corrz{k},c_data);                
+            end
         end
     end
     
@@ -324,6 +361,7 @@ function alg_test(calcset) %<<<1
             sctab{2}.adc_gain = chtab.lo_adc_gain; % low-side
             sctab{2}.adc_phi  = chtab.lo_adc_phi;
             sctab{2}.adc_sfdr  = chtab.lo_adc_sfdr;
+            
             % prepare subchannel timeshifts:
             tsh_lo(1) = 0; % high-side
             tslo = getfield(din,[cpfx 'time_shift_lo']); 
@@ -332,17 +370,23 @@ function alg_test(calcset) %<<<1
             % subchannel waveform names:
             sub_chn{1} = chn.name; % high-side
             sub_chn{2} = [chn.name '_lo']; % low-side
+            
+            % ADC offset:
+            adc_ofs(1) = getfield(din,[chn.name '_adc_offset']);
+            adc_ofs(2) = getfield(din,[chn.name '_lo_adc_offset']);
         else
             % -- single-ended connection (create single channel):
             [A_syn,ph_syn] = correction_transducer_sim(chtab,chn.type,fx,chn.Ag,chn.phg,0,0,rand_unc_str);
             % prepare digitizer sunchannel correction tables:
             sctab{1}.adc_gain = chtab.adc_gain;
             sctab{1}.adc_phi  = chtab.adc_phi;
-            sctab{1}.adc_sfdr  = chtab.adc_sfdr;
+            sctab{1}.adc_sfdr  = chtab.adc_sfdr;            
             % prepare subchannel timeshifts:
             tsh_lo(1) = 0;
             % subchannel waveform names:
             sub_chn{1} = chn.name;
+            % ADC offset:
+            adc_ofs(1) = getfield(din,[chn.name '_adc_offset']);            
         end
         
         % apply aperture error:
@@ -386,7 +430,7 @@ function alg_test(calcset) %<<<1
             % generate time vector 2*pi*t:
             % note: including time shift!
             t = [];
-            t(:,1) = ([0:N-1]/din.fs.v + tsh + tsh_lo(k))*2*pi;
+            t(:,1) = ([0:N-1]/din.fs.v + tsh + tsh_lo(k) + din.adc_jitt.v*randn(1,N))*2*pi;
             
             % synthesize waveform (crippled for Matlab < 2016b):
             % u = Av.*sin(t.*fx_temp + phc);
@@ -396,6 +440,9 @@ function alg_test(calcset) %<<<1
             
             % add some noise:
             u = u + randn(size(u))*adc_std_noise;
+            
+            % add ADC offset:
+            u = u + adc_ofs(k).v + adc_ofs(k).u*randn;
             
             %figure;
             %plot(u)
@@ -413,8 +460,8 @@ function alg_test(calcset) %<<<1
     qwtb('TWM-PWRTDI','addpath');    
     din_alg = qwtb_add_unc(din_alg,alginf.inputs);
 
-    % --- execute the algorithm:
-    calcset.unc = 'none';
+    % --- execute the algorithm:    
+    calcset.mcm.randomize = 0;
     dout = qwtb('TWM-PWRTDI',din_alg,calcset);
     
     % calculate reference values:
@@ -436,7 +483,7 @@ function alg_test(calcset) %<<<1
         
     
     fprintf('\n---+-------------+----------------------------+-------------+----------+----------+----------\n');
-    fprintf('   |     REF     |        CALC +- UNC         |   ABS DEV   |  %%-DEV   |  %%-UNC   |  %%-UNC\n');
+    fprintf('   |     REF     |        CALC +- UNC         |   ABS DEV   |  %%-DEV   |  %%-UNC   |  %%-SPEC\n');
     fprintf('---+-------------+----------------------------+-------------+----------+----------+----------\n');
     for k = 1:numel(ref_list)
         
@@ -522,8 +569,8 @@ function [din] = qwtb_add_unc(din,pin)
             v_data = getfield(din,names{k});
             if ~isfield(v_data,'u')
                 v_data.u = 0*v_data.v;
-                din = setfield(din,names{k},v_data);
-            end
+                din = setfield(din,names{k},v_data);                
+            end                        
         end        
     end    
 end

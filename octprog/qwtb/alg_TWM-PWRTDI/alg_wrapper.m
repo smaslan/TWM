@@ -3,6 +3,10 @@ function dataout = alg_wrapper(datain, calcset)
 %
 % See also qwtb
 %
+% This is part of the TWM - TracePQM WattMeter.
+% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
+%
 % Format input data --------------------------- %<<<1
          
     
@@ -66,11 +70,7 @@ function dataout = alg_wrapper(datain, calcset)
     % FFT filtering. The filtering method is based on the JV's 
     % sampling wattmeter.
     %
-    % TODO:
-    %  - uncertainty estimation
-    %    
-    
-    
+      
     % --- For easier processing we convert u/i channels to virtual channels array ---
     % so we can process the voltage and current using the same code...   
         
@@ -84,10 +84,12 @@ function dataout = alg_wrapper(datain, calcset)
     vcl{id}.is_diff = cfg.u_is_diff;
     vcl{id}.y = datain.u.v;
     vcl{id}.ap_corr = datain.u_adc_aper_corr.v;
+    vcl{id}.adc_ofs = datain.u_adc_offset;
     if cfg.u_is_diff
         vcl{id}.y_lo = datain.u_lo.v;
         vcl{id}.tsh_lo = datain.u_time_shift_lo; % low-high side channel time shift
-        vcl{id}.ap_corr_lo = datain.u_lo_adc_aper_corr.v;    
+        vcl{id}.ap_corr_lo = datain.u_lo_adc_aper_corr.v;
+        vcl{id}.adc_ofs_lo = datain.u_lo_adc_offset;    
     end        
     vcl{id}.tab = conv_vchn_tabs(tab,'u',tab_list);       
     vcl{id}.tsh = 0; % high-side channel shift (do not change!)    
@@ -98,10 +100,12 @@ function dataout = alg_wrapper(datain, calcset)
     vcl{id}.is_diff = cfg.i_is_diff;
     vcl{id}.y = datain.i.v;
     vcl{id}.ap_corr = datain.i_adc_aper_corr.v;
+    vcl{id}.adc_ofs = datain.i_adc_offset;
     if cfg.i_is_diff
         vcl{id}.y_lo = datain.i_lo.v;
         vcl{id}.tsh_lo = datain.i_time_shift_lo;
         vcl{id}.ap_corr_lo = datain.i_lo_adc_aper_corr.v;
+        vcl{id}.adc_ofs_lo = datain.i_lo_adc_offset;
     end            
     vcl{id}.tab = conv_vchn_tabs(tab,'i',tab_list);    
     vcl{id}.tsh = 0; % high-side channel shift (do not change!)
@@ -235,7 +239,10 @@ function dataout = alg_wrapper(datain, calcset)
         % apply ADC gain to it:
         vc.lsb = vc.lsb.*ag.gain.*ap_gain;
         
-         
+        % correct ADC offset:
+        vc.dc = vc.dc - vc.adc_ofs.v;
+        vc.u_dc = vc.adc_ofs.u;
+                 
         
         if vc.is_diff
             % -- differential mode:
@@ -280,6 +287,10 @@ function dataout = alg_wrapper(datain, calcset)
             vc.lsb_lo = adc_get_lsb(datain,[vc.name '_lo_']);
             % apply ADC gain to it:
             vc.lsb_lo = vc.lsb_lo.*agl.gain.*ap_gain;
+            
+            % correct ADC offset:
+            vc.dc_lo = vc.dc_lo - vc.adc_ofs_lo.v;
+            vc.u_dc_lo = vc.adc_ofs_lo.u;
                         
             
             % estimate transducer correction tfer from the spectrum estimates:
@@ -377,9 +388,27 @@ function dataout = alg_wrapper(datain, calcset)
                 
         vcl{k} = vc;
     end
-        
     
     
+    
+    
+    % --- Calculate RMS values of the U, I and P ---
+    %  this is the main RMS levels and power calculation    
+    
+    % build calculator setup:
+    sig = struct();
+    sig.vc = vcl; % list of v.channels
+    sig.is_sim = 0; % disable simulator
+    sig.i_mode = i_mode;
+    sig.fs = fs;
+    sig.fh = fh; % reference frequency vector for all correction tables '*adc_*'
+    sig.fft_size = fft_size;    
+    
+    % perform the calculation:  
+    result = proc_wrms(sig);
+    % the calculation updates some values in the v.channels list, so update it:    
+    vcl = result.vc;
+         
     
     
     
@@ -387,7 +416,7 @@ function dataout = alg_wrapper(datain, calcset)
     % --- Calculate uncertainty ---
     
     % window half-width:
-    w_size = 12;
+    w_size = 11;
     
     % return spectra of the corrected waveforms:   
     Uh = vcl{1}.Y;
@@ -400,7 +429,18 @@ function dataout = alg_wrapper(datain, calcset)
 
     
     % find dominant voltage component (assuming voltage harmonic is always there, current may not depending on the load):
-    [v,idu] = max(Uh);
+    [v,idu] = max(Uh(2:end));
+    idu = idu + 1;
+        
+    % no peak harmonics defined yet:
+    U_max = -1;
+    I_max = -1;
+    
+    % stop harmonics search when lower than ? of dominant:
+    h_ratio = 2e-6;
+    
+    % minimum processed harmonics even if they are small:
+    h_min = 5; 
     
     % max. analyzed harmonics (for noise estimate):
     h_max = 100;
@@ -418,6 +458,14 @@ function dataout = alg_wrapper(datain, calcset)
         % look for highest harmonic:
         [v,id] = max(Uh(msk));        
         hid = msk(id);
+        
+        % detect if we are done:
+        if h > h_min && U_max >= 0 && Uh(hid) < U_max*h_ratio && Ih(hid) < I_max*h_ratio
+            % we can stop search, no relevant harmonics there
+            break;
+        end
+        U_max = max(U_max,Uh(hid)); 
+        I_max = max(I_max,Ih(hid));
         
         % found harmonics list:
         h_list(h) = hid;
@@ -461,7 +509,70 @@ function dataout = alg_wrapper(datain, calcset)
     
     % calculate bits per harmonic pk-pk range:
     Ux_bits = log2(Ux./Ux_lsb);
-    Ix_bits = log2(Ix./Ix_lsb);
+    Ix_bits = log2(Ix./Ix_lsb);    
+    
+    % store some of the estimated parameters to v.channel list: 
+    vcl{1}.rms = U_rms;
+    vcl{2}.rms = I_rms;
+    vcl{1}.Y0 = Ux(1);
+    vcl{2}.Y0 = Ix(1);
+    
+    
+    % -- estimate SFDR spurrs:
+    % harmonic spurrs of dominant component:
+    %  ###todo: maybe it would be more correct to calculate spurrs of each harmonic...
+    %           but for now lets assume just main harmonic source 
+    f_spurr(:,1) = (fx(1)*2):fx(1):fs/2;
+        
+    for k = 1:numel(vcl)
+        % get v.channel
+        vc = vcl{k};
+        
+        % transducer SFDR of dominant component only:
+        tr_sfdr = correction_interp_table(vc.tab.tr_sfdr, vc.rms, fx(1), 'f',1, i_mode);
+        
+        % transducer spurr value:
+        tr_spurr = vc.Y0*10^(-tr_sfdr.sfdr/20);
+        
+        % high-side ADC amplitude of dominant component: 
+        amp_hi = vc.Y_hi(h_list(1));
+        
+        % high-side ADC SFDR for dominant component only:
+        adc_sfdr = correction_interp_table(vc.tab.adc_sfdr, amp_hi, fx(1), 'f',1, i_mode);
+        
+        if vc.is_diff
+            % -- differential mode:
+            
+            % low-side ADC amplitude of dominant component: 
+            amp_lo = vc.Y_lo(h_list(1));
+            
+            % low-side ADC SFDR for dominant component only:
+            adc_sfdr_lo = correction_interp_table(vc.tab.lo_adc_sfdr, amp_lo, fx(1), 'f',1, i_mode);
+            
+            % absolute spurr at ADC level:
+            spurr = ((amp_hi*10^(-adc_sfdr.sfdr/20))^2 + (amp_lo*10^(-adc_sfdr_lo.sfdr/20))^2)^0.5;
+            
+            % effective differential SFDR:
+            %amp_diff = Ux(1)/vc.tr_gain(h_list(1))
+            %adc_sfdr = log10(spurr/(amp_diff))*20
+            
+        else
+            % -- single-ended:
+            
+            % absolute spurr at ADC level:
+            spurr = amp_hi*10^(-adc_sfdr.sfdr/20);
+        end
+               
+        % spurr harmonic bin ids in the original spectrum:
+        sid = round(f_spurr*N/fs + 1);
+
+        % combine ADC and transducer spurrs:
+        vcl{k}.spurr = ((spurr*vc.tr_gain(sid)).^2 + (tr_spurr*ones(size(f_spurr))).^2).^0.5;                        
+    end
+    
+    
+        
+        
     
     
     if strcmpi(calcset.unc,'guf')
@@ -487,70 +598,10 @@ function dataout = alg_wrapper(datain, calcset)
               
         
         % -- estimate SFDR uncertainty:
-        % harmonic spurrs of dominant component:
-        %  ###todo: maybe it would be more correct to calculate spurrs of each harmonic.. 
-        f_spurr(:,1) = (fx(1)*2):fx(1):fs/2;
-            
-        % store estimated rms levels: 
-        vcl{1}.rms = U_rms;
-        vcl{2}.rms = I_rms;
-        vcl{1}.Y0 = Ux(1);
-        vcl{2}.Y0 = Ix(1);
-            
-        for k = 1:numel(vcl)
-            % get v.channel
-            vc = vcl{k};
-            
-            % transducer SFDR of dominant component only:
-            tr_sfdr = correction_interp_table(vc.tab.tr_sfdr, vc.rms, fx(1), 'f',1, i_mode);
-            
-            % transducer spurr value:
-            tr_spurr = vc.Y0*10^(-tr_sfdr.sfdr/20);
-            
-            % high-side ADC amplitude of dominant component: 
-            amp_hi = vc.Y_hi(h_list(1));
-            
-            % high-side ADC SFDR for dominant component only:
-            adc_sfdr = correction_interp_table(vc.tab.adc_sfdr, amp_hi, fx(1), 'f',1, i_mode);
-            
-            if vc.is_diff
-                % -- differential mode:
-                
-                % low-side ADC amplitude of dominant component: 
-                amp_lo = vc.Y_lo(h_list(1));
-                
-                % low-side ADC SFDR for dominant component only:
-                adc_sfdr_lo = correction_interp_table(vc.tab.lo_adc_sfdr, amp_lo, fx(1), 'f',1, i_mode);
-                
-                % absolute spurr at ADC level:
-                spurr = ((amp_hi*10^(-adc_sfdr.sfdr/20))^2 + (amp_lo*10^(-adc_sfdr_lo.sfdr/20))^2)^0.5;
-                
-                % effective differential SFDR:
-                %amp_diff = Ux(1)/vc.tr_gain(h_list(1))
-                %adc_sfdr = log10(spurr/(amp_diff))*20
-                
-            else
-                % -- single-ended:
-                
-                % absolute spurr at ADC level:
-                spurr = amp_hi*10^(-adc_sfdr.sfdr/20);
-            end
-                   
-            % spurr harmonic bin ids in the original spectrum:
-            sid = round(f_spurr*N/fs + 1);
-    
-            % combine ADC and transducer spurrs:
-            vcl{k}.spurr = ((spurr*vc.tr_gain(sid)).^2 + (tr_spurr*ones(size(f_spurr))).^2).^0.5;                        
-        end
-        
         % estimate uncertainty due to the spurrs:
         u_U_sfdr = ((sum(0.5*vcl{1}.spurr.^2) + U_rms^2)^0.5 - U_rms)/3^0.5;    
         u_I_sfdr = ((sum(0.5*vcl{2}.spurr.^2) + I_rms^2)^0.5 - I_rms)/3^0.5;    
-        %u_S_sfdr = S*((u_U_sfdr/U_rms)^2 + (u_I_sfdr/I_rms)^2)^0.5;
-        %u_S_sfdr = sum(0.5*vcl{1}.spurr.*vcl{2}.spurr)/3^0.5;
         u_P_sfdr = sum(0.5*vcl{1}.spurr.*vcl{2}.spurr)/3^0.5;
-        %u_Q_sfdr = ((S^2*u_S_sfdr^2 + P^2*u_P_sfdr^2)/(S^2 - P^2))^0.5;
-        %u_PF_sfdr = ((u_P_sfdr/P)^2 + (u_S_sfdr/S)^2)^0.5;
              
         
         
@@ -600,12 +651,8 @@ function dataout = alg_wrapper(datain, calcset)
         
         % sum component uncertainties:
         u_P_st = sum(u_P_st.^2).^0.5;
-        %u_S_st = sum(u_S_st.^2).^0.5;
-        %u_Q_st = ((S^2*u_S_st^2 + P^2*u_P_st^2)/(S^2 - P^2))^0.5;
         u_U_st = sum((u_U_st.*Ux(1:H)).^2).^0.5/sum((Ux(1:H).^2))^0.5;
         u_I_st = sum((u_I_st.*Ix(1:H)).^2).^0.5/sum((Ix(1:H).^2))^0.5;
-        %u_I_st = sum(u_I_st.^2).^0.5;
-        %u_PF_st = ((u_P_st/P)^2 + (u_S_st/S)^2)^0.5;
         
         
         
@@ -625,7 +672,7 @@ function dataout = alg_wrapper(datain, calcset)
         for h = 2:H
         
             % relative spurr position:
-            f_spurr = (fx(h) - fx(1))/(fs/2 - fx(1))
+            f_spurr = (fx(h) - fx(1))/(fs/2 - fx(1));
             
             % get U single-tone wrms uncertainty components:
             [dPx,dSx,dUx,dIx] = wrms_unc_spurr(lut_sp, Ux(1),Ix(1), f_spurr,Ux(h),Ix(h), f0_per,fs_rat);
@@ -639,221 +686,121 @@ function dataout = alg_wrapper(datain, calcset)
         end
         
         % sum component uncertainties:
-        u_P_sp = sum(u_P_sp.^2).^0.5;
-        %u_S_sp = sum(u_S_sp.^2).^0.5;
-        %u_Q_sp = ((S^2*u_S_sp^2 + P^2*u_P_sp^2)/(S^2 - P^2))^0.5;
-        %u_U_sp = sum(u_U_sp.^2).^0.5;
-        %u_I_sp = sum(u_I_sp.^2).^0.5;    
+        u_P_sp = sum(u_P_sp.^2).^0.5; 
         u_U_sp = sum((u_U_sp.*Ux(1:H)).^2).^0.5/sum((Ux(1:H).^2))^0.5;
         u_I_sp = sum((u_I_sp.*Ix(1:H)).^2).^0.5/sum((Ix(1:H).^2))^0.5;
-        %u_PF_sp = ((u_P_sp/P)^2 + (u_S_sp/S)^2)^0.5;
         
+        
+        % estimate corrections related uncertainty from relevant harmonics:
+        u_U = sum(0.5*u_Ux.^2).^0.5;
+        u_I = sum(0.5*u_Ix.^2).^0.5;
+        u_P = sum((0.5*((Ix.*cos(phx).*u_Ux).^2 + (Ux.*cos(phx).*u_Ix).^2 + (Ux.*Ix.*sin(phx).*u_phx).^2).^0.5).^2).^0.5;
+        
+        % addup uncertainties from the algorithm itself:
+        u_U = (u_U.^2 + u_U_sfdr^2 + u_U_st.^2 + u_U_sp.^2).^0.5;
+        u_I = (u_I.^2 + u_I_sfdr^2 + u_I_st.^2 + u_I_sp.^2).^0.5;
+        u_P = (u_P.^2 + u_P_sfdr^2 + u_P_st.^2 + u_P_sp.^2).^0.5;
+        
+        
+        
+    elseif strcmpi(calcset.unc,'mcm')
+        % -- Monte-Carlo mode:
+        
+        % prepare waveform simulation parameters:
+        harmonics = [Ux(1:H),Ix(1:H)];
+        u_harmonics = [u_Ux(1:H),u_Ix(1:H)];
+        noises = [U_noise,I_noise];        
+        lsbs = [Ux(1)/2^Ux_bits(1),Ix(1)/2^Ix_bits(1)];
+                
+        % -- prepare virtual channels to simulate:
+        vcp = vcl;
+        for v = 1:numel(vcl)        
+            vc = vcp{v};
+                            
+            % harmoncis list to synthesize:
+            vc.sim.A = harmonics(:,v)./vc.adc_gain.gain(h_list(1:H));
+            vc.sim.u_A = u_harmonics(:,v)./vc.adc_gain.gain(h_list(1:H));
+            if vc.name == 'u'
+                vc.sim.ph = phx(1:H) - vc.adc_phi.phi(h_list(1:H));
+                vc.sim.u_ph = u_phx(1:H);
+            else
+                vc.sim.ph = 0*phx(1:H);
+                vc.sim.u_ph = 0*u_phx(1:H);
+            end
+            % aux parameters to synthesize:
+            vc.sim.noise = noises(v)./max(vc.adc_gain.gain);
+            vc.sim.spurr = vc.spurr./interp1(vc.adc_gain.f,vc.adc_gain.gain,f_spurr,i_mode,'extrap');
+            vc.sim.lsb = lsbs(v)/vc.adc_gain.gain(h_list(1));
+                   
+            % remove all useless stuff to save memory for the monte-carlo method:
+            %  note: this is quite important as the whole structure will be replicated for each cycle of MC! 
+            vc = rmfield(vc,{'y','Y','ph','Y_hi','u_Y','u_ph','spurr'});
+            vc.adc_gain = rmfield(vc.adc_gain,{'u_gain','f'});
+            vc.adc_phi = rmfield(vc.adc_phi,{'u_phi','f'});
+            if vc.is_diff
+                vc = rmfield(vc,{'y_lo','Y_lo','ph_lo'});
+                vc = rmfield(vc,{'adc_gain_lo','adc_phi_lo'});
+            end
+            
+            vcp{v} = vc;
+        end
+        
+        % store other calculation parameters 
+        sig.vc = vcp; % v.channels    
+        sig.i_mode = i_mode;
+        sig.fs = fs;
+        sig.fft_size = fft_size;
+        sig.N = size(datain.u.v,1);
+        sig.fh = fh; % reference frequency vector for all correction tables '*adc_*'
+        sig.is_sim = 1; % enables waveform simulator as a source
+        sig.sim.fx = fx(1:H); % identified harmonic frequencies
+        sig.sim.f_spurr = f_spurr;
+        % save reference RMS values, i.e. this should be returned by the wrms algorithm:
+        sig.ref.P = P;        
+        sig.ref.I = I_rms;
+        sig.ref.U = U_rms;
+
+        % execute Monte-Carlo:
+        res = qwtb_mcm_exec(@proc_wrms,sig,calcset);
+        
+        % calculate uncertainties:
+        u_U = U_rms*est_scovint(res.dU,0)/2;
+        u_I = I_rms*est_scovint(res.dI,0)/2;
+        u_P = P*est_scovint(res.dP,0)/2;
+    
     else
         % -- no uncertainty mode:
-        % clear all algoreithm-itself uncertainties
-        % note: the correction uncertainty stays there... 
-        
-        u_U_sfdr = 0;
-        u_I_sfdr = 0;
-        u_P_sfdr = 0;
-        u_U_st = 0;
-        u_I_st = 0;
-        u_P_st = 0;
-        u_U_sp = 0;
-        u_I_sp = 0;
-        u_P_sp = 0;
+        % clear all algorithm-itself uncertainties
+        % note: the correction uncertainty stays there because why not?... 
+                
+        % estimate corrections related uncertainty from relevant harmonics:
+        u_U = sum(0.5*u_Ux.^2).^0.5;
+        u_I = sum(0.5*u_Ix.^2).^0.5;
+        u_P = sum((0.5*((Ix.*cos(phx).*u_Ux).^2 + (Ux.*cos(phx).*u_Ix).^2 + (Ux.*Ix.*sin(phx).*u_phx).^2).^0.5).^2).^0.5;
                 
     end
     
-    % estimate corrections related uncertainty from relevant harmonics:
-    u_U = sum(0.5*u_Ux.^2).^0.5;
-    u_I = sum(0.5*u_Ix.^2).^0.5;
-    %u_S = sum((0.5*Ux.*Ix.*((u_Ux./Ux).^2 + (u_Ix./Ix).^2).^0.5).^2).^0.5;
-    u_P = sum((0.5*((Ix.*cos(phx).*u_Ux).^2 + (Ux.*cos(phx).*u_Ix).^2 + (Ux.*Ix.*sin(phx).*u_phx).^2).^0.5).^2).^0.5;
-    %u_Q = sum((0.5*((Ix.*sin(phx).*u_Ux).^2 + (Ux.*sin(phx).*u_Ix).^2 + (Ux.*Ix.*cos(phx).*u_phx).^2).^0.5).^2).^0.5;
-    %u_PF = ((u_P./P).^2 + (u_S./S).^2).^0.5;
+    
         
-    % addup uncertainties from the algorithm itself:
-    u_U = (u_U.^2 + u_U_sfdr^2 + u_U_st.^2 + u_U_sp.^2).^0.5;
-    u_I = (u_I.^2 + u_I_sfdr^2 + u_I_st.^2 + u_I_sp.^2).^0.5;
-    u_P = (u_P.^2 + u_P_sfdr^2 + u_P_st.^2 + u_P_sp.^2).^0.5;
-    %u_S = (u_S.^2 + u_S_sfdr^2 + u_S_st.^2 + u_S_sp.^2).^0.5;
-    %u_Q = (u_Q.^2 + u_Q_sfdr^2 + u_Q_st.^2 + u_Q_sp.^2).^0.5;
-    %u_PF = (u_PF.^2 + u_PF_sfdr^2 + u_PF_st.^2 + u_PF_sp.^2).^0.5;
     
     
     
     
     
-    harmonics = [Ux(1:H),Ix(1:H)];
-    u_harmonics = [u_Ux(1:H),u_Ix(1:H)];
-    noises = [U_noise,I_noise];
     
-    rand_ph = rand(size(phx(1:H)))*2*pi;
+    
+    
+    
+    
+    
+    
+    % --- Results post-processing ---
+    % combining some the uncertainties, expressing some additional quantities... 
         
-    % make temp copy of virtual channels:
-    vcp = vcl;
-    for v = 1:numel(vcl)
-        
-        vc = vcp{v};
-                        
-        % save harmoncis list to synthesize:
-        vc.sim.A = harmonics(:,v)./vc.adc_gain.gain(h_list(1:H));
-        vc.sim.u_A = u_harmonics(:,v)./vc.adc_gain.gain(h_list(1:H));
-        if vc.name == 'u'
-            vc.sim.ph = phx(1:H) - vc.adc_phi.phi(h_list(1:H)) + rand_ph;
-            vc.sim.u_ph = u_phx(1:H);
-        else
-            vc.sim.ph = rand_ph;
-            vc.sim.u_ph = 0*u_phx(1:H);
-        end
-        % save aux parameters to synthesize:
-        vc.sim.noise = noises(v)./mean(vc.adc_gain.gain);
-               
-        % remove useless stuff:
-        vc = rmfield(vc,{'y','Y','ph','Y_hi','u_Y','u_ph'});
-        vc.adc_gain = rmfield(vc.adc_gain,{'u_gain'});
-        vc.adc_phi = rmfield(vc.adc_phi,{'u_phi','f'});
-        if vc.is_diff
-            vc = rmfield(vc,{'y_lo','Y_lo','ph_lo'});
-            vc = rmfield(vc,{'adc_gain_lo','adc_phi_lo','ph_lo'});
-        end
-        
-        % disable diff mode:
-        vc.is_diff = 0;
-        
-        vcp{v} = vc;
-    end
-    
-    sig.vc = vcp;    
-    sig.i_mode = i_mode;
-    sig.fs = fs;
-    sig.fft_size = fft_size;
-    sig.N = size(datain.u.v,1);
-    sig.fh = fh;
-    sig.is_sim = 1;
-    sig.sim.fx = fx(1:H);
-    % save reference values:
-    sig.ref.P = P;        
-    sig.ref.I = I_rms;
-    sig.ref.U = U_rms;
-       
-    for k = 1:100
-        res{k} = proc_wrms(sig);
-    end
-    v = vectorize_structs_elements(res);
-    
-    2*std(v.dU)
-    2*std(v.dI)
-    2*std(v.dP)
-    
-    
-    % --- Apply the calcualted correction in the time-domain:
-    % note: here we subtract phase of ref. channel from all others in order to reduces
-    %       total absolute value of the phase corrections
-    
-    % reference channel phase (voltage, high-side):    
-    ap_ref = vcl{1}.adc_phi;
-       
-    % for each virtual (u/i) channel:
-    for k = 1:numel(vcl)
-        % get v.channel:
-        vc = vcl{k};
-                
-        % apply DC gain to DC value:
-        vc.dc = vc.dc*vc.adc_gain.gain(1);
-        vc.u_dc = vc.dc*vc.adc_gain.u_gain(1);                       
-                
-        % subtract reference channel phase:
-        %  note: this is to reduce total phase correction value
-        vc.adc_phi.phi   = vc.adc_phi.phi - ap_ref.phi;
-        
-        % apply tfer filter for high-side:
-        [vc.y, a,b, ff,fg,fp] = td_fft_filter(vc.y, fs, fft_size, fh,vc.adc_gain.gain,vc.adc_phi.phi ,i_mode);
-        %vc.y = vc.y(a:b);     
-
-        
-        % calculate actual phase correction made:
-        adc_phi_real = interp1(ff,fp,fh,i_mode,'extrap');
-        
-        % phase correction uncertainty contribution:
-        u_phi_corr = abs(adc_phi_real - vc.adc_phi.phi)/3^0.5;
-        
-        % add uncertainty to the spectrum estimate components:
-        vc.u_ph = (vc.u_ph.^2 + u_phi_corr.^2).^0.5;
-        
-        
-        %semilogx(fh,vc.adc_phi.phi)
-        %semilogx(fh,vc.adc_gain.gain) 
-        
-        if vc.is_diff
-            % -- differential mode:
-            
-            % apply DC gain to DC value:
-            vc.dc_lo = vc.dc_lo*vc.adc_gain_lo.gain(1);
-            vc.u_dc_lo = vc.dc_lo*vc.adc_gain_lo.u_gain(1);           
-            
-            % subtract reference channel phase:
-            %  note: this is to reduce total phase correction value 
-            vc.adc_phi_lo.phi   = vc.adc_phi_lo.phi - ap_ref.phi;
-            
-            % apply tfer filter for low-side:
-            [vc.y_lo, a,b, ff,fg,fp] = td_fft_filter(vc.y_lo, fs, fft_size, fh,vc.adc_gain_lo.gain,vc.adc_phi_lo.phi, i_mode);
-            
-            % calculate actual phase correction made:
-            adc_phi_real = interp1(ff,fp,fh,i_mode,'extrap');
-            
-            % phase correction uncertainty contribution:
-            u_phi_corr = abs(adc_phi_real - vc.adc_phi_lo.phi)/3^0.5;
-            
-            % add uncertainty to the spectrum estimate components:
-            vc.u_ph = (vc.u_ph.^2 + u_phi_corr.^2).^0.5;
-            
-            % calculate high-low-side difference:
-            vc.y = vc.y - vc.y_lo;
-            
-            % calculate differential DC offset:
-            vc.dc = vc.dc - vc.dc_lo;
-            vc.u_dc = (vc.u_dc^2 + vc.u_dc_lo^2)^0.5; 
-                        
-        end
-        
-        % store v.channel:
-        vcl{k} = vc;            
-    end
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    % --- Calculate power ---
-    % this is the main time-domain-integration calculation 
-    
-    % get corrected u,i:
-    u = vcl{1}.y;
-    i = vcl{2}.y;
-    N = numel(u);
-
-    % generate window for the RMS algorithm (periodic):
-    w = blackmanharris(N,'periodic');
-    w = w(:);
-    
-    % calculate inverse RMS of the window (needed for scaling of the result): 
-    W = mean(w.^2)^-0.5;
-    
-    % calculate RMS levels of u,i:
-    U = W*mean((w.*u).^2).^0.5;
-    I = W*mean((w.*i).^2).^0.5;
-       
-    % calculate RMS active power value:
-    P = W^2*mean(w.^2.*u.*i);
-    
+    % obtain main results:
+    U = result.U;
+    I = result.I;
+    P = result.P;
     
     % add DC components (DC coupling mode only):
     if ~is_ac
@@ -908,8 +855,8 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.PF.u = u_PF;
     
     % return spectra of the corrected waveforms:   
-    [fh, dataout.spec_U.v] = ampphspectrum(u, fs, 0, 0, 'flattop_248D', [], 0);
-    [fh, dataout.spec_I.v] = ampphspectrum(i, fs, 0, 0, 'flattop_248D', [], 0);
+    [fh, dataout.spec_U.v] = ampphspectrum(vcl{1}.y, fs, 0, 0, 'flattop_248D', [], 0);
+    [fh, dataout.spec_I.v] = ampphspectrum(vcl{2}.y, fs, 0, 0, 'flattop_248D', [], 0);
     dataout.spec_S.v = dataout.spec_U.v.*dataout.spec_I.v;
     dataout.spec_f.v = fh(:);
     
@@ -917,16 +864,7 @@ function dataout = alg_wrapper(datain, calcset)
 %       loglog(fh,dataout.spec_U.v)
 %       figure;
 %       loglog(fh,dataout.spec_I.v)  
-    
-    
-     
-    % --------------------------------------------------------------------
-    % End of the demonstration algorithm.
-    % --------------------------------------------------------------------
-       
-   
-    % --- my job here is done...
-          
+
 
 end % function
 

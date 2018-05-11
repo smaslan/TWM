@@ -7,7 +7,7 @@ function alginfo = alg_info() %<<<1
     alginfo.name = 'Power calculation algorithm using Time-Domain-Integration.';
     alginfo.desc = 'Calculation of power in time-domain from windowed voltage and current signals. Frequency dependent corrections are made using FFT filtering.';
     alginfo.citation = 'K. B. Ellingsberg, ''''Predictable maximum RMS-error for windowed RMS (RMWS),'''' 2012 Conference on Precision electromagnetic Measurements, Washington, DC, 2012, pp. 308-309. doi: 10.1109/CPEM.2012.6250925';
-    alginfo.remarks = 'Algorithm requires at least some 10 periods of fundamental component, at least some 10 samples per period of the fundamental and also no significant freq. component should be above 0.5*nyquist or so. To make the uncertainty estimator work, the spacing between frequency components should be higher than 20 DFT bins.';
+    alginfo.remarks = 'Algorithm requires at least some 10 periods of fundamental component, at least some 10 samples per period of the fundamental and also no significant freq. component should be above 0.5*nyquist or so. To make the uncertainty calculator work, the spacing between frequency components should be higher than 15 DFT bins.';
     alginfo.license = 'MIT';
     
     
@@ -155,7 +155,24 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;       
+    pid = pid + 1;     
+    % ADC jitter [s]:
+    alginfo.inputs(pid).name = 'adc_jitter';
+    alginfo.inputs(pid).desc = 'ADC jitter value';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    % ADC offset [V]:
+    alginfo.inputs(pid).name = 'adc_offset';
+    alginfo.inputs(pid).desc = 'ADC offset voltage';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','low ');
+    [alginfo,pid] = add_ui_pair(alginfo,pid,1);
+          
     
     % ADC gain calibration matrix (2D dependence, rows: freqs., columns: harmonic amplitudes)
     alginfo.inputs(pid).name = 'adc_gain_f';
@@ -183,7 +200,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','low ');
-    [alginfo,pid] = add_ui_pair(alginfo,pid,1);
+    [alginfo,pid] = add_ui_pair(alginfo,pid,1);     
     
     % ADC phase calibration matrix (2D dependence, rows: freqs., columns: harmonic amplitudes)
     alginfo.inputs(pid).name = 'adc_phi_f';
@@ -491,7 +508,7 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     alginfo.providesGUF = 1;
-    alginfo.providesMCM = 0;    
+    alginfo.providesMCM = 1;    
 
 end
 

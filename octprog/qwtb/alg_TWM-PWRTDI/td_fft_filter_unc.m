@@ -1,6 +1,9 @@
 function [uAmp,uPhi] = td_fft_filter_unc(fs, N, fft_size, f,gain,phi, i_mode, fhr,Yh)
-% simple uncertainty estimator of the td_fft_filter() function (FFT filter)
-%
+% Simple uncertainty estimator of the td_fft_filter() function (FFT filter).
+% It generates N harmonics at frequencies 'fhr' with amplitudes 'Yh' and applies
+% filter 'f', 'gain' and 'phi'. It calculates deviation of the harmonics in the 
+% FFT filtered signal from the actually generated harmonics. The test is repeated
+% 10 times with randomized phases but it should be enough to find worst case errors.
 
     fhr = fhr(:)';
     Yh = Yh(:)'; 
@@ -96,8 +99,9 @@ function [uAmp,uPhi] = td_fft_filter_unc(fs, N, fft_size, f,gain,phi, i_mode, fh
     end
     
     % estimate max error:
-    uAmp = Yh(:).*max(abs(dA),[],2)/3^0.5;
-    uPhi = max(abs(dP),[],2)/3^0.5;
+    %  note: expanded by empirical coeficient... may be improved
+    uAmp = 2*Yh(:).*max(abs(dA),[],2)/3^0.5;
+    uPhi = 2*max(abs(dP),[],2)/3^0.5;
     %uRms =max(abs(dR),[],2)/3^0.5;
     
 end

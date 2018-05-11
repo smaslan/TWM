@@ -576,7 +576,7 @@ function calcset = check_gen_calcset(calcset) %<<<1
     end
     tmp = calcset.mcm.repeats;
     if ~(isscalarP(tmp) && tmp > 0 && abs(fix(tmp)) == tmp)
-        error(err_msg_gen(41)); % mcm.repeats incorrect!
+        error(err_msg_gen(41)); % mcm.reapeats incorrect!
     end
     % mcm.verbose %<<<2
     if ~( isfield(calcset.mcm, 'verbose') )
@@ -729,13 +729,17 @@ function datain = check_gen_datain(alginfo, datain, calcset) %<<<1
             % Q.r: %<<<4
             Genr = 0;
             if ~( isfield(Q, 'r') )
-                if strcmpi(calcset.unc, 'mcm')
+                % ### changed: when MCM is calculated by algorithm, there is no need to randomize inputs!
+                %              in fact it may be quite annoying
+                if strcmpi(calcset.unc, 'mcm') && ~alginfo.providesMCM
                     if ~( calcset.mcm.randomize )
                         error(err_msg_gen(64, Qname)); % .r is missing!
                     else
                         % randomize quantity:
                         Genr = 2;
                     end % if randomize
+                elseif strcmpi(calcset.unc, 'mcm') && alginfo.providesMCM && ~calcset.mcm.randomize
+                    Genr = 1;
                 else
                     Genr = 1;
                 end % if mcm
@@ -870,7 +874,8 @@ function datain = check_gen_datain(alginfo, datain, calcset) %<<<1
                 end % if cor.req
             end % if guf or mcm
             % Q.r: %<<<4
-            if strcmpi(calcset.unc, 'mcm')
+            if strcmpi(calcset.unc, 'mcm') && ~alginfo.providesMCM
+                % ###note: disabled completely is MCM is done by alg. itself, but at least part of the checking should be there!
                 % dimensions are same as Q.v but one dimension is equal calcset.mcm.repeats
                 ok = 1;
                 %%% if 
@@ -1434,7 +1439,7 @@ function msg = err_msg_gen(varargin) %<<<1
             case 68 % one input - Qname
                 msg = ['Correlation matrix of quantity `' varargin{2} '` has incorrect dimensions. Please read QWTB documentation.'];
             case 69 % two inputs - Qname, calcset.mcm.repeats
-                msg = ['Randomized values matrix of quantity `' varargin{2} '` has incorrect dimensions (calcset.mcm.repeats = ' num2str(varargin{3}) '). Please read QWTB documentation.'];
+                msg = ['Randomized values matrix of quantity `' varargin{2} '` has incorrect dimensions (calcset.mcm.reapeats = ' num2str(varargin{3}) '). Please read QWTB documentation.'];
             % ------------------- algorithm errors 90-119: %<<<2
             case 90 % one input - algid
                 msg = ['Algorithm `' varargin{2} '` not found. Please check available algorithms.'];
