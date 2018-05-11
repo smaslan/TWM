@@ -39,13 +39,13 @@ function dataout = alg_wrapper(datain, calcset)
     
     
     % copy sampling rate:
-    dataout.fs.v = fs.v;
+    dataout.fs.v = fs;
     
     % copy user parameters:
-    dataout.scalar.v = din.scalar.v;
-    dataout.vector.v = din.vector.v;
-    dataout.matrix.v = din.matrix.v;
-    dataout.string.v = din.string.v;
+    dataout.scalar.v = datain.scalar.v;
+    dataout.vector.v = datain.vector.v;
+    dataout.matrix.v = datain.matrix.v;
+    dataout.string.v = datain.string.v;
     
     
     % TWM control structure containing quantity assignement rules:
@@ -63,12 +63,20 @@ function dataout = alg_wrapper(datain, calcset)
     for k = 1:numel(raw)
     
         % get input quantity:
-        src = getfield(din,raw{k}.name);
+        src = getfield(datain,raw{k}.name);
+        
+        if isfield(raw{k}.data,'u')
+            src = struct('v',src.v, 'u',src.u);
+        else
+            src = struct('v',src.v);
+        end            
         
         % return output quantity:
         dataout = setfield(dataout,raw{k}.name,src);    
     
     end
+    
+    %fieldnames(dataout)
     
     % --- process table-to-dataout quantities:
     for k = 1:numel(t2d)
@@ -82,7 +90,7 @@ function dataout = alg_wrapper(datain, calcset)
         % copy all table's content to dataout:
         for q = 1:numel(qur.qu)
             % get table's data:
-            qu = getfield(tbl,qur.qu{q}.tab_qu{q});
+            qu = getfield(tbl,qur.qu{q}.qu);
             % copy table's data to dataout:
             if isfield(dataout,qur.qu{q}.name)
                 doq = getfield(dataout,qur.qu{q}.name);

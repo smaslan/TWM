@@ -48,6 +48,7 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
   % TODO: filtering of the vairabels to save maybe???? 
   
   % --- for each variable
+  vars = {};
   for p = 1:numel(resvars)
   
     % this variable name
@@ -147,10 +148,13 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
     
     end
     
-    % store variable to the result info
-    res = infosetsection(res, variable_name, ovar);
+    % generate variable's section:
+    vars{end+1} = [infosetsection('', variable_name, ovar) sprintf('\n')];
   
   end
+  
+  % merge variable data and insert to the results file:
+  res = [res sprintf('\n') vars{:}];
   
   % store variable to the result info
   inf = infosetsection(inf, phase_info.section, res);

@@ -69,7 +69,15 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
   if ~isfield(cfg,'phi_ref_chn')
     % default reference channel for phase (0: none):
     cfg.phi_ref_chn = 0;
+  end
+  if ~isfield(cfg,'max_dim')
+    % default maximu dimension to show:
+    cfg.max_dim = 2;
   end  
+  if ~isfield(cfg,'max_array')
+    % default maximum elements count to load:
+    cfg.max_array = 10e3;
+  end
   
   if ~exist('var_list','var') || ~iscell(var_list)
     var_list = {};
