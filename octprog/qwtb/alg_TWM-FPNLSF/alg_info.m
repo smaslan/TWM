@@ -7,7 +7,7 @@ function alginfo = alg_info() %<<<1
     alginfo.name = 'TWM tool wrapper: Four Parameter Non-Linear Sine Fit';
     alginfo.desc = 'TWM wrapper for FPNLSF: Fits a sine wave to the recorded data by means of non-linear least squares fitting method using 4 parameter (frequency, amplitude, phase and offset) model. An estimate of signal frequency is required. Due to non-linear characteristic, convergence is not always achieved. When run in Matlab, function `lsqnonlin` in Optimization toolbox is used. When run in GNU Octave, function `leasqr` in GNU Octave Forge package optim is used. Therefore results can differ.';
     alginfo.citation = '';
-    alginfo.remarks = 'If sampling time |Ts| is not supplied, wrapper will calculate |Ts| from sampling frequency |fs| or if not supplied, mean of differences of time series |t| is used to calculate |Ts|.';
+    alginfo.remarks = 'If sampling time |Ts| is not supplied, wrapper will calculate |Ts| from sampling frequency |fs| or if not supplied, mean of differences of time series |t| is used to calculate |Ts|. Offset estimate and its uncertainty for differential input mode is just informative.';
     alginfo.license = 'MIT License';
 
     
@@ -113,6 +113,15 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
+    % ADC jitter:
+    alginfo.inputs(pid).name = 'adc_jitter';
+    alginfo.inputs(pid).desc = 'ADC rms jitter';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
+    
     % ADC apperture effect correction:
     % this set to non-zero value will enable auto correction of the aperture effect by algorithm
     alginfo.inputs(pid).name = 'adc_aper_corr';
@@ -148,6 +157,15 @@ function alginfo = alg_info() %<<<1
     
     alginfo.inputs(pid).name = 'adc_gain';
     alginfo.inputs(pid).desc = 'ADC gain transfer: 2D data';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
+    
+    % ADC offset:
+    alginfo.inputs(pid).name = 'adc_offset';
+    alginfo.inputs(pid).desc = 'ADC voltage offset';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;

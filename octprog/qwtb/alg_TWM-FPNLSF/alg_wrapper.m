@@ -57,20 +57,20 @@ function dataout = alg_wrapper(datain, calcset)
     % Start of the algorithm
     % --------------------------------------------------------------------
     
-    % TODO: uncertainty!
-            
     
     % build channel data to process:     
     vc.tran = datain.tr_type.v;
     vc.is_diff = cfg.y_is_diff;
-    vc.y = datain.y.v;
+    vc.y = datain.y.v;    
     vc.ap_corr = datain.adc_aper_corr.v;
+    vc.ofs = datain.adc_offset;
     if cfg.y_is_diff
         vc.y_lo = datain.y_lo.v;
         vc.tsh_lo = datain.time_shift_lo; % low-high side channel time shift
-        vc.ap_corr_lo = datain.lo_adc_aper_corr.v;    
-    end 
-    
+        vc.ap_corr_lo = datain.lo_adc_aper_corr.v;
+        vc.ofs_lo = datain.lo_adc_offset;    
+    end
+        
     
     % --- Process the channels with corrections ---
     
@@ -135,7 +135,14 @@ function dataout = alg_wrapper(datain, calcset)
         A0_lo = vc.Y_lo(fid);
         ph0    = vc.ph(fid);
         ph0_lo = vc.ph_lo(fid);
-                
+        
+        % DC offset:
+        dc = vc.Y(1)/2; % ###todo: /2 is needed because of ampphspectrum() which multiplies DC by 2
+        dc_lo = vc.Y_lo(1)/2; % ###todo: /2 is needed because of ampphspectrum() which multiplies DC by 2
+        % estimate for ADC offset uncertainties:
+        u_dc = vc.ofs.u;
+        u_dc_lo = vc.ofs_lo.u;
+                        
         % get gain/phase correction for the dominant component (high-side digitizer):
         ag = correction_interp_table(tab.adc_gain, A0, fx);
         ap = correction_interp_table(tab.adc_phi,  A0, fx);        
@@ -204,26 +211,38 @@ function dataout = alg_wrapper(datain, calcset)
         
         % calculate hi-lo difference in timedomain:            
         vc.y = vc.y - vc.y_lo; % time-domain
+                
+               
 
         
         % calculate normalized transducer tfer from the DFT vectors:
         if ~isempty(vc.tran)
-            Y0    = A0.*exp(j*ph0);
-            Y0_lo = A0_lo.*exp(j*ph0_lo);
-            [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,vc.tran,fx,[], A0,ph0,u_A0,u_ph0, A0_lo,ph0_lo,u_A0_lo,u_ph0_lo);           
-            u_trg = u_trg/trg;
+            Y0    = [dc A0].*exp(j*[0 ph0]);
+            Y0_lo = [dc_lo A0_lo].*exp(j*[0 ph0_lo]);
+            [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,vc.tran,[1e-6 fx],[], [dc A0],[0 ph0],[u_dc u_A0],[0 u_ph0], [dc_lo A0_lo],[0 ph0_lo],[u_dc_lo u_A0_lo],[0 u_ph0_lo]);           
+            u_trg = u_trg./trg;
             tr = trg.*exp(j*trp);
             trg = abs(tr./(Y0 - Y0_lo));
             trp = angle(tr./(Y0 - Y0_lo));            
-            %trg = trg./abs(Y0 - Y0_lo);
-            %trp = trp - angle(Y0 - Y0_lo);        
         else
             % no transducer defined:
-            u_trg = ((u_A0/A0)^2 + (u_A0_lo/A0_lo)^2)^0.5;
-            u_trp = (u_ph0^2 + u_ph_lo^2)^0.5;
-            trg = 1;
-            trp = 0;
+            error('No transducer defined not allowed!');
+%             u_trg = ((u_A0/A0)^2 + (u_A0_lo/A0_lo)^2)^0.5;
+%             u_trp = (u_ph0^2 + u_ph_lo^2)^0.5;
+%             trg = 1;
+%             trp = 0;
         end
+        
+        % extract DC transdcuer gain:
+        dcg = trg(1);    
+        u_dcg = u_trg(1);
+        
+        % extract harmonic gain:
+        trg = trg(2);
+        trp = trp(2);
+        u_trg = u_trg(2);    
+        u_trp = u_trp(2);
+         
         
         
         % estimate signal parameters (from differential signal):            
@@ -265,9 +284,12 @@ function dataout = alg_wrapper(datain, calcset)
             % calculate effective system SFDR:
             sfdr_sys = -20*log10(10^(-adc_sfdr/20) + 10^(-tr_sfdr.sfdr/20));
             
+            % effective jitter:
+            jitt = (datain.adc_jitter.v^2 + datain.lo_adc_jitter.v^2)^0.5;
+            
             
             % estimate uncertainty:
-            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb_ef,datain.jitter.v,sfdr_sys);
+            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb_ef,jitt,sfdr_sys);
             
             % expand uncertainty - very naive approximation of difference of two signals:
             unc.dpx.val = unc.dpx.val*1.5;
@@ -293,6 +315,7 @@ function dataout = alg_wrapper(datain, calcset)
         % apply transducer correction:
         Ax  = Ax*trg;
         phx = phx + trp;
+        ox = ox*dcg;
         
         % apply digitizer phase correction:
         % note we did just interchannel phase correction, so now we have to apply absolute phase correction
@@ -307,11 +330,13 @@ function dataout = alg_wrapper(datain, calcset)
         % uncertainty of the signal parameters:
         u_Ax = Ax.*u_trg;
         u_phx = u_trp;
+        u_ox = ox.*u_dcg;
         
         % add alg. uncertainty contribution:
         u_Ax = (u_Ax^2 + (Ax.*unc.dAx.val)^2)^0.5;
         u_phx = (u_phx^2 + unc.dpx.val^2)^0.5;
         u_fx = (u_fx^2 + (fx*unc.dfx.val)^2)^0.5;
+        u_ox = (u_ox^2 + (unc.dox.val*dcg)^2)^0.5;
                 
         % todo: handle the offset, it will be wrong because of the timedomain corrections at fx are not the same as for DC
         
@@ -333,7 +358,7 @@ function dataout = alg_wrapper(datain, calcset)
             [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
             
             % estimate uncertainty:
-            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,datain.jitter.v,sfdr_sys);
+            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,datain.adc_jitter.v,sfdr_sys);
           
         else
             % other modes - do nothing: 
@@ -366,20 +391,28 @@ function dataout = alg_wrapper(datain, calcset)
         u_Ax = Ax.*ag.u_gain;
         u_phx = ap.u_phi;
         
-        
+        % remove DC offset:
+        ox = ox - vc.ofs.v;
+                
         % add alg. uncertainty contribution:
         u_Ax = (u_Ax^2 + (Ax.*unc.dAx.val)^2)^0.5;
         u_phx = (u_phx^2 + unc.dpx.val^2)^0.5;
         u_fx = (u_fx^2 + (fx*unc.dfx.val)^2)^0.5;
+        u_ox = (vc.ofs.u^2 + unc.dox.val^2)^0.5;
                 
-        % apply gain correction to offset:
-        % todo: decide if I should take the DC component from correction data because the correction data may not be present down to 0Hz?
-        
         % apply transducer tfer to signal estimates:
-        [Ax,phx,u_Ax,u_phx] = correction_transducer_loading(tab,vc.tran,fx,[], Ax,phx,u_Ax,u_phx);
+        [Ax,phx,u_Ax,u_phx] = correction_transducer_loading(tab,vc.tran,[1e-6 fx],[], [ox Ax],[0 phx],[u_ox u_Ax],[0 u_phx]);
         
-        % apply transducer gain correction to offset:
-        % todo: decide if I should take the DC component from correction data because the correction data may not be present down to 0Hz?
+        % extract offset:
+        ox = Ax(1);
+        u_ox = u_Ax(1);
+        
+        % extract harmonic:
+        Ax = Ax(2);
+        u_Ax = u_Ax(2);
+        phx = phx(2);        
+        u_phx = u_phx(2);
+        
         
     end
         
@@ -404,7 +437,7 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.phi.v = phx;
     dataout.phi.u = u_phx;
     dataout.ofs.v = ox;
-    dataout.ofs.u = 0;
+    dataout.ofs.u = u_ox;
            
     % --------------------------------------------------------------------
     % End of the algorithm.
@@ -491,7 +524,7 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr)
     % SFDR estimate: 
     ax.sfdr.val = sfdr;
     
-    ax
+    %ax
     
     % current folder:
     mfld = [fileparts(mfilename('fullpath')) filesep()];

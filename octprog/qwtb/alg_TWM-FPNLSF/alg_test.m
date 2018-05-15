@@ -19,6 +19,8 @@ function alg_test(calcset) %<<<1
     ph = [0.5/pi  2*rand()            2*rand()]'*pi;
     % harmonic freq. [Hz]:
     fx = [1000   (5000+1000*rand())  (10000+2000*rand())]';
+    % dc offset:
+    dc = 0.1;
     
     % current loop impedance (used for simulation of differential transducer):
     Zx = 0.5;
@@ -75,6 +77,11 @@ function alg_test(calcset) %<<<1
     % create corretion of the digitizer timebase:
     din.adc_freq.v = 0.000100;
     din.adc_freq.u = 0.000005;
+    % create corretion of the digitizer timebase:
+    din.adc_offset.v = 0.001;
+    din.adc_offset.u = 0.000005;
+    din.lo_adc_offset.v = -0.002;
+    din.lo_adc_offset.u = 0.000005;
     
     % define some low-side channel timeshift:
     din.time_shift_lo.v = -1.234e-4;
@@ -131,6 +138,12 @@ function alg_test(calcset) %<<<1
     datain.f_est.v = fx(1);
     
     
+    
+    % build virtual harmonic with DC component:
+    fx = [fx;1e-12];
+    A = [A;dc];
+    ph = [ph;pi/2];            
+    
     % apply transducer transfer:
     if rand_unc
         rand_str = 'rand';
@@ -156,6 +169,9 @@ function alg_test(calcset) %<<<1
         % aperture:
         ap_state(1) = din.adc_aper_corr.v;
         ap_state(2) = din.lo_adc_aper_corr.v;
+        % ADC offset:
+        adc_ofs(1) = din.adc_offset;
+        adc_ofs(2) = din.lo_adc_offset;
     else
         % -- single-ended connection:
         [A_syn(:,1),ph_syn(:,1)] = correction_transducer_sim(tab,din.tr_type.v,fx, A,ph,0*A,0*ph,rand_str);
@@ -166,8 +182,10 @@ function alg_test(calcset) %<<<1
         tsh(1) = 0; % none for single-ended mode
         % aperture:
         ap_state(1) = din.adc_aper_corr.v;
+        % ADC offset:
+        adc_ofs(1) = din.adc_offset;
     end
-        
+            
     % get ADC aperture value [s]:
     ta = abs(din.adc_aper.v);
 
@@ -198,6 +216,10 @@ function alg_test(calcset) %<<<1
             phc = phc + k_phi.u_phi.*randn(size(phc));
         end
         
+        % DC component to zero freq.:
+        fxt = fx;
+        fxt(end) = 0;
+        
         % generate relative time 2*pi*t:
         % note: include time-shift and timestamp delay and frequency error:        
         tstmp = din.time_stamp.v;       
@@ -205,14 +227,17 @@ function alg_test(calcset) %<<<1
         t(:,1) = ([0:N-1]/din.fs.v + tsh(c) + tstmp)*(1 + din.adc_freq.v)*2*pi;
         
         % synthesize waveform (crippled for Matlab < 2016b):
-        % u = Ac.*sin(t.*fx + phc);
-        u = bsxfun(@times, Ac', sin(bsxfun(@plus, bsxfun(@times, t, fx'), phc')));
+        % u = Ac.*sin(t.*fxt + phc);
+        u = bsxfun(@times, Ac', sin(bsxfun(@plus, bsxfun(@times, t, fxt'), phc')));
         % sum the harmonic components to a single composite signal:
         u = sum(u,2);
         
         % add some noise:
         u = u + randn(N,1)*adc_std_noise;
-
+        
+        % add ADC offset:
+        u = u + adc_ofs(c).v + adc_ofs(c).u*randn;
+        
         % store to the QWTB input list:
         datain = setfield(datain, cfg.ysub{c}, struct('v',u));
     
@@ -238,9 +263,11 @@ function alg_test(calcset) %<<<1
     fx  = dout.f.v;
     Ax  = dout.A.v;
     phx = mod(dout.phi.v+pi,2*pi)-pi; % wrap to +-pi
+    ofsx  = dout.ofs.v;
     u_fx  = dout.f.u*2;
     u_Ax  = dout.A.u*2;
     u_phx = dout.phi.u*2;
+    u_ofsx = dout.ofs.u*2;
 %     if ~rand_unc
 %         u_fx  = f0*1e-8;
 %         u_Ax  = Ar*1e-6;
@@ -249,10 +276,10 @@ function alg_test(calcset) %<<<1
     
     
     % print results:
-    ref_list =  [f0, Ar, phr];    
-    dut_list =  [fx, Ax, phx];
-    unc_list =  [u_fx, u_Ax, u_phx];
-    name_list = {'f','A','ph'};
+    ref_list =  [f0, Ar, phr, dc];    
+    dut_list =  [fx, Ax, phx, ofsx];
+    unc_list =  [u_fx, u_Ax, u_phx, u_ofsx];
+    name_list = {'f','A','ph','dc'};
     
     fprintf('   |     REF     |     DUT     |   ABS DEV   |  %%-DEV   |     UNC     |  %%-UNC \n');
     fprintf('---+-------------+-------------+-------------+----------+-------------+----------\n');
