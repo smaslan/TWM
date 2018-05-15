@@ -189,7 +189,20 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         din = qwtb_rtwm_inps_default(din,true,'adc_aper',0);
                 
         % create default jitter:
-        din = qwtb_rtwm_inps_default(din,true,'jitter',0);
+        din = qwtb_rtwm_inps_default(din,cfg.has_y,'adc_jitter',0);        
+        din = qwtb_rtwm_inps_default(din,cfg.y_is_diff,'lo_adc_jitter',0);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'u_adc_jitter',0);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'i_adc_jitter',0);
+        din = qwtb_rtwm_inps_default(din,cfg.u_is_diff,'u_lo_adc_jitter',0);
+        din = qwtb_rtwm_inps_default(din,cfg.i_is_diff,'i_lo_adc_jitter',0);
+        
+        % create digitizer input offset voltage:
+        din = qwtb_rtwm_inps_default(din,cfg.has_y,'adc_offset',0,0);        
+        din = qwtb_rtwm_inps_default(din,cfg.y_is_diff,'lo_adc_offset',0,0);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'u_adc_offset',0,0);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'i_adc_offset',0,0);
+        din = qwtb_rtwm_inps_default(din,cfg.u_is_diff,'u_lo_adc_offset',0,0);
+        din = qwtb_rtwm_inps_default(din,cfg.i_is_diff,'i_lo_adc_offset',0,0);
         
         % create default time-stamp (y or u channel):
         din = qwtb_rtwm_inps_default(din,true,'time_stamp',0,0);
@@ -203,9 +216,11 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         din = qwtb_rtwm_inps_default(din,cfg.i_is_diff,'i_time_shift_lo',0,0);
         
         % create default ADC resolution:
-        din = qwtb_rtwm_inps_default(din,true,'adc_bits',40);        
+        din = qwtb_rtwm_inps_default(din,true,'adc_bits',40);
+        din = qwtb_rtwm_inps_default(din,cfg.y_is_diff,'lo_adc_bits',40);
         % create default ADC range:
         din = qwtb_rtwm_inps_default(din,true,'adc_nrng',1000);
+        din = qwtb_rtwm_inps_default(din,cfg.y_is_diff,'lo_adc_nrng',1000);
         
         
         % fix input data, so the vectors are always vertical
