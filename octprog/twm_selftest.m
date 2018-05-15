@@ -70,6 +70,9 @@ function [] = twm_selftest()
     % digitizer info file:
     dig_inf = '';
     
+    % user parameters info file:
+    par_inf = '';
+    
     % transducer info files:
     tr_inf = repmat({''},[tr_n 1]);
     
@@ -90,6 +93,8 @@ function [] = twm_selftest()
                 C = 1; % digitizer correction - once
             elseif strcmpi(rec.mode,'tr')
                 C = tr_n;
+            else
+                C = 1;
             end
             
             % for each channel/transducer/digitizer:
@@ -98,7 +103,16 @@ function [] = twm_selftest()
                 if isstruct(rec.qu)
                     % --- raw mode:
                     
-                    if isfield(rec.qu.v,'range')
+                    if isfield(rec.qu.v,'tr_type') && rec.qu.v.tr_type
+                        % transducer type string:
+                        if strcmpi(tr_types{c},'divider')
+                            rec.qu.v.data = 'rvd';
+                        else
+                            rec.qu.v.data = 'shunt';                                
+                        end                             
+                    elseif isfield(rec.qu.v,'string')
+                        rec.qu.v.data = char(rndrngi('a','z',[1 rndrngi(1,prod(rec.qu_size))]));
+                    elseif isfield(rec.qu.v,'range')
                         rec.qu.v.data = rndrng(rec.qu.v.range(1),rec.qu.v.range(2),rec.qu_size);
                     elseif isfield(rec.qu.v,'list')
                         rec.qu.v.data = reshape(rec.qu.v.list(rndrngi(1,numel(rec.qu.v.list),rec.qu_size)),rec.qu_size);
@@ -149,20 +163,24 @@ function [] = twm_selftest()
                     
                     % store QWTB quantity record for each channel:
                     qwrec = struct();
-                    if rec.auto_pass && iscell(rec.qu)
-                        % TWM table:
-                        
+                    qwrec.auto_pass = rec.auto_pass;
+                    if iscell(rec.qu)
+                        % TWM table:                        
                         qwrec.tab_name = [chn_pfx{c} rec.tab_name];
+                        qwrec.pfx = chn_pfx{c}; 
                         qwrec.qu = rec.qu;
                         for r = 1:numel(rec.qu)                            
                             qwrec.qu{r}.name = [chn_pfx{c} rec.qu{r}.name];                            
                         end
                         twm_selftest_control.t2d{end+1} = qwrec;
                         
-                    elseif rec.auto_pass
+                    else
                         % raw QWTB quantity:
-                    
-                        qwrec.name = [chn_pfx{c} rec.qu_name];
+                        if isfield(rec,'qu_name')
+                            qwrec.name = [chn_pfx{c} rec.qu_name];
+                        end
+                        qwrec.is_par = 0;
+                        qwrec.pfx = chn_pfx{c};
                         qwrec.desc = rec.corr_name;                        
                         qwrec.data.v = rec.qu.v.data;
                         if isfield(rec.qu,'u')
@@ -177,7 +195,8 @@ function [] = twm_selftest()
                                     
                     % store QWTB quantity record:
                     qwrec = struct();
-                    if rec.auto_pass && iscell(rec.qu)
+                    qwrec.auto_pass = rec.auto_pass;
+                    if iscell(rec.qu)
                         % TWM table:
                         
                         qwrec.tab_name = [rec.tab_name];
@@ -187,12 +206,12 @@ function [] = twm_selftest()
                         end
                         twm_selftest_control.t2d{end+1} = qwrec;
                         
-                    elseif rec.auto_pass
-                        % raw QWTB quantity:
-                    
+                    else
+                        % raw QWTB quantity:                    
                         qwrec.name = [rec.qu_name];
                         qwrec.desc = rec.corr_name;  
                         qwrec.data.v = rec.qu.v.data;
+                        qwrec.is_par = 0;
                         if isfield(rec.qu,'u')
                             qwrec.data.u = rec.qu.u.data;
                         end                        
@@ -206,20 +225,25 @@ function [] = twm_selftest()
                     
                     % store QWTB quantity record for each transducer:
                     qwrec = struct();
-                    if rec.auto_pass && iscell(rec.qu)
+                    qwrec.auto_pass = rec.auto_pass;
+                    if iscell(rec.qu)
                         % TWM table:
                         
                         qwrec.tab_name = [tr_pfx{c} rec.tab_name];
+                        qwrec.pfx = tr_pfx{c};
                         qwrec.qu = rec.qu;
                         for r = 1:numel(rec.qu)                            
                             qwrec.qu{r}.name = [tr_pfx{c} rec.qu{r}.name];                            
                         end
                         twm_selftest_control.t2d{end+1} = qwrec;
                         
-                    elseif rec.auto_pass
+                    else
                         % raw QWTB quantity:
-                    
-                        qwrec.name = [tr_pfx{c} rec.qu_name];
+                        if isfield(rec,'qu_name')
+                            qwrec.name = [tr_pfx{c} rec.qu_name];
+                        end
+                        qwrec.is_par = 0;
+                        qwrec.pfx = tr_pfx{c};                        
                         qwrec.desc = rec.corr_name;  
                         qwrec.data.v = rec.qu.v.data;
                         if isfield(rec.qu,'u')
@@ -229,6 +253,28 @@ function [] = twm_selftest()
                         
                     end
  
+ 
+                elseif strcmpi(rec.mode,'par')
+
+                    if ischar(rec.qu.v.data)
+                        par_inf = infosettextmatrix(par_inf,rec.qu_name,{rec.qu.v.data});
+                    elseif isnumeric(rec.qu.v.data)
+                        par_inf = infosetmatrix(par_inf,rec.qu_name,rec.qu.v.data);
+                    end                    
+                    
+                    % store QWTB quantity record for each transducer:
+                    qwrec = struct();
+                    qwrec.auto_pass = rec.auto_pass;
+                    qwrec.is_par = 1; 
+
+                    % raw QWTB quantity:
+                    if isfield(rec,'qu_name')
+                        qwrec.name = [rec.qu_name];
+                    end                      
+                    qwrec.desc = rec.corr_name;  
+                    qwrec.data.v = rec.qu.v.data;
+                    twm_selftest_control.raw{end+1} = qwrec;
+                 
                 end 
             
             end
@@ -360,6 +406,10 @@ function [] = twm_selftest()
     ranges = rndrngi(1,10,[1 chn_n]);
     inf = infosetmatrix(inf,'voltage ranges [V]',ranges);
     
+    % aperture time:
+    apertures = rndrng(1e-6,1e-3,[rep_n 1]);
+    inf = infosetmatrix(inf,'aperture [s]',apertures);
+        
     % trigger mode:
     inf = infosettext(inf,'trigger mode','Immediate');
     
@@ -418,6 +468,7 @@ function [] = twm_selftest()
     % create channel mapping:
     C = numel(chn_files);
     rpt = randperm(C);
+    rpt = 1:C; % ###todo: implement channel mapping
     c = 1;
     
     map = {};
@@ -430,7 +481,7 @@ function [] = twm_selftest()
             map{t,2} = int2str(rpt(c));
             c = c + 1;
         end    
-    end
+    end    
     
     % channel mapping:
     inf = infosettextmatrix(inf,'transducer to digitizer channels mapping',map);
@@ -460,14 +511,15 @@ function [] = twm_selftest()
     inf = infosettextmatrix(inf, 'list of parameter names', {'scalar';'vector';'matrix';'string'});
     
     % write user parameters:
-    p_scalar = randn;
-    p_vector = randn(rndrngi(1,10),1);
-    p_matrix = randn(rndrngi(1,10),rndrngi(1,10));
-    p_string = char(rndrngi('a','z',[1 rndrngi(1,50)]));    
-    inf = infosetmatrix(inf, 'scalar', p_scalar);
-    inf = infosetmatrix(inf, 'vector', p_vector);
-    inf = infosetmatrix(inf, 'matrix', p_matrix);
-    inf = infosettextmatrix(inf, 'string', {p_string});
+    %p_scalar = randn;
+    %p_vector = randn(rndrngi(1,10),1);
+    %p_matrix = randn(rndrngi(1,10),rndrngi(1,10));
+    %p_string = char(rndrngi('a','z',[1 rndrngi(1,50)]));    
+    %inf = infosetmatrix(inf, 'scalar', p_scalar);
+    %inf = infosetmatrix(inf, 'vector', p_vector);
+    %inf = infosetmatrix(inf, 'matrix', p_matrix);
+    %inf = infosettextmatrix(inf, 'string', {p_string});
+    inf = [inf sprintf('\n') par_inf];
       
     % save measurement session:
     inf = infosetsection('', 'QWTB processing setup', inf);
@@ -482,12 +534,75 @@ function [] = twm_selftest()
     % generate sample data vectors:
     for k = 1:numel(data_pfx)        
         rec = struct();
+        rec.auto_pass = 1;
         rec.name = data_pfx{k};
         rec.desc = ['Sample data for channel ' data_pfx{k}];
-        rec.data.v = records{k};        
+        rec.data.v = records{end}(:,k);
+        rec.opt = 'waveform';
+        rec.pfx = chn_pfx{k};
+        rec.is_par = 0;                
         twm_selftest_control.raw{end+1} = rec;        
     end
     
+    % -- generate timeshifts:
+    
+    tsref = timestamps(end,1);
+    % aperture time:
+    rec = struct();
+    rec.auto_pass = 1;
+    rec.name = 'time_stamp';
+    rec.desc = 'Ref channel timestamp';
+    rec.data.v = tsref;
+    rec.is_par = 0;
+    twm_selftest_control.raw{end+1} = rec;
+    
+    time_shifts = timestamps(end,:) - tsref + time_shifts;    
+    % for each transducer:
+    for k = 1:tr_n        
+        
+        tr_map = chn_map{k};
+        
+        if is_diff(k)
+        
+            rec = struct();
+            rec.auto_pass = 1;
+            rec.name = [tr_pfx{k} 'time_shift_lo'];
+            rec.desc = 'Low channel timeshift';
+            rec.data.v = time_shifts(tr_map(2)) - time_shifts(tr_map(1));
+            rec.data.u = (time_shifts_u(tr_map(2))^2 + time_shifts_u(tr_map(1))^2)^0.5;
+            rec.pfx = tr_pfx{k};
+            rec.is_par = 0;                
+            twm_selftest_control.raw{end+1} = rec;    
+         
+        end
+        
+        if strcmpi(mode,'ui') && k == 2
+          % second channel (i):
+          
+          rec = struct();
+          rec.auto_pass = 1;
+          rec.name = ['time_shift'];
+          rec.desc = 'Current channel timeshift';
+          rec.data.v = time_shifts(chn_map{k-1}(1)) - time_shifts(tr_map(1)); % ###todo: decide if it is inverted?
+          rec.data.u = (time_shifts_u(tr_map(1))^2 + time_shifts_u(chn_map{k-1}(1))^2)^0.5;
+          rec.pfx = tr_pfx{k};
+          rec.is_par = 0;                
+          twm_selftest_control.raw{end+1} = rec;
+          
+        end
+                
+    end
+    
+    % aperture time:
+    rec = struct();
+    rec.auto_pass = 1;
+    rec.name = 'adc_aper';
+    rec.desc = 'ADC aperture time';
+    rec.data.v = apertures(end);
+    rec.is_par = 0;
+    twm_selftest_control.raw{end+1} = rec;
+       
+        
     
     % --- execute validation algorithm on the simulated measurement:
     qwtb_exec_algorithm(session_file, '', 1);
@@ -495,8 +610,182 @@ function [] = twm_selftest()
     
     
     % --- compare generate/returned quantities:
+    cfg.vec_horiz = 0;
+    [res] = qwtb_load_results(meas_root,-1,'',cfg);
+    res = res{1}{1};
     
-    [res] = qwtb_load_results(meas_root);
+    
+    % obtain result names:
+    rnames = {[res{:}].name};
+        
+    % --- for each correction quantity:
+    for k = 1:numel(twm_selftest_control.t2d)
+    
+        % get qu. record:
+        rec = twm_selftest_control.t2d{k};
+        
+        for q = 1:numel(rec.qu)
+            
+            fprintf('Comparing quantity ''%s'' ...\n',rec.qu{q}.name);        
+            
+            % find quantity in results:
+            fid = find(strcmpi(rec.qu{q}.name,rnames),1,'first');
+            if isempty(fid)
+                rec.qu{q}
+               error(sprintf('Compare: quantity ''%s'' not found in the results!',rec.qu{q}.name)); 
+            end
+            
+            % get results record:
+            dut = res{fid};
+            
+            % check size match:
+            if any(dut.size ~= size(rec.qu{q}.data))
+                rec.qu{q}
+                dut
+                error(sprintf('Compare: quantity ''%s'' size does not match!',rec.qu{q}.name));
+            end
+            
+            if isfield(rec.qu{q},'opt')
+                % optional actions:
+                if strcmpi(rec.qu{q}.opt,'nom_gain_fix')
+                    % apply adc_gain nominal gain before compare:
+                    
+                    % find nominal gain matching the channel:
+                    nom_gain.v = NaN;
+                    for r = 1:numel(twm_selftest_control.raw)
+                        if strcmpi(twm_selftest_control.raw{r}.desc,'nominal gain') && strcmpi(twm_selftest_control.raw{r}.pfx,rec.pfx)
+                            nom_gain = twm_selftest_control.raw{r}.data;    
+                        end                    
+                    end
+                    if isnan(nom_gain.v)
+                        error(sprintf('Compare: quantity ''%s'' cannot be compared, missing nominal gain! This should not happen.',rec.qu{q}.name));
+                    end                    
+                    % apply nominal gain:                    
+                    rec.qu{q}.data = rec.qu{q}.data*nom_gain.v;
+                
+                elseif strcmpi(rec.qu{q}.opt,'nom_gain_fix_u')
+                    % apply adc_gain nominal gain uncertainty before compare:
+                    
+                    % find nominal gain matching the channel:
+                    nom_gain.u = NaN;
+                    for r = 1:numel(twm_selftest_control.raw)
+                        if strcmpi(twm_selftest_control.raw{r}.desc,'nominal gain') && strcmpi(twm_selftest_control.raw{r}.pfx,rec.pfx)
+                            nom_gain = twm_selftest_control.raw{r}.data;    
+                        end                    
+                    end
+                    if isnan(nom_gain.u)
+                        error(sprintf('Compare: quantity ''%s'' cannot be compared, missing nominal gain! This should not happen.',rec.qu{q}.name));
+                    end                    
+                    % apply nominal gain:                    
+                    rec.qu{q}.data = (rec.qu{q}.data.^2 + nom_gain.u.^2).^0.5;
+                                
+                elseif strcmpi(rec.qu{q}.opt,'nom_rat_fix')
+                    % apply adc_gain nominal gain before compare:
+                    
+                    % find nominal gain matching the channel:
+                    nom_gain.v = NaN;
+                    for r = 1:numel(twm_selftest_control.raw)
+                        if strcmpi(twm_selftest_control.raw{r}.desc,'nominal ratio') && strcmpi(twm_selftest_control.raw{r}.pfx,rec.pfx)
+                            nom_gain = twm_selftest_control.raw{r}.data;    
+                        end                    
+                    end
+                    if isnan(nom_gain.v)
+                        error(sprintf('Compare: quantity ''%s'' cannot be compared, missing nominal gain! This should not happen.',rec.qu{q}.name));
+                    end                    
+                    % apply nominal gain:                    
+                    rec.qu{q}.data = rec.qu{q}.data*nom_gain.v;
+                    
+                    rid = find(strcmpi(rnames,[rec.pfx 'tr_type']),1);
+                    if strcmpi(res{rid}.val,'shunt')
+                        % inverse ratio for a shunt:
+                        rec.qu{q}.data = 1./rec.qu{q}.data;    
+                    end 
+                
+                elseif strcmpi(rec.qu{q}.opt,'nom_rat_fix_u')
+                    % apply adc_gain nominal gain uncertainty before compare:
+                    
+                    % find nominal gain matching the channel:
+                    nom_gain.u = NaN;
+                    for r = 1:numel(twm_selftest_control.raw)
+                        if strcmpi(twm_selftest_control.raw{r}.desc,'nominal ratio') && strcmpi(twm_selftest_control.raw{r}.pfx,rec.pfx)
+                            nom_gain = twm_selftest_control.raw{r}.data;    
+                        end                    
+                    end
+                    if isnan(nom_gain.u)
+                        error(sprintf('Compare: quantity ''%s'' cannot be compared, missing nominal gain! This should not happen.',rec.qu{q}.name));
+                    end                    
+                    % apply nominal gain:                    
+                    rec.qu{q}.data = (rec.qu{q}.data.^2 + nom_gain.u.^2).^0.5;
+                    
+                    rid = find(strcmpi(rnames,[rec.pfx 'tr_type']),1);
+                    if strcmpi(res{rid}.val,'shunt')
+                        % inverse ratio for a shunt:
+                        rec.qu{q}.data = rec.qu{q}.data./rec.qu{q-1}.data.^2; % ###note: hardcoded position of gain quantity, may fail if order of .qu{} is changed!    
+                    end
+                end
+            end
+            
+            % check content match
+            if strcmpi(rec.qu{q}.sub,'u')
+                ref = dut.unc; % comparing uncertainty
+            else
+                ref = dut.val; % comparing value of quantity
+            end
+            if ~matchtol(ref,rec.qu{q}.data)
+                rec.qu{q}
+                dut
+                error(sprintf('Compare: quantity ''%s'' content does not match!',rec.qu{q}.name));
+            end
+                        
+        end         
+        
+    end
+    % --- for each correction quantity (raw):
+    for k = 1:numel(twm_selftest_control.raw)
+        
+        % get qu. record:
+        rec = twm_selftest_control.raw{k};
+        
+        if rec.auto_pass
+        
+            fprintf('Comparing quantity ''%s'' ...\n',rec.name);
+             
+            % find quantity in results:
+            fid = find(strcmpi(rec.name,rnames),1,'first');
+            if isempty(fid)
+                rec
+                error(sprintf('Compare: quantity ''%s'' not found in the results!',rec.name)); 
+            end
+            dut = res{fid};
+            
+            if isfield(rec,'opt') && strcmpi(rec.opt,'waveform')
+                % waveform - select waveform before compare:
+                
+                % identify channel prefix that is being tested:
+                cid = find(strcmpi(rec.pfx,chn_pfx));
+                
+                % apply offsets:
+                rec.data.v = rec.data.v*gains(end,cid) + offsets(end,cid);                
+                                                
+            end
+            
+            % compare contents:
+            if ~matchtol(dut.val,rec.data.v)
+                rec
+                dut
+                error(sprintf('Compare: quantity ''%s.v'' content does not match!',rec.name));
+            end
+            if isfield(rec.data,'u') && ~matchtol(dut.unc,rec.data.u)
+                rec
+                dut
+                error(sprintf('Compare: quantity ''%s.u'' content does not match!',rec.name));
+            end            
+            
+        end
+        
+    end
+    
+    
     
     
     
@@ -504,7 +793,17 @@ function [] = twm_selftest()
 
 end
 
-
+function res = matchtol(a,b,trel)
+    if nargin < 3
+        trel = 1e-9;
+    end
+    devs = abs((a - b)./a) > trel;
+    devs = devs(:);
+    if any(isnan(devs)) || any(isinf(devs))
+        res = all(a == b);        
+    end
+    res = ~any(devs);
+end
 
 
 function inf = add_tr_corr(inf,folder,rec,chn)
@@ -603,7 +902,9 @@ function inf = add_tr_corr(inf,folder,rec,chn)
     else
         % --- direct data mode:
         
-        inf = infosetnumber(inf,rec.corr_name,rec.qu.v.data);        
+        if ~ischar(rec.qu.v.data)
+            inf = infosetnumber(inf,rec.corr_name,rec.qu.v.data);
+        end        
         if isfield(rec.qu,'u')
             inf = infosetnumber(inf,[rec.corr_name ' uncertainty'],rec.qu.u.data);
         end
@@ -773,8 +1074,8 @@ function [list] = gen_tab_list()
     tab.tab_dim = 2;
     tab.qu{1} = struct('qu','f', 'name','adc_gain_f', 'sub','v', 'desc','ADC gain - frequency axis');
     tab.qu{2} = struct('qu','a', 'name','adc_gain_a', 'sub','v', 'desc','ADC gain - amplitude axis');
-    tab.qu{3} = struct('qu','gain', 'name','adc_gain', 'sub','v', 'desc','ADC gain');
-    tab.qu{4} = struct('qu','u_gain', 'name','adc_gain', 'sub','u', 'desc','ADC gain');    
+    tab.qu{3} = struct('qu','gain', 'name','adc_gain', 'sub','v', 'desc','ADC gain', 'opt', 'nom_gain_fix');
+    tab.qu{4} = struct('qu','u_gain', 'name','adc_gain', 'sub','u', 'desc','ADC gain', 'opt', 'nom_gain_fix_u');    
     tab.auto_gen = 1;
     tab.auto_pass = 1;
     tab.is_csv = 1;
@@ -814,8 +1115,8 @@ function [list] = gen_tab_list()
     tab.tab_dim = 1;
     tab.qu{1} = struct('qu','f', 'name','adc_Yin_f', 'sub','v', 'desc','ADC input admittance - frequency axis');
     tab.qu{2} = struct('qu','Cp', 'name','adc_Yin_Cp', 'sub','v', 'desc','ADC input admittance - Cp');
-    tab.qu{3} = struct('qu','u_Cp', 'name','adc_Yin_Cp', 'sub','u', 'desc','ADC input admittance - u(Cp)');    
-    tab.qu{4} = struct('qu','Gp', 'name','adc_Yin_Gp', 'sub','v', 'desc','ADC input admittance - Gp');
+    tab.qu{3} = struct('qu','Gp', 'name','adc_Yin_Gp', 'sub','v', 'desc','ADC input admittance - Gp');
+    tab.qu{4} = struct('qu','u_Cp', 'name','adc_Yin_Cp', 'sub','u', 'desc','ADC input admittance - u(Cp)');     
     tab.qu{5} = struct('qu','u_Gp', 'name','adc_Yin_Gp', 'sub','u', 'desc','ADC input admittance - u(Gp)');
     tab.auto_gen = 1;
     tab.auto_pass = 1;
@@ -836,6 +1137,29 @@ function [list] = gen_tab_list()
     list{end+1} = tab;
     
     tab = struct();
+    tab.qu_name = 'adc_offset';
+    tab.qu_size = [1 1];
+    tab.qu.v.range = [-0.01 +0.01];
+    tab.qu.u.range = [0.0001 0.001];
+    tab.auto_gen = 1;
+    tab.auto_pass = 1;
+    tab.is_csv = 0;
+    tab.corr_name = 'dc offset';
+    tab.mode = 'chn';
+    list{end+1} = tab;
+    
+    tab = struct();
+    tab.qu_name = 'adc_jitter';
+    tab.qu_size = [1 1];
+    tab.qu.v.range = [0.00001 0.01];
+    tab.auto_gen = 1;
+    tab.auto_pass = 1;
+    tab.is_csv = 0;
+    tab.corr_name = 'rms jitter';
+    tab.mode = 'chn';
+    list{end+1} = tab;
+    
+    tab = struct();
     tab.qu_size = [1 1];
     tab.auto_gen = 1;
     tab.auto_pass = 0;
@@ -847,16 +1171,7 @@ function [list] = gen_tab_list()
     list{end+1} = tab;
     
     
-    
-    
-    tab = struct();
-    tab.auto_gen = 0;
-    tab.auto_pass = 0;
-    tab.is_csv = 0;
-    tab.corr_name = 'interchannel timeshift';
-    tab.mode = 'dig';
-    list{end+1} = tab;
-    
+ 
     tab = struct();
     tab.qu_name = 'adc_freq';
     tab.qu_size = [1 1];
@@ -867,17 +1182,26 @@ function [list] = gen_tab_list()
     tab.qu.u.range = [0.001 0.002];
     tab.corr_name = 'timebase correction';
     tab.mode = 'dig';
+    list{end+1} = tab;   
+    
+    tab = struct();
+    tab.qu_name = 'tr_type';
+    tab.qu_size = [];
+    tab.qu.v.tr_type = 1;
+    tab.auto_gen = 1;
+    tab.auto_pass = 1;
+    tab.is_csv = 0;
+    tab.corr_name = 'transducer type';
+    tab.mode = 'tr';
     list{end+1} = tab;
-    
-    
     
     tab = struct();
     tab.tab_name = 'tr_gain';
     tab.tab_dim = 2;
     tab.qu{1} = struct('qu','f', 'name','tr_gain_f', 'sub','v', 'desc','Transducer gain - frequency axis');
     tab.qu{2} = struct('qu','rms', 'name','tr_gain_a', 'sub','v', 'desc','Transducer gain - amplitude axis');
-    tab.qu{3} = struct('qu','gain', 'name','tr_gain', 'sub','v', 'desc','Transducer gain');
-    tab.qu{4} = struct('qu','u_gain', 'name','tr_gain', 'sub','u', 'desc','Transducer gain');    
+    tab.qu{3} = struct('qu','gain', 'name','tr_gain', 'sub','v', 'desc','Transducer gain', 'opt','nom_rat_fix');
+    tab.qu{4} = struct('qu','u_gain', 'name','tr_gain', 'sub','u', 'desc','Transducer gain', 'opt','nom_rat_fix_u');    
     tab.auto_gen = 1;
     tab.auto_pass = 1;
     tab.is_csv = 1;
@@ -910,6 +1234,7 @@ function [list] = gen_tab_list()
     tab.mode = 'tr';
     list{end+1} = tab;
     
+    
     tab = struct();
     tab.tab_name = 'tr_sfdr';
     tab.tab_dim = 2;
@@ -928,8 +1253,8 @@ function [list] = gen_tab_list()
     tab.tab_dim = 1;
     tab.qu{1} = struct('qu','f', 'name','tr_Zca_f', 'sub','v', 'desc','Transducer output terminal series impedance - frequency axis');
     tab.qu{2} = struct('qu','Rs', 'name','tr_Zca_Rs', 'sub','v', 'desc','Transducer output terminal series impedance - Rs');
-    tab.qu{3} = struct('qu','u_Rs', 'name','tr_Zca_Rs', 'sub','u', 'desc','Transducer output terminal series impedance - u(Rs)');    
-    tab.qu{4} = struct('qu','Ls', 'name','tr_Zca_Ls', 'sub','v', 'desc','Transducer output terminal series impedance - Ls');
+    tab.qu{3} = struct('qu','Ls', 'name','tr_Zca_Ls', 'sub','v', 'desc','Transducer output terminal series impedance - Ls');
+    tab.qu{4} = struct('qu','u_Rs', 'name','tr_Zca_Rs', 'sub','u', 'desc','Transducer output terminal series impedance - u(Rs)');
     tab.qu{5} = struct('qu','u_Ls', 'name','tr_Zca_Ls', 'sub','u', 'desc','Transducer output terminal series impedance - u(Ls)');
     tab.auto_gen = 1;
     tab.auto_pass = 1;
@@ -942,9 +1267,9 @@ function [list] = gen_tab_list()
     tab.tab_name = 'tr_Zcal';
     tab.tab_dim = 1;
     tab.qu{1} = struct('qu','f', 'name','tr_Zcal_f', 'sub','v', 'desc','Transducer output terminal series impedance - frequency axis');
-    tab.qu{2} = struct('qu','Rs', 'name','tr_Zcal_Rs', 'sub','v', 'desc','Transducer output terminal series impedance - Rs');
-    tab.qu{3} = struct('qu','u_Rs', 'name','tr_Zcal_Rs', 'sub','u', 'desc','Transducer output terminal series impedance - u(Rs)');    
-    tab.qu{4} = struct('qu','Ls', 'name','tr_Zcal_Ls', 'sub','v', 'desc','Transducer output terminal series impedance - Ls');
+    tab.qu{2} = struct('qu','Rs', 'name','tr_Zcal_Rs', 'sub','v', 'desc','Transducer output terminal series impedance - Rs');        
+    tab.qu{3} = struct('qu','Ls', 'name','tr_Zcal_Ls', 'sub','v', 'desc','Transducer output terminal series impedance - Ls');
+    tab.qu{4} = struct('qu','u_Rs', 'name','tr_Zcal_Rs', 'sub','u', 'desc','Transducer output terminal series impedance - u(Rs)');
     tab.qu{5} = struct('qu','u_Ls', 'name','tr_Zcal_Ls', 'sub','u', 'desc','Transducer output terminal series impedance - u(Ls)');
     tab.auto_gen = 1;
     tab.auto_pass = 1;
@@ -970,9 +1295,9 @@ function [list] = gen_tab_list()
     tab.tab_name = 'tr_Yca';
     tab.tab_dim = 1;
     tab.qu{1} = struct('qu','f', 'name','tr_Yca_f', 'sub','v', 'desc','Transducer output terminal shunting admittance - frequency axis');
-    tab.qu{2} = struct('qu','Cp', 'name','tr_Yca_Cp', 'sub','v', 'desc','Transducer output terminal shunting admittance - Cp');
-    tab.qu{3} = struct('qu','u_Cp', 'name','tr_Yca_Cp', 'sub','u', 'desc','Transducer output terminal shunting admittance - u(Cp)');    
-    tab.qu{4} = struct('qu','D', 'name','tr_Yca_D', 'sub','v', 'desc','Transducer output terminal shunting admittance - D');
+    tab.qu{2} = struct('qu','Cp', 'name','tr_Yca_Cp', 'sub','v', 'desc','Transducer output terminal shunting admittance - Cp');        
+    tab.qu{3} = struct('qu','D', 'name','tr_Yca_D', 'sub','v', 'desc','Transducer output terminal shunting admittance - D');
+    tab.qu{4} = struct('qu','u_Cp', 'name','tr_Yca_Cp', 'sub','u', 'desc','Transducer output terminal shunting admittance - u(Cp)');
     tab.qu{5} = struct('qu','u_D', 'name','tr_Yca_D', 'sub','u', 'desc','Transducer output terminal shunting admittance - u(D)');
     tab.auto_gen = 1;
     tab.auto_pass = 1;
@@ -986,8 +1311,8 @@ function [list] = gen_tab_list()
     tab.tab_dim = 1;
     tab.qu{1} = struct('qu','f', 'name','Zcb_f', 'sub','v', 'desc','Cable series impedance - frequency axis');
     tab.qu{2} = struct('qu','Rs', 'name','Zcb_Rs', 'sub','v', 'desc','Cable series impedance - Rs');
-    tab.qu{3} = struct('qu','u_Rs', 'name','Zcb_Rs', 'sub','u', 'desc','Cable series impedance - u(Rs)');    
-    tab.qu{4} = struct('qu','Ls', 'name','Zcb_Ls', 'sub','v', 'desc','Cable series impedance - Ls');
+    tab.qu{3} = struct('qu','Ls', 'name','Zcb_Ls', 'sub','v', 'desc','Cable series impedance - Ls');
+    tab.qu{4} = struct('qu','u_Rs', 'name','Zcb_Rs', 'sub','u', 'desc','Cable series impedance - u(Rs)');        
     tab.qu{5} = struct('qu','u_Ls', 'name','Zcb_Ls', 'sub','u', 'desc','Cable series impedance - u(Ls)');
     tab.auto_gen = 1;
     tab.auto_pass = 1;
@@ -1000,9 +1325,9 @@ function [list] = gen_tab_list()
     tab.tab_name = 'Ycb';
     tab.tab_dim = 1;
     tab.qu{1} = struct('qu','f', 'name','Ycb_f', 'sub','v', 'desc','Cable shunting admittance - frequency axis');
-    tab.qu{2} = struct('qu','Cp', 'name','Ycb_Cp', 'sub','v', 'desc','Cable shunting admittance - Cp');
-    tab.qu{3} = struct('qu','u_Cp', 'name','Ycb_Cp', 'sub','u', 'desc','Cable shunting admittance - u(Cp)');    
-    tab.qu{4} = struct('qu','D', 'name','Ycb_D', 'sub','v', 'desc','Cable shunting admittance - D');
+    tab.qu{2} = struct('qu','Cp', 'name','Ycb_Cp', 'sub','v', 'desc','Cable shunting admittance - Cp');    
+    tab.qu{3} = struct('qu','D', 'name','Ycb_D', 'sub','v', 'desc','Cable shunting admittance - D');
+    tab.qu{4} = struct('qu','u_Cp', 'name','Ycb_Cp', 'sub','u', 'desc','Cable shunting admittance - u(Cp)');
     tab.qu{5} = struct('qu','u_D', 'name','Ycb_D', 'sub','u', 'desc','Cable shunting admittance - u(D)');
     tab.auto_gen = 1;
     tab.auto_pass = 1;
@@ -1015,15 +1340,62 @@ function [list] = gen_tab_list()
     tab.tab_name = 'tr_Zlo';
     tab.tab_dim = 1;
     tab.qu{1} = struct('qu','f', 'name','tr_Zlo_f', 'sub','v', 'desc','RVD low-side impedance - frequency axis');
-    tab.qu{2} = struct('qu','Rp', 'name','tr_Zlo_Rp', 'sub','v', 'desc','RVD low-side impedance - Rp');
-    tab.qu{3} = struct('qu','u_Rp', 'name','tr_Zlo_Rp', 'sub','u', 'desc','RVD low-side impedance - u(Rp)');    
-    tab.qu{4} = struct('qu','Cp', 'name','tr_Zlo_Cp', 'sub','v', 'desc','RVD low-side impedance - Cp');
+    tab.qu{2} = struct('qu','Rp', 'name','tr_Zlo_Rp', 'sub','v', 'desc','RVD low-side impedance - Rp');        
+    tab.qu{3} = struct('qu','Cp', 'name','tr_Zlo_Cp', 'sub','v', 'desc','RVD low-side impedance - Cp');
+    tab.qu{4} = struct('qu','u_Rp', 'name','tr_Zlo_Rp', 'sub','u', 'desc','RVD low-side impedance - u(Rp)');
     tab.qu{5} = struct('qu','u_Cp', 'name','tr_Zlo_Cp', 'sub','u', 'desc','RVD low-side impedance - u(Cp)');
     tab.auto_gen = 1;
     tab.auto_pass = 1;
     tab.is_csv = 1;
     tab.corr_name = 'rvd low side impedance path';
     tab.mode = 'tr';
+    list{end+1} = tab;
+    
+    
+    
+    
+    tab = struct();
+    tab.qu_name = 'scalar';
+    tab.qu_size = [1 1];
+    tab.auto_gen = 1;
+    tab.auto_pass = 1;
+    tab.is_csv = 0;
+    tab.qu.v.range = [-1 +1]; 
+    tab.corr_name = 'scalar parameter';
+    tab.mode = 'par';
+    list{end+1} = tab;
+    
+    tab = struct();
+    tab.qu_name = 'vector';
+    tab.qu_size = [1 rndrngi(1,10)];
+    tab.auto_gen = 1;
+    tab.auto_pass = 1;
+    tab.is_csv = 0;
+    tab.qu.v.range = [-1 +1]; 
+    tab.corr_name = 'vector parameter';
+    tab.mode = 'par';
+    list{end+1} = tab;
+    
+    tab = struct();
+    tab.qu_name = 'matrix';
+    tab.qu_size = [rndrngi(1,10) rndrngi(1,10)];
+    tab.auto_gen = 1;
+    tab.auto_pass = 1;
+    tab.is_csv = 0;
+    tab.qu.v.range = [-1 +1]; 
+    tab.corr_name = 'matrix parameter';
+    tab.mode = 'par';
+    list{end+1} = tab;
+    
+    tab = struct();
+    tab.qu_name = 'string';
+    tab.qu_size = [1 rndrngi(1,10)];
+    tab.auto_gen = 1;
+    tab.auto_pass = 1;
+    tab.is_csv = 0;
+    tab.qu.v.string = 1; 
+    tab.corr_name = 'string parameter';
+    tab.mode = 'par';
     list{end+1} = tab;
     
 

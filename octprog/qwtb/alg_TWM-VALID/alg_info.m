@@ -90,25 +90,28 @@ function alginfo = alg_info() %<<<1
     
     % --- generate dynamic parameters:
     for k = 1:numel(twm_selftest_control.raw)
-    
-        alginfo.inputs(pid).name = twm_selftest_control.raw{k}.name;
-        alginfo.inputs(pid).desc = twm_selftest_control.raw{k}.desc;
-        alginfo.inputs(pid).alternative = 0;
-        alginfo.inputs(pid).optional = 0;
-        alginfo.inputs(pid).parameter = 0;
-        pid = pid + 1;
+        if twm_selftest_control.raw{k}.auto_pass
+            alginfo.inputs(pid).name = twm_selftest_control.raw{k}.name;
+            alginfo.inputs(pid).desc = twm_selftest_control.raw{k}.desc;
+            alginfo.inputs(pid).alternative = 0;
+            alginfo.inputs(pid).optional = 0;
+            alginfo.inputs(pid).parameter = twm_selftest_control.raw{k}.is_par;
+            pid = pid + 1;
+        end
     
     end
-    for k = 1:numel(twm_selftest_control.t2d)
-        rec = twm_selftest_control.t2d{k};        
-        for q = 1:numel(rec.qu)
-            if strcmpi(rec.qu{q}.sub,'v')
-                alginfo.inputs(pid).name = rec.qu{q}.name;
-                alginfo.inputs(pid).desc = rec.qu{q}.desc;
-                alginfo.inputs(pid).alternative = 0;
-                alginfo.inputs(pid).optional = 0;
-                alginfo.inputs(pid).parameter = 0;
-                pid = pid + 1;
+    for k = 1:numel(twm_selftest_control.t2d)         
+        rec = twm_selftest_control.t2d{k};
+        if rec.auto_pass        
+            for q = 1:numel(rec.qu)
+                if strcmpi(rec.qu{q}.sub,'v')
+                    alginfo.inputs(pid).name = rec.qu{q}.name;
+                    alginfo.inputs(pid).desc = rec.qu{q}.desc;
+                    alginfo.inputs(pid).alternative = 0;
+                    alginfo.inputs(pid).optional = 0;
+                    alginfo.inputs(pid).parameter = 0;
+                    pid = pid + 1;
+                end
             end
         end
     end
@@ -117,19 +120,6 @@ function alginfo = alg_info() %<<<1
     
     % --- outputs:
     pid = 1;
-    % user parametrs:
-    alginfo.outputs(pid).name = 'scalar';
-    alginfo.outputs(pid).desc = 'Real scalar';
-    pid = pid + 1;
-    alginfo.outputs(pid).name = 'vector';
-    alginfo.outputs(pid).desc = 'Real vector';
-    pid = pid + 1;
-    alginfo.outputs(pid).name = 'matrix';
-    alginfo.outputs(pid).desc = 'Real matrix';
-    pid = pid + 1;
-    alginfo.outputs(pid).name = 'string';
-    alginfo.outputs(pid).desc = 'String of chars';
-    pid = pid + 1;
     % fixed special quantities:
     alginfo.outputs(pid).name = 'fs';
     alginfo.outputs(pid).desc = 'Sampling frequency';
@@ -137,17 +127,21 @@ function alginfo = alg_info() %<<<1
     
     % --- generate copy of all TWM input quantities:
     for k = 1:numel(twm_selftest_control.raw)    
-        alginfo.outputs(pid).name = twm_selftest_control.raw{k}.name;
-        alginfo.outputs(pid).desc = twm_selftest_control.raw{k}.desc;
-        pid = pid + 1;    
+        if twm_selftest_control.raw{k}.auto_pass
+            alginfo.outputs(pid).name = twm_selftest_control.raw{k}.name;
+            alginfo.outputs(pid).desc = twm_selftest_control.raw{k}.desc;
+            pid = pid + 1;
+        end    
     end
     for k = 1:numel(twm_selftest_control.t2d)
-        rec = twm_selftest_control.t2d{k};        
-        for q = 1:numel(rec.qu)
-            if strcmpi(rec.qu{q}.sub,'v')
-                alginfo.outputs(pid).name = rec.qu{q}.name;
-                alginfo.outputs(pid).desc = rec.qu{q}.desc;
-                pid = pid + 1;
+        rec = twm_selftest_control.t2d{k};
+        if rec.auto_pass        
+            for q = 1:numel(rec.qu)
+                if strcmpi(rec.qu{q}.sub,'v')
+                    alginfo.outputs(pid).name = rec.qu{q}.name;
+                    alginfo.outputs(pid).desc = rec.qu{q}.desc;
+                    pid = pid + 1;
+                end
             end
         end
     end

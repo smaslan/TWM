@@ -39,14 +39,7 @@ function dataout = alg_wrapper(datain, calcset)
     
     
     % copy sampling rate:
-    dataout.fs.v = fs;
-    
-    % copy user parameters:
-    dataout.scalar.v = datain.scalar.v;
-    dataout.vector.v = datain.vector.v;
-    dataout.matrix.v = datain.matrix.v;
-    dataout.string.v = datain.string.v;
-    
+    dataout.fs.v = fs;    
     
     % TWM control structure containing quantity assignement rules:
     global twm_selftest_control;
@@ -61,18 +54,21 @@ function dataout = alg_wrapper(datain, calcset)
     
     % --- process raw quantities:
     for k = 1:numel(raw)
-    
-        % get input quantity:
-        src = getfield(datain,raw{k}.name);
         
-        if isfield(raw{k}.data,'u')
-            src = struct('v',src.v, 'u',src.u);
-        else
-            src = struct('v',src.v);
-        end            
-        
-        % return output quantity:
-        dataout = setfield(dataout,raw{k}.name,src);    
+        if raw{k}.auto_pass
+            
+            % get input quantity:
+            src = getfield(datain,raw{k}.name);
+            
+            if isfield(raw{k}.data,'u')
+                src = struct('v',src.v, 'u',src.u);
+            else
+                src = struct('v',src.v);
+            end            
+            
+            % return output quantity:
+            dataout = setfield(dataout,raw{k}.name,src);
+        end    
     
     end
     
