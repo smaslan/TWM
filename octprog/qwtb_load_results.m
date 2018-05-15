@@ -78,6 +78,10 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
     % default maximum elements count to load:
     cfg.max_array = 10e3;
   end
+  if ~isfield(cfg,'vec_horiz')
+    % reshape vector to horiz by default
+    cfg.vec_horiz = 1;
+  end
   
   if ~exist('var_list','var') || ~iscell(var_list)
     var_list = {};

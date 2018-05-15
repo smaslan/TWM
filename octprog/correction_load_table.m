@@ -235,6 +235,7 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
         if ~numel(vid)
           error('Correction table loader: no valid number in whole column???');  
         end
+        is_missing = size(nanz,1) ~= numel(vid);
         
         % build primary axis
         if isempty(prim)
@@ -245,9 +246,11 @@ function [tbl] = correction_load_table(file,second_ax_name,quant_names)
         % build column
         d = [vv{vid,a}].';
   
-        if numel(p) > 1
+        if numel(p) > 1 && is_missing
           % interpolate data to fill in gaps and replace ends by NaNs     
           vv(1:end,a) = num2cell(interp1(p,d,prim,i_mode));
+        elseif ~is_missing
+          vv(1:end,a) = num2cell(d);            
         else
           % just one row, cannot interpolate
           tmp = vv(1:end,a);

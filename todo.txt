@@ -1,2 +1,5 @@
 Digitizers panel:
  - hide selector of DMM idn - confusing
+
+Doc:
+

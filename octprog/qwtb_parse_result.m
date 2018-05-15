@@ -236,7 +236,7 @@ function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
         end
         
         % always transform vectors to row
-        if myvar.dims == 1 && size(value,2) == 1
+        if cfg.vec_horiz && myvar.dims == 1 && size(value,2) == 1
           myvar.val = value.';
           myvar.size = fliplr(myvar.size);
         else
@@ -266,7 +266,7 @@ function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
         end
         
         % always transform vectors to row
-        if myvar.dims == 1 && size(unc,2) == 1
+        if cfg.vec_horiz && myvar.dims == 1 && size(unc,2) == 1
           myvar.unc = unc.';          
         else
           myvar.unc = unc;

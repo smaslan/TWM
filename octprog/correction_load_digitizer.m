@@ -175,6 +175,13 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         chn{c}.tfer_gain.gain = chn{c}.tfer_gain.gain.*chn{c}.nom_gain.gain;
         chn{c}.tfer_gain.u_gain = (chn{c}.tfer_gain.u_gain.^2 + chn{c}.nom_gain.u_gain.^2).^0.5;
         
+        % --- try to load DC offset value:
+        table_cfg = struct();
+        table_cfg.quant_names = {'ofs','u_ofs'};
+        table_cfg.default = {0,0}; % no offset by default
+        chn{c}.dc_offset = correction_parse_section(chn_root, cinf, minf, 'dc offset', table_cfg, c, rep_id, group_id);
+        chn{c}.dc_offset.qwtb = qwtb_gen_naming('adc_offset','','',{'ofs'},{'u_ofs'},{''});
+        
         
         % --- try to load phase transfer
         table_cfg = struct();

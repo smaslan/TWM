@@ -142,7 +142,7 @@ function [tran] = correction_load_transducer(file)
         % default value {0 Ohm, 0 H}
         Zcal_file = {[], 1e-9, 1e-12, 0.0, 0.0};         
     end
-    tran.Zcal = correction_load_table(Zca_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
+    tran.Zcal = correction_load_table(Zcal_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
     tran.Zcal.qwtb = qwtb_gen_naming('tr_Zcal','f','',{'Rs','Ls'},{'u_Rs','u_Ls'},{'Rs','Ls'});
     % load output terminals mutual series impedance (optional):
     try

@@ -24,7 +24,9 @@ function [data] = correction_interp_parameter_csv(files, w, csvcfg, correction_n
   end
   
   % merge tables axes to largest common range
-  tab = correction_expand_tables(tab);   
+  if numel(w > 0) > 1
+    tab = correction_expand_tables(tab);
+  end   
 
   % --- there should be only up to 4 non-zero weights from which the result must be interpolated ---        
   if numel(w,1) > 4
