@@ -42,7 +42,10 @@ function alg_test(calcset) %<<<1
     adc_std_noise = 1e-6;
     
     % ADC jitter [s]:
-    din.adc_jitt.v = 1e-9;     
+    din.u_adc_jitt.v = 1e-9;
+    din.u_lo_adc_jitt.v = din.u_adc_jitt.v;
+    din.i_adc_jitt.v = din.u_adc_jitt.v;         
+    din.i_lo_adc_jitt.v = din.i_adc_jitt.v;
     
     % fundamental frequency [Hz]:
     %f0 = 61.3460;
@@ -374,19 +377,26 @@ function alg_test(calcset) %<<<1
             % ADC offset:
             adc_ofs(1) = getfield(din,[chn.name '_adc_offset']);
             adc_ofs(2) = getfield(din,[chn.name '_lo_adc_offset']);
+            
+            % ADC jitter:
+            adc_jitt(1) = getfield(din,[chn.name '_adc_jitter']);
+            adc_jitt(2) = getfield(din,[chn.name '_lo_adc_jitter']);
+            
         else
             % -- single-ended connection (create single channel):
             [A_syn,ph_syn] = correction_transducer_sim(chtab,chn.type,fx,chn.Ag,chn.phg,0,0,rand_unc_str);
             % prepare digitizer sunchannel correction tables:
             sctab{1}.adc_gain = chtab.adc_gain;
             sctab{1}.adc_phi  = chtab.adc_phi;
-            sctab{1}.adc_sfdr  = chtab.adc_sfdr;            
+            sctab{1}.adc_sfdr  = chtab.adc_sfdr;
             % prepare subchannel timeshifts:
             tsh_lo(1) = 0;
             % subchannel waveform names:
             sub_chn{1} = chn.name;
             % ADC offset:
-            adc_ofs(1) = getfield(din,[chn.name '_adc_offset']);            
+            adc_ofs(1) = getfield(din,[chn.name '_adc_offset']);
+            % ADC jitter:
+            adc_jitt(1) = getfield(din,[chn.name '_adc_jitter']);            
         end
         
         % apply aperture error:
@@ -430,7 +440,7 @@ function alg_test(calcset) %<<<1
             % generate time vector 2*pi*t:
             % note: including time shift!
             t = [];
-            t(:,1) = ([0:N-1]/din.fs.v + tsh + tsh_lo(k) + din.adc_jitt.v*randn(1,N))*2*pi;
+            t(:,1) = ([0:N-1]/din.fs.v + tsh + tsh_lo(k) + adc_jitt(k).v*randn(1,N))*2*pi;
             
             % synthesize waveform (crippled for Matlab < 2016b):
             % u = Av.*sin(t.*fx_temp + phc);
