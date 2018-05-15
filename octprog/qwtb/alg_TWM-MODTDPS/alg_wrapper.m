@@ -254,7 +254,7 @@ function dataout = alg_wrapper(datain, calcset)
             [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
             
             % effective jitter value:
-            jitt = 2^0.5*datain.jitter.v^2; 
+            jitt = (datain.adc_jitter.v^2 + datain.lo_adc_jitter.v^2)^0.5; 
             
         else
             % -- single-ended mode:
@@ -273,7 +273,7 @@ function dataout = alg_wrapper(datain, calcset)
             Y = vc.Y;
             
             % jitter value [s]:
-            jitt = datain.jitter.v;
+            jitt = datain.adc_jitter.v;
             
         end
         

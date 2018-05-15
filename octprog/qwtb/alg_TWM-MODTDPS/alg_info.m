@@ -113,6 +113,15 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
+    % ADC jitter:
+    alginfo.inputs(pid).name = 'adc_jitter';
+    alginfo.inputs(pid).desc = 'ADC rms jitter';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    [alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
+    
     % ADC apperture effect correction:
     % this set to non-zero value will enable auto correction of the aperture effect by algorithm
     alginfo.inputs(pid).name = 'adc_aper_corr';
