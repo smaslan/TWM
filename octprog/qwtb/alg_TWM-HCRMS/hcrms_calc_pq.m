@@ -1,4 +1,4 @@
-function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
+function [tx,u_tx,rms,u_rms,dout] = hcrms_calc_pq(dout,t0,u_t0,fs,y,cfg,calcset)
 % Measurement of rms level in time for sag/swell/interruption PQ events.
 %
 % What it does:
@@ -8,14 +8,19 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
 %    of samples per period. To avoid resampling, fs/nom_f must be multiple of 20.
 % 3) Phase detection for each period and reconstructing phase for missing
 %    periods.
-% 4) Phase synchronization based on 3) by next resampling.
-% 5) RMS level detection with selected step.
-% 6) Events detection from rms values.    
+% 4) Fine phase synchronization based on 3) by next resampling.
+% 5) RMS level detection with selected step (see 'cfg.mode').
+% 6) Events detection from rms values.
+%
+% The algorithm also can calculate uncertainty estimate for the rms envelope
+% and event times.    
 % 
-% parameters:
-%  dout - QWTB output quantities (may be empty struct())
+% Parameters:
+%  dout - QWTB style output quantities (may be empty struct())
+%         note it will pass 'dout' content to the output and adds calc. quantities
 %  fs - sampling rate in [Hz]
 %  t0 - initial sample timestamp [s] 
+%  u_t0 - initial sample timestamp uncertainty [s]
 %  y - vertical vector with scaled sample data
 %  cfg.mode - event detection mode
 %             'A' - class A meter according 61000-4-30
@@ -27,13 +32,23 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
 %  cfg.ev.sag_tres - sag event treshold [%] (default 90%)
 %  cfg.ev.swell_tres - swell event treshold [%] (default 110%)
 %  cfg.ev.int_tres - interruption event treshold [%] (default 10%)
-%  cfg.do_plots - non-zero enables plotting the found events to graphs
-%  calcset.dbg_plots - non-zero enables plotting of debug graphs
+%  cfg.corr.f - frequency axis of correction data
+%  cfg.corr.gain.gain - relative gain normalized to nominal frequency gain
+%                       note it must cover full frequency range from 0 to 0.5*fs! 
+%  cfg.corr.gain.unc - absolute standard uncertainty of gain
+%  cfg.corr.sfdr - sfdr value (scalar) related to the nominal frequency
+%                  e.g.: +120 dBc means spurrs As = 1e-6*A0
+%  calcset.dbg_plots - plot some debug graphs
+%  calcset.unc - uncertainty calculation mode (default: 'none', or 'guf')
 %
-% returns:
+% Returns:
 %  t - time vector of centers of rms windows
+%      note the 't' is not necessarily equidistant!  
 %  rms - calculate rms value rms(t)
+%  u_rms - standard uncertainty of rms(t)
 %  dout - QWTB style quantities and uncertainties:
+%  dout.t - tiem vector 't'
+%  dout.rms - rms values and uncertainties corresponding to the 't'
 %  dout.*_start - starting time of detected event [s] or NaN for no event 
 %  dout.*_dur - duration time of detected event [s] or NaN for no complete event
 %  dout.*_res - residual rms ratio to nominal rms in [%] or NaN for no complete event
@@ -62,7 +77,9 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
         % --- NOT coherent mode with known frequency:
     
         % --- analyze fundamental frequency
-        fprintf('Fitting frequency...\n');
+        if calcset.verbose
+            fprintf('Fitting frequency...\n');
+        end
            
         % rough smples count per period:
         N1T = fs/cfg.f0_est;    
@@ -115,6 +132,10 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
         fbm = fb(~msk);
         Abm = Ab(~msk);
         
+        if sum(~msk) < 0.1*blk_n || sum(~msk) < 20
+            error('Error on fitting frequency! Signal is probably too distorted. If this is coherent measurement, try enter nominal frequency manually.');
+        end
+        
         
         % smooth the detected phase to get rid of ouliers and noise:
         end_avg = 10; % no touchy! this generates some fake samples before and after the data to smooth to make the smoother work better
@@ -163,7 +184,9 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
 
 
     % --- resampling the signal to coherent: 
-    fprintf('Resampling to coherent...\n');  
+    if calcset.verbose
+        fprintf('Resampling to coherent...\n');
+    end  
     
     if cfg.mode == 'S'
         % -- sliding window mode:
@@ -205,7 +228,9 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
         
 
     % --- detection of the phase offset of each period
-    fprintf('Period-phase detection...\n');
+    if calcset.verbose
+        fprintf('Period-phase detection...\n');
+    end
             
     % -- filter the signal to get rid of harmonics:
     % cut off frequency:
@@ -272,7 +297,9 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
     
     
     % --- resampling 2: phase synchronization:
-    fprintf('Synchronizing phase...\n');
+    if calcset.verbose
+        fprintf('Synchronizing phase...\n');
+    end
         
     % get sampling times per periods:
     Tsx = tx(per_mid+1) - tx(per_mid);
@@ -360,7 +387,9 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
 
 
     % --- calculation of the rms values
-    fprintf('Calculating rms...\n');
+    if calcset.verbose
+        fprintf('Calculating rms...\n');
+    end
         
     mode = 1;
     if mode == 1
@@ -377,7 +406,7 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
             a = (k-1)*N1T/SP + 1;
             b = a + NP*N1T - 1;
             yxr = reshape(yxp(a:b),[N1T NP]);
-            env_rms(k,:) = mean(yxr,1).^0.5; 
+            env_rms(k,:) = mean(yxr,1).^0.5;
         end
         % restore linear order:
         env_rms = env_rms(:);        
@@ -407,96 +436,205 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
     end
     
     
+    % --- Uncertainty estimation ---
+    if strcmpi(calcset.unc,'guf')
     
+        if calcset.verbose
+            fprintf('Calculating uncertainty...\n');
+        end
+                  
     
-    
-    % -- maximum rms error vs freq. syncronization error:
-    % maximum relative deviation of sampling rate for each period:
-    %  note: worst case etimate from many tests under heavily distorted signals
-    df = 0.2/2/pi/N1T;
-    % Formula from:
-    % XIX IMEKO World Congress, Fundamental and Applied Metrology, September 6-11, 2009, Lisbon, Portugal
-    % ACCURACY ANALYSIS OF VOLTAGE DIP MEASUREMENT, Daniele Gallo, Carmine Landi, Mario Luiso
-    % Note: it was validated by monte-carlo just in case...       
-    % N = 10000;    
-    % mcc = 1000;    
-    % df = 1/100;
-    % dp = 0.00;
-    % tw(:,1) = [0:N-1]/N*2*pi;        
-    % rmsx = mean(sin(tw.*(1 + (2*rand(1,mcc)-1)*df) + (2*rand(1,mcc)-1)*dp).^2,1).^0.5;
-    % drms = rmsx - 2^-0.5;
-    % u_rms_coh = max(abs(drms))*2^-0.5/3^0.5
-    u_rms_coh_rel = (0.5*df/(1+df))/3^0.5;
-       
-    % -- spectrum analysis: 
+        % -- spectrum analysis:
         
-    [fh, amp] = ampphspectrum(yx, fsx, 0, 0, 'flattop_248D', [], 0);
-    d_fh = fh(2) - fh(1);
-    
-    % window half-width:
-    w_size = 11;
-    
-    % -- look for and remove harmonics:
-    % note: exact harmonics should not affect rms calculation at all
+        w = window_coeff('flattop_248D', N, 'periodic'); w = w(:);
+        W_gain = mean(w);
+        W_rms = mean(w.^2)^0.5;
+            
+        [fh, amp] = ampphspectrum(yx, fsx, 0, 0, 'flattop_248D', [], 0);
+        fh = fh(:);
+        amp(1) = 0.5*amp(1); % ###todo: fixing FFT DC error, to be removed when implemented in ampphspectrum()
+            
         
-    % fundamental component:
-    [v,f0id] = min(abs(f0_avg - fh));
+        % relative tfer of the signal path:
+        gain_f = cfg.corr.gain.f;
+        gain   = cfg.corr.gain.gain;
+        gain_u = cfg.corr.gain.unc;    
+        % interpolate tfer to analysed DFT bins:
+        gain   = interp1(gain_f,gain,fh,'pchip','extrap');
+        gain_u = interp1(gain_f,gain_u,fh,'pchip','extrap');
+        
+        % rms estimate:    
+        rms_orig = rmswfft(amp,W_gain,W_rms);
+        % rms with correction to the actual input tfer:
+        rms_fixed = rmswfft(gain.*amp,W_gain,W_rms);
+        % rms_fixed with worst case uncertainty:
+        rms_max = rmswfft((gain + 3*gain_u).*amp,W_gain,W_rms);
+        
+        % total corrections induced max. error:    
+        u_rms_corr = abs(rms_max - rms_orig);
+           
+        % fix spectrum to match the actual freq. tfer (with worst case uncertainty):
+        amp = amp.*(gain + 3*gain_u);
+         
+        
+        % window half-width:
+        w_size = 11;
+        
+        % -- look for and remove harmonics:
+        % note: exact harmonics should not affect rms calculation at all, so we just remove those from calculation
     
-    % expected harmonics:    
-    fhx = f0_avg:f0_avg:max(fh);
+        % fundamental component:
+        [v,f0id] = min(abs(f0_avg - fh));
+        
+        % expected harmonics:    
+        fhx = f0_avg:f0_avg:max(fh);
+        
+        % mask all harmonics:
+        msk = [max(w_size,floor(0.1*f0id)):numel(fh)];        
+        h_list = [];
+        for k = 1:numel(fhx)
+            [v,fid] = min(abs(fhx(k) - fh));
+            h_list(end+1) = fid;
+            h_bins = [(fid - w_size):(fid + w_size)];
+            % remove harmonic bins from remaining list:
+            msk = setdiff(msk,h_bins);            
+        end
+        h_msk = msk(msk <= N & msk > 0);
+        % at this point spectrum should contain only non-harmonic content...
+            
+        
+        % -- look for interhamonics:
+        % note: these affect the rms since they are not coherent with the window
+        
+        % max. analyzed components:
+        h_max = 100;
+        
+        % identify harmonic/interharmonic components:
+        ih_list = [];
+        for h = 1:h_max
+            
+            % look for highest harmonic:
+            [v,id] = max(amp(msk));        
+            hid = msk(id);
+            
+            % found harmonics list:
+            ih_list(h) = hid;
+            
+            % DFT bins occupied by the harmonic
+            h_bins = max((msk(id) - w_size),1):min(msk(id) + w_size,N);
+            
+            % remove harmonic bins from remaining list:
+            msk = setdiff(msk,h_bins);
+            msk = msk(msk <= N & msk > 0);        
+        end
+        % at this point spectrum should contain only noise...
+        
+        if calcset.dbg_plots
+            figure
+            loglog(fh,amp)
+            hold on;
+            loglog(fh(h_msk),amp(h_msk),'r')
+            loglog(fh(msk),amp(msk),'k')
+            hold off;
+            title('Spectrum analysis');
+        end
+        
+        
+        % -- maximum rms error vs freq. syncronization error:
+        % maximum relative deviation of sampling rate for each period:
+        %  note: worst case etimate from many tests under heavily distorted signals
+        df = 0.3/2/pi/N1T;
+        
+        % DFT in step 
+        d_fh = fh(2)-fh(1);
+        
+        % monte carlo cycles:
+        F = 200;
+        
+        % hamonics list to simulate
+        ih_per = [1, (fh(ih_list)/f0_avg).'];
+        ih_amp = [amp(f0id), amp(ih_list).'];
+        
+        % randomizing frequencies:
+        d_fh = repmat(d_fh,size(ih_per));
+        d_fh(1) = df;   
+        
+        wt = [0:N1T-1].'/N1T.*2*pi;
+        for k = 1:F
+            wts = wt.*(ih_per + (2*rand(1,numel(ih_per)) - 1).*d_fh) + rand(1,numel(ih_per))*2*pi;
+            sim = sum(ih_amp.*sin(wts),2); 
+            rms_mc(k) = mean(sim.^2)^0.5;
+        end
+        
+        % estiamte of worst case rms error due to interharmonics/harmonics:
+        ih_unc_med = median(rms_mc);
+        %ih_unc = (max(rms_mc) - min(rms_mc))*1.0
+        ih_unc = max(abs(max(rms_mc) - median(rms_mc)),abs(min(rms_mc) - median(rms_mc)));
+        
+        
+        % extension of the rms based on the event depth:
+        % this is necessary because we do the analysis for mean rms condition
+        rms_ext = (env_rms/ih_unc_med);
+        
+        % expand the uncertainty +- 2 cycles to sides to cover the transitions
+        exp_size = ceil(0.5*SP);
+        for k = 1:exp_size
+            rms_ext = max([[rms_ext(2:end);0],[0;rms_ext(1:end-1)]],[],2);
+        end        
+        
+%         figure
+%         plot(env_rms/ih_unc_med)
+%         hold on;
+%         plot(rms_ext,'r');
+%         hold off;    
+        
+        % -- estimate SFDR effect:
+        % max harmonics count:
+        h_count = (0.5*fsx)/f0_avg - 1;
+            
+        % absolute SFDR induced rms: 
+        u_rms_sfdr = (h_count*(amp(f0id)*10^-(cfg.corr.sfdr/20))^2)^0.5;
+                       
     
-    % mask all harmonics:
-    msk = [max(w_size,floor(0.1*f0id)):numel(fh)];        
-    for k = 1:numel(fhx)
-        [v,fid] = min(abs(fhx(k) - fh));
-        h_bins = [(fid - w_size):(fid + w_size)];
-        % remove harmonic bins from remaining list:
-        msk = setdiff(msk,h_bins);            
+        % -- total uncertainty:
+        % total measured rms envelope uncertainty (without interharmonic caused noise):
+        u_env_rms = (u_rms_corr + u_rms_sfdr + ih_unc)*rms_ext;     
+        
+        
+        
+        % -- time samples uncertainty:
+        % time uncertainty from the resampling algorithm:
+        u_tx = df/f0_avg/3^0.5;
+        
+        % combined time uncertainty:
+        u_tw = (u_tx^2 + u_t0^2)^0.5; % (inernal)
+        
+        % expand to desired level of confidence:
+        ke = loc2covg(calcset.loc,50);        
+        u_tx = u_tw*ke; % (to return)
+        
+    else        
+        % no uncertainty mode:
+        
+        u_env_rms = zeros(size(env_rms));
+        u_tw = 0;
+        u_tx = 0;
+                    
     end
-    h_msk = msk(msk <= N & msk > 0);
-    % at this point spectrum should contain only non-harmonic content...
-        
     
-    % -- look for interhamonics:
+    % generate time samples uncertainty:
+    u_tx = repmat(u_tx,size(tx));
     
-    % max. analyzed components:
-    h_max = 100;
+    % return rms envelope
+    dout.t.v   = tx;
+    dout.t.u   = u_tx;
+    dout.rms.v = env_rms;
+    dout.rms.u = u_env_rms*calcset.loc;
     
-    % identify harmonic/interharmonic components:
-    h_list = [];
-    for h = 1:h_max
-        
-        % look for highest harmonic:
-        [v,id] = max(amp(msk));        
-        hid = msk(id);
-        
-        % found harmonics list:
-        h_list(h) = hid;
-        
-        % DFT bins occupied by the harmonic
-        h_bins = max((msk(id) - w_size),1):min(msk(id) + w_size,N);
-        
-        % remove harmonic bins from remaining list:
-        msk = setdiff(msk,h_bins);
-        msk = msk(msk <= N & msk > 0);        
+    
+    if calcset.verbose
+        fprintf('Detecting events...\n');
     end
-    % at this point spectrum should contain only noise...
-    
-    if calcset.dbg_plots
-        figure
-        loglog(fh,amp)
-        hold on;
-        loglog(fh(h_msk),amp(h_msk),'r')
-        loglog(fh(msk),amp(msk),'k')
-        hold off;
-        title('Spectrum analysis');
-    end
-    
-      
-        
-       
-    
-    fprintf('Detecting events...\n');
                
     % define event setups:
     event_list{1}.tr_start   = cfg.nom_rms*0.01*(cfg.ev.sag_tres);
@@ -513,24 +651,47 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
     event_list{3}.tr_stop    = cfg.nom_rms*0.01*(cfg.ev.int_tres + cfg.ev.hyst);
     event_list{3}.name       = 'interruption';
     event_list{3}.qu_name    = 'int';
-        
+          
     
     % -- for each event:
     for k = 1:numel(event_list)
     
         % get event definition:
         ev = event_list{k};
+        
+        % expand the rms envelope uncertainty to 'worst case':
+        u_env_rms_det = u_env_rms; 
     
         % detect event:
-        [t_start,t_dur,rms_xtr,found] = env_event_detect(env_time,env_rms,[],[ev.tr_start, ev.tr_stop],cfg.mode == 'S');
+        [t_start,t_dur,rms_xtr,found,u_start,u_dur,u_rms_xtr] = env_event_detect(env_time,env_rms,u_env_rms_det,[ev.tr_start, ev.tr_stop],cfg.mode == 'S');
+        
+        % worst case time error of each sample:
+        u_tev = u_tw*2;
+        % add time uncertainty to the event times:
+        u_start = u_start + u_tev;
+        u_dur = u_dur + u_tev;
+                
+        % minimum detector. error:
+        u_start   = max(u_start,0.5/f0_avg)*calcset.loc/0.95;
+        u_dur     = max(u_dur,1.0/f0_avg)*calcset.loc/0.95;
+        u_rms_xtr = u_rms_xtr*calcset.loc/0.95;
+        
+        if strcmpi(calcset.unc,'none')
+            % clear uncertainty if it's disbaled:
+            u_start = 0;
+            u_dur = 0;
+            u_rms_xtr = 0;
+        end
+        
         
         % residual ratio to nominal:
-        resid = 100*rms_xtr/cfg.nom_rms;        
+        resid = 100*rms_xtr/cfg.nom_rms;
+        u_resid = 100*u_rms_xtr/cfg.nom_rms;
         
         % store results:
-        dout = setfield(dout, [ev.qu_name '_start'], struct('v',t_start,'u',1/f0_avg));
-        dout = setfield(dout, [ev.qu_name '_dur'], struct('v',t_dur,'u',1/f0_avg));
-        dout = setfield(dout, [ev.qu_name '_res'], struct('v',resid,'u',0.002*resid));
+        dout = setfield(dout, [ev.qu_name '_start'], struct('v',t_start,'u',u_start));
+        dout = setfield(dout, [ev.qu_name '_dur'], struct('v',t_dur,'u',u_dur));
+        dout = setfield(dout, [ev.qu_name '_res'], struct('v',resid,'u',u_resid));
                 
         if cfg.do_plots
             % plot basic rms and tresholds:    
@@ -542,7 +703,7 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
             plot([env_time(1),env_time(end)],[1 1]*ev.tr_stop,'r--')
             
             ylim_tmp = ylim();
-            ylim_tmp(1) = 0;  
+            ylim_tmp(1) = 0;               
             
             if found
             
@@ -577,6 +738,14 @@ function [t,rms,dout] = hcrms_calc_pq(dout,t0,fs,y,cfg,calcset)
         
     end
     
+    
+    
+end
+
+
+% rms level from windowed normalized FFT half-spectrum (positive freqs. only):
+function [rms] = rmswfft(y,w_gain,w_rms)
+    rms = sum(0.5*y.^2)^0.5*w_gain/w_rms;
 end
 
 

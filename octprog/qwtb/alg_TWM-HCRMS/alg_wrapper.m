@@ -107,6 +107,7 @@ function dataout = alg_wrapper(datain, calcset)
     
     % fix timebase error:
     tb_corr = (1 + datain.adc_freq.v);
+    u_tb_corr = datain.adc_freq.u;
     fs = fs/tb_corr;
     
     % get signal:
@@ -119,8 +120,17 @@ function dataout = alg_wrapper(datain, calcset)
     % --- apply gain corrections
     fprintf('Scaling signal...\n');
     
-    % remove DC offset error:
+    % remove digitizer DC offset error:
     y = y - datain.adc_offset.v;
+    
+    % average dc over the signal:    
+    w = blackmanharris(N,'periodic');
+    w = w(:);
+    dc = mean(w.*y)/mean(w);
+    
+    % remove DC temporarily from the signal:
+    y = y - dc;   
+       
         
     % get initial guess of main component frequency:
     if isnan(nom_f)
@@ -130,81 +140,117 @@ function dataout = alg_wrapper(datain, calcset)
         f0_est = nom_f;
     end
     
+    % create virtual list of frequencies including the nominal freq.:
+    fh(:,1) = [0 logspace(log10(1),log10(0.5*fs),999) f0_est];
+    [fh,fid] = sort(fh);
+    % index of the f0_estiamte component:
+    fid = find(fid == numel(fh));
+    
+    % -- now we will evaluate corrections for all the virtual frequencies
+    
     % get digitizer gain/phase correction (independent to amplitude): 
-    ag = correction_interp_table(tab.adc_gain, [], f0_est);
-    ap = correction_interp_table(tab.adc_phi, [], f0_est);
+    ag = correction_interp_table(tab.adc_gain, [], fh);
+    ap = correction_interp_table(tab.adc_phi, [], fh);   
     % combine tfers for all amplitudes to mean amplitude, expand uncertainty: 
-    g         = nanmean(ag.gain);
-    ag.u_gain = (max(ag.u_gain).^2/3 + max([nanmax(ag.gain) - g;g - nanmin(ag.gain)])^2/3).^0.5;
+    g         = nanmean(ag.gain,2);
+    ag.u_gain = (max(ag.u_gain,[],2).^2/3 + max([max(ag.gain,[],2) - g,g - min(ag.gain,[],2)],[],2).^2/3).^0.5;
     ag.gain   = g; 
-    p        = nanmean(ap.phi);
-    ap.u_phi = (max(ap.u_phi).^2/3 + max([nanmax(ap.phi) - p;p - nanmin(ap.phi)])^2/3).^0.5;
+    p        = nanmean(ap.phi,2);
+    ap.u_phi = (max(ap.u_phi,[],2).^2/3 + max([max(ap.phi,[],2) - p,p - min(ap.phi,[],2)],[],2).^2/3).^0.5;
     ap.phi   = p;
         
-    % apply aperture:
+    % apply aperture effect:
     ta = datain.adc_aper.v;
     if abs(ta) > 1e-12 && datain.adc_aper_corr.v
         % calculate aperture gain/phase correction (for f0):
-        ap_gain = (pi*ta*f0_est)./sin(pi*ta*f0_est);
-        ap_phi  =  pi*ta*f0_est;
+        ap_gain = (pi*ta*fh)./sin(pi*ta*fh);
+        ap_phi  =  pi*ta*fh;
+        ap_gain(isnan(ap_gain)) = 1.0; % DC fix
         % combine with ADC tfer:
-        ag.gain = ag.gain*ap_gain;
-        ag.u_gain = ag.u_gain*ap_gain;
+        ag.gain = ag.gain.*ap_gain;
+        ag.u_gain = ag.u_gain.*ap_gain;
         ap.phi = ap.phi + ap_phi;
     end
     
-    % apply digitizer gain:
-    y = y*ag.gain;
-    
-    % average rms over the signal:    
-    %w = blackmanharris(N,'periodic');
-    %w = w(:);
-    %W = mean(w.^2)^-0.5;
-    %rms = W*mean(0.5*(w.*y).^2)^0.5
         
     if isempty(datain.tr_type.v)
         % no transducer defined - apply plain tfer:
                 
         % get transducer tfer (independent of rms):
-        trg = correction_interp_table(tab.tr_gain, [], f0_est);
-        trp = correction_interp_table(tab.tr_phi, [], f0_est);
+        trg = correction_interp_table(tab.tr_gain, [], fh);
+        trp = correction_interp_table(tab.tr_phi, [], fh);
         % combine tfers for all rms levels to find the worst case uncertainty: 
-        g          = nanmean(trg);
-        trg.u_gain = (max(trg.u_gain).^2/3 + max([nanmax(trg.gain) - g;g - nanmin(trg.gain)])^2/3).^0.5;
+        g          = nanmean(trg.gain,2);
+        trg.u_gain = (max(trg.u_gain,[],2).^2/3 + max([max(trg.gain,[],2) - g,g - min(trg.gain,[],2)],[],2).^2/3).^0.5;
         trg.gain   = g; 
-        trp       = nanmean(trp.phi);
-        trp.u_phi = (max(trp.u_phi).^2/3 + max([nanmax(trp.phi) - p;p - nanmin(trp.phi)])^2/3).^0.5;
+        trp       = nanmean(trp.phi,2);
+        trp.u_phi = (max(trp.u_phi,[],2).^2/3 + max([nanmax(trp.phi,[],2) - p;p - nanmin(trp.phi,[],2)],[],2).^2/3).^0.5;
         trp.phi   = p;
                 
     else 
         % tran. type defined:       
         
-        % calculate transducer transfer + loading effect: 
-        [gain,phi,u_gain,u_phi] = correction_transducer_loading(tab,datain.tr_type.v,f0_est,[], 1,0,0,0);
+        % calculate transducer transfer + loading effect:
+        An = ones(size(fh)); 
+        [gain,phi,u_gain,u_phi] = correction_transducer_loading(tab,datain.tr_type.v,fh,[], An,0,0,0);
         
         % get transducer tfer (independent of rms):
-        trg = correction_interp_table(tab.tr_gain, [], f0_est);
-        trp = correction_interp_table(tab.tr_phi, [], f0_est);
+        trg = correction_interp_table(tab.tr_gain, [], fh);
+        trp = correction_interp_table(tab.tr_phi, [], fh);
         % combine tfers for all rms levels to find the worst case uncertainty: 
-        trg.u_gain = (max(trg.u_gain).^2/3 + max([nanmax(trg.gain) - gain;gain - nanmin(trg.gain)])^2/3).^0.5;
+        trg.u_gain = (max(trg.u_gain,[],2).^2/3 + max([max(trg.gain,[],2) - gain,gain - min(trg.gain,[],2)],[],2).^2/3).^0.5;
         trg.gain   = gain; 
-        trp.u_phi = (max(trp.u_phi).^2/3 + max([nanmax(trp.phi) - phi;phi - nanmin(trp.phi)])^2/3).^0.5;
+        trp.u_phi = (max(trp.u_phi,[],2).^2/3 + max([max(trp.phi,[],2) - phi,phi - min(trp.phi,[],2)],[],2).^2/3).^0.5;
         trp.phi   = phi;
                
     end
     
-    % apply transdcuer gain:
-    y = y*trg.gain;
+    % combine gain/phase:
+    trg.gain = trg.gain.*ag.gain;
+    trg.u_gain = ((trg.u_gain.*ag.gain).^2 + (ag.u_gain.*trg.gain).^2).^0.5;
+    trp.phi = trp.phi + ap.phi;
+    trp.u_phi = (trp.u_phi.^2 + ap.u_phi.^2).^0.5;
+        
+    % --  apply the tfer:
+    % note: apply only tfer based on the f0 component
     
-           
-    % ###TODO: phase and time shifts
+    % get tfer for the f0_estimate:
+    f0_gain = trg.gain(fid);
+    f0_gain_u = trg.u_gain(fid);
+    f0_phi = trp.phi(fid);
+    f0_phi_u = trp.u_phi(fid);
+            
+    % apply gain tfer:
+    y = y*f0_gain;
+    
+    % get dc gain:
+    dc_gain = trg.gain(1);
+    
+    % apply dc gain and return DC offset back to the signal:
+    y = y + dc*dc_gain;
+    
     
     % time shift due to the signal path correction:
-    dt_corr = (ap.phi + trp.phi)/2/pi/f0_est;
+    dt_corr   = f0_phi/2/pi/f0_est;
+    u_dt_corr = f0_phi_u/2/pi/f0_est;
     
     % time stamp of first sample:
     ts = dt_corr + datain.time_stamp.v*tb_corr;
-     
+    u_ts = u_dt_corr + datain.time_stamp.u*tb_corr;
+          
+    % calculate relative gain of frequency components to the f0 gain:
+    gain = trg.gain/f0_gain;
+    gain_u = trg.u_gain/f0_gain;
+    gain_u = (gain_u.^2 + f0_gain_u^2).^0.5;
+    
+    
+    % get combined SFDR of digitizer and transducer:
+    adc_sfdr = correction_interp_table(tab.adc_sfdr, [], f0_est);
+    tr_sfdr  = correction_interp_table(tab.tr_sfdr, [], f0_est);    
+    adc_sfdr = max(adc_sfdr.sfdr);
+    tr_sfdr = max(tr_sfdr.sfdr);    
+    sfdr = -20*log10(10^-(adc_sfdr/20) + 10^-(tr_sfdr/20));
+            
       
     cfg.f0_est = f0_est;
     cfg.nom_f = nom_f;
@@ -215,15 +261,29 @@ function dataout = alg_wrapper(datain, calcset)
     cfg.ev.sag_tres = sag_tres;
     cfg.ev.swell_tres = swell_tres;
     cfg.ev.int_tres = int_tres;
-    
+    cfg.corr.gain.f = fh;
+    cfg.corr.gain.gain = gain;
+    cfg.corr.gain.unc = u_gain;
+    cfg.corr.sfdr = sfdr;
+        
     % generate empty results:
     dataout = struct();
+
+    % calculate rms envelope, detect events:    
+    [t,u_t,rms,u_rms,dataout] = hcrms_calc_pq(dataout,ts,u_ts,fs,y,cfg,calcset);
     
+    % apply time scale uncertainty to the correction data:
+    u_tb_corr = t*u_tb_corr*loc2covg(calcset.loc,50);       
+    dataout.t.u = (dataout.t.u.^2 + u_tb_corr.^2).^0.5;
     
+    % apply time scale uncertainty to the event times:
+    dataout.sag_start.u = dataout.sag_start.u + interp1(t,u_tb_corr,dataout.sag_start.v,'linear','extrap');
+    dataout.sag_dur.u   = dataout.sag_dur.u   + interp1(t,u_tb_corr,dataout.sag_start.v + 0.5*dataout.sag_dur.v,'linear','extrap');
+    dataout.swell_start.u = dataout.swell_start.u + interp1(t,u_tb_corr,dataout.swell_start.v,'linear','extrap');
+    dataout.swell_dur.u   = dataout.swell_dur.u   + interp1(t,u_tb_corr,dataout.swell_start.v + 0.5*dataout.swell_dur.v,'linear','extrap');
+    dataout.int_start.u = dataout.int_start.u + interp1(t,u_tb_corr,dataout.int_start.v,'linear','extrap');
+    dataout.int_dur.u   = dataout.int_dur.u   + interp1(t,u_tb_corr,dataout.int_start.v + 0.5*dataout.int_dur.v,'linear','extrap');
     
-    [t,rms,dataout] = hcrms_calc_pq(dataout,ts,fs,y,cfg,calcset);
-            
-      
            
     
     % --- returning results ---    

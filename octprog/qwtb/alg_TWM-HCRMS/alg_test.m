@@ -3,6 +3,14 @@ function alg_test(calcset) %<<<1
 %
 % See also qwtb
 
+    
+    % calculation setup:
+    calcset.verbose = 1;
+    calcset.unc = 'guf';
+    calcset.loc = 0.95;
+    calcset.dbg_plots = 0;
+    
+    
     % total simulation time [s]:
     sim_time = 6; 
     
@@ -23,7 +31,7 @@ function alg_test(calcset) %<<<1
     
     
     % event duration [s]:
-    ev_time = 0.050;
+    ev_time = 0.05;
     % event start time [s]:    
     ev_start = 0.8;
     % event magnitude [%]:
@@ -41,11 +49,15 @@ function alg_test(calcset) %<<<1
     f0_drift = 0.0;
     
     % sfdr of harmonics [-]:
-    h_sfdr = 0.05;
-    % randomize spurr frequencies by +-[f0]:
-    h_sfdr_frnd = 0.0;
+    h_sfdr = 0.1;    
     % limit harmonics count:
     h_lim = 10;
+    
+    % sfdr of inter-harmonics [-]:
+    ih_sfdr = 0.001;
+    % relative interharm. freq positions, e.g. 2.5 means between 2nd and 3rd harmonic:     
+    ih_freqs = [1.8];
+     
             
     % rms level to generate:
     nom_rms = 230.0;
@@ -72,13 +84,10 @@ function alg_test(calcset) %<<<1
     din.swell_tres.v = 110;
     din.int_tres.v = 10;
 
-    
-    
-    
         
             
     % dc offset:
-    dc = 0.0;
+    dc = 5.0;
                
     % ADC rms noise level:
     adc_std_noise = 10e-6;
@@ -96,7 +105,7 @@ function alg_test(calcset) %<<<1
     
     % timebase frequency correction: 
     din.adc_freq.v = 1e-6;
-    din.adc_freq.u = 10e-9;
+    din.adc_freq.u = 100e-9;
     
     
     % generate some time-stamp of the digitizer channel:
@@ -201,7 +210,8 @@ function alg_test(calcset) %<<<1
     ctw = cumsum(ctw);
     
     % generate fundamental component:
-    u = A0*sin(ctw + ph0);
+    A0g = (0.5*A0^2 - dc^2)^0.5*2^0.5;
+    u = A0g*sin(ctw + ph0);
         
         
     % --- parameter finetunnig:
@@ -216,15 +226,17 @@ function alg_test(calcset) %<<<1
     ev_time_i = ev_time;
     ev_mag_i = ev_mag;
     it = 0;
+    ev_mag_dc_gain = sqrt(2*(0.01*ev_mag_i)^2*dc^2-2*dc^2+A0g^2*(0.01*ev_mag_i)^2)/A0g/(ev_mag_i*0.01);    
     while true
-        
+                
         % event time:
         env = ones(size(t));    
         ev_msk = (t >= ev_start_i) & t <= (ev_start_i + ev_time_i);
         % event magnitude:
-        env(ev_msk) = 0.01*ev_mag_i;
+        env(ev_msk) = ev_mag_dc_gain*ev_mag_i*0.01;
         % apply event envelope to signal:
         ux = u.*env;
+                   
         
         % desired samples per period:
         SP = 120;
@@ -279,7 +291,8 @@ function alg_test(calcset) %<<<1
         R = numel(rms);    
         t_rms = tx(SS*[0:R-1]' + SP/2);
         
-        %plot(t_rms,rms)
+        % add DC to rms:
+        rms = (rms.^2 + dc^2).^0.5;
             
         if ev_mag < din.sag_tres.v
             % sag is reference:
@@ -357,29 +370,37 @@ function alg_test(calcset) %<<<1
     % generate higher harmonics:
     f_sp(:,1) = [(2*f0):f0:0.45*fs];
     f_sp = f_sp(1:min(h_lim,numel(f_sp)));
-    % randomize harmonics frequencies:
-    f_sp = f_sp + (2*rand(size(f_sp))-1)*h_sfdr_frnd*f0;
     
-    % generate spurrs:
+    % - generate interharmonics:
+    % possible harmonics:
+    f_spi(:,1) = ih_freqs(:)*f0;        
+        
+    % generate spurrs from the harmonics and interharm.:
     A_sp = A0*h_sfdr*rand(size(f_sp));
     ph_sp = rand(size(f_sp))*2*pi;
+    A_spi = A0*ih_sfdr;%*rand(size(f_spi)); % generate full amplitude always!
+    ph_spi = rand(size(f_spi))*2*pi;
     
     % build full harmonics list:
-    fx = [f0;f_sp];
-    A =  [A0;A_sp];
-    ph = [ph0;ph_sp];
+    fx = [f0;f_sp;f_spi];
+    A =  [A0;A_sp;A_spi];
+    ph = [ph0;ph_sp;ph_spi];
     
-    % actual rms of generated signal:
-    rms_x = sum(0.5*A.^2)^0.5;
-    
-    % fix amplitudes so the actual rms level matches nominal one:
-    A = A*nom_rms/rms_x;
-        
     % add virtual harmonic with DC component:
     %  ###todo: this should maybe be placed before rms level correction but need to decide if DC is part of the sag/swell rms values???
     fx = [fx;1e-12];
     A  = [A;dc];
     ph = [ph;pi/2];
+    
+    % actual rms of generated signal:
+    rms_x = sum(0.5*A(1:end-1).^2)^0.5;
+    
+    % fix amplitudes so the actual rms level matches nominal one:
+    A(1:end-1) = A(1:end-1)*(nom_rms^2 - dc^2)^0.5/rms_x;
+    
+    
+    
+    
     
     
     
@@ -421,6 +442,7 @@ function alg_test(calcset) %<<<1
         tsh(1) = 0; % none for single-ended mode
         % ADC offset:
         adc_ofs(1) = din.adc_offset;
+        
     end
             
     % get ADC aperture value [s]:
@@ -429,6 +451,7 @@ function alg_test(calcset) %<<<1
     % calculate aperture gain/phase correction:
     ap_gain = sin(pi*ta*fx)./(pi*ta*fx);
     ap_phi  = -pi*ta*fx;
+    ap_gain(end) = 1; % DC
     
     
     % --- signal parameters fine tuning iteration loop:
@@ -520,10 +543,10 @@ function alg_test(calcset) %<<<1
         % asign event samples: 
         t = t/2/pi;
         ev_msk = (t >= (ev_start + dpt)) & t <= ((ev_start + dpt) + ev_time);
-        
+     
         % generate event envelope:
         env = ones(size(t));
-        env(ev_msk) = env(ev_msk)*ev_mag*0.01;
+        env(ev_msk) = env(ev_msk)*ev_mag*0.01*ev_mag_dc_gain;
         
         % apply envelope:
         u = u.*env;   
@@ -553,17 +576,35 @@ function alg_test(calcset) %<<<1
     datain = qwtb_add_unc(datain,alginf.inputs);
         
 
-    % --- execute the algorithm:
-    calcset = struct();
-    calcset.dbg_plots = 0;
-    calcset.unc = 'none';
+    % --- execute the algorithm:    
     dout = qwtb('TWM-HCRMS',datain,calcset);
     
     
+    % expand uncertainty of the results:
+    %  ###todo: to be removed when algs. support internal expansion... 
+%     names = fieldnames(dout);
+%     for k = 1:numel(names)
+%         qu = getfield(dout,names{k});
+%         qu.u = qu.u*2;
+%         dout = setfield(dout,names{k},qu);
+%     end
+
+    % generate some min. uncertainty when none calculated just for display:
+    if strcmpi(calcset.unc,'none')
+        dout.sag_start.u = 0.001;
+        dout.swell_start.u = 0.001;
+        dout.int_start.u = 0.001;
+        dout.sag_dur.u = 0.001;
+        dout.swell_dur.u = 0.001;
+        dout.int_dur.u = 0.001;
+        dout.sag_res.u = 0.001;
+        dout.swell_res.u = 0.001;
+        dout.int_res.u = 0.001;
+    end
     
     events = {'Sag','Swell','Interuption'};
     
-    names  = {'start','duration','residual'}; 
+    names  = {'start','duration','residual'};
     
     dut = [dout.sag_start dout.swell_start dout.int_start;
            dout.sag_dur   dout.swell_dur   dout.int_dur;
@@ -573,6 +614,8 @@ function alg_test(calcset) %<<<1
            ref.sag.dur ref.swell.dur ref.int.dur;
            ref.sag.res ref.swell.res ref.int.res];
     
+    
+    has_unc = ~strcmpi(calcset.unc,'none');
     
     fprintf('\n');
     for e = 1:numel(events)
@@ -603,7 +646,7 @@ function alg_test(calcset) %<<<1
                 du = 'NaN';
             end
             
-            if ~isnan(dev)
+            if ~isnan(dev) && has_unc
                 [ss,ev] = unc2str(dev,dut(k,e).u);
                 pp = abs(dev/dut(k,e).u)*100;                
             else
@@ -621,9 +664,18 @@ function alg_test(calcset) %<<<1
     
 end
 
+function [rnd] = linrand(A_min,A_max,N)
+    if nargin < 3
+        N = [1 1];
+    end
+    rnd = rand(N)*(A_max - A_min) + A_min;
+end
 
-function [rnd] = logrand(A_min,A_max)
-    rnd = 10.^(log10(A_min) + (log10(A_max) - log10(A_min))*rand());
+function [rnd] = logrand(A_min,A_max,sz)
+    if nargin < 3
+        sz = [1 1];
+    end
+    rnd = 10.^(log10(A_min) + (log10(A_max) - log10(A_min))*rand(sz));
 end
 
 

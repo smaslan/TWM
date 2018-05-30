@@ -526,7 +526,7 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     
-    alginfo.providesGUF = 0;
+    alginfo.providesGUF = 1;
     alginfo.providesMCM = 0;
 
 end
