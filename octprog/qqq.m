@@ -18,7 +18,7 @@ addpath([mfld filesep() 'qwtb']);
 %qwtb('TWM-PWRTDI','test')
 qwtb('TWM-HCRMS','test')
 
-%twm_selftest
+twm_selftest
 
 return
 

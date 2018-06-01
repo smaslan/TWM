@@ -303,15 +303,18 @@ function dataout = alg_wrapper(datain, calcset)
             % note: the corrections is relative correction to the difference of digitizer voltages (y - y_lo)
             % note: using window gain so the rms of signal is correct
             % high-side:            
-              Y  = vc.Y.*exp(j*vc.ph)*w_gain;
+              Y  = vc.Y.*exp(j*vc.ph);
             u_Y  = vc.Y.*(ag.u_gain./ag.gain);
             u_ph = ap.u_phi;
             % low-side:
-              Y_lo  = vc.Y_lo.*exp(j*vc.ph_lo)*w_gain;
+              Y_lo  = vc.Y_lo.*exp(j*vc.ph_lo);
             u_Y_lo  = vc.Y.*(agl.u_gain./agl.gain);
             u_ph_lo = apl.u_phi;
+            % estimate digitizer input rms level:
+            dA = abs(Y - Y_lo);
+            rms_ref = sum(0.5*dA.^2).^0.5*w_gain/w_rms;            
             % calculate transducer tfer:
-            [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo);
+            [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo, 'rms',rms_ref);
             % store relative tfer:
             %vc.tr_gain = trg./abs(Y - Y_lo);
             %vc.tr_phi  = trp - angle(Y - Y_lo);
@@ -343,12 +346,15 @@ function dataout = alg_wrapper(datain, calcset)
         else
             % -- single-ended mode:
             
+            % estimate digitizer input rms level:
+            rms_ref = sum(0.5*vc.Y.^2).^0.5*w_gain/w_rms;
+            
             % estimate transducer correction tfer from the spectrum estimate:            
             zz = zeros(size(vc.Y));
-            Y = vc.Y*w_gain;
+            Y = vc.Y;
             u_Y = Y.*(ag.u_gain./ag.gain);
             u_ph = ap.u_phi;
-            [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh,[], Y,zz,u_Y,u_ph);
+            [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh,[], Y,zz,u_Y,u_ph, 'rms',rms_ref);
             Y = max(Y,eps); % to prevent div-by-zero
             trg = trg./Y;
             u_trg = u_trg./Y;
