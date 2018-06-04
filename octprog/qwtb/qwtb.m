@@ -440,6 +440,7 @@ function calcset = get_standard_calcset() %<<<1
     calcset.strict = 0;
     calcset.verbose = 1;
     calcset.unc = 'none';
+    calcset.loc = 0.6807;
     calcset.cor.req = 0;
     calcset.cor.gen = 1;
     calcset.dof.req = 0;

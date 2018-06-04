@@ -846,19 +846,22 @@ function dataout = alg_wrapper(datain, calcset)
     
     % --- return quantities to QWTB:
     
+    % calc. coverage factor:
+    ke = loc2covg(calcset.loc,50);
+    
     % power parameters:
     dataout.U.v = U;
-    dataout.U.u = u_U;
+    dataout.U.u = u_U*ke;
     dataout.I.v = I;
-    dataout.I.u = u_I;
+    dataout.I.u = u_I*ke;
     dataout.P.v = P;
-    dataout.P.u = u_P;
+    dataout.P.u = u_P*ke;
     dataout.S.v = S;
-    dataout.S.u = u_S;
+    dataout.S.u = u_S*ke;
     dataout.Q.v = Q;
-    dataout.Q.u = u_Q;
+    dataout.Q.u = u_Q*ke;
     dataout.PF.v = PF;
-    dataout.PF.u = u_PF;
+    dataout.PF.u = u_PF*ke;
     
     % return spectra of the corrected waveforms:   
     [fh, dataout.spec_U.v] = ampphspectrum(vcl{1}.y, fs, 0, 0, 'flattop_248D', [], 0);

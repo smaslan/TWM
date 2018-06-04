@@ -4,7 +4,10 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
 
-
+    % calculation setup:
+    calcset.verbose = 1;
+    calcset.unc = 'guf';
+    calcset.loc = 0.95; 
 
     % --- correction data ---
     % generate some digitizer gain transfer:
@@ -104,8 +107,15 @@ function alg_test(calcset) %<<<1
     din.y.v = sig;
     din.fs.v = fs_out;
     
+    % add fake uncertainties to allow uncertainty calculation:
+    %  ###todo: to be removed when QWTB supports no uncertainty checking 
+    alginf = qwtb('TWM-THDWFFT','info');
+    qwtb('TWM-THDWFFT','addpath');    
+    din = qwtb_add_unc(din,alginf.inputs);
+    
     % --- calculate THD ---
-    dout = qwtb('TWM-THDWFFT',din);
+    dout = qwtb('TWM-THDWFFT',din,calcset);
+    
     
     % print results:
     fprintf('\nResults:\n');
@@ -121,5 +131,28 @@ function alg_test(calcset) %<<<1
     assert(abs(dout.thd.v - k1_out) < dout.thd.u, 'Calculated THD out of calculated uncertainty!');
                                                          
     
+end
+
+
+
+function [din] = qwtb_add_unc(din,pin)
+% this will create fake uncertainty for each non-parameter quantity
+% ###TODO: to be removed, when QWTB will support no-unc checking
+% It is just a temporary workaround.
+
+    names = fieldnames(din);
+    N = numel(names);
+
+    p_names = {pin(~~[pin.parameter]).name};
+    
+    for k = 1:N
+        if ~any(strcmpi(p_names,names{k}))
+            v_data = getfield(din,names{k});
+            if ~isfield(v_data,'u')
+                v_data.u = 0*v_data.v;
+                din = setfield(din,names{k},v_data);
+            end
+        end        
+    end    
 end
    

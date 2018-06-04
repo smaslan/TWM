@@ -11,6 +11,7 @@ function alg_test(calcset) %<<<1
     % calculation setup:
     calcset.verbose = 1;
     calcset.unc = 'guf'; % uncertainty mode
+    calcset.loc = 0.95;
     % MonteCarlo (for 'mcm' uncertainty mode) setup:
     calcset.mcm.repeats = 100; % cycles
     calcset.mcm.method = 'multistation'; % parallelization mode
@@ -488,7 +489,7 @@ function alg_test(calcset) %<<<1
     
     ref_list =  [U_ref,    I_ref,    S_ref,    P_ref,    Q_ref,    PF_ref];    
     dut_list =  [dout.U.v, dout.I.v, dout.S.v, dout.P.v, dout.Q.v, dout.PF.v];
-    unc_list =  [dout.U.u, dout.I.u, dout.S.u, dout.P.u, dout.Q.u, dout.PF.u]*2;
+    unc_list =  [dout.U.u, dout.I.u, dout.S.u, dout.P.u, dout.Q.u, dout.PF.u];
     name_list = {'U','I','S','P','Q','PF'};
         
     

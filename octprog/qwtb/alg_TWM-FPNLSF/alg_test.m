@@ -1,8 +1,14 @@
 function alg_test(calcset) %<<<1
-% Part of QWTB. Test script for algorithm TWM-PSFE.
+% Part of QWTB. Test script for algorithm TWM-FPNLSF.
 %
 % See also qwtb
 
+    
+    % calculation setup:
+    calcset.verbose = 1;
+    calcset.unc = 'guf';
+    calcset.loc = 0.95;      
+    
     % samples count to synthesize:
     N = 5e3;
     
@@ -251,7 +257,6 @@ function alg_test(calcset) %<<<1
         
 
     % --- execute the algorithm:
-    calcset.unc = 'guf';
     dout = qwtb('TWM-FPNLSF',datain,calcset);
     
     % get reference values:
@@ -264,10 +269,10 @@ function alg_test(calcset) %<<<1
     Ax  = dout.A.v;
     phx = mod(dout.phi.v+pi,2*pi)-pi; % wrap to +-pi
     ofsx  = dout.ofs.v;
-    u_fx  = dout.f.u*2;
-    u_Ax  = dout.A.u*2;
-    u_phx = dout.phi.u*2;
-    u_ofsx = dout.ofs.u*2;
+    u_fx  = dout.f.u;
+    u_Ax  = dout.A.u;
+    u_phx = dout.phi.u;
+    u_ofsx = dout.ofs.u;
 %     if ~rand_unc
 %         u_fx  = f0*1e-8;
 %         u_Ax  = Ar*1e-6;

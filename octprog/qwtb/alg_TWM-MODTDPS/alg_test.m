@@ -3,6 +3,11 @@ function alg_test(calcset) %<<<1
 %
 % See also qwtb
 
+    % calculation setup:
+    calcset.verbose = 1;
+    calcset.unc = 'guf';
+    calcset.loc = 0.95;
+    
     % samples to synthesize:
     N = 30000;
     
@@ -260,21 +265,20 @@ function alg_test(calcset) %<<<1
     din_org = qwtb_add_unc(din_org,alginf.inputs);
     
     % --- execute the algorithm:
-    calcset.unc = 'guf';
     dout = qwtb('TWM-MODTDPS',din_org,calcset);
     
     
     % get calculated values:
     A0x   = dout.A0.v;   
-    u_A0x = dout.A0.u*2;    
+    u_A0x = dout.A0.u;    
     Amx   = dout.A_mod.v;   
-    u_Amx = dout.A_mod.u*2;    
+    u_Amx = dout.A_mod.u;    
     modx   = dout.mod.v;   
-    u_modx = dout.mod.u*2;    
+    u_modx = dout.mod.u;    
     f0x   = dout.f0.v;
-    u_f0x = dout.f0.u*2;    
+    u_f0x = dout.f0.u;    
     fmx   = dout.f_mod.v;
-    u_fmx = dout.f_mod.u*2;
+    u_fmx = dout.f_mod.u;
     ofsx   = dout.dc.v;
     u_ofsx = inf;
     

@@ -58,8 +58,8 @@ function dataout = alg_wrapper(datain, calcset)
     s.f_dev_max = 2;
     % Monte Carlo uncertainty evaluation: cycles count
     s.mc_cycles = 10000;
-    % Monte Carlo uncertainty evaluation: coverage interval ###todo: must be taken from 'calcset'
-    s.mc_cover = 0.95;
+    % Monte Carlo uncertainty evaluation: coverage interval
+    s.mc_cover = calcset.loc;
     % return spectrum?
     s.save_spec = 1;
     
@@ -175,7 +175,20 @@ function dataout = alg_wrapper(datain, calcset)
     % uncorrected harmonic amplitudes:
     dataout.h_raw.v = r.a_lst;
     % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
-    dataout.h_raw.u = max(r.a_lst - r.a_lst_a, r.a_lst_b - r.a_lst);  
+    dataout.h_raw.u = max(r.a_lst - r.a_lst_a, r.a_lst_b - r.a_lst);
+    
+    
+    if strcmpi(calcset.unc,'none')
+        % none uncertainty - clear uncertainties:
+        names = fieldnames(dataout);
+        for k = 1:numel(names)
+            qu = getfield(dataout,names{k});
+            if isfield(qu,'u')
+                qu.u = 0*qu.v;
+                dataout = setfield(dataout,names{k},qu);
+            end
+        end
+    end
 
 end % function
 

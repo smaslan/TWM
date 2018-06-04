@@ -58,9 +58,9 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     
     % try to load unc. coverage interval:
     try
-        calcset.unc_covint = 0.01*infogetnumber(qinf, 'coverage interval [%]');
+        calcset.loc = infogetnumber(qinf, 'level of confidence [-]');
     catch
-        calcset.unc_covint = 0.95;
+        calcset.loc = 0.95;
     end
         
     

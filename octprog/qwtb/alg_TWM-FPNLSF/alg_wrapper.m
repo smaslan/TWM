@@ -427,17 +427,20 @@ function dataout = alg_wrapper(datain, calcset)
     end
     % apply timestamp uncertainty to phase:
     u_phx = (u_phx^2 + u_p_ts^2)^0.5;
-           
+    
+    
+    % calc. coverage factor:
+    ke = loc2covg(calcset.loc,50);       
     
     % --- returning results ---    
     dataout.f.v = fx;
-    dataout.f.u = u_fx;
+    dataout.f.u = u_fx*ke;
     dataout.A.v = Ax;
-    dataout.A.u = u_Ax;
+    dataout.A.u = u_Ax*ke;
     dataout.phi.v = phx;
-    dataout.phi.u = u_phx;
+    dataout.phi.u = u_phx*ke;
     dataout.ofs.v = ox;
-    dataout.ofs.u = u_ox;
+    dataout.ofs.u = u_ox*ke;
            
     % --------------------------------------------------------------------
     % End of the algorithm.

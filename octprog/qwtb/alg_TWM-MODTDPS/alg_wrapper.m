@@ -362,6 +362,9 @@ function dataout = alg_wrapper(datain, calcset)
     
     
     % --- returning results ---
+    
+    % calc. coverage factor:
+    ke = loc2covg(calcset.loc,50);
         
     % return envelope:
     dataout.env.v   = me(:);
@@ -369,20 +372,20 @@ function dataout = alg_wrapper(datain, calcset)
     
     % return carrier:
     dataout.f0.v = f0;
-    dataout.f0.u = u_f0;
+    dataout.f0.u = u_f0*ke;
     dataout.A0.v = A0;
-    dataout.A0.u = u_A0;
+    dataout.A0.u = u_A0*ke;
     dataout.dc.v = dc;
     
     % return modulation signal parameters:
     dataout.f_mod.v = fm;
-    dataout.f_mod.u = u_fm;
+    dataout.f_mod.u = u_fm*ke;
     dataout.cpm.v = 120*fm;
-    dataout.cpm.u = 120*u_fm;
+    dataout.cpm.u = 120*u_fm*ke;
     dataout.A_mod.v = Am;
-    dataout.A_mod.u = u_Am;
+    dataout.A_mod.u = u_Am*ke;
     dataout.mod.v = 100*Am/A0;
-    dataout.mod.u = 100*ur_mod;
+    dataout.mod.u = 100*ur_mod*ke;
            
     % --------------------------------------------------------------------
     % End of the demonstration algorithm.
