@@ -45,28 +45,6 @@ function dataout = alg_wrapper(datain, calcset)
         error(sprintf('Calculation mode ''%s'' not supported!',mode));
     end
     
-    % obtain tresholds:
-    if isfield(datain,'sag_tres')
-        sag_tres = datain.sag_tres.v;
-    else
-        sag_tres = 90;
-    end
-    if isfield(datain,'swell_tres')
-        swell_tres = datain.swell_tres.v;
-    else
-        swell_tres = 110;
-    end
-    if isfield(datain,'int_tres')
-        int_tres = datain.int_tres.v;
-    else
-        int_tres = 10;
-    end
-    % obtain hysteresis:
-    if isfield(datain,'hyst')
-        hyst = datain.hyst.v;
-    else
-        hyst = 2;
-    end
     
     % --- get ADC LSB value
     if isfield(datain,'lsb')
@@ -256,11 +234,7 @@ function dataout = alg_wrapper(datain, calcset)
     cfg.nom_f = nom_f;
     cfg.nom_rms = nom_rms;
     cfg.mode = mode;
-    cfg.do_plots = do_plots;    
-    cfg.ev.hyst = hyst;
-    cfg.ev.sag_tres = sag_tres;
-    cfg.ev.swell_tres = swell_tres;
-    cfg.ev.int_tres = int_tres;
+    cfg.do_plots = do_plots;
     cfg.corr.gain.f = fh;
     cfg.corr.gain.gain = gain;
     cfg.corr.gain.unc = u_gain;
@@ -275,19 +249,6 @@ function dataout = alg_wrapper(datain, calcset)
     % apply time scale uncertainty to the correction data:
     u_tb_corr = t*u_tb_corr*loc2covg(calcset.loc,50);       
     dataout.t.u = (dataout.t.u.^2 + u_tb_corr.^2).^0.5;
-    
-    % apply time scale uncertainty to the event times:
-    dataout.sag_start.u = dataout.sag_start.u + interp1(t,u_tb_corr,dataout.sag_start.v,'linear','extrap');
-    dataout.sag_dur.u   = dataout.sag_dur.u   + interp1(t,u_tb_corr,dataout.sag_start.v + 0.5*dataout.sag_dur.v,'linear','extrap');
-    dataout.swell_start.u = dataout.swell_start.u + interp1(t,u_tb_corr,dataout.swell_start.v,'linear','extrap');
-    dataout.swell_dur.u   = dataout.swell_dur.u   + interp1(t,u_tb_corr,dataout.swell_start.v + 0.5*dataout.swell_dur.v,'linear','extrap');
-    dataout.int_start.u = dataout.int_start.u + interp1(t,u_tb_corr,dataout.int_start.v,'linear','extrap');
-    dataout.int_dur.u   = dataout.int_dur.u   + interp1(t,u_tb_corr,dataout.int_start.v + 0.5*dataout.int_dur.v,'linear','extrap');
-    
-           
-    
-    % --- returning results ---    
-    
            
     % --------------------------------------------------------------------
     % End of the algorithm.

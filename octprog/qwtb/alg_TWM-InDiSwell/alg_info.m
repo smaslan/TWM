@@ -1,11 +1,11 @@
 function alginfo = alg_info() %<<<1
-% Part of QWTB. Info script for algorithm TWM-HCRMS.
+% Part of QWTB. Info script for algorithm TWM-InDiSwell.
 %
 % See also qwtb
 
     alginfo.id = 'TWM-HCRMS';
-    alginfo.name = 'Half Cycle RMS algorithm';
-    alginfo.desc = 'This algorithm is designed to calculate half-cycle rms values of single phase waveform.';
+    alginfo.name = 'Interruption Dip Swell';
+    alginfo.desc = 'This algorithm is designed to calculate half-cycle rms values of single phase waveform. It uses the measured half-rms envelope to detect sag, swell, interruptions, undervoltage and overvoltage.';
     alginfo.citation = '';
     alginfo.remarks = '.';
     alginfo.license = 'MIT License';
@@ -58,6 +58,48 @@ function alginfo = alg_info() %<<<1
     
     
     % --- parameters:
+    alginfo.inputs(pid).name = 'nom_rms';
+    alginfo.inputs(pid).desc = 'Nominal rms level of the signal (default: 230)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'nom_f';
+    alginfo.inputs(pid).desc = 'Nominal frequency (default: empty - auto detect)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'hyst';
+    alginfo.inputs(pid).desc = 'Envelope detection hysteresis as percent of nominal rms (default: 2)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'sag_tresh';
+    alginfo.inputs(pid).desc = 'Sag treshold level in % (default: 90)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'swell_tresh';
+    alginfo.inputs(pid).desc = 'Swell treshold level in % (default: 110)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'int_tresh';
+    alginfo.inputs(pid).desc = 'Interruption treshold level in % (default: 10)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
     alginfo.inputs(pid).name = 'mode';
     alginfo.inputs(pid).desc = 'Calculation mode (default: ''A'' - class A according 61000-3-40, ''S'' - sliding window)';
     alginfo.inputs(pid).alternative = 0;
@@ -481,10 +523,6 @@ function alginfo = alg_info() %<<<1
     
     alginfo.outputs(pid).name = 'env';
     alginfo.outputs(pid).desc = 'Detected rms level envelope';
-    pid = pid + 1;
-    
-    alginfo.outputs(pid).name = 'f0';
-    alginfo.outputs(pid).desc = 'Average detected fundamental frequency';
     pid = pid + 1;
     
     

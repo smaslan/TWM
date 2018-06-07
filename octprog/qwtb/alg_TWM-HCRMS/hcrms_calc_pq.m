@@ -1,4 +1,4 @@
-function [tx,u_tx,rms,u_rms,dout] = hcrms_calc_pq(dout,t0,u_t0,fs,y,cfg,calcset)
+function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_t0,fs,y,cfg,calcset)
 % Measurement of rms level in time for sag/swell/interruption PQ events.
 %
 % What it does:
@@ -10,10 +10,9 @@ function [tx,u_tx,rms,u_rms,dout] = hcrms_calc_pq(dout,t0,u_t0,fs,y,cfg,calcset)
 %    periods.
 % 4) Fine phase synchronization based on 3) by next resampling.
 % 5) RMS level detection with selected step (see 'cfg.mode').
-% 6) Events detection from rms values.
 %
 % The algorithm also can calculate uncertainty estimate for the rms envelope
-% and event times.    
+% and sample times.    
 % 
 % Parameters:
 %  dout - QWTB style output quantities (may be empty struct())
@@ -27,11 +26,6 @@ function [tx,u_tx,rms,u_rms,dout] = hcrms_calc_pq(dout,t0,u_t0,fs,y,cfg,calcset)
 %                   rms window sync. to zero cross, moving by 1/2-period
 %             'S' - sliding window with 20 steps per period
 %  cfg.nom_f - nominal fundamental freq. (NaN to auto detect)
-%  cfg.nom_rms - nominal rms level to which the event detection is related
-%  cfg.ev.hyst - event detector hysteresis [%] (default 2%)
-%  cfg.ev.sag_tres - sag event treshold [%] (default 90%)
-%  cfg.ev.swell_tres - swell event treshold [%] (default 110%)
-%  cfg.ev.int_tres - interruption event treshold [%] (default 10%)
 %  cfg.corr.f - frequency axis of correction data
 %  cfg.corr.gain.gain - relative gain normalized to nominal frequency gain
 %                       note it must cover full frequency range from 0 to 0.5*fs! 
@@ -42,17 +36,15 @@ function [tx,u_tx,rms,u_rms,dout] = hcrms_calc_pq(dout,t0,u_t0,fs,y,cfg,calcset)
 %  calcset.unc - uncertainty calculation mode (default: 'none', or 'guf')
 %
 % Returns:
-%  t - time vector of centers of rms windows
-%      note the 't' is not necessarily equidistant!  
-%  rms - calculate rms value rms(t)
-%  u_rms - standard uncertainty of rms(t)
+%  env_time - time vector of centers of rms windows
+%       note the 't' is not necessarily equidistant!
+%  u_env_time - absolute uncertainties of 'env_time'  
+%  env_rms - calculate rms value rms(env_time)
+%  u_env_rms - absolute uncertainties of rms(env_time)
 %  dout - QWTB style quantities and uncertainties:
-%  dout.t - tiem vector 't'
-%  dout.rms - rms values and uncertainties corresponding to the 't'
-%  dout.*_start - starting time of detected event [s] or NaN for no event 
-%  dout.*_dur - duration time of detected event [s] or NaN for no complete event
-%  dout.*_res - residual rms ratio to nominal rms in [%] or NaN for no complete event
-%   * - event name: 'sag', 'swell' or 'int'
+%  dout.t - time vector and uncertainty of 'env_time'
+%  dout.rms - rms values and uncertainties corresponding to the 'env_rms'
+%  dout.f0 - measured fundamental frequency
 %   
 %
 % License:
@@ -607,7 +599,7 @@ function [tx,u_tx,rms,u_rms,dout] = hcrms_calc_pq(dout,t0,u_t0,fs,y,cfg,calcset)
         u_tx = df/f0_avg/3^0.5;
         
         % combined time uncertainty:
-        u_tw = (u_tx^2 + u_t0^2)^0.5; % (inernal)
+        u_tw = (u_tx^2 + u_t0^2)^0.5; % (internal)
         
         % expand to desired level of confidence:
         ke = loc2covg(calcset.loc,50);        
@@ -623,123 +615,18 @@ function [tx,u_tx,rms,u_rms,dout] = hcrms_calc_pq(dout,t0,u_t0,fs,y,cfg,calcset)
     end
     
     % generate time samples uncertainty:
-    u_tx = repmat(u_tx,size(tx));
+    u_env_time = repmat(u_tx,size(env_time));
     
     % return rms envelope
-    dout.t.v   = tx;
-    dout.t.u   = u_tx;
+    dout.t.v   = env_time;
+    dout.t.u   = u_env_time;
     dout.rms.v = env_rms;
     dout.rms.u = u_env_rms*calcset.loc;
     
-    
-    if calcset.verbose
-        fprintf('Detecting events...\n');
-    end
-               
-    % define event setups:
-    event_list{1}.tr_start   = cfg.nom_rms*0.01*(cfg.ev.sag_tres);
-    event_list{1}.tr_stop    = cfg.nom_rms*0.01*(cfg.ev.sag_tres + cfg.ev.hyst);
-    event_list{1}.name       = 'sag';
-    event_list{1}.qu_name    = 'sag';
-    
-    event_list{2}.tr_start   = cfg.nom_rms*0.01*(cfg.ev.swell_tres);
-    event_list{2}.tr_stop    = cfg.nom_rms*0.01*(cfg.ev.swell_tres - cfg.ev.hyst);
-    event_list{2}.name       = 'swell';
-    event_list{2}.qu_name    = 'swell';    
-    
-    event_list{3}.tr_start   = cfg.nom_rms*0.01*(cfg.ev.int_tres);
-    event_list{3}.tr_stop    = cfg.nom_rms*0.01*(cfg.ev.int_tres + cfg.ev.hyst);
-    event_list{3}.name       = 'interruption';
-    event_list{3}.qu_name    = 'int';
-          
-    
-    % -- for each event:
-    for k = 1:numel(event_list)
-    
-        % get event definition:
-        ev = event_list{k};
-        
-        % expand the rms envelope uncertainty to 'worst case':
-        u_env_rms_det = u_env_rms; 
-    
-        % detect event:
-        [t_start,t_dur,rms_xtr,found,u_start,u_dur,u_rms_xtr] = env_event_detect(env_time,env_rms,u_env_rms_det,[ev.tr_start, ev.tr_stop],cfg.mode == 'S');
-        
-        % worst case time error of each sample:
-        u_tev = u_tw*2;
-        % add time uncertainty to the event times:
-        u_start = u_start + u_tev;
-        u_dur = u_dur + u_tev;
-                
-        % minimum detector. error:
-        u_start   = max(u_start,0.5/f0_avg)*calcset.loc/0.95;
-        u_dur     = max(u_dur,1.0/f0_avg)*calcset.loc/0.95;
-        u_rms_xtr = u_rms_xtr*calcset.loc/0.95;
-        
-        if strcmpi(calcset.unc,'none')
-            % clear uncertainty if it's disbaled:
-            u_start = 0;
-            u_dur = 0;
-            u_rms_xtr = 0;
-        end
-        
-        
-        % residual ratio to nominal:
-        resid = 100*rms_xtr/cfg.nom_rms;
-        u_resid = 100*u_rms_xtr/cfg.nom_rms;
-        
-        % store results:
-        dout = setfield(dout, [ev.qu_name '_start'], struct('v',t_start,'u',u_start));
-        dout = setfield(dout, [ev.qu_name '_dur'], struct('v',t_dur,'u',u_dur));
-        dout = setfield(dout, [ev.qu_name '_res'], struct('v',resid,'u',u_resid));
-                
-        if cfg.do_plots
-            % plot basic rms and tresholds:    
-            figure
-            plot(env_time,env_rms,'b','LineWidth',1.5) % rms(t)
-            hold on;
-            plot([env_time(1),env_time(end)],[1 1]*cfg.nom_rms,'r:')
-            plot([env_time(1),env_time(end)],[1 1]*ev.tr_start,'r--')
-            plot([env_time(1),env_time(end)],[1 1]*ev.tr_stop,'r--')
-            
-            ylim_tmp = ylim();
-            ylim_tmp(1) = 0;               
-            
-            if found
-            
-                % plot event markers:
-                ev_ts = [t_start t_start+t_dur];
-                ev_rs = interp1(env_time,env_rms,ev_ts,'linear','extrap');           
-                plot(ev_ts,ev_rs,'r.');
-                
-                plot([env_time(1),env_time(end)],[1 1]*rms_xtr,'k:') % extreme rms              
-                plot([1 1]*ev_ts(1),ylim_tmp,'r-')
-                plot([1 1]*ev_ts(2),ylim_tmp,'r-')
-                
-                % autoscale the event:
-                left = max(t_start - 1.5*t_dur,env_time(1));
-                right = min(t_start + 2.5*t_dur,env_time(end));            
-                xlim([left right]);
-                
-            end
-            
-            ylim(ylim_tmp);    
-            hold off;
-            
-            tit = sprintf('%s (none)',ev.name);
-            if found
-                tit = sprintf('%s (duration = %.3fs)',ev.name,t_dur);
-            end
-            
-            title(tit);
-            xlabel('time [s]');
-            ylabel('rms [V or A]');
-        end
-        
-    end
-    
-    
-    
+    % return measured fundamental frequency:
+    dout.f0.v = f0_avg;
+    dout.f0.u = 0;
+
 end
 
 

@@ -1,5 +1,5 @@
 function alg_test(calcset) %<<<1
-% Part of QWTB. Test script for algorithm TWM-HCRMS.
+% Part of QWTB. Test script for algorithm TWM-InDiSwell.
 %
 % See also qwtb
 
@@ -28,7 +28,20 @@ function alg_test(calcset) %<<<1
         
     % randomize correction uncertainties:         
     rand_unc = 0;
-
+    
+    
+    % event duration [s]:
+    ev_time = 0.05;
+    % event start time [s]:    
+    ev_start = 0.8;
+    % event magnitude [%]:
+    %  relative to nominal:
+    ev_mag = 50;
+    % fine-tune event size using sliding window
+    %  note: non-zero means the simulator will try to fiddle the event parameters so the
+    %        generate event accoridng sliding window method is exactly the set values
+    %        otherwise it will just generate 'ev_time' long rectangular amp. modulation 
+    ev_tune = 1;
 
     % nominal frequency:
     f0 = 50.3;
@@ -200,6 +213,160 @@ function alg_test(calcset) %<<<1
     A0g = (0.5*A0^2 - dc^2)^0.5*2^0.5;
     u = A0g*sin(ctw + ph0);
         
+        
+    % --- parameter finetunnig:
+    fprintf('Calculating signal parameters for simulation...\n');    
+    
+    if ev_tune    
+        step = 'm';
+    else
+        step = 'r'; % no fine tunning
+    end
+    ev_start_i = ev_start;
+    ev_time_i = ev_time;
+    ev_mag_i = ev_mag;
+    it = 0;
+    ev_mag_dc_gain = sqrt(2*(0.01*ev_mag_i)^2*dc^2-2*dc^2+A0g^2*(0.01*ev_mag_i)^2)/A0g/(ev_mag_i*0.01);    
+    while true
+                
+        % event time:
+        env = ones(size(t));    
+        ev_msk = (t >= ev_start_i) & t <= (ev_start_i + ev_time_i);
+        % event magnitude:
+        env(ev_msk) = ev_mag_dc_gain*ev_mag_i*0.01;
+        % apply event envelope to signal:
+        ux = u.*env;
+                   
+        
+        % desired samples per period:
+        SP = 120;
+        
+        % total samples of resampled signal:
+        NX = round(N*SP/(fs/f0));
+        
+        % get frequency modulation envelope interpolated to new samples count:
+        fsx = NX/t(end);
+        tx = [];
+        tx(:,1) = [0:NX-1]/fsx;
+        f0dx = interp1(t,f0d,tx,'linear','extrap');
+            
+        % generate sampling time increments to compensate frequency modulaion:        
+        Tsd = 1./(f0dx*fs*SP/(fs/f0));      
+        
+        % generete resampling time vector:
+        tx = cumsum([0;Tsd(1:end-1)]);
+        tx = tx(tx < t(end));
+        
+        % interpolate to coherent signal:
+        ux = interp1(t,ux,tx,'spline','extrap');
+        SN = floor(NX/SP)*SP;    
+        ux = ux(1:SN);
+        
+        % debug plot to show all periods are indeed coherent:
+    %     ux = reshape(ux,[SP NX/SP]);    
+    %     plot(ux(:,1:10:end))        
+        
+        % windows per period:
+        SW = 40;
+    
+        % duplicate data so we can calculate all sliding windows per period at once:
+        %  ux = [u(1) u(2) u(3) ... u(SW)  ]
+        %       [u(2) u(3) u(4) ... u(SW+1)]
+        %       [...  ...  ...  ... ...    ]
+        SS = SP/SW;    
+        ux = repmat(ux,[1 SW]);
+        ux = ux(:);
+        ux = [ux;zeros(SW*SS,1)];    
+        ux = reshape(ux,[SN+SS SW]);    
+        SN = floor((SN-SP)/SP)*SP;
+        ux = ux(1:SN,:);
+        % reshape so we have all windows in dim=2 and data for each window in dim=1:
+        ux = reshape(ux,[SP SN/SP*SW]);
+        % calculate rms for each window:    
+        ux = ux.^2;    
+        rms = mean(ux,1).^0.5;
+        % restore to linear oder:
+        rms = reshape(rms,[SN/SP SW])';
+        rms = rms(:);
+        R = numel(rms);    
+        t_rms = tx(SS*[0:R-1]' + SP/2);
+        
+        % add DC to rms:
+        rms = (rms.^2 + dc^2).^0.5;
+            
+        if ev_mag < din.sag_tres.v
+            % sag is reference:
+            limits = [din.sag_tres.v din.sag_tres.v+din.hyst.v]*0.01*nom_rms;            
+        elseif ev_mag > din.swell_tres.v
+            % swell is reference:
+            limits = [din.swell_tres.v din.swell_tres.v-din.hyst.v]*0.01*nom_rms;
+        else
+            % no event possible - do not allow fine tunning
+            found = 0;
+            break;
+        end
+        
+        % detect event:
+        [t_start,t_dur,rms_xtr,found] = env_event_detect(t_rms,rms,[],limits,1);        
+        resid = 100*rms_xtr/nom_rms;
+        
+        if step == 'r'
+            break;
+        end
+        if ~found            
+            disp(' - failed, restoring initial setting!');
+            
+            % failed - reset
+            ev_start_i = ev_start;
+            ev_time_i = ev_time;
+            ev_mag_i = ev_mag;            
+            step = 'r';
+            it = 0;
+                                
+        else                   
+            % update coeficients:
+            if step == 'm'        
+                ev_mag_i = ev_mag_i + (ev_mag - resid);
+                %ev_start_i = ev_start_i + (ev_start - t_start);
+            else
+                ev_time_i = ev_time_i + (ev_time - t_dur);
+            end
+        end
+        
+        it = it + 1;
+        if it >= 4
+            it = 0;
+            if step == 'm'
+                step = 'p';
+            else
+                break;
+            end
+        end        
+    end
+    
+    if found
+        ev_start = ev_start_i;
+        ev_time = ev_time_i;
+    end
+    
+    % calculate reference event values:
+    ev = {};
+    ev{1}.limits = [din.sag_tres.v din.sag_tres.v+din.hyst.v]*0.01*nom_rms;
+    ev{1}.name = 'sag';
+    ev{2}.limits = [din.swell_tres.v din.swell_tres.v-din.hyst.v]*0.01*nom_rms;
+    ev{2}.name = 'swell';
+    ev{3}.limits = [din.int_tres.v din.int_tres.v+din.hyst.v]*0.01*nom_rms;
+    ev{3}.name = 'int';    
+    ref = struct();
+    for k = 1:numel(ev)
+        [t_start,t_dur,rms_xtr,found] = env_event_detect(t_rms,rms,[],ev{k}.limits,1);
+        resid = 100*rms_xtr/nom_rms;        
+        ref = setfield(ref, ev{k}.name, struct('found',found, 'start',t_start, 'dur',t_dur, 'res',resid));        
+    end
+    
+    
+    
+    
     % generate higher harmonics:
     f_sp(:,1) = [(2*f0):f0:0.45*fs];
     f_sp = f_sp(1:min(h_lim,numel(f_sp)));
@@ -230,7 +397,14 @@ function alg_test(calcset) %<<<1
     
     % fix amplitudes so the actual rms level matches nominal one:
     A(1:end-1) = A(1:end-1)*(nom_rms^2 - dc^2)^0.5/rms_x;
-        
+    
+    
+    
+    
+    
+    
+    
+    
                     
     
     % apply transducer transfer:
@@ -358,7 +532,24 @@ function alg_test(calcset) %<<<1
             if a > numel(fxt)
                 break;
             end        
-        end 
+        end
+              
+        
+                
+        % relative shift of event due to fundamental component phase shift:
+        %  ###todo: check if this is correct, does the modulation shift with phase of carrier or not?
+        dpt = (mod(ph0c - ph0 + pi,2*pi) - pi)/2/pi/f0c;
+                
+        % asign event samples: 
+        t = t/2/pi;
+        ev_msk = (t >= (ev_start + dpt)) & t <= ((ev_start + dpt) + ev_time);
+     
+        % generate event envelope:
+        env = ones(size(t));
+        env(ev_msk) = env(ev_msk)*ev_mag*0.01*ev_mag_dc_gain;
+        
+        % apply envelope:
+        u = u.*env;   
         
         % add some noise:
         u = u + randn(N,1)*adc_std_noise;
@@ -380,88 +571,95 @@ function alg_test(calcset) %<<<1
         
     % add fake uncertainties to allow uncertainty calculation:
     %  ###todo: to be removed when QWTB supports no uncertainty checking 
-    alginf = qwtb('TWM-HCRMS','info');
-    qwtb('TWM-HCRMS','addpath');    
+    alginf = qwtb('TWM-InDiSwell','info');
+    qwtb('TWM-InDiSwell','addpath');    
     datain = qwtb_add_unc(datain,alginf.inputs);
         
 
     % --- execute the algorithm:    
-    dout = qwtb('TWM-HCRMS',datain,calcset);
-       
+    dout = qwtb('TWM-InDiSwell',datain,calcset);
     
     
-    x_t0.v = dout.t.v(1);
-    x_t0.u = mean(dout.t.u);
-    x_t0.d = NaN;
-    x_t0.p = NaN;
-    
-    x_rms_av.v = mean(dout.rms.v);
-    x_rms_av.u = max(dout.rms.u);
-    x_rms_av.d = max(abs(dout.rms.v - nom_rms));
-    x_rms_av.p = 100*max(abs(dout.rms.v - nom_rms)./dout.rms.u);
-    
-    x_rms_mx = x_rms_av;
-    [x_rms_mx.v,id] = max(dout.rms.v);
-    x_rms_mx.u = dout.rms.u(id);
-    x_rms_mx.d = abs(dout.rms.v(id) - nom_rms);
-    x_rms_mx.p = 100*x_rms_mx.d./dout.rms.u(id);
-    
-    x_rms_mn = x_rms_av;
-    [x_rms_mn.v,id] = min(dout.rms.v);
-    x_rms_mn.u = dout.rms.u(id);
-    x_rms_mn.d = abs(dout.rms.v(id) - nom_rms);    
-    x_rms_mn.p = 100*x_rms_mn.d./dout.rms.u(id);
-    
+    % expand uncertainty of the results:
+    %  ###todo: to be removed when algs. support internal expansion... 
+%     names = fieldnames(dout);
+%     for k = 1:numel(names)
+%         qu = getfield(dout,names{k});
+%         qu.u = qu.u*2;
+%         dout = setfield(dout,names{k},qu);
+%     end
+
     % generate some min. uncertainty when none calculated just for display:
     if strcmpi(calcset.unc,'none')
-        x_t0.u = 1e-6;
-        x_rms_av.u = 0.001;
-        x_rms_mx.u = 0.001;
-        x_rms_mn.u = 0.001;
+        dout.sag_start.u = 0.001;
+        dout.swell_start.u = 0.001;
+        dout.int_start.u = 0.001;
+        dout.sag_dur.u = 0.001;
+        dout.swell_dur.u = 0.001;
+        dout.int_dur.u = 0.001;
+        dout.sag_res.u = 0.001;
+        dout.swell_res.u = 0.001;
+        dout.int_res.u = 0.001;
     end
     
-    names  = {'time','mean rms','max rms','min rms'};
-        
-    dut = [x_t0;x_rms_av;x_rms_mx;x_rms_mn];
+    events = {'Sag','Swell','Interuption'};
+    
+    names  = {'start','duration','residual'};
+    
+    dut = [dout.sag_start dout.swell_start dout.int_start;
+           dout.sag_dur   dout.swell_dur   dout.int_dur;
+           dout.sag_res   dout.swell_res   dout.int_res];
                
-    ref = [0;nom_rms;nom_rms;nom_rms];
-        
+    ref = [ref.sag.start ref.swell.start ref.int.start;
+           ref.sag.dur ref.swell.dur ref.int.dur;
+           ref.sag.res ref.swell.res ref.int.res];
+    
+    
     has_unc = ~strcmpi(calcset.unc,'none');
     
     fprintf('\n');
-    fprintf('----------+-----------+-------------------------+---------+---------\n');
-    fprintf('  EVENT   |   REF     |       DUT +- UNC        |   DEV   | %%-UNC\n');
-    fprintf('----------+-----------+-------------------------+---------+---------\n');
-    for k = 1:numel(names)
-
-        if ~isnan(ref(k)) && isnan(dut(2).v)
-            [ss,rv] = unc2str(ref(k),0.001);
-        elseif ~isnan(ref(k))
-            [ss,rv] = unc2str(ref(k),dut(k).u);
-        else
-            rv = 'NaN';
-        end            
+    for e = 1:numel(events)
+    
+        fprintf(' %s:\n',events{e});
+        fprintf('----------+----------+--------------------+---------+---------\n');
+        fprintf('  EVENT   |   REF    |     DUT +- UNC     |   DEV   | %%-UNC\n');
+        fprintf('----------+----------+--------------------+---------+---------\n');
+        for k = 1:numel(names)
+    
+            %[ss,sv,su] = unc2str(dut(),unc);
+            %[ss,dv] = unc2str(dev,unc);
+            
+            if ~isnan(ref(k,e)) && isnan(dut(2,e).v)
+                [ss,rv] = unc2str(ref(k,e),0.001);
+            elseif ~isnan(ref(k,e))
+                [ss,rv] = unc2str(ref(k,e),dut(k,e).u);
+            else
+                rv = 'NaN';
+            end            
+            
+            dev = dut(k,e).v - ref(k,e);
+            
+            if ~isnan(dut(2,e).v)
+                [ss,dv,du] = unc2str(dut(k,e).v,dut(k,e).u);                 
+            else
+                dv = 'NaN';
+                du = 'NaN';
+            end
+            
+            if ~isnan(dev) && has_unc
+                [ss,ev] = unc2str(dev,dut(k,e).u);
+                pp = abs(dev/dut(k,e).u)*100;                
+            else
+                pp = inf; 
+                ev = 'NaN';
+            end
+                     
+            fprintf(' %-8s | %8s | %7s +- %-7s | %7s | %+4.0f\n',names{k},rv,dv,du,ev,pp);                
+        end        
+        fprintf('----------+----------+--------------------+---------+---------\n\n');
         
-        dev = dut(k).d;
-        
-        if ~isnan(dut(2).v)
-            [ss,dv,du] = unc2str(dut(k).v,dut(k).u);                 
-        else
-            dv = 'NaN';
-            du = 'NaN';
-        end
-        
-        if ~isnan(dev) && has_unc
-            [ss,ev] = unc2str(dev,dut(k).u);
-            pp = dut(k).p;                
-        else
-            pp = inf; 
-            ev = 'NaN';
-        end
-                 
-        fprintf(' %-8s | %9s | %10s +- %-9s | %7s | %4.0f\n',names{k},rv,dv,du,ev,pp);                
-    end        
-    fprintf('----------+-----------+-------------------------+---------+---------\n\n');
+    end
+    
    
     
 end

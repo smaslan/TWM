@@ -17,8 +17,8 @@ addpath([mfld filesep() 'qwtb']);
 %qwtb('TWM-FPNLSF','test')
 %qwtb('TWM-PWRTDI','test')
 %qwtb('TWM-HCRMS','test')
-%qwtb('flicker_sim','test')
-qwtb('TWM-Flicker','test')
+qwtb('TWM-InDiSwell','test')
+%qwtb('TWM-Flicker','test')
 
 %twm_selftest
 
