@@ -136,7 +136,7 @@ function alg_test(calcset) %<<<1
     din.lo_adc_phi_a = din.adc_phi_a; % ###note: not used
     din.lo_adc_phi = din.adc_phi; % ###note: not used
     din.lo_adc_phi.v = din.lo_adc_phi.v - 0.001*pi; % ###note: not used
-    % create corretion of the digitizer timebase:
+    % create corretion of the digitizer offset:
     din.adc_offset.v = 0.001;
     din.adc_offset.u = 0.000005;
     din.lo_adc_offset.v = -0.002; % ###note: not used
