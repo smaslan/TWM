@@ -170,7 +170,7 @@ function dataout = alg_wrapper(datain, calcset)
         
         % calculate transducer transfer + loading effect:
         An = ones(size(fh)); 
-        [gain,phi,u_gain,u_phi] = correction_transducer_loading(tab,datain.tr_type.v,fh,[], An,0,0,0);
+        [gain,phi,u_gain,u_phi] = correction_transducer_loading(tab,datain.tr_type.v,fh,[], An,An*0,An*0,An*0);
         
         % get transducer tfer (independent of rms):
         trg = correction_interp_table(tab.tr_gain, [], fh);

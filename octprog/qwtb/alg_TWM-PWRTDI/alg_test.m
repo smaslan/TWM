@@ -14,9 +14,9 @@ function alg_test(calcset) %<<<1
     calcset.loc = 0.95;
     % MonteCarlo (for 'mcm' uncertainty mode) setup:
     calcset.mcm.repeats = 100; % cycles
-    calcset.mcm.method = 'multistation'; % parallelization mode
+    calcset.mcm.method = 'multicore'; % parallelization mode
     calcset.mcm.procno = 0; % no. of parallel processes (0 to not start slaves)
-    calcset.mcm.tmpdir = 'c:\work\_mc_jobs_'; % jobs sharing folder for 'multistation' mode
+    %calcset.mcm.tmpdir = 'c:\work\_mc_jobs_'; % jobs sharing folder for 'multistation' mode
     
     % samples count to synthesize:
     %N = 2000;
@@ -129,8 +129,8 @@ function alg_test(calcset) %<<<1
         din.u_tr_Zlo_Rp.u = [0e-6];
         din.u_tr_Zlo_Cp.u = [0e-12];
         % create some corretion table for the digitizer gain/phase: 
-        [din.u_adc_gain_f,din.u_adc_gain,din.u_adc_phi] \
-          = gen_adc_tfer(din.fs.v/2+1,50, 1.05,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03,
+        [din.u_adc_gain_f,din.u_adc_gain,din.u_adc_phi] ...
+          = gen_adc_tfer(din.fs.v/2+1,50, 1.05,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
                          linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
         din.u_adc_phi_f = din.u_adc_gain_f;         
         din.u_adc_gain_a.v = [];
@@ -191,8 +191,8 @@ function alg_test(calcset) %<<<1
         
         % -- current channel:
         % create some corretion table for the digitizer gain/phase tfer: 
-        [din.i_adc_gain_f,din.i_adc_gain,din.i_adc_phi] \
-          = gen_adc_tfer(din.fs.v/2+1,50, 0.95,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03,
+        [din.i_adc_gain_f,din.i_adc_gain,din.i_adc_phi] ...
+          = gen_adc_tfer(din.fs.v/2+1,50, 0.95,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
                          linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
         din.i_adc_phi_f = din.i_adc_gain_f;         
         din.i_adc_gain_a.v = [];
@@ -405,8 +405,8 @@ function alg_test(calcset) %<<<1
         if abs(ta) > 1e-12
             ap_gain = sin(pi*ta*fx)./(pi*ta*fx);
             ap_phi  = -pi*ta*fx;            
-            A_syn  = A_syn.*ap_gain;
-            ph_syn = ph_syn + ap_phi;
+            A_syn  = bsxfun(@times, A_syn, ap_gain);
+            ph_syn = bsxfun(@plus, ph_syn, ap_phi);
         end
         
         

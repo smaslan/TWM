@@ -149,7 +149,7 @@ function [selsloci, selsqL, selsqR] = scovint(data, cp, expe, verbose)
           % expected mean probability
           %expe_p = interp1q(cdfx,cdfy,expe);
           % %%#note: may need extrapolation to make it safe
-          expe_p = interp1(cdfx,cdfy,expe,'extrap');
+          expe_p = interp1(cdfx,cdfy,expe);
           
           % --------------------------- coverage interval length: %<<<1
           % possible left probabs, valid interval <0;expe_p>                

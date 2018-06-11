@@ -18,7 +18,7 @@ function [res] = vectorize_structs_elements(inp)
   cinp = cell(N,1);
   for k = 1:N
     cinp{k} = struct2cell(inp{k});
-  endfor
+  end
     
   % process output struct fields
   nel = 0;
@@ -30,28 +30,30 @@ function [res] = vectorize_structs_elements(inp)
     % allocate buffers
     if(isscalar(fld))
       % is scalar
-      par = resize(fld,N,1);                      
+      par = zeros(N,1);
+      par(1) = fld;
     elseif(isvector(fld))
       % is vector 
-      par = resize(fld,N,length(fld));
+      par = zeros(N,length(fld));
+      par(1,:) = fld;
     else
       % skip everything else
       continue;                
-    endif
+    end
     
     % combine input structs elements into single variable
     if(size(fld,1)>1)
       for m = 1:N            
         par(m,:) = cinp{m}{n}';
-      endfor      
+      end      
     else
       for m = 1:N            
         par(m,:) = cinp{m}{n};
-      endfor
-    endif
+      end
+    end
            
     % add element into output structure
     res = setfield(res,rnms{n},par);  
      
-  endfor  
-endfunction
+  end  
+end

@@ -57,11 +57,13 @@ function [uAmp,uPhi] = td_fft_filter_unc(fs, N, fft_size, f,gain,phi, i_mode, fh
         w_rms = mean(w.^2).^0.5;
                 
 
-        % apply window to both signals:
-        y = [y yf].*w;
+        % apply window to both signals (crippled for Matlab < 2016):
+        % y = [y yf].*w;
+        y = bsxfun(@times, [y yf], w);
         
         % do FFT:
-        U = fft(y)(1:round(M/2),:)/M*2/w_gain;
+        U = fft(y);
+        U = U(1:round(M/2),:)/M*2/w_gain;
         fx = [0:size(U,1)-1]'/M*fs;
                         
         % component DFT bins:

@@ -615,7 +615,7 @@ function dataout = alg_wrapper(datain, calcset)
             
         % load single-tone wrms LUT data:
         mfld = fileparts(mfilename('fullpath'));    
-        lut = load([mfld filesep() 'wrms_single_tone_unc.lut'],'-v7','lut');
+        lut = load([mfld filesep() 'wrms_single_tone_unc.lut'],'-mat','lut');
         lut_st = lut.lut;
             
         % corrected signal samples count:
@@ -666,7 +666,7 @@ function dataout = alg_wrapper(datain, calcset)
             
         % load single-tone wrms LUT data:
         mfld = fileparts(mfilename('fullpath'));    
-        lut = load([mfld filesep() 'wrms_spurr_unc.lut'],'-v7','lut');
+        lut = load([mfld filesep() 'wrms_spurr_unc.lut'],'-mat','lut');
         lut_sp = lut.lut;
             
         

@@ -537,9 +537,12 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
         %  note: worst case etimate from many tests under heavily distorted signals
         df = 0.3/2/pi/N1T;
         
+        
+        
+        % --- analyze interharmonic effect:        
         % DFT in step 
         d_fh = fh(2)-fh(1);
-        
+                
         % monte carlo cycles:
         F = 200;
         
@@ -551,17 +554,22 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
         d_fh = repmat(d_fh,size(ih_per));
         d_fh(1) = df;   
         
+        % monte-carlo loop:
+        %  generates fundamental and inter-harmonics, calculates total rms        
         wt = [0:N1T-1].'/N1T.*2*pi;
+        rms_mc = [];
         for k = 1:F
-            wts = wt.*(ih_per + (2*rand(1,numel(ih_per)) - 1).*d_fh) + rand(1,numel(ih_per))*2*pi;
-            sim = sum(ih_amp.*sin(wts),2); 
+            % note: don not remove bsxfun - intendedly crippled for Matlab          
+            wts = bsxfun(@plus, bsxfun(@times,wt,(ih_per + (2*rand(1,numel(ih_per)) - 1).*d_fh)), rand(1,numel(ih_per))*2*pi);
+            sim = sum(bsxfun(@times,ih_amp,sin(wts)),2); 
             rms_mc(k) = mean(sim.^2)^0.5;
         end
         
-        % estiamte of worst case rms error due to interharmonics/harmonics:
+        % estimate of worst case rms error due to interharmonics/harmonics:
         ih_unc_med = median(rms_mc);
         %ih_unc = (max(rms_mc) - min(rms_mc))*1.0
         ih_unc = max(abs(max(rms_mc) - median(rms_mc)),abs(min(rms_mc) - median(rms_mc)));
+        
         
         
         % extension of the rms based on the event depth:
