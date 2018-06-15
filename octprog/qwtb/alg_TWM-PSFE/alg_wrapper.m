@@ -9,6 +9,17 @@ function dataout = alg_wrapper(datain, calcset)
     % This is critical for the correction data! 
     [datain,cfg] = qwtb_restore_twm_input_dims(datain,1);
 
+    if cfg.y_is_diff
+        % Input data 'y' is differential: if it is not allowed, put error message here
+        %error('Differential input data ''y'' not allowed!');     
+    end
+    
+    if cfg.is_multi
+        % Input data 'y' contains more than one record: if it is not allowed, put error message here
+        error('Multiple input records in ''y'' not allowed!'); 
+    end
+    
+
     % try to obtain sampling rate from alternative input quantities [Hz]
     if isfield(datain, 'fs')
         Ts = 1./datain.fs.v;
@@ -19,25 +30,27 @@ function dataout = alg_wrapper(datain, calcset)
     end
     
     % PSFE frequency estimate mode:
-    if isfield(datain, 'f_estimate') && isnumeric(datain.f_estimate.v) && ~isempty(datain.f_estimate.v)
-        f_estimate = datain.f_estimate.v;
-    else
-        % default:
-        f_estimate = 1;
-    end
+%     if isfield(datain, 'f_estimate') && isnumeric(datain.f_estimate.v) && ~isempty(datain.f_estimate.v)
+%         f_estimate = datain.f_estimate.v;
+%     else
+%         % default:
+%         f_estimate = 1;
+%     end
     
     % timestamp phase compensation state:
     tstmp_comp = isfield(datain, 'comp_timestamp') && ((isnumeric(datain.comp_timestamp.v) && datain.comp_timestamp.v) || (ischar(datain.comp_timestamp.v) && strcmpi(datain.comp_timestamp.v,'on')));
-         
-    if cfg.y_is_diff
-        % Input data 'y' is differential: if it is not allowed, put error message here
-        %error('Differential input data ''y'' not allowed!');     
+    
+    % --- get ADC LSB value
+    if isfield(datain,'lsb')
+        % get LSB value directly
+        lsb = datain.lsb.v;
+    elseif isfield(datain,'adc_nrng') && isfield(datain,'adc_bits')
+        % get LSB value estimate from nominal range and resolution
+        lsb = 2*datain.adc_nrng.v*2^(-datain.adc_bits.v);    
+    else
+        error('PSFE, corrections: Correction data contain no information about ADC resolution+range or LSB value!');
     end
     
-    if cfg.is_multi
-        % Input data 'y' contains more than one record: if it is not allowed, put error message here
-        error('Multiple input records in ''y'' not allowed!'); 
-    end
     
     % Rebuild TWM style correction tables:
     % This is not necessary but the TWM style tables are more comfortable to use then raw correction matrices
@@ -52,7 +65,10 @@ function dataout = alg_wrapper(datain, calcset)
     warn = '';
     
     % load input signal (or high-side input channel for diff. mode):
-    y = datain.y.v;    
+    y = datain.y.v;
+    
+    % remove ADC DC offset:
+    y = y - datain.adc_offset.v;    
     
     if cfg.y_is_diff
         % differential input - subtract diff. inputs  channels in time domain:
@@ -62,15 +78,34 @@ function dataout = alg_wrapper(datain, calcset)
         
         y = y - datain.y_lo.v;
         
+        % remove DC offset of the low-side channel:
+        y = y + datain.lo_adc_offset.v;
+        
     end
     
-    if f_estimate < 0
-        % apply initial f. estimate correction:
-        f_estimate = f_estimate.*(1 + datain.adc_freq.v);
-    end
+%     if f_estimate < 0
+%         % apply initial f. estimate correction:
+%         f_estimate = f_estimate.*(1 + datain.adc_freq.v);
+%     end
+
+
     
-    % call PSFE to obtain estimate:
-    [f, A, ph] = PSFE(y,Ts,f_estimate);
+    
+
+    
+    % call low level PSFE algorithm to obtain estimate of the harmonic:
+    %  note: no uncertainty at this time because we don't know all necessary parameters yet! 
+    din.Ts = struct('v',Ts, 'u',0*Ts);
+    din.y  = struct('v',y,  'u',0*y);
+    cset = calcset;
+    cset.unc = 'none';
+    cset.verbose = 0;
+    dout = qwtb('PSFE',din,cset);
+    qwtb('TWM-PSFE','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called    
+    f  = dout.f.v;
+    A  = dout.A.v;
+    ph = dout.ph.v;
+ 
     
     % store original frequency before tb. correction:
     f_org = f;
@@ -78,13 +113,13 @@ function dataout = alg_wrapper(datain, calcset)
     % note: it is relative correction of timebase error, so apply inverse correction to measured f.  
     f = f./(1 + datain.adc_freq.v);    
     % calculate correction uncertainty (absolute):
-    u_af = f.*datain.adc_freq.u;           
+    u_af = f.*datain.adc_freq.u;          
 
     
-    % check deviation of the estimate from initial guess       
-    if f_estimate < 0 && abs((-f_estimate - f)/f) > 0.05
-        add_warn(warn, 'Deviation of freq. estimate from user initial guess higher than 5%');
-    end
+    % check deviation of the estimate from initial guess:       
+%     if f_estimate < 0 && abs((-f_estimate - f)/f) > 0.05
+%         add_warn(warn, 'Deviation of freq. estimate from user initial guess higher than 5%');
+%     end
     
          
     if cfg.y_is_diff
@@ -93,6 +128,7 @@ function dataout = alg_wrapper(datain, calcset)
         ph = NaN;        
         u_g = 0;
         u_p = 0;
+        u_fx = 0;
         
     else
         % --- SE mode: apply corrections
@@ -149,6 +185,9 @@ function dataout = alg_wrapper(datain, calcset)
         if any(isnan(adc_gain.gain)) || any(isnan(adc_phi.phi))
             error('Digitizer gain/phase correction data do not have sufficient frequency range!');
         end
+        
+        % get ADC SFDR value:
+        adc_sfdr = correction_interp_table(tab.adc_sfdr, A, f);
                 
         % apply the digitizer transfer correction:
         A = A.*adc_gain.gain;
@@ -170,6 +209,9 @@ function dataout = alg_wrapper(datain, calcset)
         if any(isnan(A))
             error('Transducer gain/phase correction data or terminal/cable impedances do not have sufficient range!');
         end
+        
+        % get transducer SFDR value estimate:
+        tr_sfdr = correction_interp_table(tab.tr_sfdr, A*2^-0.5, f);
         
         % interpolate the gain/phase tfer table to the measured frequencies but NOT rms:        
         tr_gain = correction_interp_table(tab.tr_gain,[],f);
@@ -205,7 +247,7 @@ function dataout = alg_wrapper(datain, calcset)
         d_tp = max(max(tr_phi.phi,[],2) - kphi, kphi - min(tr_phi.phi,[],2));
         
         % note: the loading correction function already added uncertainty of tfer,
-        % we need to subtract it from the uncertainty so the the 1) is not included twice in the end:
+        % we need to subtract it from the uncertainty so the 1) is not included twice in the end:
         u_tg_rms = tr_gain_rms.u_gain;
         u_tp_rms = tr_phi_rms.u_phi;           
         
@@ -217,11 +259,27 @@ function dataout = alg_wrapper(datain, calcset)
             u_tp = (u_tp.^2 + d_tp.^2/3).^0.5;        
         end
         
-        % --- now calculate estimate of the uncertainty:
-        % note: only contributions of correction applied yet
-        % ###TODO: 1) contribution of the PSFE itself
-        %          2) some estimate of the effect of the simplified diff. mode
-        %          3) sampling jitter effect
+
+        if ~strcmpi(calcset.unc,'none')
+        
+            % get effective ADC + transducer SFDR:
+            sfdr_sys = -20*log10(10^(-adc_sfdr.sfdr/20) + 10^(-tr_sfdr.sfdr/20));
+                       
+            % call low level PSFE algorithm to obtain estimate of the harmonic:
+            %  note: this time with uncertainty becasue we know all the required parameters...
+            din.jitter.v = datain.adc_jitter.v;
+            din.adcres.v = lsb*adc_gain.gain*kgain;
+            din.sfdr.v = sfdr_sys;
+            cset = calcset;
+            cset.loc = 0.632; % calculate with standard uncertainty
+            cset.verbose = 0;  
+            dout = qwtb('PSFE',din,cset);
+            qwtb('TWM-PSFE','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+            u_fx = dout.f.u;
+        else
+            % no uncertainty:
+            u_fx = 0;
+        end
         
         % absolute uncertainty of the gain corrections:
         u_g = ((A.*u_tg).^2 + u_A.^2 - (A.*u_tg_rms).^2).^0.5;
@@ -229,19 +287,18 @@ function dataout = alg_wrapper(datain, calcset)
         % absolute uncertainty of the phase corrections:
         u_p = (u_tp.^2 + u_ph.^2 + u_p_ts.^2 - u_tp_rms.^2).^0.5;
         
-        
         % wrap phase to interval <-pi;+pi>:
         ph = mod(ph + pi,2*pi) - pi;
 
     end
     
     % absolute uncertainty of the frequency:         
-    u_f = u_af;
+    u_f = (u_af^2 + u_fx^2)^0.5;
     
     
     % return calculated quantities:
     dataout.f.v = f;
-    dataout.f.u = u_f;    
+    dataout.f.u = u_f*loc2covg(calcset.loc,50);    
     dataout.A.v = A;
     dataout.phi.v = ph;
     dataout.A.u = u_g;

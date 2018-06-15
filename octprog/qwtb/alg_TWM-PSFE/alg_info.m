@@ -58,12 +58,12 @@ function alginfo = alg_info() %<<<1
     
     
     % --- parameters:
-    alginfo.inputs(pid).name = 'f_estimate';
-    alginfo.inputs(pid).desc = 'Initial f. estimate mode (see PSFE doc.)';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 1;
-    pid = pid + 1;
+%     alginfo.inputs(pid).name = 'f_estimate';
+%     alginfo.inputs(pid).desc = 'Initial f. estimate mode (see PSFE doc.)';
+%     alginfo.inputs(pid).alternative = 0;
+%     alginfo.inputs(pid).optional = 1;
+%     alginfo.inputs(pid).parameter = 1;
+%     pid = pid + 1;
     
     alginfo.inputs(pid).name = 'comp_timestamp';
     alginfo.inputs(pid).desc = 'Enable compensation of phase by timestamp (default off)';
