@@ -20,26 +20,45 @@ function alg_test(calcset) %<<<1
      
     
     % harmonic amplitudes:
-    A =  [1       logrand(1e-6,0.01)  logrand(1e-6,0.01)]';
+    A =  10*[1    logrand(1e-6,0.01)]';
     % harmonic phases:
-    ph = [0.5/pi  2*rand()            2*rand()]'*pi;
+    ph = [0.5/pi  2*rand()          ]'*pi;
     % harmonic freq. [Hz]:
-    fx = [1000   (5000+1000*rand())  (10000+2000*rand())]';
+    f0 = logrand(1/(N/din.fs.v*5),din.fs.v/10);
+    fx = [f0 logrand(1.5*f0,0.45*din.fs.v)]';
     % dc offset:
     dc = 0.1;
     
-    % current loop impedance (used for simulation of differential transducer):
-    Zx = 0.5;
-    
-    % non-zero to generate differential input signal:
-    is_diff = 0;
-               
-    % ADC rms noise level:
-    adc_std_noise = 10e-6;
         
     
+    fprintf('samples count = %g\n', N);
+    fprintf('sampling rate = %.7g kSa/s\n', 0.001*din.fs.v);
+    fprintf('fundamental frequency = %.7g Hz\n', fx(1));
+    fprintf('fundamental periods = %.7g\n', (N/din.fs.v)*fx(1));
+    fprintf('fundamental samples per period = %.7g\n', din.fs.v/fx(1));
+    fprintf('\n');
+    
+        
+    
+    % current loop impedance (used for simulation of differential transducer):
+    %  note: uncomment to enable differential mode of transducer
+    %Zx = 10;    
+        
+    % noise rms level:
+    adc_std_noise = 10e-6;
+        
+    % ADC rms jitter [s]: 
+    din.adc_jitter.v = 100e-9;
     
     
+    
+    % -- SFDR harmonics generator:
+    % max spurr amplitude relative to fundamental [-]:
+    sfdr = 10e-6;
+    % harmonics count:
+    sfdr_hn = 10;
+    % randomize amplitude (zero to sfdr-level)?
+    sfdr_rand = 1;
          
     
     % ADC aperture [s]:
@@ -55,7 +74,7 @@ function alg_test(calcset) %<<<1
     % generate some time-stamp of the digitizer channel:
     % note: the algorithm must 'unroll' the calculated phase accordingly,
     %       so whatever is put here should have no effect to the estimated phase         
-    din.time_stamp.v = rand(1)*0.000; % random time-stamp
+    din.time_stamp.v = rand(1)*1e-6; % random time-stamp
     
     % timestamp compensation:
     din.comp_timestamp.v = 1;
@@ -73,12 +92,12 @@ function alg_test(calcset) %<<<1
     % create some low-side corretion table for the digitizer gain: 
     din.lo_adc_gain_f = din.adc_gain_f;
     din.lo_adc_gain_a = din.adc_gain_a;
-    din.lo_adc_gain = din.adc_gain;
-    din.lo_adc_gain.v = din.lo_adc_gain.v*1.5; 
+    din.lo_adc_gain   = din.adc_gain;
+    din.lo_adc_gain.v = din.lo_adc_gain.v*1.0; 
     % create some low-side corretion table for the digitizer phase: 
     din.lo_adc_phi_f = din.adc_phi_f;
     din.lo_adc_phi_a = din.adc_phi_a;
-    din.lo_adc_phi = din.adc_phi;
+    din.lo_adc_phi   = din.adc_phi;
     din.lo_adc_phi.v = din.lo_adc_phi.v - 0.001*pi;
     % create corretion of the digitizer timebase:
     din.adc_freq.v = 0.000100;
@@ -88,6 +107,18 @@ function alg_test(calcset) %<<<1
     din.adc_offset.u = 0.000005;
     din.lo_adc_offset.v = -0.002;
     din.lo_adc_offset.u = 0.000005;
+    % digitizer resolution:
+    din.adc_bits.v = 24;
+    din.adc_nrng.v = 1;
+    din.lo_adc_bits.v = 24;
+    din.lo_adc_nrng.v = 1;
+    % digitizer SFDR estimate:
+    din.adc_sfdr_a.v = [];
+    din.adc_sfdr_f.v = [];
+    din.adc_sfdr.v = -log10(sfdr)*20;
+    din.lo_adc_sfdr_a = din.adc_sfdr_a;
+    din.lo_adc_sfdr_f = din.adc_sfdr_f;
+    din.lo_adc_sfdr = din.adc_sfdr;
     
     % define some low-side channel timeshift:
     din.time_shift_lo.v = -1.234e-4;
@@ -100,7 +131,7 @@ function alg_test(calcset) %<<<1
     % create some corretion table for the transducer gain: 
     din.tr_gain_f.v = [0;1e3;1e6];
     din.tr_gain_a.v = [];
-    din.tr_gain.v = [1.000; 0.900; 0.800]*5;
+    din.tr_gain.v = [1.000; 0.900; 0.800]*20;
     din.tr_gain.u = [0.001; 0.002; 0.005]*0.01; 
     % create some corretion table for the transducer phase: 
     din.tr_phi_f.v = [0;1e3;1e6];
@@ -116,201 +147,133 @@ function alg_test(calcset) %<<<1
     din.tr_Zlo_Cp.u = [1e-12];
     
         
-    if ~rand_unc
-        % discard all correction uncertainties:
-        
-        corrz = fieldnames(din);        
-        for k = 1:numel(corrz)
-            c_data = getfield(din,corrz{k});
-            if isfield(c_data,'u')
-                c_data.u = 0*c_data.u;
-                din = setfield(din,corrz{k},c_data);
-            end            
-        end
-    end
-    
-    
-    % remember original input quantities:
-    datain = din; 
-    % Restore orientations of the input vectors to originals (before passing via QWTB)
-    din.y.v = ones(10,1); % fake data vector just to make following function work!
-    if is_diff, din.y_lo.v = din.y.v; end
-    [din,cfg] = qwtb_restore_twm_input_dims(din,1);
-    % Rebuild TWM style correction tables (just for more convenient calculations):
-    tab = qwtb_restore_correction_tables(din,cfg);
+
+    % generate the signal:
+    cfg.N = N;
+    cfg.fx = fx;
+    cfg.Ax = A;
+    cfg.phx = ph;
+    cfg.dc = dc;
+    cfg.sfdr = sfdr;
+    cfg.sfdr_hn = sfdr_hn;
+    cfg.sfdr_rand = sfdr_rand;
+    cfg.adc_std_noise = adc_std_noise;     
+    if exist('Zx','var')
+        cfg.Zx = Zx; % differential mode enabled 
+    end        
+    datain = gen_composite(din, cfg, rand_unc);
     
     
     % store estimate of the frequency to find:
     datain.f_est.v = fx(1);
     
     
-    
-    % build virtual harmonic with DC component:
-    fx = [fx;1e-12];
-    A = [A;dc];
-    ph = [ph;pi/2];            
-    
-    % apply transducer transfer:
-    if rand_unc
-        rand_str = 'rand';
-    else
-        rand_str = '';
-    end
-    A_syn = [];
-    ph_syn = [];
-    sctab = {};
-    tsh = [];
-    ap_state = [];
-    if is_diff
-        % -- differential connection:
-        [A_syn(:,1),ph_syn(:,1),A_syn(:,2),ph_syn(:,2)] = correction_transducer_sim(tab,din.tr_type.v,fx, A,ph,0*A,0*ph,rand_str,Zx);
-        % subchannel correction tables:
-        sctab{1}.adc_gain = tab.adc_gain;
-        sctab{1}.adc_phi  = tab.adc_phi;
-        sctab{2}.adc_gain = tab.lo_adc_gain;
-        sctab{2}.adc_phi  = tab.lo_adc_phi;
-        % subchannel timeshift:
-        tsh(1) = 0; % high-side channel
-        tsh(2) = din.time_shift_lo.v; % low-side channel
-        % aperture:
-        ap_state(1) = din.adc_aper_corr.v;
-        ap_state(2) = din.lo_adc_aper_corr.v;
-        % ADC offset:
-        adc_ofs(1) = din.adc_offset;
-        adc_ofs(2) = din.lo_adc_offset;
-    else
-        % -- single-ended connection:
-        [A_syn(:,1),ph_syn(:,1)] = correction_transducer_sim(tab,din.tr_type.v,fx, A,ph,0*A,0*ph,rand_str);
-        % subchannel correction tables:
-        sctab{1}.adc_gain = tab.adc_gain;
-        sctab{1}.adc_phi  = tab.adc_phi;
-        % subchannel timeshift:
-        tsh(1) = 0; % none for single-ended mode
-        % aperture:
-        ap_state(1) = din.adc_aper_corr.v;
-        % ADC offset:
-        adc_ofs(1) = din.adc_offset;
-    end
-            
-    % get ADC aperture value [s]:
-    ta = abs(din.adc_aper.v);
-
-    % calculate aperture gain/phase correction:
-    ap_gain = sin(pi*ta*fx)./(pi*ta*fx);
-    ap_phi  = -pi*ta*fx;
-        
-    % for each transducer subchannel:
-    for c = 1:numel(sctab)
-        
-        % interpolate digitizer gain/phase to the measured frequencies and amplitudes:
-        k_gain = correction_interp_table(sctab{c}.adc_gain,A_syn(:,c),fx,'f',1);    
-        k_phi =  correction_interp_table(sctab{c}.adc_phi, A_syn(:,c),fx,'f',1);
-        
-        % apply digitizer gain:
-        Ac  = A_syn(:,c)./k_gain.gain;
-        phc = ph_syn(:,c) - k_phi.phi;
-        
-        % apply aperture error:
-        if ap_state(c) && ta > 1e-12
-            Ac = Ac.*ap_gain;
-            phc = phc + ap_phi;
-        end
-        
-        % randomize ADC gain:
-        if rand_unc
-            Ac  = Ac.*(1 + k_gain.u_gain.*randn(size(Ac)));
-            phc = phc + k_phi.u_phi.*randn(size(phc));
-        end
-        
-        % DC component to zero freq.:
-        fxt = fx;
-        fxt(end) = 0;
-        
-        % generate relative time 2*pi*t:
-        % note: include time-shift and timestamp delay and frequency error:        
-        tstmp = din.time_stamp.v;       
-        t = [];
-        t(:,1) = ([0:N-1]/din.fs.v + tsh(c) + tstmp)*(1 + din.adc_freq.v)*2*pi;
-        
-        % synthesize waveform (crippled for Matlab < 2016b):
-        % u = Ac.*sin(t.*fxt + phc);
-        u = bsxfun(@times, Ac', sin(bsxfun(@plus, bsxfun(@times, t, fxt'), phc')));
-        % sum the harmonic components to a single composite signal:
-        u = sum(u,2);
-        
-        % add some noise:
-        u = u + randn(N,1)*adc_std_noise;
-        
-        % add ADC offset:
-        u = u + adc_ofs(c).v + adc_ofs(c).u*randn;
-        
-        % store to the QWTB input list:
-        datain = setfield(datain, cfg.ysub{c}, struct('v',u));
-    
-    end
-    
     % add fake uncertainties to allow uncertainty calculation:
     %  ###todo: to be removed when QWTB supports no uncertainty checking 
     alginf = qwtb('TWM-FPNLSF','info');
     qwtb('TWM-FPNLSF','addpath');    
     datain = qwtb_add_unc(datain,alginf.inputs);
-        
 
     % --- execute the algorithm:
     dout = qwtb('TWM-FPNLSF',datain,calcset);
     
+    
+    
+    
+    
+    
     % get reference values:
-    f0  = fx(1);
+    f0  = cfg.fx(1);
     Ar  = A(1);
-    phr = ph(1);    
+    phr = ph(1);
+    ofsr = dc;    
     
     % get calculated values and uncertainties:
-    fx  = dout.f.v;
-    Ax  = dout.A.v;
-    phx = mod(dout.phi.v+pi,2*pi)-pi; % wrap to +-pi
-    ofsx  = dout.ofs.v;
-    u_fx  = dout.f.u;
-    u_Ax  = dout.A.u;
-    u_phx = dout.phi.u;
-    u_ofsx = dout.ofs.u;
-%     if ~rand_unc
-%         u_fx  = f0*1e-8;
-%         u_Ax  = Ar*1e-6;
-%         u_phx = 1e-6;
-%     end
+    fx   = dout.f;
+    Ax  = dout.A;
+    phx = dout.phi;
+    ofsx = dout.ofs;
+    if strcmpi(calcset.unc,'none')
+        fx.u = NaN;
+        Ax.u = NaN;
+        phx.u = NaN;
+        ofs.u = NaN;
+    end
+    if Ax.u/Ax.v < 1e-8
+        Ax.u = Ax.v*1e-8;
+    end  
+    if phx.u/phx.v < 1e-8
+        phx.u = phx.v*1e-8;
+    end
+    if ofsx.u/ofsx.v < 1e-8
+        ofsx.u = ofsx.v*1e-8;
+    end
+ 
+    % print result:          
+    names = {'f','A','ph','ofs'};        
+    ref =  [f0, Ar, phr, ofsr];    
+    dut =  [fx, Ax, phx, ofsx];      
+    has_unc = ~strcmpi(calcset.unc,'none');
     
-    
-    % print results:
-    ref_list =  [f0, Ar, phr, dc];    
-    dut_list =  [fx, Ax, phx, ofsx];
-    unc_list =  [u_fx, u_Ax, u_phx, u_ofsx];
-    name_list = {'f','A','ph','dc'};
-    
-    fprintf('   |     REF     |     DUT     |   ABS DEV   |  %%-DEV   |     UNC     |  %%-UNC \n');
-    fprintf('---+-------------+-------------+-------------+----------+-------------+----------\n');
-    for k = 1:numel(ref_list)
+    fprintf('\n');
+    fprintf('----------+-------------+----------------------------+-------------+----------+---------\n');
+    fprintf('  OUTPUT  |     REF     |         DUT +- UNC         |     DEV     |  UNC [%%] | %%-UNC\n');
+    fprintf('----------+-------------+----------------------------+-------------+----------+---------\n');
+    for k = 1:numel(names)
+
+        if ~isnan(ref(k)) && isnan(dut(k).u)
+            [ss,rv] = unc2str(ref(k),1e-7*ref(k));
+        elseif ~isnan(ref(k))
+            [ss,rv] = unc2str(ref(k),dut(k).u);
+        else
+            rv = 'NaN';
+        end            
         
-        ref = ref_list(k);
-        dut = dut_list(k);
-        unc = unc_list(k);
-        name = name_list{k};
+        dev = dut(k).v - ref(k);
         
-        fprintf('%-2s | %11.6f | %11.6f | %+11.6f | %+8.4f | %+11.6f | %5.0f\n',name,ref,dut,dut - ref,100*(dut - ref)/ref,unc,100*abs(dut - ref)/unc);
+        if isnan(dut(k).u)  
+            uu = max(1e-7*dut(k).v,1e-7);
+        else
+            uu = dut(k).u;
+        end
         
-    end   
+        if ~isnan(dut(k).v)             
+            [ss,dv,du] = unc2str(dut(k).v,uu);                 
+        else
+            dv = 'NaN';
+            du = 'NaN';
+        end
+        
+        rdev = 100*dev/dut(k).v;
+        runc = 100*dut(k).u/dut(k).v;
+        [ss,ev] = unc2str(dev,uu);
+        
+        if ~isnan(dev) && has_unc
+            pp = 100*abs(dev/uu);                           
+        else
+            pp = inf; 
+        end
+        
+        if ~has_unc
+            runc = 0;                           
+        end
+                 
+        fprintf(' %-8s | %11s | %11s +- %-11s | %11s | %8.4f |%4.0f\n',names{k},rv,dv,du,ev,runc,pp);                
+    end        
+    fprintf('----------+-------------+----------------------------+-------------+----------+---------\n\n');
     
         
     % check frequency estimate:
-    assert(abs(fx - f0) < u_fx, 'Estimated freq. does not match generated one.');
+    assert(abs(fx.v - f0) < fx.u, 'Estimated freq. does not match generated one.');
     
-    if ~is_diff
+    %if ~is_diff
     
         % check amplitude match     
-        assert(abs(Ax - Ar) < u_Ax, 'Estimated amplitude does not match generated one.');
+        assert(abs(Ax.v - Ar) < Ax.u, 'Estimated amplitude does not match generated one.');
         
         % check phase match     
-        assert(abs(phx - phr) < u_phx, 'Estimated phase does not match generated one.'); 
-    end                                                     
+        assert(abs(phx.v - phr) < phx.u, 'Estimated phase does not match generated one.'); 
+    %end                                                     
     
 end
 

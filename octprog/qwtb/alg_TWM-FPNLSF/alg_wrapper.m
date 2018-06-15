@@ -120,6 +120,8 @@ function dataout = alg_wrapper(datain, calcset)
         % on for non-coherent sampling, but the error should be roughly the same for 
         % low- and high-side signal which should be enough to calculate diff. tran. tfer.
         
+        % #######note: do not replace local ampphspectrum() by QWTB call until it's fixed!
+        %              this local copy has fixed the DC gain and polarity error!
         % get high-side spectrum:
         [fh, vc.Y, vc.ph] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);    
         % get low-side spectrum:
@@ -128,8 +130,6 @@ function dataout = alg_wrapper(datain, calcset)
         % identify DFT bin with the estimated freq. component:
         [v,fid] = min(abs(fh - f_est));
                
-        
-        
         % get rough voltage vectors for high- and low-side channels from DFT:
         A0    = vc.Y(fid);
         A0_lo = vc.Y_lo(fid);
@@ -137,12 +137,23 @@ function dataout = alg_wrapper(datain, calcset)
         ph0_lo = vc.ph_lo(fid);
         
         % DC offset:
-        dc = vc.Y(1)/2; % ###todo: /2 is needed because of ampphspectrum() which multiplies DC by 2
-        dc_lo = vc.Y_lo(1)/2; % ###todo: /2 is needed because of ampphspectrum() which multiplies DC by 2
+        dc    = vc.Y(1);
+        dc_lo = vc.Y_lo(1);
         % estimate for ADC offset uncertainties:
-        u_dc = vc.ofs.u;
+        u_dc    = vc.ofs.u;
         u_dc_lo = vc.ofs_lo.u;
-                        
+        
+        % temporarily remove all DC offsets from signal (time domain):
+        vc.y    = vc.y    - dc;
+        vc.y_lo = vc.y_lo - dc_lo;        
+        % fix ADC DC offsets in frequency domain:        
+        dc    = dc    - vc.ofs.v;
+        dc_lo = dc_lo - vc.ofs_lo.v;
+        
+         
+        %vc.y
+        
+                                
         % get gain/phase correction for the dominant component (high-side digitizer):
         ag = correction_interp_table(tab.adc_gain, A0, fx);
         ap = correction_interp_table(tab.adc_phi,  A0, fx);        
@@ -211,9 +222,14 @@ function dataout = alg_wrapper(datain, calcset)
         
         % calculate hi-lo difference in timedomain:            
         vc.y = vc.y - vc.y_lo; % time-domain
-                
-               
-
+        
+        % get ADC DC gains:        
+        dcg    = correction_interp_table(tab.adc_gain, dc, 1e-12);
+        dcg_lo = correction_interp_table(tab.lo_adc_gain, dc_lo, 1e-12);
+        % apply ADC DC gains:
+        dc    = dc*dcg.gain;
+        dc_lo = dc_lo*dcg_lo.gain; % frequency domain
+        vc.y = vc.y + (dc - dc_lo); % time domain
         
         % calculate normalized transducer tfer from the DFT vectors:
         if ~isempty(vc.tran)
@@ -242,8 +258,7 @@ function dataout = alg_wrapper(datain, calcset)
         trp = trp(2);
         u_trg = u_trg(2);    
         u_trp = u_trp(2);
-         
-        
+          
         
         % estimate signal parameters (from differential signal):            
         [Ax, fx, phx, ox] = FPNLSF_loop(t, vc.y, f_est, calcset.verbose, cfg);
@@ -428,6 +443,9 @@ function dataout = alg_wrapper(datain, calcset)
     % apply timestamp uncertainty to phase:
     u_phx = (u_phx^2 + u_p_ts^2)^0.5;
     
+    % wrap the phase:
+    phx = mod(phx + pi,2*pi) - pi;
+    
     
     % calc. coverage factor:
     ke = loc2covg(calcset.loc,50);       
@@ -493,7 +511,11 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr)
     nid = nid(nid > wind_w & nid <= numel(nid)); % get rid of DC and limit to valid range
     
     % noise level estimate from the spectrum residue to full bw.:
-    Y_noise = interp1(fh(nid),Y(nid),fh,'nearest','extrap');
+    if isempty(nid)
+        Y_noise = [0];
+    else
+        Y_noise = interp1(fh(nid),Y(nid),fh,'nearest','extrap');
+    end
     
     % estimate full bw. rms noise:    
     noise_rms = sum(0.5*Y_noise.^2).^0.5/w_rms*w_gain;

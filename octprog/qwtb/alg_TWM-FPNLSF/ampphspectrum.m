@@ -134,6 +134,7 @@ function [f, amp, ph] = ampphspectrum(y, fs, verbose, stem_plot, win, winparam, 
         Y = Y(end:-1:1);
         % power values normalized:
         amp = 2 * abs(Y) ./ normalisation_factor;
+        amp(1) = real(Y(1)) ./ normalisation_factor; % ### restore DC at its original amplitude and polarity!!! 
         % calculate phases (and correctly multiply by minuses etc. because we used negative part of
         % spectra):
         ph = -1.*angle(-i.*Y);
