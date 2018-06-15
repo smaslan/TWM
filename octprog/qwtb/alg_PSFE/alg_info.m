@@ -34,6 +34,27 @@ alginfo.inputs(4).alternative = 0;
 alginfo.inputs(4).optional = 0;
 alginfo.inputs(4).parameter = 0;
 
+% uncertainty calculation related parameters
+alginfo.inputs(5).name = 'sfdr';
+alginfo.inputs(5).desc = 'Spurious free dynamic range (positive dBc)';
+alginfo.inputs(5).alternative = 0;
+alginfo.inputs(5).optional = 1;
+alginfo.inputs(5).parameter = 1;
+
+alginfo.inputs(6).name = 'adcres';
+alginfo.inputs(6).desc = 'Absolute resolution of the ADC';
+alginfo.inputs(6).alternative = 0;
+alginfo.inputs(6).optional = 1;
+alginfo.inputs(6).parameter = 1;
+
+alginfo.inputs(7).name = 'jitter';
+alginfo.inputs(7).desc = 'RMS jitter of the sampling time';
+alginfo.inputs(7).alternative = 0;
+alginfo.inputs(7).optional = 1;
+alginfo.inputs(7).parameter = 1;
+
+
+
 alginfo.outputs(1).name = 'f';
 alginfo.outputs(1).desc = 'Frequency of main signal component';
 
@@ -43,7 +64,7 @@ alginfo.outputs(2).desc = 'Amplitude of main signal component';
 alginfo.outputs(3).name = 'ph';
 alginfo.outputs(3).desc = 'Phase of main signal component';
 
-alginfo.providesGUF = 0;
+alginfo.providesGUF = 1;
 alginfo.providesMCM = 0;
 
 % vim settings modeline: vim: foldmarker=%<<<,%>>> fdm=marker fen ft=octave textwidth=80 tabstop=4 shiftwidth=4
