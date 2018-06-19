@@ -163,11 +163,7 @@ function dataout = alg_wrapper(datain, calcset)
     din.f_line.v = datain.f_line.v;
     cset = calcset;
     cset.unc = 'none';    
-    dout = qwtb('flicker_sim', din, cset);
-    
-    % ###todo: remove when main flicker_sim is fixed...    
-    dataout.Pst.v = dout.Pst;    
-    dataout.Pinst.v = dout.Pinst;
+    dataout = qwtb('flicker_sim', din, cset);
     
     if strcmpi(calcset.unc,'guf')
         % estimate some uncertainty:

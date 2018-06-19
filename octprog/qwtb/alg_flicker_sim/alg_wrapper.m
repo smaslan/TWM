@@ -25,8 +25,8 @@ end
 [Pst, Pinst] = flicker_sim(datain.y.v, datain.fs.v, datain.f_line.v, 0);
 
 % Format output data:  --------------------------- %<<<1
-dataout.Pst = Pst;
-dataout.Pinst = Pinst;
+dataout.Pst.v = Pst;
+dataout.Pinst.v = Pinst;
 
 end % function
 

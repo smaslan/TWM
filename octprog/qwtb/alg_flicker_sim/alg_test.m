@@ -26,8 +26,8 @@ DI.f_line.v = f_c;
 %% Call algorithm
 % Use QWTB to apply algorithm |flicker_sim| to data |DI|.
 DO = qwtb('flicker_sim', DI);
-assert(DO.Pst > 0.993 & DO.Pst < 0.995);
-assert(max(DO.Pinst) > 2.95 & max(DO.Pinst) < 2.96);
+assert(DO.Pst.v > 0.993 & DO.Pst.v < 0.995);
+assert(max(DO.Pinst.v) > 2.95 & max(DO.Pinst.v) < 2.96);
 
 end % function
 
