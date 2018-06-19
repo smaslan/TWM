@@ -21,7 +21,7 @@ assert(all(abs(DO.f.v - [0 1 2]) < 1e-14));
 assert(all(abs(DO.A.v - [0 1 0]) < 1e-14));
 assert(all(abs(DO.ph.v(2)   - 1) < 1e-14));
 
-% Test proper results for complex signal --------------------------- %<<<1
+% Test proper results for complex signal with offset --------------------------- %<<<1
 clear DI
 DI.fs.v = 50;
 DI.t.v = [0 : 1/DI.fs.v : 1];
@@ -33,7 +33,10 @@ DI.y.v = zeros(size(DI.t.v));
 for i = 1:length(fnom)
     DI.y.v = DI.y.v + Anom(i).*sin(2.*pi.*fnom(i).*DI.t.v + pnom(i));
 end
+DI.y.v = DI.y.v + 2;
 DO = qwtb('SP-WFFT', DI);
+DO.A.v(1);
+assert(all(abs(DO.A.v(1)  -   2) < 1e-14));
 assert(all(abs(DO.A.v(2)  -   1) < 1e-14));
 assert(all(abs(DO.A.v(9)  - 0.5) < 1e-14));
 assert(all(abs(DO.A.v(16) - 0.3) < 1e-14));

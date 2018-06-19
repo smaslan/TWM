@@ -52,12 +52,13 @@ if isfield(datain, 'fft_padding')
 end
 
 % Call algorithm ---------------------------  %<<<1
-[f, amp, ph] = ampphspectrum(datain.y.v, fs, 0, 0, win, winparam, padding);
+[f, amp, ph, w] = ampphspectrum(datain.y.v, fs, 0, 0, win, winparam, padding);
 
 % Format output data:  --------------------------- %<<<1
 dataout.f.v = f(:)';
 dataout.A.v = amp(:)';
 dataout.ph.v = ph(:)';
+dataout.w.v = w(:)'; % window coeficients
 
 end % function
 

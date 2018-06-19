@@ -27,7 +27,7 @@ SOFTWARE.
 
 The MIT License (MIT)
 
-Copyright (c) 2018 Stanislav Maslan, Marko Berginc
+Copyright (c) 2018 Stanislav Maslan
 
 This license is relevant only to the QWTB-TWM wrapper of the 
 'Phase Sensitive Frequency Estimator' algorithm.

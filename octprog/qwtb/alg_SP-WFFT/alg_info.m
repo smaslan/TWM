@@ -80,6 +80,9 @@ alginfo.outputs(2).desc = 'Amplitude spectrum';
 alginfo.outputs(3).name = 'ph';
 alginfo.outputs(3).desc = 'Phase spectrum';
 
+alginfo.outputs(4).name = 'w';
+alginfo.outputs(4).desc = 'Window coefficients';
+
 alginfo.providesGUF = 0;
 alginfo.providesMCM = 0;
 

@@ -3,10 +3,14 @@ function alg_test(calcset) %<<<1
 %
 % See also qwtb
 
-    % calculation setup:
+    % --- calculation setup:
+    % verbose level
     calcset.verbose = 1;
+    % uncertainty mode {'none' - no uncertainty calculation, 'guf' - estimator}
     calcset.unc = 'guf';
+    % level of confidence (default 0.68 i.e. k=1):
     calcset.loc = 0.95;
+    
     
     % samples count to synthesize:
     %N = 1e5;
@@ -19,6 +23,7 @@ function alg_test(calcset) %<<<1
     %  note: enables randomization of the correction values by their uncertainties
     rand_unc = 0;
     
+    % --- these are harmonics to generate:
     % harmonic amplitudes:
     A =  [1       0.005]'*10;
     % harmonic phases:
@@ -30,7 +35,7 @@ function alg_test(calcset) %<<<1
     % dc offset:
     dc = 0.1;
     
-    
+    % print some header:
     fprintf('samples count = %g\n',N);
     fprintf('sampling rate = %.7g kSa/s\n',0.001*din.fs.v);
     fprintf('fundamental frequency = %.7g Hz\n',f0_per/N*din.fs.v);
@@ -64,10 +69,9 @@ function alg_test(calcset) %<<<1
     din.adc_aper.v = 20e-6;
     
     % ADC aperture correction enabled:
-    % note: non-zero value will enable correction of the gain/phase error by alg.
+    % note: non-zero value will enable correction of the ADC gain/phase error by alg.
     din.adc_aper_corr.v = 1;
-    din.lo_adc_aper_corr.v = 1;
-    
+    din.lo_adc_aper_corr.v = 1;    
     
     % generate some time-stamp of the digitizer channel:
     % note: the algorithm must 'unroll' the calculated phase accordingly,
@@ -100,21 +104,21 @@ function alg_test(calcset) %<<<1
     % create corretion of the digitizer timebase:
     din.adc_freq.v = 0.001;
     din.adc_freq.u = 0.000005;
-    % create corretion of the digitizer timebase:
+    % create ADC offset voltages:
     din.adc_offset.v = 0.001;
     din.adc_offset.u = 0.000005;
     din.lo_adc_offset.v = -0.002;
     din.lo_adc_offset.u = 0.000005;
     % digitizer resolution:
-    din.adc_bits.v = 24;
-    din.adc_nrng.v = 1;
-    din.lo_adc_bits.v = 24;
+    din.adc_bits.v = 24; % bits
+    din.adc_nrng.v = 1; % nominal range [V]
+    din.lo_adc_bits.v = 24; % low-side channel
     din.lo_adc_nrng.v = 1;
     % digitizer SFDR estimate:
     din.adc_sfdr_a.v = [];
     din.adc_sfdr_f.v = [];
     din.adc_sfdr.v = -log10(sfdr)*20;
-    din.lo_adc_sfdr_a = din.adc_sfdr_a;
+    din.lo_adc_sfdr_a = din.adc_sfdr_a; % low-side channel
     din.lo_adc_sfdr_f = din.adc_sfdr_f;
     din.lo_adc_sfdr = din.adc_sfdr;
     
@@ -137,7 +141,7 @@ function alg_test(calcset) %<<<1
     din.tr_phi.v = [0.000; -0.200; -0.500]*pi;
     din.tr_phi.u = [0.001;  0.002;  0.005]*pi*0.01;
         
-    % RVD low-side impedance:
+    % define RVD low-side impedance:
     din.tr_Zlo_f.v = [];
     din.tr_Zlo_Rp.v = [200.00];
     din.tr_Zlo_Rp.u = [  0.05];
@@ -146,19 +150,19 @@ function alg_test(calcset) %<<<1
     
     
     % generate the signal:
-    cfg.N = N;
-    cfg.fx = fk*din.fs.v/N;
-    cfg.Ax = A;
-    cfg.phx = ph;
-    cfg.dc = dc;
-    cfg.sfdr = sfdr;
-    cfg.sfdr_hn = sfdr_hn;
-    cfg.sfdr_rand = sfdr_rand;
-    cfg.adc_std_noise = adc_std_noise;     
+    cfg.N = N; % samples count
+    cfg.fx = fk*din.fs.v/N; % frequency components
+    cfg.Ax = A; % amplitudes
+    cfg.phx = ph; % phases
+    cfg.dc = dc; % dc offset
+    cfg.sfdr = sfdr; % sfdr max amplitude
+    cfg.sfdr_hn = sfdr_hn; % sfdr max harmonics count
+    cfg.sfdr_rand = sfdr_rand; % randomize sfdr amplitudes?
+    cfg.adc_std_noise = adc_std_noise; % ADC noise level     
     if exist('Zx','var')
         cfg.Zx = Zx; % differential mode enabled 
     end        
-    datain = gen_composite(din, cfg, rand_unc);
+    datain = gen_composite(din, cfg, rand_unc); % generate
    
     
 
@@ -170,6 +174,9 @@ function alg_test(calcset) %<<<1
 
     % --- execute the algorithm:
     dout = qwtb('TWM-PSFE',datain,calcset);
+    
+    
+    % --- show results:
     
     % get reference values:
     f0  = cfg.fx(1);
@@ -245,7 +252,6 @@ function alg_test(calcset) %<<<1
         fprintf(' %-8s | %11s | %11s +- %-11s | %11s | %8.4f |%4.0f\n',names{k},rv,dv,du,ev,runc,pp);                
     end        
     fprintf('----------+-------------+----------------------------+-------------+----------+---------\n\n');
-    
         
     % check frequency estimate:
     assert(abs(fx.v - f0) < fx.u, 'Estimated freq. does not match generated one.');

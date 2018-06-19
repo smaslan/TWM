@@ -30,13 +30,15 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
     [fa A ph] = PSFE(datain.y.v,Ts,init_guess);
     
     
+    
     if strcmpi(calcset.unc,'guf')
         % --- Uncertainty estimator ---
         
-        % samples count:
+        % get samples count:
         N = numel(datain.y.v);
         
-        % load SFDR value (applies to both harmonic and interhamonic content), related to fundamental freq.:
+        % load SFDR value (applies to both harmonic and interhamonic content), related to fundamental component:
+        % note: output of this is always negative dBc!
         if isfield(datain,'sfdr')
             sfdr = -datain.sfdr.v;
         else            
@@ -51,6 +53,7 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
         end
         
         % load rms jitter value [s]:
+        % note: this may be in future removed and the jitter can be passed in this wrapper via 't' uncertainty 
         if isfield(datain,'jitter')
             jitter = datain.jitter.v;
         else            
@@ -59,45 +62,47 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
         
         
         % --- perform spectrum analysis:
-        qwtb('SP-WFFT','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called        
-        % get window parameters (needed later):
-        din.window.v = 'flattop_248D';
-        w = window_coeff(din.window.v,N,'periodic');
-        w_gain = mean(w);        
-        w_rms = mean(w.^2).^0.5;         
+        % note: we need this in order to find out harmonics/inter-harmonics in the signal
         % do windowed FFT:
         din.Ts.v = Ts;
         din.y.v = datain.y.v;
+        din.window.v = 'flattop_248D';
         cset.verbose = 0;        
         dout = qwtb('SP-WFFT',din,cset);
         qwtb('PSFE','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
-        fh  = dout.f.v;
-        amp = dout.A.v;
+        fh  = dout.f.v; % freq. vector of the DFT bins
+        amp = dout.A.v; % amplitude vector of the DFT bins
         H = numel(fh); % DFT bins count
+        % get window parameters (needed later):
+        w_gain = mean(dout.w.v);        
+        w_rms = mean(dout.w.v.^2).^0.5;
         
         
-        % window half-width:
+        
+        % our window half-width:
         w_size = 11;
         
-        % -- look for and remove harmonics:
-        % note: exact harmonics should not affect rms calculation at all, so we just remove those from calculation
-    
-        % fundamental component:
+
+        % -- look for and remove harmonics:            
+        % get fundamental component DFT bin:
         [v,f0id] = min(abs(fa - fh));
         
         % fundamental amplitude:
         sig_amp = amp(f0id);
-        % fundamental rms:
+        % fundamental rms estimate:
         sig_rms = 2^-0.5*amp(f0id);
         
         % expected harmonics:    
         fhx = fa:fa:max(fh);
         
-        % mask all harmonics:
+        % mask all harmonics in the spectrum:
         msk = [max(w_size,floor(0.1*f0id)):numel(fh)];        
         h_list = [];
         for k = 1:numel(fhx)
             [v,fid] = min(abs(fhx(k) - fh));
+            if isempty(fid)
+                break;
+            end
             h_list(end+1) = fid;
             h_bins = [(fid - w_size):(fid + w_size)];
             % remove harmonic bins from remaining list:
@@ -107,8 +112,8 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
         % at this point spectrum should contain only non-harmonic content...
             
         
+
         % -- look for interhamonics:
-        % note: these affect the rms since they are not coherent with the window
         
         % max. analyzed components:
         h_max = 100;
@@ -136,7 +141,7 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
         end        
         % at this point spectrum should contain only noise...
         
-        if false
+        if false % debug
             figure
             loglog(fh,amp)
             hold on;
@@ -148,11 +153,11 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
         
                 
         % effective harmonics to fundamental ratio:
-        %  note: was max. harmonic to fundamental but when multiple harmonics are near size, this does more sense...
+        %  note: was max. harmonic to fundamental but when multiple harmonics are near sized, this makes more sense...
         rel_harm_amp = sum(amp(h_list(2:end)).^2).^0.5/sig_amp;
                 
         % effective inter-harmonics to fundamental ratio:
-        %  note: was max. harmonic to fundamental but when multiple harmonics are near size, this does more sense...
+        %  note: was max. harmonic to fundamental but when multiple harmonics are near size, this makes more sense...
         rel_inter_amp = sum(amp(ih_list).^2).^0.5/sig_amp;
         
         % add SFDR to harmonic ratios:
@@ -170,18 +175,22 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
         noise_rms = sum(0.5*noise.^2).^0.5/w_rms*w_gain;
         
         % SNR estimate:
+        % ###todo: validate it is correct
         snr = -10*log10((noise_rms/sig_rms)^2);    
-        % SNR equivalent time jitter (yes, very nasty solution...):
+        % SNR equivalent time jitter (yes, very nasty solution, but it should work...):
+        % note: this should be equivalent jitter to the remaining noise in the signal
+        %       as the estimator has no input for noise, this is possible way...
         tnj = 10^(-snr/20)/2/pi/fa;
         
-        % combine jitter estimate with the noise-jitter estimate:
+        % combine known jitter estimate with the noise-jitter estimate:
         jitter = (jitter^2 + tnj^2)^0.5;
                                
         
         % relative ADC resolution:
         rel_res = adcres/A;
         
-        % obtain estimate of the frequency error: 
+        % obtain estimate of the frequency error:
+        % ###todo: SIQ, please define boundaries of the estimator parameters either in the PSFE_unc() or here!!! 
         err = PSFE_unc(fa, 1/Ts, N, jitter, rel_res, rel_harm_amp, rel_inter_amp);
         
         % estimate standard unceratainty:
