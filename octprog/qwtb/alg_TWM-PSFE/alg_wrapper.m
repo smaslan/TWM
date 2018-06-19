@@ -271,7 +271,7 @@ function dataout = alg_wrapper(datain, calcset)
             din.adcres.v = lsb*adc_gain.gain*kgain;
             din.sfdr.v = sfdr_sys;
             cset = calcset;
-            cset.loc = 0.632; % calculate with standard uncertainty
+            cset.loc = 0.68; % calculate with standard uncertainty
             cset.verbose = 0;  
             dout = qwtb('PSFE',din,cset);
             qwtb('TWM-PSFE','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
