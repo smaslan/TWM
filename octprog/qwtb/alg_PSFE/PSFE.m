@@ -34,7 +34,7 @@ if (init_guess >= 0)
     NFFT = 2^nextpow2(M);       % Next power of 2 from length of y
     t = fft(Record,NFFT);       % compute FFT
     tr = abs(t(1:NFFT/2));      % get the amplitude spectrum
-    [~,I]=max(tr);              % find the index for the maximum value bin
+    [tmp,I]=max(tr);              % find the index for the maximum value bin
     fa = (I-1)/(Ts*NFFT);       % and calculate the corresponding frequency
 else
     fa = - init_guess;
@@ -58,7 +58,7 @@ while 1                     % algorithm loop
     else
         dc = round((round(floor(dmax*faTs)/(faTs)):-(1/(faTs)):dmax/2));   % possible candidates for d0
         dd = dc*faTs;
-        [~,I] = min(abs(round(dd)./dd-1)); % find minimum from arguments
+        [tmp,I] = min(abs(round(dd)./dd-1)); % find minimum from arguments
         if I                        % I is not zero
             d0 = dc(I);
         else

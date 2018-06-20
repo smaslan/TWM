@@ -192,8 +192,8 @@ function dout = gen_composite(din,cfg,rand_unc)
         k_phi  = correction_interp_table(sctab{c}.adc_phi,  A_syn(:,c), fx, 'f',1);
         
         % apply digitizer gain (with uncertainty randomization):
-        Ac  = A_syn(:,c)./(k_gain.gain + k_gain.u_gain.*randn(size(A_syn,1)));
-        phc = ph_syn(:,c) - k_phi.phi + k_phi.u_phi.*randn(size(ph_syn,1));
+        Ac  = A_syn(:,c)./(k_gain.gain + k_gain.u_gain.*randn(size(k_gain.u_gain)));
+        phc = ph_syn(:,c) - k_phi.phi + k_phi.u_phi.*randn(size(k_phi.u_phi));
         
         % extract fake DC component from the harmonic list:
         dcc = Ac(1);

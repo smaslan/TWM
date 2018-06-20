@@ -48,7 +48,7 @@ function alg_test(calcset) %<<<1
     
     % current loop impedance (used for simulation of differential transducer):
     %  note: uncomment to enable differential mode of transducer
-    Zx = 10;    
+    %Zx = 10;    
         
     % noise rms level:
     adc_std_noise = 10e-6;

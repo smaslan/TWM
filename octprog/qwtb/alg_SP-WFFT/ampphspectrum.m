@@ -126,12 +126,12 @@ function [f, amp, ph, w] = ampphspectrum(y, fs, verbose, stem_plot, win, winpara
         % valid here), furthermore abs() for reals will cause loss of the sign:
         amp(1) = imag(Y(1)) ./ normalisation_factor; % note: imag because we rotated the result by pi/2 before!
         % calculate phases:
-        ph = arg(Y);
+        ph = angle(Y);
         ph(1) = 0; % no phase angle of the DC!
         % build frequency vector (spacing is df=fs/N):
         f = fs./N.*[0:length(Y)-1];
         % force same orientation of fr. vector as of input y vector:
-        if iscolumn(y)
+        if size(y,1) > 1 && size(y,2) == 1
                 f = f';
                 w = w';
         end
