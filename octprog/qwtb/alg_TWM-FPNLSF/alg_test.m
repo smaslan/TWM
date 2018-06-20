@@ -4,13 +4,17 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     
-    % calculation setup:
+    % --- calculation setup:
+    % verbose level
     calcset.verbose = 1;
+    % uncertainty mode {'none' - no uncertainty calculation, 'guf' - estimator}
     calcset.unc = 'guf';
-    calcset.loc = 0.95;      
+    % level of confidence (default 0.68 i.e. k=1):
+    calcset.loc = 0.95;
     
     % samples count to synthesize:
-    N = 5e3;
+    %N = 5e3;
+    N = logrand(5000,50000);
     
     % sampling rate [Hz]
     din.fs.v = 100000;
@@ -18,19 +22,21 @@ function alg_test(calcset) %<<<1
     % randomize correction uncertainties:     
     rand_unc = 0;
      
-    
+    % --- these are harmonics to generate:
     % harmonic amplitudes:
-    A =  10*[1    logrand(1e-6,0.01)]';
+    A =  logrand(0.1,10)*[1    logrand(1e-6,0.01)]';
     % harmonic phases:
     ph = [0.5/pi  2*rand()          ]'*pi;
     % harmonic freq. [Hz]:
-    f0 = logrand(1/(N/din.fs.v*5),din.fs.v/10);
+    f0_max = 100/(N/din.fs.v);
+    f0 = logrand(10/(N/din.fs.v),min(din.fs.v/10,f0_max));   
     fx = [f0 logrand(1.5*f0,0.45*din.fs.v)]';
+    
     % dc offset:
-    dc = 0.1;
+    dc = linrand(-0.1,0.1);
     
         
-    
+    % print some header:
     fprintf('samples count = %g\n', N);
     fprintf('sampling rate = %.7g kSa/s\n', 0.001*din.fs.v);
     fprintf('fundamental frequency = %.7g Hz\n', fx(1));
@@ -42,7 +48,7 @@ function alg_test(calcset) %<<<1
     
     % current loop impedance (used for simulation of differential transducer):
     %  note: uncomment to enable differential mode of transducer
-    %Zx = 10;    
+    Zx = 10;    
         
     % noise rms level:
     adc_std_noise = 10e-6;
@@ -102,21 +108,21 @@ function alg_test(calcset) %<<<1
     % create corretion of the digitizer timebase:
     din.adc_freq.v = 0.000100;
     din.adc_freq.u = 0.000005;
-    % create corretion of the digitizer timebase:
+    % create ADC offset voltages:
     din.adc_offset.v = 0.001;
     din.adc_offset.u = 0.000005;
     din.lo_adc_offset.v = -0.002;
     din.lo_adc_offset.u = 0.000005;
     % digitizer resolution:
-    din.adc_bits.v = 24;
-    din.adc_nrng.v = 1;
-    din.lo_adc_bits.v = 24;
+    din.adc_bits.v = 24; % bits
+    din.adc_nrng.v = 1; % nominal range [V]
+    din.lo_adc_bits.v = 24; % low-side channel
     din.lo_adc_nrng.v = 1;
     % digitizer SFDR estimate:
     din.adc_sfdr_a.v = [];
     din.adc_sfdr_f.v = [];
     din.adc_sfdr.v = -log10(sfdr)*20;
-    din.lo_adc_sfdr_a = din.adc_sfdr_a;
+    din.lo_adc_sfdr_a = din.adc_sfdr_a; % low-side channel
     din.lo_adc_sfdr_f = din.adc_sfdr_f;
     din.lo_adc_sfdr = din.adc_sfdr;
     
@@ -149,20 +155,19 @@ function alg_test(calcset) %<<<1
         
 
     % generate the signal:
-    cfg.N = N;
-    cfg.fx = fx;
-    cfg.Ax = A;
-    cfg.phx = ph;
-    cfg.dc = dc;
-    cfg.sfdr = sfdr;
-    cfg.sfdr_hn = sfdr_hn;
-    cfg.sfdr_rand = sfdr_rand;
-    cfg.adc_std_noise = adc_std_noise;     
+    cfg.N = N; % samples count
+    cfg.fx = fx; % harmonic frequencies
+    cfg.Ax = A; % harmonics amplitudes
+    cfg.phx = ph; % harmonic phases
+    cfg.dc = dc; % dc offset
+    cfg.sfdr = sfdr; % sfdr max amplitude
+    cfg.sfdr_hn = sfdr_hn; % sfdr max harmonics count
+    cfg.sfdr_rand = sfdr_rand; % randomize sfdr amplitudes?
+    cfg.adc_std_noise = adc_std_noise; % ADC noise level  
     if exist('Zx','var')
         cfg.Zx = Zx; % differential mode enabled 
     end        
     datain = gen_composite(din, cfg, rand_unc);
-    
     
     % store estimate of the frequency to find:
     datain.f_est.v = fx(1);
@@ -180,7 +185,7 @@ function alg_test(calcset) %<<<1
     
     
     
-    
+    % --- show results:
     
     % get reference values:
     f0  = cfg.fx(1);
@@ -202,11 +207,11 @@ function alg_test(calcset) %<<<1
     if Ax.u/Ax.v < 1e-8
         Ax.u = Ax.v*1e-8;
     end  
-    if phx.u/phx.v < 1e-8
-        phx.u = phx.v*1e-8;
+    if abs(phx.u/phx.v) < 1e-8
+        phx.u = abs(phx.v*1e-8);
     end
-    if ofsx.u/ofsx.v < 1e-8
-        ofsx.u = ofsx.v*1e-8;
+    if abs(ofsx.u/ofsx.v) < 1e-8
+        ofsx.u = abs(ofsx.v*1e-8);
     end
  
     % print result:          
@@ -280,6 +285,16 @@ end
 
 function [rnd] = logrand(A_min,A_max)
     rnd = 10.^(log10(A_min) + (log10(A_max) - log10(A_min))*rand());
+end
+
+function [rnd] = linrand(A_min,A_max,N)
+    if nargin < 3
+        N = [1 1];
+    end
+    if size(N) < 2
+        sz = [N 1];
+    end
+    rnd = rand(N)*(A_max - A_min) + A_min;
 end
 
 

@@ -5,6 +5,7 @@ function dataout = alg_wrapper(datain, calcset)
 %
 % Format input data --------------------------- %<<<1
     
+    
     % Restore orientations of the input vectors to originals (before passing via QWTB)
     % This is critical for the correction data! 
     [datain,cfg] = qwtb_restore_twm_input_dims(datain,1);
@@ -18,10 +19,11 @@ function dataout = alg_wrapper(datain, calcset)
         fs = 1/mean(diff(datain.t.v));
     end
     
-    % initial frequency estimate:
+    % get initial frequency estimate:
     f_est = datain.f_est.v;    
     
     % timestamp phase compensation state:
+    %  note: this will do the phase correction by the timestamp
     tstmp_comp = isfield(datain, 'comp_timestamp') && ((isnumeric(datain.comp_timestamp.v) && datain.comp_timestamp.v) || (ischar(datain.comp_timestamp.v) && strcmpi(datain.comp_timestamp.v,'on')));
     
     % --- get ADC LSB value
@@ -53,18 +55,20 @@ function dataout = alg_wrapper(datain, calcset)
     mfld = [fileparts(mfilename('fullpath')) filesep()];
     
     
+    
     % --------------------------------------------------------------------
     % Start of the algorithm
     % --------------------------------------------------------------------
-    
-    
-    % build channel data to process:     
-    vc.tran = datain.tr_type.v;
-    vc.is_diff = cfg.y_is_diff;
-    vc.y = datain.y.v;    
-    vc.ap_corr = datain.adc_aper_corr.v;
-    vc.ofs = datain.adc_offset;
+        
+    % build channel data to process:
+    %  note: this is a residue of multichannel algorithm, only purpose is to make further processing easier     
+    vc.tran = datain.tr_type.v; % transducer type
+    vc.is_diff = cfg.y_is_diff; % differential transducer?
+    vc.y = datain.y.v; % high-side channel sample data    
+    vc.ap_corr = datain.adc_aper_corr.v; % aperture correction enabled?
+    vc.ofs = datain.adc_offset; % ADC offset voltage
     if cfg.y_is_diff
+        % differential mode, low-side channel - the same paremters as for high side differential channel
         vc.y_lo = datain.y_lo.v;
         vc.tsh_lo = datain.time_shift_lo; % low-high side channel time shift
         vc.ap_corr_lo = datain.lo_adc_aper_corr.v;
@@ -94,7 +98,7 @@ function dataout = alg_wrapper(datain, calcset)
     % estimate signal parameters:
     [Ax, fx, phx, ox] = FPNLSF_loop(t, vc.y, f_est, calcset.verbose, cfg);    
     if isinf(fx)
-        error('Fitting algorithm failed! Check waveform and initial frequency estimate accruacy!');
+        error('Fitting algorithm failed! Check waveform and initial frequency estimate accuracy! The frequency estimate should be accurate to 500 ppm.');
     end
     
         
@@ -105,6 +109,10 @@ function dataout = alg_wrapper(datain, calcset)
     fx = fx./(1 + datain.adc_freq.v);    
     % calculate correction uncertainty (absolute):
     u_fx = fx.*datain.adc_freq.u;
+    
+    
+    % select window type:
+    win_type = 'flattop_matlab';
 
              
     if cfg.y_is_diff
@@ -117,16 +125,35 @@ function dataout = alg_wrapper(datain, calcset)
         % obtained from the fitting algorihm because it will fit different freq.
         % for low- and high-side. So the rough ratio of the low- and high-side
         % must be obtained using other method - windowed FFT. It will have error
-        % on for non-coherent sampling, but the error should be roughly the same for 
-        % low- and high-side signal which should be enough to calculate diff. tran. tfer.
+        % for non-coherent sampling, but the error should be roughly the same for 
+        % low- and high-side signal which should be enough to calculate differential
+        % transducer transfer.
         
-        % #######note: do not replace local ampphspectrum() by QWTB call until it's fixed!
-        %              this local copy has fixed the DC gain and polarity error!
         % get high-side spectrum:
-        [fh, vc.Y, vc.ph] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);    
+        din = struct();
+        din.fs.v = fs;
+        din.window.v = win_type;
+        cset.verbose = 0;
+        din.y.v = vc.y;                
+        dout = qwtb('SP-WFFT',din,cset);
+        qwtb('TWM-FPNLSF','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+        fh    = dout.f.v(:); % freq. vector of the DFT bins
+        vc.Y  = dout.A.v(:); % amplitude vector of the DFT bins
+        vc.ph = dout.ph.v(:); % phase vector of the DFT bins
+        
         % get low-side spectrum:
-        [fh, vc.Y_lo, vc.ph_lo] = ampphspectrum(vc.y_lo, fs, 0, 0, 'flattop_matlab', [], 0);
-                        
+        din.y.v = vc.y_lo;                
+        dout = qwtb('SP-WFFT',din,cset);
+        qwtb('TWM-FPNLSF','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+        fh       = dout.f.v(:); % freq. vector of the DFT bins
+        vc.Y_lo  = dout.A.v(:); % amplitude vector of the DFT bins
+        vc.ph_lo = dout.ph.v(:); % phase vector of the DFT bins
+                
+        
+        % get window parameters (needed later):
+        w_gain = mean(dout.w.v);        
+        w_rms = mean(dout.w.v.^2).^0.5;        
+        
         % identify DFT bin with the estimated freq. component:
         [v,fid] = min(abs(fh - f_est));
                
@@ -150,10 +177,7 @@ function dataout = alg_wrapper(datain, calcset)
         dc    = dc    - vc.ofs.v;
         dc_lo = dc_lo - vc.ofs_lo.v;
         
-         
-        %vc.y
-        
-                                
+                                        
         % get gain/phase correction for the dominant component (high-side digitizer):
         ag = correction_interp_table(tab.adc_gain, A0, fx);
         ap = correction_interp_table(tab.adc_phi,  A0, fx);        
@@ -260,18 +284,27 @@ function dataout = alg_wrapper(datain, calcset)
         u_trp = u_trp(2);
           
         
-        % estimate signal parameters (from differential signal):            
+        % estimate signal parameters (from final differential signal):            
         [Ax, fx, phx, ox] = FPNLSF_loop(t, vc.y, f_est, calcset.verbose, cfg);
         if isinf(fx)
-            error('Fitting algorithm failed! Check waveform and initial frequency estimate accruacy!');
+            error('Fitting algorithm failed! Check waveform and initial frequency estimate accruacy! The frequency estimate should be accurate to 500 ppm.');
         end
         
         if strcmpi(calcset.unc,'guf')
             % GUF - use estimator:
             
-            % get spectrum:
-            [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
-            
+            % get spectrum (differential):
+            din = struct();
+            din.fs.v = fs;
+            din.window.v = win_type;
+            cset.verbose = 0;
+            din.y.v = vc.y;                
+            dout = qwtb('SP-WFFT',din,cset);
+            qwtb('TWM-FPNLSF','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+            fh = dout.f.v(:); % freq. vector of the DFT bins
+            Y  = dout.A.v(:); % amplitude vector of the DFT bins
+            w  = dout.w.v; % window coefficients
+           
             % --- get ADC LSB value
             if isfield(datain,'lo_lsb')
                 % get LSB value directly
@@ -304,7 +337,7 @@ function dataout = alg_wrapper(datain, calcset)
             
             
             % estimate uncertainty:
-            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb_ef,jitt,sfdr_sys);
+            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb_ef,jitt,sfdr_sys,w);
             
             % expand uncertainty - very naive approximation of difference of two signals:
             unc.dpx.val = unc.dpx.val*1.5;
@@ -352,10 +385,7 @@ function dataout = alg_wrapper(datain, calcset)
         u_phx = (u_phx^2 + unc.dpx.val^2)^0.5;
         u_fx = (u_fx^2 + (fx*unc.dfx.val)^2)^0.5;
         u_ox = (u_ox^2 + (unc.dox.val*dcg)^2)^0.5;
-                
-        % todo: handle the offset, it will be wrong because of the timedomain corrections at fx are not the same as for DC
         
-        % todo: implement some unc. estimate even for the differential mode...
         
     else        
         % --- SINGLE-ENDED TRANSDUCER MODE
@@ -364,16 +394,25 @@ function dataout = alg_wrapper(datain, calcset)
         if strcmpi(calcset.unc,'guf')
             % GUF - use estimator:
             
-            % get effective ADC + transdcuer SFDR:
+            % get effective ADC + transducer SFDR:
             adc_sfdr = correction_interp_table(tab.adc_sfdr, Ax, fx);
             tr_sfdr  = correction_interp_table(tab.tr_sfdr,  Ax, fx);        
             sfdr_sys = -20*log10(10^(-adc_sfdr.sfdr/20) + 10^(-tr_sfdr.sfdr/20));
             
             % get spectrum:
-            [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
-            
+            din = struct();
+            din.fs.v = fs;
+            din.window.v = win_type;
+            cset.verbose = 0;
+            din.y.v = vc.y;                
+            dout = qwtb('SP-WFFT',din,cset);
+            qwtb('TWM-FPNLSF','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+            fh = dout.f.v(:); % freq. vector of the DFT bins
+            Y  = dout.A.v(:); % amplitude vector of the DFT bins
+            w  = dout.w.v; % window coefficients
+
             % estimate uncertainty:
-            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,datain.adc_jitter.v,sfdr_sys);
+            unc = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,datain.adc_jitter.v,sfdr_sys,w);
           
         else
             % other modes - do nothing: 
@@ -416,10 +455,10 @@ function dataout = alg_wrapper(datain, calcset)
         u_ox = (vc.ofs.u^2 + unc.dox.val^2)^0.5;
                 
         % apply transducer tfer to signal estimates:
-        [Ax,phx,u_Ax,u_phx] = correction_transducer_loading(tab,vc.tran,[1e-6 fx],[], [ox Ax],[0 phx],[u_ox u_Ax],[0 u_phx]);
+        [Ax,phx,u_Ax,u_phx] = correction_transducer_loading(tab,vc.tran,[1e-6 fx],[], [abs(ox) Ax],[0 phx],[u_ox u_Ax],[0 u_phx]);
         
         % extract offset:
-        ox = Ax(1);
+        ox = Ax(1)*sign(ox);
         u_ox = u_Ax(1);
         
         % extract harmonic:
@@ -470,11 +509,45 @@ end % function
 
 
 
-function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr)
-% Uncertainty estimator:
+function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr,w)
+% Uncertainty estimator of the improved FPNLSF algorithm FPNLSF_loop(...,cfg)
+% calculated for configuration:
+%  cfg.max_try = 100; % max retry cycles
+%  cfg.max_time = 60; % max total calculation time [s]
+%  cfg.max_dev = 500e-6; % max rel deviation of freq. from freq. estimate [-]
+% The result should not be affected by max_time and max_try, only by max_dev!
+%  
+% Usage:
+%  [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr,w)
+%
+% Parameters:
+%  fh - DFT bin frequencies
+%  Y  - DFT bin amplitudes
+%  fs - sampling rate [Hz]
+%  N - samples count in record
+%  fx - frequency of the fundamental component
+%  Ax - amplitude of the fundamental component
+%  ox - DC offset of the signal
+%  lsb - absolute resolution of the ADC
+%  jitt - rms jitter of the sampling [s]
+%  sfdr - positive SFDR [dBc]
+%  w - window coefficients used for the spectrum Y(fh) calculation
+%
+% Returns:
+%  unc.dpx.val - absolute phase angle uncertainty
+%  unc.dfx.val - relative frequency uncertainty
+%  unc.dAx.val - relative amplitude uncertainty
+%  unc.dox.val - absolute offset uncertainty
+%
+% The valid range of estimator depends on the precalculated lookup table.
+% Current version (2018-06-20) supports ranges:
+%  10 to 100 periods of the signal (higher values possible, but not tested)
+%  10 to 1000 samples per period (higher values possible, should work)
+%  at least 4 bits of resolution per fullscale
+%  up to -30dBc SFDR
+%  rms jitter up to 1e-2/f0
+%
     
-    % get window:
-    w = window_coeff('flattop_matlab',N);
     % get window scaling factor:
     w_gain = mean(w);
     % get window rms:
@@ -500,7 +573,10 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr)
     for k = 1:50
         % find maximum:
         [v,id] = max(Y(nid));
-        % identify sorounding DFT bins: 
+        if isempty(id)
+            break;
+        end
+        % identify surounding DFT bins: 
         sid = [(nid(id) - wind_w):(nid(id) + wind_w)];
         % remove it:
         nid = setdiff(nid,sid);
@@ -511,7 +587,7 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr)
     nid = nid(nid > wind_w & nid <= numel(nid)); % get rid of DC and limit to valid range
     
     % noise level estimate from the spectrum residue to full bw.:
-    if isempty(nid)
+    if numel(nid) < 2
         Y_noise = [0];
     else
         Y_noise = interp1(fh(nid),Y(nid),fh,'nearest','extrap');
@@ -526,11 +602,13 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr)
     % SNR estimate:
     snr = -10*log10((noise_rms/sig_rms)^2);
     
-    % SNR equivalent time jitter:
+    % SNR equivalent time jitter (yes, very nasty solution, but it should work...):
+    % note: this should be equivalent jitter to the remaining noise in the signal
+    %       as the estimator has no input for noise, this is possible way...
     tj = 10^(-snr/20)/2/pi/fx;
   
     % estimate SFDR of the signal:
-    Y_max = max([Y(10:(fid-10));Y((fid + 10):end)]);
+    Y_max = sum(([Y(10:(fid-10));Y((fid + 10):end)]).^2)^0.5;
     sfdr_sig = -20*log10(Y_max/Ax);
 
     % total SFDR estimate:
@@ -543,7 +621,7 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr)
     % sampling rate to 'fx' ratio:
     ax.fs_rat.val = fs/fx;
     % total used ADC bits for the signal:
-    ax.bits.val = log2(2*(Ax + abs(ox))/lsb);
+    ax.bits.val = log2(0.5*(Ax + abs(ox))/lsb);
     % jitter relative to frequency:
     ax.jitt.val = (jitt^2 + tj^2)^0.5*fx;
     % SFDR estimate: 
@@ -558,11 +636,12 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr)
     unc = interp_lut([mfld 'unc.lut'],ax);
     
     
-    % scale down to (k = 1):
-    unc.dpx.val = 0.5*unc.dpx.val;
-    unc.dfx.val = 0.5*unc.dfx.val;
-    unc.dAx.val = 0.5*unc.dAx.val;
-    unc.dox.val = 0.5*unc.dox.val;
+    % scale down to (k = 1):    
+    ttc = 1.2; % tic-toc safety coefficient :)
+    unc.dpx.val = 0.5*unc.dpx.val*ttc;
+    unc.dfx.val = 0.5*unc.dfx.val*ttc;
+    unc.dAx.val = 0.5*unc.dAx.val*ttc;
+    unc.dox.val = 0.5*unc.dox.val*ttc;
 
 end
 
