@@ -121,7 +121,7 @@ function dout = gen_composite(din,cfg,rand_unc)
     fx  = [fx;fh];
     Ax  = [Ax;Ah];
     phx = [phx;phh];
-           
+     
     
     % apply transducer transfer:
     if rand_unc, rand_str = 'rand'; else rand_str = ''; end
@@ -163,6 +163,9 @@ function dout = gen_composite(din,cfg,rand_unc)
         ofs(1) = din.adc_offset;
     end
     
+    % restore DC polarity:
+    A_syn = bsxfun(@times,A_syn,sign(Ax));
+    
 
     % apply ADC aperture error:
     if din.adc_aper_corr.v && din.adc_aper.v > 1e-12
@@ -177,7 +180,9 @@ function dout = gen_composite(din,cfg,rand_unc)
         ph_syn = bsxfun(@plus, ap_phi, ph_syn);
         
     end
-        
+    
+    % generate random frequency error (common for both differential inputs):
+    rng_adc_freq = din.adc_freq.v + din.adc_freq.u*rand;    
     
     % for each transducer subchannel (differential mode has two sub-channels):
     for c = 1:numel(sctab)
@@ -204,7 +209,7 @@ function dout = gen_composite(din,cfg,rand_unc)
         jitter = din.adc_jitter.v*randn(1,cfg.N); % assume gassian
         tstmp = din.time_stamp.v;       
         t = [];
-        t(:,1) = ([0:cfg.N-1]/din.fs.v + tsh(c) + tstmp + jitter)*(1 + din.adc_freq.v)*2*pi;
+        t(:,1) = ([0:cfg.N-1]/din.fs.v + tsh(c) + tstmp + jitter)*(1 + rng_adc_freq)*2*pi;
         clear jitter;
                 
         % synthesize waveforms (rather one by one harmonic to prevent insane sized matrix):
