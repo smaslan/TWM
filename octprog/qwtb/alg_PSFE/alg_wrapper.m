@@ -166,7 +166,7 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
         rel_inter_amp = max(rel_inter_amp,sfdr);
         
         % restore noise in the full spectrum freq range:
-        if isempty(msk)
+        if numel(msk) < 2
             noise = [0];
         else
             noise = interp1(fh(msk),amp(msk),fh,'nearest','extrap');

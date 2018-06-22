@@ -25,12 +25,12 @@ function alg_test(calcset) %<<<1
     
     % --- these are harmonics to generate:
     % harmonic amplitudes:
-    A =  [1       0.005]'*10;
+    A =  [1       0.005]'*logrand(0.1,10);
     % harmonic phases:
     ph = [0.1/pi  2*rand]'*pi;
     % harmonic periods in the signal (must be: fk < 0.5*N):
     f0_per = logrand(10,0.1*N); % fundamental signal periods count
-    fk = [f0_per  logrand(f0_per,0.45*N)]';
+    fk = [f0_per  logrand(1.5*f0_per,0.45*N)]';
     
     % dc offset:
     dc = 0.1;
@@ -57,7 +57,7 @@ function alg_test(calcset) %<<<1
     
     % -- SFDR harmonics generator:
     % max spurr amplitude relative to fundamental [-]:
-    sfdr = 10e-6;
+    sfdr = 100e-6;
     % harmonics count:
     sfdr_hn = 10;
     % randomize amplitude (zero to sfdr-level)?
@@ -121,6 +121,7 @@ function alg_test(calcset) %<<<1
     din.lo_adc_sfdr_a = din.adc_sfdr_a; % low-side channel
     din.lo_adc_sfdr_f = din.adc_sfdr_f;
     din.lo_adc_sfdr = din.adc_sfdr;
+
     
     % define some low-side channel timeshift:
     din.time_shift_lo.v = -1.234e-4;
