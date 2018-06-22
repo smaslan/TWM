@@ -46,33 +46,71 @@ function dataout = alg_wrapper(datain, calcset)
     % --------------------------------------------------------------------
     % Start of the algorithm
     % --------------------------------------------------------------------
+
     
-    % TODO: uncertainty!
-            
-    
-    % build channel data to process:     
-    vc.tran = datain.tr_type.v;
-    vc.is_diff = cfg.y_is_diff;
-    vc.y = datain.y.v;
-    vc.ap_corr = datain.adc_aper_corr.v;
+    % build channel data to process:
+    %  note: this is a residue of multichannel algorithm, only purpose is to make further processing easier     
+    vc.tran = datain.tr_type.v; % transducer type
+    vc.is_diff = cfg.y_is_diff; % differential transducer?
+    vc.y = datain.y.v; % high-side channel sample data    
+    vc.ap_corr = datain.adc_aper_corr.v; % aperture correction enabled?
+    %vc.ofs = datain.adc_offset; % ADC offset voltage
     if cfg.y_is_diff
+        % differential mode, low-side channel - the same paremters as for high side differential channel
         vc.y_lo = datain.y_lo.v;
         vc.tsh_lo = datain.time_shift_lo; % low-high side channel time shift
-        vc.ap_corr_lo = datain.lo_adc_aper_corr.v;    
-    end 
+        vc.ap_corr_lo = datain.lo_adc_aper_corr.v;
+        %vc.ofs_lo = datain.lo_adc_offset;    
+    end
+    
+    
+    % window type for spectrum analysis (rather do not change):
+    %  note: is not used for calculation of parameters, just for some support functions
+    win_type = 'flattop_matlab';
+       
+    
+    % fix frequency sampling rate timebase error:
+    fs = fs./(1 + datain.adc_freq.v);
     
     
     % --- Find dominant harmonic component --- 
      
     % estimate dominant harmonic component:
-    % note: this should be carrier frequency
-    [f0,A0] = PSFE(vc.y, 1/fs);
+    % note: this should be carrier frequency, PSFE seems to be quite insensitive to AM modulation
+    din.Ts.v = 1/fs;
+    din.y.v  = vc.y;
+    cset = calcset;
+    cset.unc = 'none';
+    cset.verbose = 0;
+    dout = qwtb('PSFE',din,cset);
+    qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called    
+    f0 = dout.f.v;
+    A0 = dout.A.v;
+    
+       
         
-    % get spectrum:
-    [fh, vc.Y, vc.ph] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);    
+    
+    % get high-side spectrum:
+    din = struct();
+    din.fs.v = fs;
+    din.window.v = win_type;
+    cset.verbose = 0;
+    din.y.v = vc.y;                
+    dout = qwtb('SP-WFFT',din,cset);
+    qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+    fh    = dout.f.v(:); % freq. vector of the DFT bins
+    vc.Y  = dout.A.v(:); % amplitude vector of the DFT bins
+    vc.ph = dout.ph.v(:); % phase vector of the DFT bins
+    w     = dout.w.v(:); % window coefficients
+
     if vc.is_diff
         % get low-side spectrum:
-        [fh, vc.Y_lo, vc.ph_lo] = ampphspectrum(vc.y_lo, fs, 0, 0, 'flattop_matlab', [], 0);
+        din.y.v = vc.y_lo;                
+        dout = qwtb('SP-WFFT',din,cset);
+        qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+        fh       = dout.f.v(:); % freq. vector of the DFT bins
+        vc.Y_lo  = dout.A.v(:); % amplitude vector of the DFT bins
+        vc.ph_lo = dout.ph.v(:); % phase vector of the DFT bins
     end
           
     % get id of the dominant DFT bin coresponding to 'f0':
@@ -110,7 +148,7 @@ function dataout = alg_wrapper(datain, calcset)
             
     
     if vc.is_diff
-        % -- differential mode:
+        % -- DIFFERENTIAL MODE:        
     
         % dominant component vector (low-side):
         A0_lo  = vc.Y_lo(fid);
@@ -120,7 +158,7 @@ function dataout = alg_wrapper(datain, calcset)
         ag =  correction_interp_table(tab.lo_adc_gain, A0_lo, f0);
         apl = correction_interp_table(tab.lo_adc_phi,  A0_lo, f0);
         
-        % apply high-side gain:
+        % apply low-side gain:
         vc.y_lo = vc.y_lo.*ag.gain; % to time-domain signal
         
         % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
@@ -230,7 +268,7 @@ function dataout = alg_wrapper(datain, calcset)
             adc_sfdr = -20*log10(((vc.Y(fid)*10^(-adc_sfdr.sfdr/20))^2 + (vc.Y_lo(fid)*10^(-adc_sfdr_lo.sfdr/20))^2)^0.5/(A0/tot_gain));
             
             % get transducer SFDR:
-            tr_sfdr  = correction_interp_table(tab.tr_sfdr,  2^-0.5*A0, f0);
+            tr_sfdr  = correction_interp_table(tab.tr_sfdr, 2^-0.5*A0, f0);
             
             % calculate effective system SFDR:
             sfdr_sys = -20*log10(10^(-adc_sfdr/20) + 10^(-tr_sfdr.sfdr/20));
@@ -250,8 +288,14 @@ function dataout = alg_wrapper(datain, calcset)
             % effective LSB value:
             lsb = (lsb^2 + lsb_lo^2)^0.5*tot_gain;
             
-            % recalculate spectrum from the difference signal:
-            [fh, Y] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_matlab', [], 0);
+            % recalculate spectrum from the difference signal:          
+            din.y.v = vc.y;                
+            dout = qwtb('SP-WFFT',din,cset);
+            qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+            fh = dout.f.v(:); % freq. vector of the DFT bins
+            Y  = dout.A.v(:); % amplitude vector of the DFT bins
+            w  = dout.w.v(:); % window coefficients
+            
             
             % effective jitter value:
             jitt = (datain.adc_jitter.v^2 + datain.lo_adc_jitter.v^2)^0.5; 
@@ -278,7 +322,7 @@ function dataout = alg_wrapper(datain, calcset)
         end
         
         % run unc. estimator: 
-        unc = unc_estimate(dc,f0,A0,fm,Am,phm, numel(vc.y),fh,Y*tot_gain,fs, sfdr_sys,lsb,jitt, wave_shape,comp_err);        
+        unc = unc_estimate(dc,f0,A0,fm,Am,phm, numel(vc.y),fh,Y*tot_gain,fs, sfdr_sys,lsb,jitt, wave_shape,comp_err, w);     
     
     else
         % -- no uncertainty:
@@ -325,7 +369,7 @@ function dataout = alg_wrapper(datain, calcset)
         trg = A0_hi./Ac;             
     end
     
-    if ~vc.is_diff
+    if vc.is_diff
         % DIFF mode:
         % note: uncertainty not implemented!
         
@@ -334,8 +378,7 @@ function dataout = alg_wrapper(datain, calcset)
         trg = ones(3,1);
         u_trg = trg*0;        
                         
-    end    
-    
+    end
     
     % carrier relative unc. from corrections:
     ur_A0 = u_trg(1);
@@ -349,16 +392,25 @@ function dataout = alg_wrapper(datain, calcset)
     u_fm = unc.dfm.val*fm;
     
     % -- modulation relative unc. from corrections:
-    % difference of sideband correction values from the carrier (because we used carrier freq for entire signal):
-    ur_mod = sum((trg(2:end)/trg(1) - 1).^2).^0.5/3^0.5;
+    % difference of the mean of sideband correction values from the carrier (because we used carrier freq. correction for entire signal):
+    %  ###todo: this is very schmutzige solution because it does not take into account the sideband phase errors but it seems to work  
+    %ur_mod = sum((trg(2:end)/trg(1) - 1).^2).^0.5/3^0.5;
+    ur_mod = abs(mean(trg(2:end))/trg(1) - 1)/3^0.5;
+    if strcmpi(wave_shape,'rect')
+        % rectangular wave mode:
+        % extend the estaimte by some tictoc coefficient because rectangular modulation will cause event worse errors due to much mode sidebands 
+        ur_mod = ur_mod*2;
+    end
+    
+    
     % uncertainty of the side bands:
     ur_mod = (ur_mod.^2 + sum(u_trg(2:end).^2/3)).^0.5;
     ur_mod_tmp = ur_mod;
-    % add parameter estimator noise:
+    % add parameter estimator uncertainty:
     ur_mod = (ur_mod^2 + (n_A0/A0)^2 + (n_Am/Am)^2 + unc.dmod.val^2)^0.5;
         
     % modulating amplitude abs unc.:    
-    u_Am = Am.*(ur_mod_tmp.^2 + ur_A0.^2 + (n_Am/Am)^2 + (unc.dmod.val/Am)^2).^0.5;
+    u_Am = Am.*(ur_mod_tmp.^2 + ur_A0.^2 + (n_Am/Am)^2 + (unc.dmod.val*A0/Am)^2).^0.5;
     
     
     % --- returning results ---
@@ -375,7 +427,7 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.f0.u = u_f0*ke;
     dataout.A0.v = A0;
     dataout.A0.u = u_A0*ke;
-    dataout.dc.v = dc;
+    %dataout.dc.v = dc;
     
     % return modulation signal parameters:
     dataout.f_mod.v = fm;
@@ -396,14 +448,53 @@ end % function
 
 
 
-function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_shape,comp_err)
-% Uncertainty estimator
+function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_shape,comp_err, w)
+% Uncertainty estimator of the MODTDPS algorithm mod_tdps()
+%  
+% Usage:
+%  unc = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_shape,comp_err, w)
+%
+% Parameters:
+%  dc - dc offset
+%  f0 - carrier frequency
+%  A0 - carrier amplitude
+%  fm - modulating frequency
+%  Am - modulating amplitude
+%  phm - modulating phase [rad]
+%  N - samples count in record
+%  fh - DFT bin frequencies [Hz]
+%  Y  - DFT bin amplitudes
+%  fs - sampling rate [Hz]
+%  sfdr - positive SFDR [dBc]
+%  lsb - absolute resolution of the ADC
+%  jitt - rms jitter of the sampling [s]
+%  wave_shape - modulating waveform {'sine' or 'rect'}
+%  comp_err - non-zero to enable self-compensation of the algorithm error
+%  w - window coefficients used for the spectrum Y(fh) calculation
+%
+% Returns:
+%  unc.df0.val - relative frequency uncertainty
+%  unc.dA0.val - relative carrier amplitude uncertainty
+%  unc.dfm.val - relative modulating frequency uncertainty
+%  unc.dmod.val - absolute modulation depth uncertainty
+%
+% The valid range of estimator depends on the precalculated lookup table.
+% Current version (2018-06-21) supports ranges:
+%  at least 3 periods of modulating signal
+%  at least 10 samples per carrier period
+%  modulation depth 0.01 to 0.99
+%  modulating/carrier freq. below 0.33
+%  jitter below 1e-2/f0
+%  at least 4 bits per fullscale waveform
+%  up to -30dBc SFDR (harmonic or interharmonic)
+%
+% Note there are a few gaps in the LUT so it may return error on the 
+% missing spots. 
+% 
 
     % freq. component count:
     F = numel(fh);
-    
-    % get window:
-    w = window_coeff('flattop_matlab',N);
+
     % get window scaling factor:
     w_gain = mean(w);
     % get window rms:
@@ -413,7 +504,7 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     % peak signal value:
     Apk = A0 + Am + abs(dc);
     
-    % sine mod main freq component central DFT bins:
+    % DFT bins of the sine modulation freq. components:
     fid = round([f0;f0-fm;f0+fm]/fs*N) + 1;
     
     % remove harmonic DFT bins:
@@ -429,13 +520,16 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     % now 'nid' DFT bins should contain only spurrs and noise...
     
     % remove DC offset from DFT residue:
-    nid = nid(nid > 10);
+    nid = nid(nid > wind_w);
     
     % identify and remove top harmonics:
     h_max = [];
     for k = 1:50
         % find maximum:
         [h_max(k),id] = max(Y(nid));
+        if isempty(id)
+            break;
+        end
         % identify sorounding DFT bins: 
         sid = [(nid(id) - wind_w):(nid(id) + wind_w)];
         % remove it:
@@ -446,15 +540,20 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     
     
     % noise level estimate from the spectrum residue to full bw.:
-    Y_noise = interp1(fh(nid),Y(nid),fh,'nearest','extrap');
+    if numel(nid) < 2
+        Y_noise = [0];
+    else
+        Y_noise = interp1(fh(nid),Y(nid),fh,'nearest','extrap');
+    end
     
     % estimate full bw. rms noise:    
     noise_rms = sum(0.5*Y_noise.^2).^0.5/w_rms*w_gain;
     
     % signal SFDR estimate [dB]:
-    sfdr_sig = -20*log10(max(h_max)/Y(fid(1)));
+    sfdr_sig = -20*log10(sum(h_max.^2)^0.5/Y(fid(1)));
     
     % select worst SFDR source [dB]:
+    %  note: either user defined SFDR or measured SFDR
     sfdr = min(sfdr_sig,sfdr);    
     
     % signal RMS estimate:
@@ -464,6 +563,7 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     snr = -10*log10((noise_rms/sig_rms)^2);
     
     % SNR equivalent time jitter:
+    %  note: this is because the estimator has no input for noise, so noise must be recalculated to equivalent jitter 
     tj = 10^(-snr/20)/2/pi/f0;
     
     
@@ -499,7 +599,7 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
         
     end
     
-    % scale down to (k = 1):
+    % scale down to (k = 1):    
     unc.df0.val = 0.5*unc.df0.val;
     unc.dA0.val = 0.5*unc.dA0.val;
     unc.dfm.val = 0.5*unc.dfm.val;

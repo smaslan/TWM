@@ -9,20 +9,41 @@ function alg_test(calcset) %<<<1
     calcset.loc = 0.95;
     
     % samples to synthesize:
-    N = 30000;
+    %N = 30000;
+    N = logrand(3000,100000,1);
     
     % sampling rate:
     fs = 10000;
     
     % carrier:
-    f0 = rounddig(logrand(50,1000,1),4);
-    A0 = 1;
-    
+    f0 = rounddig(logrand(50,fs/10,1),4);
+    A0 = rounddig(logrand(1,50,1),3);
+        
     % modulating signal:    
     fm = rounddig(logrand(3/(N/fs),0.3*f0,1),4);
-    Am = A0*rounddig(logrand(0.02,0.98,1),4);    
+    Am = A0*rounddig(logrand(0.02,0.98,1),3);    
     phm = rand(1)*2*pi; % random phase
     wshape = 'sine';
+    
+    % DC component:
+    dc = 0.1;
+    
+    %f0 = 882.6;
+    %A0 = 14.6;
+    %Am = 3*4.4384;
+    %fm = 45.79;
+    
+    
+    % print some header:
+    fprintf('samples count = %g\n', N);
+    fprintf('sampling rate = %.7g kSa/s\n', 0.001*fs);
+    fprintf('fundamental frequency = %.7g Hz\n', f0);
+    fprintf('modulating periods = %.7g\n', (N/fs)*fm);
+    fprintf('fundamental samples per period = %.7g\n', fs/f0);
+    fprintf('modulation to carrier frequency ratio = %.5g\n', fm/f0);
+    fprintf('\n');
+    
+        
     
     % digitizer std noise:    
     adc_std_noise = 100e-6;
@@ -33,23 +54,31 @@ function alg_test(calcset) %<<<1
     % enable algorithm self-compensation?
     din.comp_err.v = 1;
     
-    % enable differential sensor connection?
-    is_diff = 0;
+    % uncomment to enable differential sensor connection?
+    %  note: this is an additional loop impedance of the differential sensor
+    %Zx = 10;
     
     % randomize uncertainties?
     rand_unc = 0;
     
-    % add random spurrs [+dB]
-    %  note generates random valued spurrs, one around each f0 harmonic     
-    sim_sfdr = 80;
     
+    % -- SFDR harmonics/interharmonics generator:
+    % max spurr amplitude relative to fundamental [-]:
+    sfdr = logrand(10e-6,0.001);
+    % harmonics count:
+    sfdr_hn = 10;
+    % randomize amplitude (zero to sfdr-level)?
+    sfdr_rand = 1;
+    % randomize frequency (relative to f0)?
+    sfdr_rand_f = 0.1;
     
+
     % store some input quantities:
     din.fs.v = fs;    
     din.wave_shape.v = wshape;
         
     % store correction data:
-    if false
+    if true
         % create some corretion table for the digitizer gain: 
         din.adc_gain_f.v = [0;1e3;1e6];
         din.adc_gain_a.v = [];
@@ -68,6 +97,21 @@ function alg_test(calcset) %<<<1
         din.lo_adc_phi_f = din.adc_phi_f;
         din.lo_adc_phi_a = din.adc_phi_a;
         din.lo_adc_phi = din.adc_phi;
+        % generate some ADC sfdr:
+        din.adc_sfdr_a.v = [];
+        din.adc_sfdr_f.v = [];
+        din.adc_sfdr.v = -log10(sfdr)*20;
+        din.lo_adc_sfdr_a = din.adc_sfdr_a;
+        din.lo_adc_sfdr_f = din.adc_sfdr_f;
+        din.lo_adc_sfdr = din.adc_sfdr;
+        % create corretion of the digitizer timebase:
+        din.adc_freq.v = 0.000100;
+        din.adc_freq.u = 0.000005;
+        % create ADC offset voltages:
+        din.adc_offset.v = 0.001;
+        din.adc_offset.u = 0.000005;
+        din.lo_adc_offset.v = -0.002;
+        din.lo_adc_offset.u = 0.000005;
         
         % define some low-side channel timeshift:
         din.time_shift_lo.v = 1.234e-4;
@@ -75,7 +119,7 @@ function alg_test(calcset) %<<<1
         
         % ADC aperture correction:
         din.adc_aper_corr.v = 1; % state
-        din.adc_aper.v = 1e-5; % aperture value
+        din.adc_aper.v = 10e-6; % aperture value
         
         
         % transducer type:
@@ -89,7 +133,7 @@ function alg_test(calcset) %<<<1
         din.tr_phi_f.v = [0;1e3;1e6];
         din.tr_phi_a.v = [];
         din.tr_phi.v = [0.0000; -0.0010; -0.0020];
-        din.tr_phi.u = [0.0001;  0.0002;  0.0010];
+        din.tr_phi.u = [0.0001;  0.0002;  0.0010];     
         % RVD transducer low-side impedance:
         din.tr_Zlo_f.v  = [];
         din.tr_Zlo_Rp.v = [200];
@@ -99,173 +143,35 @@ function alg_test(calcset) %<<<1
     
     end
     
-    if ~rand_unc
-        % discard all correction uncertainties:        
-        corrz = fieldnames(din);        
-        for k = 1:numel(corrz)
-            c_data = getfield(din,corrz{k});
-            if isfield(c_data,'u')
-                c_data.u = 0*c_data.u;
-                din = setfield(din,corrz{k},c_data);
-            end            
-        end
-    end
+
+    % generate the signal:
+    cfg.N = N; % samples count
+    cfg.f0 = f0; % carrier frequency
+    cfg.A0 = A0; % carrier amplitude
+    cfg.fm = fm; % modulating frequency
+    cfg.Am = Am; % modulating amplitude    
+    cfg.phm = phm; % modulating phase
+    cfg.wshape = wshape; 
+    cfg.dc = dc; % dc offset
+    cfg.sfdr = sfdr; % sfdr max amplitude
+    cfg.sfdr_hn = sfdr_hn; % sfdr max harmonics count
+    cfg.sfdr_rand = sfdr_rand; % randomize sfdr amplitudes?
+    cfg.sfdr_rand_f = sfdr_rand_f; % randomize sfdr frequency?
+    cfg.adc_std_noise = adc_std_noise; % ADC noise level  
+    if exist('Zx','var')
+        cfg.Zx = Zx; % differential mode enabled 
+    end        
+    datain = gen_mod(din, cfg, rand_unc);
     
-    
-    % enable differential transducer simulation?
-    %  note: current loop low-impedance
-    if is_diff
-        Zx = 0.5;
-    end
-    
-    
-  
-    % Restore orientations of the input vectors to originals (before passing via QWTB)
-    % note: this is used just for more convenient programming of the test function...
-    din.y.v = ones(10,1); % fake data vector just to make following function work!
-    if exist('Zx','var'), din.y_lo.v = din.y.v; end
-    din_org = din;
-    [din,cfg] = qwtb_restore_twm_input_dims(din,1);
-    % Rebuild TWM style correction tables:
-    tab = qwtb_restore_correction_tables(din,cfg);
-    
-    
-    
-    if strcmpi(wshape,'sine')
-        % SINE mode (synthesizing in freq. domain):
-                
-        % modulated signal frequency components:
-        f =  [f0; f0-fm;    f0+fm];
-        A =  [A0; 0.5*Am;   0.5*Am];
-        ph = [0;  pi/2-phm; -pi/2+phm];
-        
-    elseif strcmpi(wshape,'rect')
-        % SQUARE mode (synthesize in time domain - square would be too complex):
-        
-        f = f0;
-        A = A0;
-        ph = phm;        
-        
-    else
-        error('Unsupported waveshape!');        
-    end
-    
-    
-    % generate spurr frequencies:    
-    fh(:,1) = [2*f0:f0:0.4*fs];
-    fh = fh + (2-2*rand(size(fh)))*0.1*f0;
-    
-    % generate spurrs:
-    Ah = logrand(A0*1e-9,A0*10^(-sim_sfdr/20),size(fh));
-    phh = rand(size(fh))*2*pi;
-    
-    % add the to the generating list:
-    f = [f;fh];
-    A = [A;Ah];        
-    ph = [ph;phh];
-    
-    %loglog(f,A)     
-        
-    
-    % apply transducer transfer:
-    if rand_unc
-        randtxt = 'rand';         
-    else
-        randtxt = '';
-    end
-    A_syn = [];
-    ph_syn = [];
-    sctab = {};
-    tsh = [];
-    if cfg.y_is_diff
-        % -- differential connection:
-        [A_syn(:,1),ph_syn(:,1),A_syn(:,2),ph_syn(:,2)] = correction_transducer_sim(tab,din.tr_type.v,f, A,ph,0*A,0*ph,randtxt,Zx);
-        % subchannel correction tables:
-        sctab{1}.adc_gain = tab.adc_gain;
-        sctab{1}.adc_phi  = tab.adc_phi;
-        sctab{2}.adc_gain = tab.lo_adc_gain;
-        sctab{2}.adc_phi  = tab.lo_adc_phi;
-        % subchannel timeshift:
-        tsh(1) = 0; % high-side channel
-        tsh(2) = din.time_shift_lo.v; % low-side channel
-    else
-        % -- single-ended connection:
-        [A_syn(:,1),ph_syn(:,1)] = correction_transducer_sim(tab,din.tr_type.v,f, A,ph,0*A,0*ph,randtxt);
-        % subchannel correction tables:
-        sctab{1}.adc_gain = tab.adc_gain;
-        sctab{1}.adc_phi  = tab.adc_phi;
-        % subchannel timeshift:
-        tsh(1) = 0; % none for single-ended mode
-    end
-    
-    
-    % apply ADC aperture error:
-    if din.adc_aper_corr.v && din.adc_aper.v > 1e-12
-        % get ADC aperture value [s]:
-        ta = abs(din.adc_aper.v);
-    
-        % calculate aperture gain/phase correction:
-        ap_gain = sin(pi*ta*f)./(pi*ta*f);
-        ap_phi  = -pi*ta*f;        
-        % apply it to subchannels:
-        A_syn  = bsxfun(@times,ap_gain,A_syn);
-        ph_syn = bsxfun(@plus, ap_phi, ph_syn);
-    end
-    
-    % for each transducer subchannel:
-    for c = 1:numel(sctab)
-    
-        % interpolate digitizer gain/phase to the measured frequencies and amplitudes:
-        k_gain = correction_interp_table(sctab{c}.adc_gain,A_syn(:,c),f,'f',1);    
-        k_phi =  correction_interp_table(sctab{c}.adc_phi, A_syn(:,c),f,'f',1);
-        
-        % apply digitizer gain:
-        Ac  = A_syn(:,c)./(k_gain.gain + k_gain.u_gain.*randn(size(k_gain.u_gain))*rand_unc);
-        phc = ph_syn(:,c) - k_phi.phi + k_phi.u_phi.*randn(size(k_phi.u_phi))*rand_unc;
-        
-        % generate relative time 2*pi*t:
-        % note: include time-shift and jitter:
-        t = [];
-        t(:,1) = ([0:N-1]/din.fs.v + tsh(c) + jitter*rand(1,N))*2*pi;
-        
-        if strcmpi(wshape,'sine')        
-            % SINE modulation:
-            
-            % synthesize waveform (crippled for Matlab < 2016b):
-            % u = Ac.*sin(t.*fx + phc);
-            u = bsxfun(@times, Ac', sin(bsxfun(@plus, bsxfun(@times, t, f'), phc')));
-            % sum the harmonic components to a single composite signal:
-            u = sum(u,2);
-        
-        elseif strcmpi(wshape,'rect')
-            % SQUARE modulation:
-            
-            u = sin(t*f(1) + phc(1)).*(Ac(1) + 2*Ac(1)*Am/A0*(0.5 - (mod(t*fm + phm,2*pi) > pi)));
-            
-            % synthesize spurrs (crippled for Matlab < 2016b):
-            % u = Ac.*sin(t.*f + phc);
-            us = bsxfun(@times, Ac(2:end)', sin(bsxfun(@plus, bsxfun(@times, t, f(2:end)'), phc(2:end)')));
-            % sum the harmonic components to a single composite signal:
-            u = u + sum(us,2);            
-        
-        end
-        
-        % add some noise:
-        u = u + randn(N,1)*adc_std_noise;
-        
-        % store to the QWTB input list:
-        din_org = setfield(din_org, cfg.ysub{c}, struct('v',u));
-    
-    end
     
     % workaround for QWTB uncertainty checking
     %  ###todo: to be removed when QWTB fixed
     alginf = qwtb('TWM-MODTDPS','info');
     qwtb('TWM-MODTDPS','addpath');
-    din_org = qwtb_add_unc(din_org,alginf.inputs);
+    datain = qwtb_add_unc(datain,alginf.inputs);
     
     % --- execute the algorithm:
-    dout = qwtb('TWM-MODTDPS',din_org,calcset);
+    dout = qwtb('TWM-MODTDPS',datain,calcset);
     
     
     % get calculated values:
@@ -279,8 +185,8 @@ function alg_test(calcset) %<<<1
     u_f0x = dout.f0.u;    
     fmx   = dout.f_mod.v;
     u_fmx = dout.f_mod.u;
-    ofsx   = dout.dc.v;
-    u_ofsx = inf;
+    %ofsx   = dout.dc.v;
+    %u_ofsx = inf;
     
     % prepare reference values:
     modr = 100*Am/A0;
@@ -319,8 +225,18 @@ function alg_test(calcset) %<<<1
     
 end
 
-function [rnd] = logrand(A_min,A_max,sz)
-    rnd = 10.^(log10(A_min) + (log10(A_max) - log10(A_min))*rand(sz));
+function [rnd] = logrand(A_min,A_max)
+    rnd = 10.^(log10(A_min) + (log10(A_max) - log10(A_min))*rand());
+end
+
+function [rnd] = linrand(A_min,A_max,N)
+    if nargin < 3
+        N = [1 1];
+    end
+    if size(N) < 2
+        sz = [N 1];
+    end
+    rnd = rand(N)*(A_max - A_min) + A_min;
 end
 
 

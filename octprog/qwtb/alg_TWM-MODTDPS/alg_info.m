@@ -467,9 +467,9 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Amplitude of the carrier';
     pid = pid + 1;
     
-    alginfo.outputs(pid).name = 'dc';
-    alginfo.outputs(pid).desc = 'DC offset of the carrier';
-    pid = pid + 1;
+%     alginfo.outputs(pid).name = 'dc';
+%     alginfo.outputs(pid).desc = 'DC offset of the carrier';
+%     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'f_mod';
     alginfo.outputs(pid).desc = 'Modulating frequency';
