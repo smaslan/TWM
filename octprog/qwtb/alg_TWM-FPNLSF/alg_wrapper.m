@@ -120,7 +120,7 @@ function dataout = alg_wrapper(datain, calcset)
         
         % This is tough one. The fitting algorithm will work only in timedomain, so the
         % the high- and low-side signals must be corrected in timedomain, then subtracted,
-        % then passed to the algorithm and the result must be correction from
+        % then passed to the algorithm and the result must be corrected from
         % the known ratio of high- and low-side vectors. But these vectors cannot be 
         % obtained from the fitting algorihm because it will fit different freq.
         % for low- and high-side. So the rough ratio of the low- and high-side
@@ -621,7 +621,7 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr,w)
     % sampling rate to 'fx' ratio:
     ax.fs_rat.val = fs/fx;
     % total used ADC bits for the signal:
-    ax.bits.val = log2(0.5*(Ax + abs(ox))/lsb);
+    ax.bits.val = log2(2*(Ax + abs(ox))/lsb);
     % jitter relative to frequency:
     ax.jitt.val = (jitt^2 + tj^2)^0.5*fx;
     % SFDR estimate: 
@@ -641,7 +641,8 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr,w)
     unc.dpx.val = 0.5*unc.dpx.val*ttc;
     unc.dfx.val = 0.5*unc.dfx.val*ttc;
     unc.dAx.val = 0.5*unc.dAx.val*ttc;
-    unc.dox.val = 0.5*unc.dox.val*ttc;
+    % note: the extension coeficient reflects the simulation setup, possibly should be integrated in the LUT to make it more consistent
+    unc.dox.val = 0.5*unc.dox.val*ttc/Ax*max(abs(ox/Ax)/0.001,1);
 
 end
 
@@ -699,7 +700,8 @@ function [Ax, fx, phx, ox] = FPNLSF_loop(t,u,f_est,verbose,cfg)
             phi_est = phi_zc + rand_p; 
         end
         
-        % try to fit waveform:            
+        % try to fit waveform:
+        %  ###todo: fix QWTB original function and call it from here via QWTB            
         [Ax, fx, phx, ox] = FPNLSF(t,ux,f_est*(1+rand_f),verbose,phi_est);
         ox = ox - rand_o;
                     
@@ -708,7 +710,7 @@ function [Ax, fx, phx, ox] = FPNLSF_loop(t,u,f_est,verbose,cfg)
             fail = 0; 
             break;
         elseif tr == cfg.max_try || toc(tid) > cfg.max_time 
-            disp('Warning: No convergence even after all retrires! Dunno what to do now...');
+            disp('Warning: No convergence even after all retries! Dunno what to do now...');
             fail = 1;
             break;
         end

@@ -24,15 +24,17 @@ function alg_test(calcset) %<<<1
      
     % --- these are harmonics to generate:
     % harmonic amplitudes:
+    %  note: generate fundamental and one interharmonic
     A =  logrand(0.1,10)*[1    logrand(1e-6,0.01)]';
     % harmonic phases:
-    ph = [0.5/pi  2*rand()          ]'*pi;
+    ph = [0.5/pi  2*rand()]'*pi;
     % harmonic freq. [Hz]:
     f0_max = 100/(N/din.fs.v);
     f0 = logrand(10/(N/din.fs.v),min(din.fs.v/10,f0_max));   
     fx = [f0 logrand(1.5*f0,0.45*din.fs.v)]';
     
     % dc offset:
+    %  note: do not use large voltages! FPNLSF uncertainty estimator is not designed for that
     dc = linrand(-0.1,0.1);
     
         
@@ -60,7 +62,7 @@ function alg_test(calcset) %<<<1
     
     % -- SFDR harmonics generator:
     % max spurr amplitude relative to fundamental [-]:
-    sfdr = 10e-6;
+    sfdr = logrand(10e-6,0.001);
     % harmonics count:
     sfdr_hn = 10;
     % randomize amplitude (zero to sfdr-level)?
@@ -221,9 +223,9 @@ function alg_test(calcset) %<<<1
     has_unc = ~strcmpi(calcset.unc,'none');
     
     fprintf('\n');
-    fprintf('----------+-------------+----------------------------+-------------+----------+---------\n');
-    fprintf('  OUTPUT  |     REF     |         DUT +- UNC         |     DEV     |  UNC [%%] | %%-UNC\n');
-    fprintf('----------+-------------+----------------------------+-------------+----------+---------\n');
+    fprintf('----------+-------------+----------------------------+-------------+------------+---------\n');
+    fprintf('  OUTPUT  |     REF     |         DUT +- UNC         |     DEV     |   UNC [%%]  | %%-UNC\n');
+    fprintf('----------+-------------+----------------------------+-------------+------------+---------\n');
     for k = 1:numel(names)
 
         if ~isnan(ref(k)) && isnan(dut(k).u)
@@ -250,7 +252,7 @@ function alg_test(calcset) %<<<1
         end
         
         rdev = 100*dev/dut(k).v;
-        runc = 100*dut(k).u/dut(k).v;
+        runc = 100*abs(dut(k).u/dut(k).v);
         [ss,ev] = unc2str(dev,uu);
         
         if ~isnan(dev) && has_unc
@@ -263,9 +265,9 @@ function alg_test(calcset) %<<<1
             runc = 0;                           
         end
                  
-        fprintf(' %-8s | %11s | %11s +- %-11s | %11s | %8.4f |%4.0f\n',names{k},rv,dv,du,ev,runc,pp);                
+        fprintf(' %-8s | %11s | %11s +- %-11s | %11s | %10.4f |%4.0f\n',names{k},rv,dv,du,ev,runc,pp);                
     end        
-    fprintf('----------+-------------+----------------------------+-------------+----------+---------\n\n');
+    fprintf('----------+-------------+----------------------------+-------------+------------+---------\n\n');
     
         
     % check frequency estimate:
