@@ -642,7 +642,7 @@ function [unc] = unc_estimate(fh,Y,fs,N,fx,Ax,ox,lsb,jitt,sfdr,w)
     unc.dfx.val = 0.5*unc.dfx.val*ttc;
     unc.dAx.val = 0.5*unc.dAx.val*ttc;
     % note: the extension coeficient reflects the simulation setup, possibly should be integrated in the LUT to make it more consistent
-    unc.dox.val = 0.5*unc.dox.val*ttc/Ax*max(abs(ox/Ax)/0.001,1);
+    unc.dox.val = 0.5*unc.dox.val*ttc/Ax;
 
 end
 

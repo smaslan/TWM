@@ -14,7 +14,7 @@ function alg_test(calcset) %<<<1
     
     % samples count to synthesize:
     %N = 5e3;
-    N = logrand(5000,50000);
+    N = round(logrand(5000,50000));
     
     % sampling rate [Hz]
     din.fs.v = 100000;
