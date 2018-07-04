@@ -117,7 +117,7 @@ function alg_test(calcset) %<<<1
     % harmonic component index {1st, 2rd, ..., floor(0.4*fs/f0)}:
     chns{id}.fk =     [1    f_harm             round(0.4*din.fs.v/f0)]';
     % DC component:
-    chns{id}.dc = 0.03;
+    chns{id}.dc = -0.03;
     % differential mode: loop impedance:
     %chns{id}.Zx = 0.1;
         
@@ -302,7 +302,7 @@ function alg_test(calcset) %<<<1
             tsh = din.time_shift.v + randn(1)*din.time_shift.u*rand_unc;           
         else
             tsh = 0;
-        end              
+        end            
         
         % channel prefix (eg.: 'u_'):
         cpfx = [chn.name '_'];

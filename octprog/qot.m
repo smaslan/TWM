@@ -17,7 +17,8 @@ addpath([mfld filesep() 'qwtb']);
 %meas = [mfld '\..\temp\sim\DIGITIZER\HP3458_demo'];
 %meas = [mfld '\..\temp\sim\session_doc'];
 %meas = [mfld '\..\temp\test_3chn\session'];
-meas = [mfld '\..\temp\test_3chn\ss_dual'];
+%meas = [mfld '\..\temp\test_3chn\ss_dual'];
+meas = [mfld '\..\temp\pokus\session'];
 
 unc = 'none';
 

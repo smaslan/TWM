@@ -124,8 +124,6 @@ function [res] = proc_wrms(sig)
     % so from now the rest of calculation is identic for both modes...    
     
     
-      
-        
     
     % --- Apply the calculated tfer correction in the time-domain:
     % note: here we subtract phase of ref. channel from all others in order to reduce
@@ -153,7 +151,7 @@ function [res] = proc_wrms(sig)
         vc.adc_phi.phi = vc.adc_phi.phi - ap_ref.phi;
         
         % apply tfer FFT filter for high-side:
-        [vc.y, a,b, ff,fg,fp] = td_fft_filter(vc.y, fs, fft_size, fh,vc.adc_gain.gain,vc.adc_phi.phi ,i_mode);          
+        [vc.y, a,b, ff,fg,fp] = td_fft_filter(vc.y, fs, fft_size, fh,vc.adc_gain.gain,vc.adc_phi.phi ,i_mode);                       
         
         if ~sig.is_sim
             % calculate actual phase correction made:

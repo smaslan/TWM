@@ -24,8 +24,7 @@ function [y_out, first, last, fr,fg,fp] = td_fft_filter(y, fs, fft_size, f,gain,
     end
     
     
-    % --- build the filter:
-    
+    % --- build the filter:  
     % half filter size:    
     fft_half = fft_size/2;
         

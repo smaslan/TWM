@@ -185,10 +185,10 @@ function dataout = alg_wrapper(datain, calcset)
     % get ADC aperture value [s]:
     ta = abs(datain.adc_aper.v);
     
-    % calculate aperture gain/phase correction (for f0):
-    fap = fh + 1e-12;
+    % calculate aperture gain/phase correction:
+    fap = fh + 1e-12; % needed for DC work
     ap_gain = (pi*ta*fap)./sin(pi*ta*fap);
-    ap_phi  =  pi*ta*fh; % phase is not needed - should be identical for all channels
+    ap_phi  =  pi*ta*fh; % phase is not needed - should be identical for all channels?
              
     
     % --- for each virtual (u/i) channel:
@@ -217,10 +217,11 @@ function dataout = alg_wrapper(datain, calcset)
         
         if is_current
             % current channel:
-            
+                       
             % add (i-u) channel timeshift correction:
             ap.phi   = ap.phi - datain.time_shift.v.*fh*2*pi; 
-            ap.u_phi = (ap.u_phi.^2 + (datain.time_shift.u.*fh*2*pi).^2).^0.5;            
+            ap.u_phi = (ap.u_phi.^2 + (datain.time_shift.u.*fh*2*pi).^2).^0.5;
+            
         end
             
          
@@ -350,14 +351,16 @@ function dataout = alg_wrapper(datain, calcset)
             rms_ref = sum(0.5*vc.Y.^2).^0.5*w_gain/w_rms;
             
             % estimate transducer correction tfer from the spectrum estimate:            
-            zz = zeros(size(vc.Y));
-            Y = vc.Y;
-            u_Y = Y.*(ag.u_gain./ag.gain);
+            %zz = zeros(size(vc.Y));
+            Y = abs(vc.Y); % amplitudes, rectify DC
+            u_Y = Y.*(ag.u_gain./ag.gain); % amp. uncertainties
             u_ph = ap.u_phi;
-            [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh,[], Y,zz,u_Y,u_ph, 'rms',rms_ref);
+            fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
+            [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh_dc,[], Y,0*Y,u_Y,u_ph, 'rms',rms_ref);
             Y = max(Y,eps); % to prevent div-by-zero
             trg = trg./Y;
             u_trg = u_trg./Y;
+            Y = Y.*sign(vc.Y); % restore DC polarity 
                         
             %semilogx(fh,vc.adc_phi.phi)
             %semilogx(fh,vc.adc_gain.gain)
