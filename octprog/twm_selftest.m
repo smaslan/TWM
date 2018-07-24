@@ -785,11 +785,8 @@ function [] = twm_selftest()
         
     end
     
-    
-    
-    
-    
-    
+    % remove the global from global workspace: 
+    clear global twm_selftest_control;
 
 end
 

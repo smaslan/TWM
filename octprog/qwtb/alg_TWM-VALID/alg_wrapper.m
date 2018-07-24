@@ -44,58 +44,62 @@ function dataout = alg_wrapper(datain, calcset)
     % TWM control structure containing quantity assignement rules:
     global twm_selftest_control;
     
-    % raw quantities:
-    %   note: these will be passed directly datain -> dataout 
-    raw = twm_selftest_control.raw;
+    if ~isempty(twm_selftest_control)
     
-    % table-to-dataout quantities:
-    %   note: these will be passed from 'tab' tables to -> dataout 
-    t2d = twm_selftest_control.t2d;
-    
-    % --- process raw quantities:
-    for k = 1:numel(raw)
+        % raw quantities:
+        %   note: these will be passed directly datain -> dataout 
+        raw = twm_selftest_control.raw;
         
-        if raw{k}.auto_pass
-            
-            % get input quantity:
-            src = getfield(datain,raw{k}.name);
-            
-            if isfield(raw{k}.data,'u')
-                src = struct('v',src.v, 'u',src.u);
-            else
-                src = struct('v',src.v);
-            end            
-            
-            % return output quantity:
-            dataout = setfield(dataout,raw{k}.name,src);
-        end    
-    
-    end
-    
-    %fieldnames(dataout)
-    
-    % --- process table-to-dataout quantities:
-    for k = 1:numel(t2d)
-    
-        % get quantity record:
-        qur = t2d{k};
+        % table-to-dataout quantities:
+        %   note: these will be passed from 'tab' tables to -> dataout 
+        t2d = twm_selftest_control.t2d;
         
-        % get input table:
-        tbl = getfield(tab,qur.tab_name);
+        % --- process raw quantities:
+        for k = 1:numel(raw)
+            
+            if raw{k}.auto_pass
+                
+                % get input quantity:
+                src = getfield(datain,raw{k}.name);
+                
+                if isfield(raw{k}.data,'u')
+                    src = struct('v',src.v, 'u',src.u);
+                else
+                    src = struct('v',src.v);
+                end            
+                
+                % return output quantity:
+                dataout = setfield(dataout,raw{k}.name,src);
+            end    
         
-        % copy all table's content to dataout:
-        for q = 1:numel(qur.qu)
-            % get table's data:
-            qu = getfield(tbl,qur.qu{q}.qu);
-            % copy table's data to dataout:
-            if isfield(dataout,qur.qu{q}.name)
-                doq = getfield(dataout,qur.qu{q}.name);
-            else
-                doq = struct();
-            end            
-            doq = setfield(doq,qur.qu{q}.sub,qu);
-            dataout = setfield(dataout,qur.qu{q}.name,doq);
-        end    
+        end
+        
+        %fieldnames(dataout)
+        
+        % --- process table-to-dataout quantities:
+        for k = 1:numel(t2d)
+        
+            % get quantity record:
+            qur = t2d{k};
+            
+            % get input table:
+            tbl = getfield(tab,qur.tab_name);
+            
+            % copy all table's content to dataout:
+            for q = 1:numel(qur.qu)
+                % get table's data:
+                qu = getfield(tbl,qur.qu{q}.qu);
+                % copy table's data to dataout:
+                if isfield(dataout,qur.qu{q}.name)
+                    doq = getfield(dataout,qur.qu{q}.name);
+                else
+                    doq = struct();
+                end            
+                doq = setfield(doq,qur.qu{q}.sub,qu);
+                dataout = setfield(dataout,qur.qu{q}.name,doq);
+            end    
+        end
+    
     end
     
 end % function
