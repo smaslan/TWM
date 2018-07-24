@@ -136,6 +136,12 @@ function [] = twm_selftest()
                     % for each table quantity:
                     for q = 1:numel(rec.qu)
                     
+                        if isfield(rec.qu{q},'range')
+                            rrng = rec.qu{q}.range;
+                        else
+                            rrng = [-1 1];
+                        end
+                    
                         % generate some data:
                         if q == 1
                             % y-axis (major):                            
@@ -147,10 +153,10 @@ function [] = twm_selftest()
                             rec.qu{q}.data = sort(randn(1,x_size));
                         elseif rec.tab_dim == 1
                             % 1D data
-                            rec.qu{q}.data = randn([y_size,1]);
+                            rec.qu{q}.data = rndrng(rrng(1),rrng(2),[y_size,1]);
                         else
                             % 2D data
-                            rec.qu{q}.data = randn([y_size,x_size]);
+                            rec.qu{q}.data = rndrng(rrng(1),rrng(2),[y_size,x_size]);
                         end
                     
                     end
@@ -609,7 +615,7 @@ function [] = twm_selftest()
     
     
     
-    % --- compare generate/returned quantities:
+    % --- compare generated/returned quantities:
     cfg.vec_horiz = 0;
     [res] = qwtb_load_results(meas_root,-1,'',cfg);
     res = res{1}{1};
@@ -648,7 +654,7 @@ function [] = twm_selftest()
             if isfield(rec.qu{q},'opt')
                 % optional actions:
                 if strcmpi(rec.qu{q}.opt,'nom_gain_fix')
-                    % apply adc_gain nominal gain before compare:
+                    % apply adc_gain*nominal gain before compare:
                     
                     % find nominal gain matching the channel:
                     nom_gain.v = NaN;
@@ -660,11 +666,18 @@ function [] = twm_selftest()
                     if isnan(nom_gain.v)
                         error(sprintf('Compare: quantity ''%s'' cannot be compared, missing nominal gain! This should not happen.',rec.qu{q}.name));
                     end                    
+                    
+                    % store gain tfer before nominal gain application:
+                    % ###note: needed for .opt == 'nom_gain_fix_u' 
+                    gain_tfer_temp = rec.qu{q}.data; 
+                    
                     % apply nominal gain:                    
                     rec.qu{q}.data = rec.qu{q}.data*nom_gain.v;
                 
                 elseif strcmpi(rec.qu{q}.opt,'nom_gain_fix_u')
-                    % apply adc_gain nominal gain uncertainty before compare:
+                    % apply adc_gain*nominal gain uncertainty before compare:
+                    % ###note: this piece of code expects hardcoded position of gain quantity, complementary to the gain uncertainty quantity.
+                    %          It expects the value at index (q-1)! Eventually it may fail when structure of quantities in the gain records is changed!
                     
                     % find nominal gain matching the channel:
                     nom_gain.u = NaN;
@@ -676,11 +689,11 @@ function [] = twm_selftest()
                     if isnan(nom_gain.u)
                         error(sprintf('Compare: quantity ''%s'' cannot be compared, missing nominal gain! This should not happen.',rec.qu{q}.name));
                     end                    
-                    % apply nominal gain:                    
-                    rec.qu{q}.data = (rec.qu{q}.data.^2 + nom_gain.u.^2).^0.5;
+                    % apply nominal gain uncertainty:                    
+                    rec.qu{q}.data = ((nom_gain.v.*rec.qu{q}.data).^2 + (gain_tfer_temp.*nom_gain.u).^2).^0.5;
                                 
                 elseif strcmpi(rec.qu{q}.opt,'nom_rat_fix')
-                    % apply adc_gain nominal gain before compare:
+                    % apply tr_gain*nominal gain before compare:
                     
                     % find nominal gain matching the channel:
                     nom_gain.v = NaN;
@@ -692,9 +705,15 @@ function [] = twm_selftest()
                     if isnan(nom_gain.v)
                         error(sprintf('Compare: quantity ''%s'' cannot be compared, missing nominal gain! This should not happen.',rec.qu{q}.name));
                     end                    
+                    
+                    % store gain tfer before nominal gain application:
+                    % ###note: needed for .opt == 'nom_rat_fix_u' 
+                    gain_tfer_temp = rec.qu{q}.data;
+                    
                     % apply nominal gain:                    
                     rec.qu{q}.data = rec.qu{q}.data*nom_gain.v;
-                    
+                         
+
                     rid = find(strcmpi(rnames,[rec.pfx 'tr_type']),1);
                     if strcmpi(res{rid}.val,'shunt')
                         % inverse ratio for a shunt:
@@ -702,8 +721,10 @@ function [] = twm_selftest()
                     end 
                 
                 elseif strcmpi(rec.qu{q}.opt,'nom_rat_fix_u')
-                    % apply adc_gain nominal gain uncertainty before compare:
-                    
+                    % apply tr_gain*nominal gain uncertainty before compare:
+                    % ###note: this piece of code expects hardcoded position of gain quantity, complementary to the gain uncertainty quantity.
+                    %          It expects the value at index (q-1)! Eventually it may fail when structure of quantities in the gain records is changed! 
+                                                            
                     % find nominal gain matching the channel:
                     nom_gain.u = NaN;
                     for r = 1:numel(twm_selftest_control.raw)
@@ -714,27 +735,35 @@ function [] = twm_selftest()
                     if isnan(nom_gain.u)
                         error(sprintf('Compare: quantity ''%s'' cannot be compared, missing nominal gain! This should not happen.',rec.qu{q}.name));
                     end                    
-                    % apply nominal gain:                    
-                    rec.qu{q}.data = (rec.qu{q}.data.^2 + nom_gain.u.^2).^0.5;
                     
-                    rid = find(strcmpi(rnames,[rec.pfx 'tr_type']),1);
-                    if strcmpi(res{rid}.val,'shunt')
-                        % inverse ratio for a shunt:
-                        rec.qu{q}.data = rec.qu{q}.data./rec.qu{q-1}.data.^2; % ###note: hardcoded position of gain quantity, may fail if order of .qu{} is changed!    
-                    end
+                    % apply nominal gain uncertainty:
+                    rec.qu{q}.data = ((rec.qu{q}.data*nom_gain.v).^2 + (nom_gain.u*gain_tfer_temp).^2).^0.5./(gain_tfer_temp.*nom_gain.v).*rec.qu{q-1}.data;                    
+                    %rec.qu{q}.data = ((rec.qu{q}.data).^2 + (nom_gain.u).^2).^0.5;
+                    
+%                     rid = find(strcmpi(rnames,[rec.pfx 'tr_type']),1);
+%                     if strcmpi(res{rid}.val,'shunt')
+%                         % inverse ratio for a shunt:
+%                         rec.qu{q}.data = rec.qu{q}.data.*rec.qu{q-1}.data;     
+%                     end
                 end
             end
             
             % check content match
             if strcmpi(rec.qu{q}.sub,'u')
                 ref = dut.unc; % comparing uncertainty
+                comp_tol = 1e-2;
             else
                 ref = dut.val; % comparing value of quantity
+                comp_tol = 1e-9;
             end
-            if ~matchtol(ref,rec.qu{q}.data)
-                rec.qu{q}
-                dut
-                error(sprintf('Compare: quantity ''%s'' content does not match!',rec.qu{q}.name));
+            if ~matchtol(ref,rec.qu{q}.data,comp_tol)
+                disp('----- Calculated:')
+                rec.qu{q}.data
+                disp('----- Reference:')
+                ref
+                
+                dev = rec.qu{q}.data./ref-1
+                error(sprintf('Compare: quantity ''%s.%s'' content does not match!',rec.qu{q}.name,rec.qu{q}.sub));
             end
                         
         end         
@@ -1197,8 +1226,8 @@ function [list] = gen_tab_list()
     tab.tab_dim = 2;
     tab.qu{1} = struct('qu','f', 'name','tr_gain_f', 'sub','v', 'desc','Transducer gain - frequency axis');
     tab.qu{2} = struct('qu','rms', 'name','tr_gain_a', 'sub','v', 'desc','Transducer gain - amplitude axis');
-    tab.qu{3} = struct('qu','gain', 'name','tr_gain', 'sub','v', 'desc','Transducer gain', 'opt','nom_rat_fix');
-    tab.qu{4} = struct('qu','u_gain', 'name','tr_gain', 'sub','u', 'desc','Transducer gain', 'opt','nom_rat_fix_u');    
+    tab.qu{3} = struct('qu','gain', 'name','tr_gain', 'sub','v', 'desc','Transducer gain', 'opt','nom_rat_fix', 'range',[0.5 1.5]);
+    tab.qu{4} = struct('qu','u_gain', 'name','tr_gain', 'sub','u', 'desc','Transducer gain', 'opt','nom_rat_fix_u', 'range',[1e-6 1e-3]);    
     tab.auto_gen = 1;
     tab.auto_pass = 1;
     tab.is_csv = 1;

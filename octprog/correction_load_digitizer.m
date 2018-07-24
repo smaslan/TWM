@@ -172,8 +172,8 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         chn{c}.tfer_gain.qwtb = qwtb_gen_naming('adc_gain','f','a',{'gain'},{'u_gain'},{''});
         
         % combine nominal gain with transfer:
+        chn{c}.tfer_gain.u_gain = ((chn{c}.nom_gain.gain.*chn{c}.tfer_gain.u_gain).^2 + (chn{c}.tfer_gain.gain.*chn{c}.nom_gain.u_gain).^2).^0.5;
         chn{c}.tfer_gain.gain = chn{c}.tfer_gain.gain.*chn{c}.nom_gain.gain;
-        chn{c}.tfer_gain.u_gain = (chn{c}.tfer_gain.u_gain.^2 + chn{c}.nom_gain.u_gain.^2).^0.5;
         
         % --- try to load DC offset value:
         table_cfg = struct();

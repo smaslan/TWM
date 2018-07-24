@@ -104,14 +104,15 @@ function [tran] = correction_load_transducer(file)
     tran.tfer_phi = correction_load_table(fdep_file,'rms',{'f','phi','u_phi'});
     tran.tfer_phi.qwtb = qwtb_gen_naming('tr_phi','f','a',{'phi'},{'u_phi'},{''});
     
+    %tran.tfer_gain.u_gain = (tran.u_nominal^2 + tran.tfer_gain.u_gain.^2).^0.5;    
+    tran.tfer_gain.u_gain = ((tran.u_nominal*tran.tfer_gain.gain).^2 + (tran.tfer_gain.u_gain*tran.nominal).^2).^0.5;
     % combine nominal gain and relative gain transfer to the absolute gain tfer.: 
     tran.tfer_gain.gain = tran.nominal*tran.tfer_gain.gain;
-    tran.tfer_gain.u_gain = (tran.u_nominal^2 + tran.tfer_gain.u_gain.^2).^0.5;
-    
+        
     if is_shunt
       % inverse ratio for the shunt:
         tran.tfer_gain.gain = 1./tran.tfer_gain.gain;
-        tran.tfer_gain.u_gain = tran.tfer_gain.u_gain./tran.tfer_gain.gain.^2;
+        tran.tfer_gain.u_gain = tran.tfer_gain.u_gain.*tran.tfer_gain.gain.^2;
     end
       
     

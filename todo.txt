@@ -1,5 +1,4 @@
 Bugs:
- - It seems there is something fishy about loader of shunt correction data. It probably loads incorrect uncertainty.
  - It seems 1-input algs. calculates time shift correction differently then 2-input algs. -> bug most likely in the alg. executer
 
 Digitizers panel:
