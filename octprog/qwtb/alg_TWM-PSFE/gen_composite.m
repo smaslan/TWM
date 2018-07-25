@@ -109,7 +109,7 @@ function dout = gen_composite(din,cfg,rand_unc)
     phx = [pi/2;phx];
     
     % add SFDR harmonic spurrs to the composite signal:
-    fh = fx(1)*[2:cfg.sfdr_hn+1]'; % odd and even harmonics
+    fh = fx(2)*[2:cfg.sfdr_hn+1]'; % odd and even harmonics
     fh = fh(fh < 0.45*din.fs.v); % limit by nyquist
     if cfg.sfdr_rand
         Ah = rand(size(fh))*cfg.sfdr*cfg.Ax(1); % random amplitudes

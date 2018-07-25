@@ -104,12 +104,12 @@ function dout = gen_composite(din,cfg,rand_unc)
     phx = cfg.phx;
     
     % add fake DC component:
-    fx = [1e-12;fx]; 
-    Ax = [cfg.dc;Ax];
-    phx = [pi/2;phx];
+    fx = [1e-12;  fx]; 
+    Ax = [cfg.dc; Ax];
+    phx = [pi/2;  phx];
     
     % add SFDR harmonic spurrs to the composite signal:
-    fh = fx(1)*[2:cfg.sfdr_hn+1]'; % odd and even harmonics
+    fh = fx(2)*[2:cfg.sfdr_hn+1]'; % odd and even harmonics
     fh = fh(fh < 0.45*din.fs.v); % limit by nyquist
     if cfg.sfdr_rand
         Ah = rand(size(fh))*cfg.sfdr*cfg.Ax(1); % random amplitudes
@@ -118,9 +118,9 @@ function dout = gen_composite(din,cfg,rand_unc)
     end
     phh = rand(size(fh))*2*pi; % random amplitudes     
     % add SFDR spurrs to the list
-    fx  = [fx;fh];
-    Ax  = [Ax;Ah];
-    phx = [phx;phh];
+    fx  = [fx;  fh];
+    Ax  = [Ax;  Ah];
+    phx = [phx; phh];
      
     
     % apply transducer transfer:
@@ -231,6 +231,8 @@ function dout = gen_composite(din,cfg,rand_unc)
         % store to the QWTB input list:
         dout = setfield(dout, t_cfg.ysub{c}, struct('v',u));
         
-    end    
+    end
+    
+      
 
 end
