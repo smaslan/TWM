@@ -3,7 +3,7 @@ function alginfo = alg_info() %<<<1
 %
 % See also qwtb
 
-    alginfo.id = 'TWM-HCRMS';
+    alginfo.id = 'TWM-InDiSwell';
     alginfo.name = 'Interruption Dip Swell';
     alginfo.desc = 'This algorithm is designed to calculate half-cycle rms values of single phase waveform. It uses the measured half-rms envelope to detect sag, swell, interruptions, undervoltage and overvoltage.';
     alginfo.citation = '';
@@ -523,6 +523,36 @@ function alginfo = alg_info() %<<<1
     
     alginfo.outputs(pid).name = 'env';
     alginfo.outputs(pid).desc = 'Detected rms level envelope';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'sag_start';
+    alginfo.outputs(pid).desc = 'Sag event start time';
+    pid = pid + 1;
+    alginfo.outputs(pid).name = 'sag_dur';
+    alginfo.outputs(pid).desc = 'Sag event duration time';
+    pid = pid + 1;
+    alginfo.outputs(pid).name = 'sag_res';
+    alginfo.outputs(pid).desc = 'Sag event residual level [%]';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'swell_start';
+    alginfo.outputs(pid).desc = 'Swell event start time';
+    pid = pid + 1;
+    alginfo.outputs(pid).name = 'swell_dur';
+    alginfo.outputs(pid).desc = 'Swell event duration time';
+    pid = pid + 1;
+    alginfo.outputs(pid).name = 'swell_res';
+    alginfo.outputs(pid).desc = 'Swell event residual level [%]';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'int_start';
+    alginfo.outputs(pid).desc = 'Interruption event start time';
+    pid = pid + 1;
+    alginfo.outputs(pid).name = 'int_dur';
+    alginfo.outputs(pid).desc = 'Interruption event duration time';
+    pid = pid + 1;
+    alginfo.outputs(pid).name = 'int_res';
+    alginfo.outputs(pid).desc = 'Interruption event residual level [%]';
     pid = pid + 1;
     
     
