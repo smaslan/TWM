@@ -124,49 +124,56 @@ function dataout = alg_wrapper(datain, calcset)
     
     
     % --- Pre-processing ---
-    
-    % get used window parameters:
-    %  get window:
-    w = reshape(window_coeff('flattop_248D',N),[N 1]);
-    %  get window scaling factor:
-    w_gain = mean(w);
-    %  get window rms:
-    w_rms = mean(w.^2).^0.5;
+   
+    % window for spectral analysis:
+    %  note: this is not the window for the main RMS algorithms itself!
+    %        This is just to calculate signal spectrum for purposes of corrections, uncertainty, etc.
+    win_type = 'flattop_248D';
          
+    
     % --- get channel spectra:    
     % for each virtual (u/i) channel:
     for k = 1:numel(vcl)
         % get channel:
         vc = vcl{k};
         
-        % estimate DC offset of channel:       
-        vc.dc = mean(vc.y.*w)./w_gain;
-        % remove it from signal:
-        vc.y = vc.y - vc.dc;
-        
         % get spectrum:
-        [fh, vc.Y, vc.ph] = ampphspectrum(vc.y, fs, 0, 0, 'flattop_248D', [], 0);
+        din = struct();
+        din.fs.v = fs;
+        din.window.v = win_type;
+        cset.verbose = 0;
+        din.y.v = vc.y;                
+        dout = qwtb('SP-WFFT',din,cset);
+        qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+        fh    = dout.f.v(:); % freq. vector of the DFT bins
+        vc.Y  = dout.A.v(:); % amplitude vector of the DFT bins
+        vc.ph = dout.ph.v(:); % phase vector of the DFT bins
+        w     = dout.w.v; % window coefficients
         
-        % return DC back into spectrum:
-        %  note: this is workaround to eliminate leakage of the DC component into nearby DFT bins:
-        %        it changes total energy/rms of the signal but since DC is limited to few percent of dominant component it should do no harm
-        %        but restoring it is necessary to make the corrections work!
-        vc.Y(1) = vc.dc;
+        % estimate DC offset of channel:           
+        vc.dc = vc.Y(1);
+        % remove DC from time-domain signal:
+        vc.y = vc.y - vc.dc;
+
         
+        % store working spectrum for later:
         Y_tmp = vc.Y;
         
         if vc.is_diff
+            % -- differential mode (low-side):
             
-            % estimate DC offset of channel:       
-            vc.dc_lo = mean(vc.y_lo.*w)./w_gain;
-            % remove it from signal:
-            vc.y_lo = vc.y_lo - vc.dc_lo;
+            % get spectrum:
+            din.y.v = vc.y_lo;                
+            dout = qwtb('SP-WFFT',din,cset);
+            qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+            fh       = dout.f.v(:); % freq. vector of the DFT bins
+            vc.Y_lo  = dout.A.v(:); % amplitude vector of the DFT bins
+            vc.ph_lo = dout.ph.v(:); % phase vector of the DFT bins
             
-            % get low-side spectrum:
-            [fh, vc.Y_lo, vc.ph_lo] = ampphspectrum(vc.y_lo, fs, 0, 0, 'flattop_248D', [], 0);
-            
-            % return DC back into spectrum:
-            vc.Y_lo(1) = vc.dc_lo;
+            % estimate DC offset of channel:           
+            vc.dc_lo = vc.Y_lo(1);
+            % remove DC from time-domain signal:
+            vc.y_lo = vc.y_lo - vc.dc_lo;            
             
         end
         
@@ -174,7 +181,10 @@ function dataout = alg_wrapper(datain, calcset)
     end
     fh = fh(:);
         
-    
+    %  get window scaling factor:
+    w_gain = mean(w);
+    %  get window rms:
+    w_rms = mean(w.^2).^0.5;   
     
     
     
@@ -198,10 +208,16 @@ function dataout = alg_wrapper(datain, calcset)
         
         % current channel?
         is_current = strcmpi(vc.tran,'shunt');
-        
+                
+        % correct ADC offset:
+        vc.Y(1) = vc.Y(1) - vc.adc_ofs.v; % remove DC offset from working spectrum
+
+        vc.dc = vc.dc - vc.adc_ofs.v; % fix DC estimate by the offset
+        vc.u_dc = vc.adc_ofs.u;
+                
         % get gain/phase correction for the freq. components (high-side ADC):
-        ag = correction_interp_table(vc.tab.adc_gain, vc.Y, fh, 'f',1, i_mode);
-        ap = correction_interp_table(vc.tab.adc_phi,  vc.Y, fh, 'f',1, i_mode);
+        ag = correction_interp_table(vc.tab.adc_gain, abs(vc.Y), fh, 'f',1, i_mode);
+        ap = correction_interp_table(vc.tab.adc_phi,  abs(vc.Y), fh, 'f',1, i_mode);
         
         if any(isnan(ag.gain))
             error('High-side ADC gain correction: not sufficient range of correction data!');
@@ -239,18 +255,20 @@ function dataout = alg_wrapper(datain, calcset)
         vc.lsb = adc_get_lsb(datain,[vc.name '_']);
         % apply ADC gain to it:
         vc.lsb = vc.lsb.*ag.gain.*ap_gain;
-        
-        % correct ADC offset:
-        vc.dc = vc.dc - vc.adc_ofs.v;
-        vc.u_dc = vc.adc_ofs.u;
                  
         
         if vc.is_diff
             % -- differential mode:
+            
+            % correct ADC offset:
+            vc.Y_lo(1) = vc.Y_lo(1) - vc.adc_ofs_lo.v;
+            vc.dc_lo = vc.dc_lo - vc.adc_ofs_lo.v;
+            vc.u_dc_lo = vc.adc_ofs_lo.u;
+
         
             % get gain/phase correction for the freq. components (low-side ADC):
-            agl = correction_interp_table(vc.tab.lo_adc_gain, vc.Y_lo, fh, 'f',1, i_mode);
-            apl = correction_interp_table(vc.tab.lo_adc_phi,  vc.Y_lo, fh, 'f',1, i_mode);
+            agl = correction_interp_table(vc.tab.lo_adc_gain, abs(vc.Y_lo), fh, 'f',1, i_mode);
+            apl = correction_interp_table(vc.tab.lo_adc_phi,  abs(vc.Y_lo), fh, 'f',1, i_mode);
             
             if any(isnan(agl.gain))
                 error('Low-side ADC gain correction: not sufficient range of correction data!');
@@ -287,11 +305,7 @@ function dataout = alg_wrapper(datain, calcset)
             % obtain ADC LSB value for low-side:
             vc.lsb_lo = adc_get_lsb(datain,[vc.name '_lo_']);
             % apply ADC gain to it:
-            vc.lsb_lo = vc.lsb_lo.*agl.gain.*ap_gain;
-            
-            % correct ADC offset:
-            vc.dc_lo = vc.dc_lo - vc.adc_ofs_lo.v;
-            vc.u_dc_lo = vc.adc_ofs_lo.u;
+            vc.lsb_lo = vc.lsb_lo.*agl.gain.*ap_gain;          
                         
             
             % estimate transducer correction tfer from the spectrum estimates:
@@ -315,15 +329,16 @@ function dataout = alg_wrapper(datain, calcset)
             dA = abs(Y - Y_lo);
             rms_ref = sum(0.5*dA.^2).^0.5*w_gain/w_rms;            
             % calculate transducer tfer:
-            [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo, 'rms',rms_ref);
+            fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
+            [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh_dc,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo, 'rms',rms_ref);
             % store relative tfer:
             %vc.tr_gain = trg./abs(Y - Y_lo);
             %vc.tr_phi  = trp - angle(Y - Y_lo);
             %vc.u_tr_gain = u_trg./abs(Y - Y_lo);
             %vc.u_tr_phi = u_trp;
             
-            %semilogx(fh,trg)
             
+                        
             % combine ADC and transducer tfers:
             %  note: so we will apply just one filter instead of two
             vc.tr_gain = trg./abs(Y - Y_lo);
@@ -335,14 +350,19 @@ function dataout = alg_wrapper(datain, calcset)
             
             % calculate effective differential LSB value:            
             vc.lsb = (vc.lsb.^2 + vc.lsb_lo.^2).^0.5.*vc.tr_gain;
-           
-                        
+                                    
             % store differential signal spectrum estimate after the correction:
             %  i.e. this is now equivalent of single-ended channel spectrum 
-            vc.Y = trg/w_gain;
+            vc.Y = trg;
+            vc.Y(1) = vc.Y(1)*(2*(abs(trp(1)) < 0.1) - 1); % restore DC component polarity            
             vc.ph = trp;
-            vc.u_Y = u_trg/w_gain;
+            vc.u_Y = u_trg;
             vc.u_ph = u_trp;
+            
+            %figure
+            %semilogx(fh,vc.Y)
+            
+            
 
         else
             % -- single-ended mode:
@@ -360,7 +380,7 @@ function dataout = alg_wrapper(datain, calcset)
             Y = max(Y,eps); % to prevent div-by-zero
             trg = trg./Y;
             u_trg = u_trg./Y;
-            Y = Y.*sign(vc.Y); % restore DC polarity 
+            %Y = Y.*sign(vc.Y); % restore DC polarity
                         
             %semilogx(fh,vc.adc_phi.phi)
             %semilogx(fh,vc.adc_gain.gain)
@@ -378,7 +398,7 @@ function dataout = alg_wrapper(datain, calcset)
             vc.lsb = vc.lsb.*trg;
             
             % apply transducer tfer to the spectrum estimate: 
-            vc.u_Y = vc.Y.*u_trg;
+            vc.u_Y = abs(vc.Y.*u_trg);
             vc.u_ph = u_trp;
             vc.Y = vc.Y.*trg;
             vc.ph = vc.ph + trp;
@@ -592,7 +612,7 @@ function dataout = alg_wrapper(datain, calcset)
         ff = vcl{1}.adc_gain.f;
         fg = vcl{1}.adc_gain.gain;
         fp = vcl{1}.adc_phi.phi;
-        [u_fg_U,u_fp_U] = td_fft_filter_unc(fs, numel(datain.u.v), fft_size, ff,fg,fp, i_mode, fx(1:H),Ux(1:H));    
+        [u_fg_U,u_fp_U] = td_fft_filter_unc(fs, numel(datain.u.v), fft_size, ff,fg,fp, i_mode, fx(1:H),Ux(1:H));  
         
         % current channel:
         ff = vcl{2}.adc_gain.f;
@@ -709,8 +729,7 @@ function dataout = alg_wrapper(datain, calcset)
         u_U = (u_U.^2 + u_U_sfdr^2 + u_U_st.^2 + u_U_sp.^2).^0.5;
         u_I = (u_I.^2 + u_I_sfdr^2 + u_I_st.^2 + u_I_sp.^2).^0.5;
         u_P = (u_P.^2 + u_P_sfdr^2 + u_P_st.^2 + u_P_sp.^2).^0.5;
-        
-        
+                
         
     elseif strcmpi(calcset.unc,'mcm')
         % -- Monte-Carlo mode:
@@ -817,8 +836,8 @@ function dataout = alg_wrapper(datain, calcset)
         % obtain DC components:
         dc_u = vcl{1}.dc;
         dc_i = vcl{2}.dc;
-        u_dc_u = vcl{1}.u_dc;
-        u_dc_i = vcl{2}.u_dc;
+        u_dc_u = vcl{1}.u_dc
+        u_dc_i = vcl{2}.u_dc
         
         % add DC to results:
         U = (U^2 + dc_u^2)^0.5;
@@ -828,7 +847,7 @@ function dataout = alg_wrapper(datain, calcset)
         % add DC uncertainty to the results:
         u_U = (dc_u^2*u_dc_u^2 + U^2*u_U^2)^0.5/(dc_u^2 + U^2)^0.5;
         u_I = (dc_i^2*u_dc_i^2 + I^2*u_I^2)^0.5/(dc_i^2 + I^2)^0.5;
-        u_P = P*((u_P/P)^2 + (u_dc_u/dc_u)^2 + (u_dc_i/dc_i)^2)^0.5;        
+        u_P = (u_P^2 + (dc_u*dc_i*((u_dc_u/dc_u)^2 + (u_dc_i/dc_i)^2)^0.5)^2)^0.5;        
     end
     
     % calculate apperent power:
@@ -866,9 +885,22 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.PF.v = PF;
     dataout.PF.u = u_PF*ke;
     
-    % return spectra of the corrected waveforms:   
-    [fh, dataout.spec_U.v] = ampphspectrum(vcl{1}.y, fs, 0, 0, 'flattop_248D', [], 0);
-    [fh, dataout.spec_I.v] = ampphspectrum(vcl{2}.y, fs, 0, 0, 'flattop_248D', [], 0);
+    
+    % return spectra of the corrected waveforms:
+    din = struct();
+    din.fs.v = fs;
+    din.window.v = win_type;
+    cset.verbose = 0;
+    din.y.v = vcl{1}.y;                
+    dout = qwtb('SP-WFFT',din,cset);
+    qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+    fh               = dout.f.v(:); % freq. vector of the DFT bins
+    dataout.spec_U.v = dout.A.v(:); % amplitude vector of the DFT bins    
+    din.y.v = vcl{2}.y;                
+    dout = qwtb('SP-WFFT',din,cset);
+    qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+    fh               = dout.f.v(:); % freq. vector of the DFT bins
+    dataout.spec_I.v = dout.A.v(:); % amplitude vector of the DFT bins
     dataout.spec_S.v = dataout.spec_U.v.*dataout.spec_I.v;
     dataout.spec_f.v = fh(:);
     

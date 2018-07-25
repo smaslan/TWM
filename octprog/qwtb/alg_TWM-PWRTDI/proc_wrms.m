@@ -42,7 +42,7 @@ function [res] = proc_wrms(sig)
         % DFT bin step [Hz]:
         bin_step = 0.5*sig.fs/sig.N;
         
-        % randomize harmonics frequency positions +-bin because : 
+        % randomize harmonics frequency positions +-bin because we don't exact position: 
         fx = sig.sim.fx + (2*rand(size(sig.sim.fx)) - 1)*bin_step;
         
         % randomize frequencies of spurrs:
@@ -144,7 +144,7 @@ function [res] = proc_wrms(sig)
         if ~sig.is_sim
             vc.dc = vc.dc*vc.adc_gain.gain(1);
             vc.u_dc = ((vc.u_dc*vc.adc_gain.gain(1))^2 + (vc.dc*vc.adc_gain.u_gain(1))^2)^0.5;
-        end                       
+        end                  
                 
         % subtract reference channel phase:
         %  note: this is to reduce total phase correction value
