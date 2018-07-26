@@ -12,6 +12,10 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
     
+    if ~exist(meas_file)
+        error('QWTB algorithm executer: Selected session path does not exist!');
+    end
+    
     % measuremet root path 
     meas_root = [fileparts(meas_file) filesep()];
     
