@@ -111,10 +111,10 @@ function alg_test(calcset) %<<<1
     %chns{id}.A  = 0.3*[1     0.01 0.001]';
     I0 = logrand(0.1,0.9);
     chns{id}.A  = I0*[1  logrand(0.01,0.1)  0.001]';
-    % harmonic phases:
-    PF = round(linrand(0.1,1.0)*100)/100;
+    % harmonic phases:        
     %chns{id}.ph = [1/3  +0.8  0.2]'*pi;
-    chns{id}.ph = [acos(PF)/pi  linrand(-0.8,0.8)  0.2]'*pi;
+    phi_ef = linrand(-0.45*pi,+0.45*pi)*sign(randn);
+    chns{id}.ph = [phi_ef linrand(-0.8,0.8)  0.2]'*pi;
     % harmonic component frequency {1st, 2rd, ..., floor(0.4*fs/f0)}:
     chns{id}.fx = f0*[1  f_harm  round(0.4*din.fs.v/f0)]';
     % DC component:
@@ -287,21 +287,26 @@ function alg_test(calcset) %<<<1
     % --- plot results:
         
     % make list of quantities to display:
-    ref_list =  [simout.U_rms, simout.I_rms, simout.S, simout.P, simout.Q, simout.PF];
-    dut_list =  [dout.U.v,     dout.I.v,     dout.S.v, dout.P.v, dout.Q.v, dout.PF.v];
-    unc_list =  [dout.U.u,     dout.I.u,     dout.S.u, dout.P.u, dout.Q.u, dout.PF.u];
-    name_list = {'U',          'I',          'S',      'P',      'Q',      'PF'};
+    ref_list =  [simout.U_rms, simout.I_rms, simout.S, simout.P, simout.Q, simout.PF, simout.phi_ef*180/pi, simout.Udc, simout.Idc, simout.Pdc];
+    dut_list =  [dout.U.v,     dout.I.v,     dout.S.v, dout.P.v, dout.Q.v, dout.PF.v, dout.phi_ef.v*180/pi, dout.Udc.v, dout.Idc.v, dout.Pdc.v];
+    unc_list =  [dout.U.u,     dout.I.u,     dout.S.u, dout.P.u, dout.Q.u, dout.PF.u, dout.phi_ef.u*180/pi, dout.Udc.u, dout.Idc.u, dout.Pdc.u];
+    name_list = {'U',          'I',          'S',      'P',      'Q',      'PF',      'phi',                'Udc',      'Idc',      'Pdc'};
         
     % plot table of results:
-    fprintf('\n---+-------------+----------------------------+-------------+----------+----------+-----------\n');
-    fprintf('   |     REF     |        CALC +- UNC         |   ABS DEV   |  DEV [%%] |  UNC [%%] | %%-OF-UNC\n');
-    fprintf('---+-------------+----------------------------+-------------+----------+----------+-----------\n');
+    fprintf('\n----+-------------+----------------------------+-------------+----------+----------+-----------\n');
+    fprintf('    |     REF     |        CALC +- UNC         |   ABS DEV   |  DEV [%%] |  UNC [%%] | %%-OF-UNC\n');
+    fprintf('----+-------------+----------------------------+-------------+----------+----------+-----------\n');
     for k = 1:numel(ref_list)
         
         ref = ref_list(k);
         dut = dut_list(k);
         unc = unc_list(k);
         name = name_list{k};
+        
+        nounc = isnan(unc);
+        if nounc
+            unc = 1e-6;
+        end
         
         dev = dut - ref;
         
@@ -311,10 +316,14 @@ function alg_test(calcset) %<<<1
         [ss,dv] = unc2str(dev,unc);
         [ss,rv] = unc2str(ref,unc);
         
-        fprintf('%-2s | %11s | %11s +- %-11s | %11s | %+8.4f | %+8.4f | %+3.0f\n',name,rv,sv,su,dv,100*dev/ref,unc/dut*100,puc);
+        if nounc
+            puc = NaN;
+        end
+        
+        fprintf('%-3s | %11s | %11s +- %-11s | %11s | %+8.4f | %+8.4f | %+3.0f\n',name,rv,sv,su,dv,100*dev/ref,unc/dut*100,puc);
         
     end
-    fprintf('---+-------------+----------------------------+-------------+----------+----------+-----------\n');
+    fprintf('----+-------------+----------------------------+-------------+----------+----------+-----------\n');
       
     
     

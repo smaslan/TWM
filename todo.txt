@@ -1,5 +1,4 @@
 Bugs:
- - It seems 1-input algs. calculates time shift correction differently then 2-input algs. -> bug most likely in the alg. executer
  - fix alg. display config for low values (low abs uncertainty limit)
 
 Digitizers panel:

@@ -65,11 +65,25 @@ function dataout = alg_wrapper(datain, calcset)
     
     % --------------------------------------------------------------------
     % RMS power calculation using time-domain-integration (TDI) of 
-    % windowed u/i signals.    
+    % windowed (w) u/i signals:
+    %
+    %  P  = mean(u(k)*i(k)*w(k)^2)/mean(w(k)^2); for k = 1..N
+    %  U  = mean(u(k)^2*w(k)^2)^0.5/mean(w(k)^2)^0.5; for k = 1..N
+    %  I  = mean(i(k)^2*w(k)^2)^0.5/mean(w(k)^2)^0.5; for k = 1..N
+    %  S  = U*I;
+    %  Q  = (S^2 - P^2)^0.5;
+    %  PF = P/S;
+    %
+    % The algorithm also incorporates DC component (optional).
+    % Note the Q is calculated before DC is added! 
+    % PF is calculated including DC components which is maybe not correct.
+    %    
     % Frequency dependent corrections of the gain/phase are made using
     % FFT filtering. The filtering method is based on the JV's 
     % sampling wattmeter.
     %
+    
+    
       
     % --- For easier processing we convert u/i channels to virtual channels array ---
     % so we can process the voltage and current using the same code...   
@@ -112,13 +126,14 @@ function dataout = alg_wrapper(datain, calcset)
     
 
     % corrections interpolation mode:
+    % ###note: do not change, this works best for frequency characteristics
     i_mode = 'pchip';
     
     % samples count:
     N = size(datain.u.v,1);    
 
     % size of the FFT filter:
-    %  note: should be selected automatically based on the source samples count
+    %  note: is selected automatically based on the source samples count
     fft_size = 2^nextpow2(N/4);
     
     
@@ -184,7 +199,8 @@ function dataout = alg_wrapper(datain, calcset)
     %  get window scaling factor:
     w_gain = mean(w);
     %  get window rms:
-    w_rms = mean(w.^2).^0.5;   
+    w_rms = mean(w.^2).^0.5;
+       
     
     
     
@@ -235,7 +251,7 @@ function dataout = alg_wrapper(datain, calcset)
             % current channel:
                        
             % add (i-u) channel timeshift correction:
-            ap.phi   = ap.phi - datain.time_shift.v.*fh*2*pi; 
+            ap.phi   = ap.phi + datain.time_shift.v.*fh*2*pi; 
             ap.u_phi = (ap.u_phi.^2 + (datain.time_shift.u.*fh*2*pi).^2).^0.5;
             
         end
@@ -283,14 +299,14 @@ function dataout = alg_wrapper(datain, calcset)
             end
             
             % apply low-side time shift correction:
-            apl.phi   = apl.phi + vc.tsh_lo.v*fh*2*pi;
+            apl.phi   = apl.phi - vc.tsh_lo.v*fh*2*pi;
             apl.u_phi = (apl.u_phi.^2 + (vc.tsh_lo.u*fh*2*pi).^2).^0.5;
             
             if is_current
                 % current channel:
                 
                 % add (i-u) channel timeshift correction:
-                apl.phi   = apl.phi - datain.time_shift.v.*fh*2*pi; 
+                apl.phi   = apl.phi + datain.time_shift.v.*fh*2*pi; 
                 apl.u_phi = (apl.u_phi.^2 + (datain.time_shift.u.*fh*2*pi).^2).^0.5;            
             end
             
@@ -527,6 +543,7 @@ function dataout = alg_wrapper(datain, calcset)
     I_rms = sum(0.5*Ih.^2)^0.5/w_rms*w_gain;
     P = sum((0.5*Ux.*Ix.*cos(phx)));
     S = sum((0.5*Ux.*Ix));
+    Q_fft = sum((0.5*Ux.*Ix.*sin(phx)));
     
     % estimate noise levels for the removed harmonics components:
     Uns = interp1(fh(msk),Uh(msk),fh,'nearest','extrap');
@@ -830,40 +847,57 @@ function dataout = alg_wrapper(datain, calcset)
     I = result.I;
     P = result.P;
     
+    % calculate reactive power:
+    % ###todo: decide on actual definition of reactive power!!!
+    %          I assume equation S^2 = P^2 + Q^2 applies only wihtout DC component.
+    %          That is how the U, I and P paremeters above were calculated.        
+    S = U*I;
+    u_S = ((u_U*I)^2 + (u_I*U)^2)^0.5;
+    Q = (S^2 - P^2)^0.5;    
+    u_Q = ((S^2*u_S^2 + P^2*u_P^2)/(S^2 - P^2))^0.5; % ###note: ignoring corelations, may be improved    
+    % ###note: very experiMENTAL solution. The sing() of the FFT based Q (according Budenau) is used to estimate polarity.
+    %          Correct solution would be to use hilbert transform but that is not done yet.
+    %          This solution should work for PF > 0.05 and for not insane THD. In the worst case it will change only polarity. 
+    Q = Q.*sign(Q_fft); % apply polarity obtained from FFT    
+    
+    % obtain DC components:
+    dc_u = vcl{1}.dc;
+    dc_i = vcl{2}.dc;
+    u_dc_u = vcl{1}.u_dc;
+    u_dc_i = vcl{2}.u_dc;
+    
+    % DC power component:
+    P0   = dc_u*dc_i;
+    u_P0 = ((dc_u*u_dc_i)^2 + (dc_i*u_dc_u)^2 + u_P^2)^0.5; % ###note: overestimated
+    u_dc_u = (u_dc_u^2 + u_U^2)^0.5; % ###note: overestimated
+    u_dc_i = (u_dc_i^2 + u_I^2)^0.5; % ###note: overestimated 
+    
     % add DC components (DC coupling mode only):
     if ~is_ac
-        
-        % obtain DC components:
-        dc_u = vcl{1}.dc;
-        dc_i = vcl{2}.dc;
-        u_dc_u = vcl{1}.u_dc
-        u_dc_i = vcl{2}.u_dc
-        
-        % add DC to results:
+
+        % add DC to RMS voltage and current:
         U = (U^2 + dc_u^2)^0.5;
         I = (I^2 + dc_i^2)^0.5;
-        P = P + dc_u*dc_i;
+        % add DC to active power: 
+        P = P + P0;
+        % reactive power shall be unaffected... 
         
         % add DC uncertainty to the results:
         u_U = (dc_u^2*u_dc_u^2 + U^2*u_U^2)^0.5/(dc_u^2 + U^2)^0.5;
         u_I = (dc_i^2*u_dc_i^2 + I^2*u_I^2)^0.5/(dc_i^2 + I^2)^0.5;
         u_P = (u_P^2 + (dc_u*dc_i*((u_dc_u/dc_u)^2 + (u_dc_i/dc_i)^2)^0.5)^2)^0.5;        
-    end
+    end     
     
     % calculate apperent power:
+    %  ###note: contains DC component of not AC coupled! 
     S = U*I;
     u_S = ((u_U*I)^2 + (u_I*U)^2)^0.5;        
-    
-    % calculate reactive power:
-    Q = (S^2 - P^2)^0.5;
-    u_Q = ((S^2*u_S^2 + P^2*u_P^2)/(S^2 - P^2))^0.5; % ###note: ignoring corelations, may be improved
-    
+        
     % calculate power factor:
+    %  ###note: contains DC component of not AC coupled!
     PF = P/S;
     u_PF = ((u_P./P).^2 + (u_S./S).^2).^0.5; % ###note: ignoring corelations, may be improved
-    
-    
-    
+        
         
     
     % --- return quantities to QWTB:
@@ -884,7 +918,15 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.Q.u = u_Q*ke;
     dataout.PF.v = PF;
     dataout.PF.u = u_PF*ke;
-    
+    dataout.phi_ef.v = atan2(Q,P);
+    dataout.phi_ef.u = max(abs([atan2(Q+u_Q,P+u_P) atan2(Q-u_Q,P+u_P) atan2(Q-u_Q,P-u_P) atan2(Q-u_Q,P-u_P)]-atan2(Q,P)))*ke;
+    % DC components:
+    dataout.Udc.v = dc_u;
+    dataout.Udc.u = u_dc_u*ke;
+    dataout.Idc.v = dc_i;
+    dataout.Idc.u = u_dc_i*ke;
+    dataout.Pdc.v = P0;
+    dataout.Pdc.u = u_P0*ke;
     
     % return spectra of the corrected waveforms:
     din = struct();

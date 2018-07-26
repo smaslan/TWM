@@ -128,7 +128,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
                 
         % i-channel timeshift:
         if chn.name == 'i'
-            tsh = din.time_shift.v + randn(1)*din.time_shift.u*rand_unc; % ###todo: decide if this has correct polarity!!!!!!!!!!!!!!!           
+            tsh = -din.time_shift.v + randn(1)*din.time_shift.u*rand_unc; % ###todo: decide if this has correct polarity!!!!!!!!!!!!!!!           
         else
             tsh = 0;
         end            
@@ -150,13 +150,13 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
         rms = sum(0.5*chn.A.^2)^0.5;
         
         % include DC?
+        cfg.chn{c}.rms_ac = rms;
         if ~din.ac_coupling.v
-            rms = (rms^2 + chn.dc^2)^0.5;
+            rms = (rms^2 + chn.dc^2)^0.5;       
         end                
         cfg.chn{c}.rms = rms;
         
-        
-        
+                
         
         % ###todo: this should probably somehow be scaled by the transducer transfer??
         % add SFDR harmonic spurrs to the composite signal:
@@ -199,7 +199,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
             % prepare subchannel timeshifts:
             tsh_lo(1) = 0; % high-side
             tslo = getfield(din,[cpfx 'time_shift_lo']); 
-            tsh_lo(2) = -tslo.v + randn(1)*tslo.u.*rand_unc; % low-side ###todo: decide if the polarity is ok!!!!
+            tsh_lo(2) = tslo.v + randn(1)*tslo.u.*rand_unc; % low-side ###todo: decide if the polarity is ok!!!!
             
             % subchannel waveform names:
             sub_chn{1} = chn.name; % high-side
@@ -286,13 +286,22 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
     % calculate reference values:
     simout.U_rms = cfg.chn{1}.rms;
     simout.I_rms = cfg.chn{2}.rms;
-    simout.S = cfg.chn{1}.rms.*cfg.chn{2}.rms;
+    simout.S = cfg.chn{1}.rms_ac.*cfg.chn{2}.rms_ac;
     simout.P = 0.5*sum(cfg.chn{1}.A.*cfg.chn{2}.A.*cos(cfg.chn{2}.ph - cfg.chn{1}.ph));
+    Q_tmp = 0.5*sum((cfg.chn{1}.A.*cfg.chn{2}.A.*sin(cfg.chn{2}.ph - cfg.chn{1}.ph)));
+    simout.Q = (simout.S^2 - simout.P^2)^0.5*sign(Q_tmp); % ###note: the sign() thingy estimates actual polarity of Q.
+                                                          %          It won't work properly for highly distorted waveforms and for PF near 0.
     if ~din.ac_coupling.v
         simout.P = simout.P + (cfg.chn{1}.dc*cfg.chn{2}.dc);
-    end    
-    simout.Q  = (simout.S^2 - simout.P^2)^0.5;
+        simout.S = cfg.chn{1}.rms.*cfg.chn{2}.rms;
+    end        
+    %simout.Q  = (simout.S^2 - simout.P^2)^0.5;
     simout.PF = simout.P/simout.S;
+    simout.phi_ef = atan2(simout.Q,simout.P);
+    % DC components:
+    simout.Udc = cfg.chn{1}.dc;
+    simout.Idc = cfg.chn{2}.dc;
+    simout.Pdc = cfg.chn{1}.dc*cfg.chn{2}.dc;
     
 
 end

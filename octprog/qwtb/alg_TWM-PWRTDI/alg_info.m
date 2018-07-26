@@ -501,6 +501,22 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Power factor';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'phi_ef';
+    alginfo.outputs(pid).desc = 'Effective phase shift acos(PF) [rad]';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'Udc';
+    alginfo.outputs(pid).desc = 'DC voltage component';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'Idc';
+    alginfo.outputs(pid).desc = 'DC current component';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'Pdc';
+    alginfo.outputs(pid).desc = 'DC power component';
+    pid = pid + 1;
+    
     alginfo.outputs(pid).name = 'spec_f';
     alginfo.outputs(pid).desc = 'Spectrum frequency';
     pid = pid + 1;
