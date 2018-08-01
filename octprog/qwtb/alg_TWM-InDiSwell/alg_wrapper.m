@@ -68,7 +68,9 @@ function dout = alg_wrapper(datain, calcset)
     
     cset = calcset;
     cset.loc = 0.681; % calculate with standard unc.
-    dout = qwtb('TWM-HCRMS',datain,cset);
+    din = datain;
+    din = rmfield(din,'plot');
+    dout = qwtb('TWM-HCRMS',din,cset);
     
     % restore path:
     qwtb('TWM-InDiSwell','addpath');  

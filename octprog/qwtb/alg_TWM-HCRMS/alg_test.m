@@ -23,7 +23,7 @@ function alg_test(calcset) %<<<1
     N = ceil(sim_time*fs);
     
     % differential mode?
-    %  ###note: not implemented (yet)!!! Simulator can generate it, but alg. cannot use it!
+    %  ###note: not implemented (at least not yet)!!! Simulator can generate it, but alg. cannot use it!
     is_diff = 0;
         
     % randomize correction uncertainties:         
@@ -57,24 +57,10 @@ function alg_test(calcset) %<<<1
     %din.nom_f.v = f0;
     
     % calculation mode:
-    din.mode.v = 'S';
-    
-    % detector hysteresis:
-    din.hyst.v = 2;
-    
-    % plot events?
-    din.plot.v = 1;
-    
-    % event detector setup:
-    din.hyst.v = 2;
-    din.sag_tres.v = 90;
-    din.swell_tres.v = 110;
-    din.int_tres.v = 10;
-
-        
+    din.mode.v = 'S';   
             
     % dc offset:
-    dc = 5.0;
+    dc = linrand(-5,5);
                
     % ADC rms noise level:
     adc_std_noise = 10e-6;
@@ -223,7 +209,7 @@ function alg_test(calcset) %<<<1
     %  ###todo: this should maybe be placed before rms level correction but need to decide if DC is part of the sag/swell rms values???
     fx = [fx;1e-12];
     A  = [A;dc];
-    ph = [ph;pi/2];
+    ph = [ph;0];
     
     % actual rms of generated signal:
     rms_x = sum(0.5*A(1:end-1).^2)^0.5;
@@ -247,6 +233,7 @@ function alg_test(calcset) %<<<1
     if is_diff
         % -- differential connection:
         [A_syn(:,1),ph_syn(:,1),A_syn(:,2),ph_syn(:,2)] = correction_transducer_sim(tab,din.tr_type.v,fx, A,ph,0*A,0*ph,rand_str,Zx);
+        % ###todo: fix DC polarity problem when alg. should be used in the diff mode
         % subchannel correction tables:
         sctab{1}.adc_gain = tab.adc_gain;
         sctab{1}.adc_phi  = tab.adc_phi;
@@ -260,7 +247,8 @@ function alg_test(calcset) %<<<1
         adc_ofs(2) = din.lo_adc_offset;
     else
         % -- single-ended connection:
-        [A_syn(:,1),ph_syn(:,1)] = correction_transducer_sim(tab,din.tr_type.v,fx, A,ph,0*A,0*ph,rand_str);
+        [A_syn(:,1),ph_syn(:,1)] = correction_transducer_sim(tab,din.tr_type.v,fx, abs(A),ph,0*A,0*ph,rand_str);
+        A_syn(end) = A_syn(end)*sign(A(end)); % restore DC polarity        
         % subchannel correction tables:
         sctab{1}.adc_gain = tab.adc_gain;
         sctab{1}.adc_phi  = tab.adc_phi;
@@ -286,9 +274,9 @@ function alg_test(calcset) %<<<1
     for c = 1:numel(sctab)
 
         % interpolate digitizer gain/phase to the measured frequencies and amplitudes:
-        k_gain = correction_interp_table(sctab{c}.adc_gain,A_syn(:,c),fx,'f',1);    
-        k_phi =  correction_interp_table(sctab{c}.adc_phi, A_syn(:,c),fx,'f',1);
-        
+        k_gain = correction_interp_table(sctab{c}.adc_gain,abs(A_syn(:,c)),fx,'f',1);    
+        k_phi =  correction_interp_table(sctab{c}.adc_phi, abs(A_syn(:,c)),fx,'f',1);
+                
         % apply digitizer gain:
         Ac  = A_syn(:,c)./k_gain.gain;
         phc = ph_syn(:,c) - k_phi.phi;
@@ -339,8 +327,7 @@ function alg_test(calcset) %<<<1
         ctw = cumsum(ctw);        
         % generate fundamental component:
         u = A0c*sin(ctw + ph0c);
-        
-        
+                       
                 
         % synthesize harmonics per blocks (memory saving):
         hblk = 5; % block size (how many harmonics to generate in single cycle)
@@ -387,6 +374,13 @@ function alg_test(calcset) %<<<1
 
     % --- execute the algorithm:    
     dout = qwtb('TWM-HCRMS',datain,calcset);
+    
+%     figure
+%     plot(dout.t.v,dout.rms.v)
+%     hold on;
+%     plot(dout.t.v,dout.rms.v + dout.rms.u,'r')
+%     plot(dout.t.v,dout.rms.v - dout.rms.u,'r')
+%     hold off;
        
     
     

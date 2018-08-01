@@ -118,11 +118,13 @@ function dataout = alg_wrapper(datain, calcset)
         f0_est = nom_f;
     end
     
-    % create virtual list of frequencies including the nominal freq.:
-    fh(:,1) = [0 logspace(log10(1),log10(0.5*fs),999) f0_est];
+    % create virtual list of frequencies including the nominal freq. for means of gain/phase corrections:
+    fh(:,1) = [1e-6 logspace(log10(1),log10(0.5*fs),999) f0_est];
     [fh,fid] = sort(fh);
     % index of the f0_estiamte component:
     fid = find(fid == numel(fh));
+    % fh = [dc ... f_est ... fs/0.5];
+    
     
     % -- now we will evaluate corrections for all the virtual frequencies
     
@@ -188,6 +190,7 @@ function dataout = alg_wrapper(datain, calcset)
     trg.u_gain = ((trg.u_gain.*ag.gain).^2 + (ag.u_gain.*trg.gain).^2).^0.5;
     trp.phi = trp.phi + ap.phi;
     trp.u_phi = (trp.u_phi.^2 + ap.u_phi.^2).^0.5;
+        
         
     % --  apply the tfer:
     % note: apply only tfer based on the f0 component

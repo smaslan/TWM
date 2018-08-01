@@ -87,7 +87,7 @@ function alg_test(calcset) %<<<1
         
             
     % dc offset:
-    dc = 5.0;
+    dc = linrand(-5,5);
                
     % ADC rms noise level:
     adc_std_noise = 10e-6;
@@ -390,7 +390,7 @@ function alg_test(calcset) %<<<1
     %  ###todo: this should maybe be placed before rms level correction but need to decide if DC is part of the sag/swell rms values???
     fx = [fx;1e-12];
     A  = [A;dc];
-    ph = [ph;pi/2];
+    ph = [ph;0];
     
     % actual rms of generated signal:
     rms_x = sum(0.5*A(1:end-1).^2)^0.5;
@@ -434,7 +434,8 @@ function alg_test(calcset) %<<<1
         adc_ofs(2) = din.lo_adc_offset;
     else
         % -- single-ended connection:
-        [A_syn(:,1),ph_syn(:,1)] = correction_transducer_sim(tab,din.tr_type.v,fx, A,ph,0*A,0*ph,rand_str);
+        [A_syn(:,1),ph_syn(:,1)] = correction_transducer_sim(tab,din.tr_type.v,fx, abs(A),ph,0*A,0*ph,rand_str);
+        A_syn(end) = A_syn(end)*sign(A(end)); % restore DC polarity  
         % subchannel correction tables:
         sctab{1}.adc_gain = tab.adc_gain;
         sctab{1}.adc_phi  = tab.adc_phi;
@@ -460,8 +461,8 @@ function alg_test(calcset) %<<<1
     for c = 1:numel(sctab)
 
         % interpolate digitizer gain/phase to the measured frequencies and amplitudes:
-        k_gain = correction_interp_table(sctab{c}.adc_gain,A_syn(:,c),fx,'f',1);    
-        k_phi =  correction_interp_table(sctab{c}.adc_phi, A_syn(:,c),fx,'f',1);
+        k_gain = correction_interp_table(sctab{c}.adc_gain,abs(A_syn(:,c)),fx,'f',1);    
+        k_phi =  correction_interp_table(sctab{c}.adc_phi, abs(A_syn(:,c)),fx,'f',1);
         
         % apply digitizer gain:
         Ac  = A_syn(:,c)./k_gain.gain;
