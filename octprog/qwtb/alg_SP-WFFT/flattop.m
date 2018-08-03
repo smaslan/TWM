@@ -159,6 +159,20 @@ switch T
                 a8 = denorm*0.00062454465;
                 a9 = denorm*-0.000019808998;
                 a10 = denorm*0.000000132974;
+        case 9
+        %HFT116D low sidelobe 4.5 bins
+                denorm = 1/(1 + 1.9575375 + 1.4780705 + 0.6367431 + 0.1228389 + 0.0066288);
+                a0 = denorm*1;
+                a1 = denorm*-1.9575375;
+                a2 = denorm*1.4780705;
+                a3 = denorm*-0.6367431;
+                a4 = denorm*0.1228389;
+                a5 = denorm*-0.0066288;
+                a6 = 0;
+                a7 = 0;
+                a8 = 0;
+                a9 = 0;
+                a10 = 0;
         otherwise
         %matlab
         % https://www.mathworks.com/help/signal/ref/flattopwin.html
