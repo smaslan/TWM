@@ -94,7 +94,7 @@ function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am] = mod_tdps(fs,u,wshape,comp_err)
         phi = 2*pi*(k-1)/M;
         
         % synth signal form the current model:
-        ux = mod_synth(fs,N, dc, f0,A0,phi, fm,Am,phm);
+        ux = mod_synth(fs,N, dc, f0,A0,phi, fm,Am,phm, wshape);
         
         % calculate parameters of the model:
         [me_t, dcx,f0x,A0x(k), fmx,Amx(k),phmx] = mod_fit_sin(fs,ux,wshape);

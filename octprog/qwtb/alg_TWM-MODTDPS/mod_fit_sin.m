@@ -69,23 +69,43 @@ function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am] = mod_fit_sin(fs,u,wshape)
         if f0/fm > 4
             % suitable modulation freq.:
             
+            
+            % -- filter the signal to get rid of spikes:
+            % carrier should have max f0 < 0.1*fs and modulating fm < 0.33*f0
+            % so cut off somewhere around f0 max 
+            if isOctave
+                [b,a] = butter(1,0.33);
+            else
+                % Matlab: ?
+                error('not done broh...')
+            end
+            % there and back filter to decrease phase error:
+            mef = filtfilt(b, a, me);
+            
+            %figure
+            %plot(u)
+            %plot(me)
+            %hold on;
+            %plot(mef,'r')
+            %hold off;                       
+            
             % modulation signal phase:
             mod_ph = mod(txa*fm*2*pi + phm,2*pi);
             
 %             figure(2)
-%             plot(txa,me)
+%             plot(txa,mef)
 %             hold on;
 %             plot(txa,mod_ph > 0.25*pi & mod_ph < 0.75*pi,'r');
 %             hold off;
                         
             
             % detect tops and lows of the rect.:
-            u_tops = me(mod_ph > 0.25*pi & mod_ph < 0.75*pi);
-            u_lows = me(mod_ph > 1.25*pi & mod_ph < 1.75*pi);
+            u_tops = mef(mod_ph > 0.25*pi & mod_ph < 0.75*pi);
+            u_lows = mef(mod_ph > 1.25*pi & mod_ph < 1.75*pi);
             
             % modulation amplitude:
             Am = 0.5*abs(mean(u_tops) - mean(u_lows));
-            u_Am = (std(u_tops)^2 + std(u_lows)^2)^0.5;
+            u_Am = (std(u_tops)^2 + std(u_lows)^2)^0.5/numel(u_tops)^0.5;
             
             % carrier amplitude:
             A0 = 0.5*abs(mean(u_tops) + mean(u_lows));

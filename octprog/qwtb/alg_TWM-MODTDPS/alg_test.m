@@ -5,28 +5,30 @@ function alg_test(calcset) %<<<1
 
     % calculation setup:
     calcset.verbose = 1;
-    calcset.unc = 'guf';
+    calcset.unc = 'none';
     calcset.loc = 0.95;
     
     % samples to synthesize:
     %N = 30000;
-    N = logrand(3000,100000,1);
+    N = round(logrand(3000,100000,1));
     
     % sampling rate:
     fs = 10000;
     
     % carrier:
     f0 = rounddig(logrand(50,fs/10,1),4);
+    %f0 = fs/10;
     A0 = rounddig(logrand(1,50,1),3);
         
     % modulating signal:    
     fm = rounddig(logrand(3/(N/fs),0.3*f0,1),4);
+    %fm = 0.24*f0;
     Am = A0*rounddig(logrand(0.02,0.98,1),3);    
     phm = rand(1)*2*pi; % random phase
-    wshape = 'sine';
+    wshape = 'rect';
     
     % DC component:
-    dc = 0.1;
+    dc = linrand(-0.1,0.1);
     
     %f0 = 882.6;
     %A0 = 14.6;
@@ -82,8 +84,8 @@ function alg_test(calcset) %<<<1
         % create some corretion table for the digitizer gain: 
         din.adc_gain_f.v = [0;1e3;1e6];
         din.adc_gain_a.v = [];
-        din.adc_gain.v = [1.0000; 1.1000; 1.5000];
-        din.adc_gain.u = [0.0001; 0.0002; 0.0003]; 
+        din.adc_gain.v = [1.0000; 1.01000; 1.02000];
+        din.adc_gain.u = [0.0001; 0.0002;  0.0003]; 
         % create some corretion table for the digitizer phase: 
         din.adc_phi_f.v = [0;1e3;1e6];
         din.adc_phi_a.v = [];
@@ -127,7 +129,7 @@ function alg_test(calcset) %<<<1
         % create some corretion table for the transducer gain: 
         din.tr_gain_f.v = [0;1e3;1e6];
         din.tr_gain_a.v = [];
-        din.tr_gain.v = [1.0000; 0.9500; 0.9000]*70;
+        din.tr_gain.v = [1.0000; 0.9900; 0.9500]*70;
         din.tr_gain.u = [0.0001; 0.0002; 0.0005]*70; 
         % create some corretion table for the transducer phase: 
         din.tr_phi_f.v = [0;1e3;1e6];

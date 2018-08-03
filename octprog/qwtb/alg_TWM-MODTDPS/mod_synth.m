@@ -68,7 +68,7 @@ function [u,t] = mod_synth(fs,N,ofs, f0,A0,ph0, fm,Am,phm, wshape, cg, cph)
     elseif strcmpi(wshape,'rect')
         % RECTANGULAR - synthesize in timedomain - simplified
         
-        u = ofs + sin(t*f0 + ph0 + cph).*(A0 + Am*(0.5 - (mod(t*fm + phm + cph,2*pi) > pi)))*cg;
+        u = ofs + sin(t*f0 + ph0 + cph).*(A0 + 2*Am*(0.5 - (mod(t*fm + phm + cph,2*pi) > pi)))*cg;
     
     else
         error('Unknwon waveshape!');
