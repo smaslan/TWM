@@ -658,6 +658,41 @@
 			</Item>
 			<Item Name="readme.txt" Type="Document" URL="../../data/readme.txt"/>
 		</Item>
+		<Item Name="server" Type="Folder">
+			<Item Name="WinAPI32" Type="Folder">
+				<Item Name="demo" Type="Folder">
+					<Item Name="test4.vi" Type="VI" URL="../server/WinAPI32/demo/test4.vi"/>
+				</Item>
+				<Item Name="high level" Type="Folder">
+					<Item Name="wa32 Read Till Key.vi" Type="VI" URL="../server/WinAPI32/high level/wa32 Read Till Key.vi"/>
+				</Item>
+				<Item Name="read_me.txt" Type="Document" URL="../server/WinAPI32/read_me.txt"/>
+				<Item Name="wa32 CloseHandle.vi" Type="VI" URL="../server/WinAPI32/wa32 CloseHandle.vi"/>
+				<Item Name="wa32 CreateFileA.vi" Type="VI" URL="../server/WinAPI32/wa32 CreateFileA.vi"/>
+				<Item Name="wa32 CreateNamedPipeA.vi" Type="VI" URL="../server/WinAPI32/wa32 CreateNamedPipeA.vi"/>
+				<Item Name="wa32 GetNamedPipeHandleStatus.vi" Type="VI" URL="../server/WinAPI32/wa32 GetNamedPipeHandleStatus.vi"/>
+				<Item Name="wa32 WaitNamedPipeA.vi" Type="VI" URL="../server/WinAPI32/wa32 WaitNamedPipeA.vi"/>
+				<Item Name="wa32 ConnectNamedPipe.vi" Type="VI" URL="../server/WinAPI32/wa32 ConnectNamedPipe.vi"/>
+				<Item Name="wa32 GetLastError.vi" Type="VI" URL="../server/WinAPI32/wa32 GetLastError.vi"/>
+				<Item Name="wa32 PeekNamedPipe.vi" Type="VI" URL="../server/WinAPI32/wa32 PeekNamedPipe.vi"/>
+				<Item Name="wa32 ReadFile.vi" Type="VI" URL="../server/WinAPI32/wa32 ReadFile.vi"/>
+				<Item Name="wa32 WriteFile.vi" Type="VI" URL="../server/WinAPI32/wa32 WriteFile.vi"/>
+			</Item>
+			<Item Name="TWM client" Type="Folder">
+				<Item Name="TWM Client Test.vi" Type="VI" URL="../server/TWM client/TWM Client Test.vi"/>
+				<Item Name="TWM Client Send Packet.vi" Type="VI" URL="../server/TWM client/TWM Client Send Packet.vi"/>
+				<Item Name="TWM Client Cmd Start.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Start.vi"/>
+				<Item Name="TWM Client Cmd Restart.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Restart.vi"/>
+			</Item>
+			<Item Name="Server Event Start.ctl" Type="VI" URL="../server/Server Event Start.ctl"/>
+			<Item Name="Server Event Command.ctl" Type="VI" URL="../server/Server Event Command.ctl"/>
+			<Item Name="Server Event GUI command.ctl" Type="VI" URL="../server/Server Event GUI command.ctl"/>
+			<Item Name="Server Event Ref.ctl" Type="VI" URL="../server/Server Event Ref.ctl"/>
+			<Item Name="Server Create Event.vi" Type="VI" URL="../server/Server Create Event.vi"/>
+			<Item Name="Server Parse Commands.vi" Type="VI" URL="../server/Server Parse Commands.vi"/>
+			<Item Name="Server Generate Event.vi" Type="VI" URL="../server/Server Generate Event.vi"/>
+			<Item Name="Server Panel.vi" Type="VI" URL="../server/Server Panel.vi"/>
+		</Item>
 		<Item Name="doc" Type="Folder" URL="../../doc">
 			<Property Name="NI.DISK" Type="Bool">true</Property>
 		</Item>
@@ -832,6 +867,7 @@
 				<Item Name="subFile Dialog.vi" Type="VI" URL="/&lt;vilib&gt;/express/express input/FileDialogBlock.llb/subFile Dialog.vi"/>
 				<Item Name="LVStringsAndValuesArrayTypeDef_U16.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVStringsAndValuesArrayTypeDef_U16.ctl"/>
 				<Item Name="LVRowAndColumnTypeDef.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVRowAndColumnTypeDef.ctl"/>
+				<Item Name="usereventprio.ctl" Type="VI" URL="/&lt;vilib&gt;/event_ctls.llb/usereventprio.ctl"/>
 			</Item>
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niScope Initialize.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/niScope Initialize.vi"/>
