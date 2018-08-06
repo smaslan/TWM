@@ -684,13 +684,23 @@
 				<Item Name="TWM Client Cmd Start.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Start.vi"/>
 				<Item Name="TWM Client Cmd Restart.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Restart.vi"/>
 			</Item>
+			<Item Name="control" Type="Folder">
+				<Item Name="Server Cmd Parser - Set Measurement.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Set Measurement.vi"/>
+				<Item Name="Server Cmd Answer - Identify.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Identify.vi"/>
+			</Item>
 			<Item Name="Server Event Start.ctl" Type="VI" URL="../server/Server Event Start.ctl"/>
+			<Item Name="Server Client Request.ctl" Type="VI" URL="../server/Server Client Request.ctl"/>
 			<Item Name="Server Event Command.ctl" Type="VI" URL="../server/Server Event Command.ctl"/>
 			<Item Name="Server Event GUI command.ctl" Type="VI" URL="../server/Server Event GUI command.ctl"/>
 			<Item Name="Server Event Ref.ctl" Type="VI" URL="../server/Server Event Ref.ctl"/>
-			<Item Name="Server Create Event.vi" Type="VI" URL="../server/Server Create Event.vi"/>
+			<Item Name="Server Session.ctl" Type="VI" URL="../server/Server Session.ctl"/>
+			<Item Name="Server Session Reference.ctl" Type="VI" URL="../server/Server Session Reference.ctl"/>
+			<Item Name="Server Event Answer Ref.ctl" Type="VI" URL="../server/Server Event Answer Ref.ctl"/>
+			<Item Name="Server Create Command Event.vi" Type="VI" URL="../server/Server Create Command Event.vi"/>
+			<Item Name="Server Create Response Event.vi" Type="VI" URL="../server/Server Create Response Event.vi"/>
+			<Item Name="Server Generate Answer Event.vi" Type="VI" URL="../server/Server Generate Answer Event.vi"/>
+			<Item Name="Server Generate Command Event.vi" Type="VI" URL="../server/Server Generate Command Event.vi"/>
 			<Item Name="Server Parse Commands.vi" Type="VI" URL="../server/Server Parse Commands.vi"/>
-			<Item Name="Server Generate Event.vi" Type="VI" URL="../server/Server Generate Event.vi"/>
 			<Item Name="Server Panel.vi" Type="VI" URL="../server/Server Panel.vi"/>
 		</Item>
 		<Item Name="doc" Type="Folder" URL="../../doc">
@@ -949,6 +959,7 @@
 			<Item Name="Advapi32.dll" Type="Document" URL="Advapi32.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
+			<Item Name="Server Generate Event.vi" Type="VI" URL="../server/Server Generate Event.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM" Type="EXE">
