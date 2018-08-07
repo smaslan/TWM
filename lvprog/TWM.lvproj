@@ -664,7 +664,6 @@
 					<Item Name="test4.vi" Type="VI" URL="../server/WinAPI32/demo/test4.vi"/>
 				</Item>
 				<Item Name="high level" Type="Folder">
-					<Item Name="wa32 Flush Read.vi" Type="VI" URL="../server/WinAPI32/high level/wa32 Flush Read.vi"/>
 					<Item Name="wa32 Read Till Key.vi" Type="VI" URL="../server/WinAPI32/high level/wa32 Read Till Key.vi"/>
 				</Item>
 				<Item Name="read_me.txt" Type="Document" URL="../server/WinAPI32/read_me.txt"/>
@@ -680,14 +679,15 @@
 				<Item Name="wa32 WriteFile.vi" Type="VI" URL="../server/WinAPI32/wa32 WriteFile.vi"/>
 			</Item>
 			<Item Name="TWM client" Type="Folder">
+				<Item Name="TWM Client Meas Setup.ctl" Type="VI" URL="../server/TWM client/TWM Client Meas Setup.ctl"/>
+				<Item Name="TWM Client Processing Setup.ctl" Type="VI" URL="../server/TWM client/TWM Client Processing Setup.ctl"/>
 				<Item Name="TWM Client Test.vi" Type="VI" URL="../server/TWM client/TWM Client Test.vi"/>
 				<Item Name="TWM Client Send Packet.vi" Type="VI" URL="../server/TWM client/TWM Client Send Packet.vi"/>
-				<Item Name="TWM Client Recieve Packet.vi" Type="VI" URL="../server/TWM client/TWM Client Recieve Packet.vi"/>
 				<Item Name="TWM Client Cmd Start.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Start.vi"/>
+				<Item Name="TWM Client Cmd Set Measurement.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Set Measurement.vi"/>
 				<Item Name="TWM Client Cmd Restart.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Restart.vi"/>
-				<Item Name="TWM Client Cmd Identify.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Identify.vi"/>
 			</Item>
-			<Item Name="control" Type="Folder">
+			<Item Name="TWM server" Type="Folder">
 				<Item Name="Server Cmd Parser - Set Measurement.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Set Measurement.vi"/>
 				<Item Name="Server Cmd Answer - Identify.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Identify.vi"/>
 			</Item>
@@ -963,6 +963,9 @@
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
 			<Item Name="Server Generate Event.vi" Type="VI" URL="../server/Server Generate Event.vi"/>
+			<Item Name="wa32 Flush Read.vi" Type="VI" URL="../server/WinAPI32/high level/wa32 Flush Read.vi"/>
+			<Item Name="TWM Client Cmd Identify.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Identify.vi"/>
+			<Item Name="TWM Client Recieve Packet.vi" Type="VI" URL="../server/TWM client/TWM Client Recieve Packet.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM" Type="EXE">
