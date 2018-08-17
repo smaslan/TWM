@@ -26,14 +26,6 @@ function dataout = alg_wrapper(datain, calcset)
         nom_f = NaN; 
     end
     
-    % obtain nominal rms value:
-    if isfield(datain,'nom_rms')
-        nom_rms = datain.nom_rms.v;
-    else    
-        % default:
-        nom_rms = 230.0; 
-    end
-    
     % obtain calculation mode:
     if isfield(datain,'mode')
         mode = datain.mode.v;
@@ -235,7 +227,6 @@ function dataout = alg_wrapper(datain, calcset)
       
     cfg.f0_est = f0_est;
     cfg.nom_f = nom_f;
-    cfg.nom_rms = nom_rms;
     cfg.mode = mode;
     cfg.do_plots = do_plots;
     cfg.corr.gain.f = fh;

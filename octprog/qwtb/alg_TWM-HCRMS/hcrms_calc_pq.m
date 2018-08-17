@@ -150,8 +150,11 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
             plot(tbm,fbm,'o')
             hold on;
             plot(t0,fbf,'r')
-            hold off;
-            title('Frequency in time');
+            hold off;            
+            title('Frequency vs time');
+            xlabel('time [s]');
+            ylabel('frequency [Hz]');
+            legend('PSFE fits','Smoothed, fitted, ...');
         end
         
         % mean fundamental frequency:
@@ -284,6 +287,9 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
         plot(tx(per_mid),phi_p_fit,'r')
         hold off;
         title('Phase of the signal before phase sync.');
+        xlabel('time [s]');
+        ylabel('period-phase [rad]');
+        legend('period phase','smoothed, fitted, ...');
     end
         
     
@@ -371,6 +377,9 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
         plot(tx(per_mid),phi_p_fit,'r')
         hold off;
         title('Phase of the signal after phase sync.');
+        xlabel('time [s]');
+        ylabel('period-phase [rad]');
+        legend('period phase','smoothed, fitted, ...');
         
     end
     
@@ -529,6 +538,9 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
             loglog(fh(msk),amp(msk),'k')
             hold off;
             title('Spectrum analysis');
+            xlabel('frequency [Hz]');
+            ylabel('amplitude [rad]');
+            legend('total spectrum','removed harmonics','remove interharmonics');
         end
         
         

@@ -46,7 +46,7 @@ function alg_test(calcset) %<<<1
     % nominal frequency:
     f0 = 50.3;
     % nominal frequency drift [Hz/s]:
-    f0_drift = 0.0;
+    f0_drift = linrand(-0.005,0.005);
     
     % sfdr of harmonics [-]:
     h_sfdr = 0.1;    
