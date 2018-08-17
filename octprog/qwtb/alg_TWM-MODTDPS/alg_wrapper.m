@@ -592,10 +592,18 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
         % try to estimate uncertainty:       
         unc = interp_lut([mfld 'sine_corr_unc.lut'],ax);
         
+    elseif strcmpi(wave_shape,'sine') && ~comp_err
+        % try to estimate uncertainty:       
+        unc = interp_lut([mfld 'sine_ncorr_unc.lut'],ax);
+        
+    elseif strcmpi(wave_shape,'rect')
+        % try to estimate uncertainty:       
+        unc = interp_lut([mfld 'rect_ncorr_unc.lut'],ax);
+ 
     else
         % no uncertainty:
         
-        error('Uncertainty estimator for given parameters of the algorithm is not avilable! Only ''sine'' mod with error compensation available.');
+        error('Uncertainty estimator for given parameters of the algorithm is not avilable! Only ''sine'' and ''rect'' mode are available.');
         
     end
     

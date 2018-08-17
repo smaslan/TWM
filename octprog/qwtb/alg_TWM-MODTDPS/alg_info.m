@@ -483,6 +483,10 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Modulating depth [%]';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'dVV';
+    alginfo.outputs(pid).desc = 'Delta V/V [%]';
+    pid = pid + 1;
+    
     alginfo.outputs(pid).name = 'cpm';
     alginfo.outputs(pid).desc = 'Modulation changes per minute [1/min]';
     pid = pid + 1;

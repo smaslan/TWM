@@ -5,7 +5,7 @@ function alg_test(calcset) %<<<1
 
     % calculation setup:
     calcset.verbose = 1;
-    calcset.unc = 'none';
+    calcset.unc = 'guf';
     calcset.loc = 0.95;
     
     % samples to synthesize:
@@ -25,7 +25,7 @@ function alg_test(calcset) %<<<1
     %fm = 0.24*f0;
     Am = A0*rounddig(logrand(0.02,0.98,1),3);    
     phm = rand(1)*2*pi; % random phase
-    wshape = 'rect';
+    wshape = 'sine';
     
     % DC component:
     dc = linrand(-0.1,0.1);
