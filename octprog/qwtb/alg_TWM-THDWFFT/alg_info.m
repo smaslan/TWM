@@ -216,15 +216,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     
-    % relative time stamp of reference channel ('y'):
-    alginfo.inputs(pid).name = 'time_stamp';
-    alginfo.inputs(pid).desc = 'Relative time-stamp of ''y''';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
-    
-    
     
     % Transducer type string (empty: no tran. correction; 'shunt': current shunt; 'rvd': resistive voltage divider)
     alginfo.inputs(pid).name = 'tr_type';
