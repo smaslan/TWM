@@ -473,6 +473,7 @@
 						<Item Name="Meas Proc QWTB Result Plot Panel.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Result Plot Panel.vi"/>
 						<Item Name="Meas Proc QWTB String to Table Writter.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB String to Table Writter.vi"/>
 						<Item Name="Meas Proc QWTB Parse Table.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Parse Table.vi"/>
+						<Item Name="Meas Proc QWTB Set Params Table.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Set Params Table.vi"/>
 						<Item Name="Meas Proc QWTB Set Result Table Sizes.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Set Result Table Sizes.vi"/>
 						<Item Name="Meas Proc QWTB Fix Result Table Selection.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Fix Result Table Selection.vi"/>
 					</Item>
@@ -677,18 +678,28 @@
 				<Item Name="wa32 PeekNamedPipe.vi" Type="VI" URL="../server/WinAPI32/wa32 PeekNamedPipe.vi"/>
 				<Item Name="wa32 ReadFile.vi" Type="VI" URL="../server/WinAPI32/wa32 ReadFile.vi"/>
 				<Item Name="wa32 WriteFile.vi" Type="VI" URL="../server/WinAPI32/wa32 WriteFile.vi"/>
+				<Item Name="wa32 Flush Read.vi" Type="VI" URL="../server/WinAPI32/high level/wa32 Flush Read.vi"/>
 			</Item>
 			<Item Name="TWM client" Type="Folder">
 				<Item Name="TWM Client Meas Setup.ctl" Type="VI" URL="../server/TWM client/TWM Client Meas Setup.ctl"/>
 				<Item Name="TWM Client Processing Setup.ctl" Type="VI" URL="../server/TWM client/TWM Client Processing Setup.ctl"/>
+				<Item Name="TWM Client Transducer Correction Item.ctl" Type="VI" URL="../server/TWM client/TWM Client Transducer Correction Item.ctl"/>
 				<Item Name="TWM Client Test.vi" Type="VI" URL="../server/TWM client/TWM Client Test.vi"/>
+				<Item Name="TWM Client Wait ACK.vi" Type="VI" URL="../server/TWM client/TWM Client Wait ACK.vi"/>
 				<Item Name="TWM Client Send Packet.vi" Type="VI" URL="../server/TWM client/TWM Client Send Packet.vi"/>
+				<Item Name="TWM Client Recieve Packet.vi" Type="VI" URL="../server/TWM client/TWM Client Recieve Packet.vi"/>
 				<Item Name="TWM Client Cmd Start.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Start.vi"/>
 				<Item Name="TWM Client Cmd Set Measurement.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Set Measurement.vi"/>
+				<Item Name="TWM Client Cmd Set Corrections.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Set Corrections.vi"/>
+				<Item Name="TWM Client Cmd Get Status.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Get Status.vi"/>
+				<Item Name="TWM Client Cmd Stop.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Stop.vi"/>
 				<Item Name="TWM Client Cmd Restart.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Restart.vi"/>
+				<Item Name="TWM Client Cmd Identify.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Identify.vi"/>
 			</Item>
 			<Item Name="TWM server" Type="Folder">
 				<Item Name="Server Cmd Parser - Set Measurement.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Set Measurement.vi"/>
+				<Item Name="Server Cmd Parser - Set Corrections.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Set Corrections.vi"/>
+				<Item Name="Server Cmd Answer - Get Status.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Get Status.vi"/>
 				<Item Name="Server Cmd Answer - Identify.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Identify.vi"/>
 			</Item>
 			<Item Name="Server Event Start.ctl" Type="VI" URL="../server/Server Event Start.ctl"/>
@@ -701,6 +712,7 @@
 			<Item Name="Server Event Answer Ref.ctl" Type="VI" URL="../server/Server Event Answer Ref.ctl"/>
 			<Item Name="Server Create Command Event.vi" Type="VI" URL="../server/Server Create Command Event.vi"/>
 			<Item Name="Server Create Response Event.vi" Type="VI" URL="../server/Server Create Response Event.vi"/>
+			<Item Name="Server Generate ACK Event.vi" Type="VI" URL="../server/Server Generate ACK Event.vi"/>
 			<Item Name="Server Generate Answer Event.vi" Type="VI" URL="../server/Server Generate Answer Event.vi"/>
 			<Item Name="Server Generate Command Event.vi" Type="VI" URL="../server/Server Generate Command Event.vi"/>
 			<Item Name="Server Parse Commands.vi" Type="VI" URL="../server/Server Parse Commands.vi"/>
@@ -962,10 +974,6 @@
 			<Item Name="Advapi32.dll" Type="Document" URL="Advapi32.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="Server Generate Event.vi" Type="VI" URL="../server/Server Generate Event.vi"/>
-			<Item Name="wa32 Flush Read.vi" Type="VI" URL="../server/WinAPI32/high level/wa32 Flush Read.vi"/>
-			<Item Name="TWM Client Cmd Identify.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Identify.vi"/>
-			<Item Name="TWM Client Recieve Packet.vi" Type="VI" URL="../server/TWM client/TWM Client Recieve Packet.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM" Type="EXE">
