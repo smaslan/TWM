@@ -73,12 +73,12 @@ function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am] = mod_fit_sin(fs,u,wshape)
             % -- filter the signal to get rid of spikes:
             % carrier should have max f0 < 0.1*fs and modulating fm < 0.33*f0
             % so cut off somewhere around f0 max 
-            if isOctave
+            %if isOctave
                 [b,a] = butter(1,0.33);
-            else
+            %else
                 % Matlab: ?
-                error('not done broh...')
-            end
+            %    error('not done broh...')
+            %end
             % there and back filter to decrease phase error:
             mef = filtfilt(b, a, me);
             

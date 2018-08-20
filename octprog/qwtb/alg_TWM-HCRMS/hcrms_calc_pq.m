@@ -139,7 +139,7 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
         if isOctave
             fbf = smooth_oct(tbm_tmp,fbm_tmp,fil_opt{:});
         else
-            fbf = smooth(tbm_tmp,fbm_tmp,fil_opt{:});
+            fbf = smooth_mat(tbm_tmp,fbm_tmp,fil_opt{:});
         end        
         % expand the smoothed data to full sampling time:
         fbf = interp1(tbm,fbf(floor(fil_ord/2):end-floor(fil_ord/2)-1),t0,'linear','extrap');
@@ -274,7 +274,7 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
     if isOctave
         phi_p_fit = smooth_oct(phi_t,phi_p,fil_opt{:});
     else
-        phi_p_fit = smooth(phi_t,phi_p,fil_opt{:});
+        phi_p_fit = smooth_mat(phi_t,phi_p,fil_opt{:});
     end
     % interpolate the smoothed phase for all signal periods:
     phi_p_fit = interp1(phi_t,phi_p_fit,per_mid,'nearest','extrap');
@@ -366,7 +366,7 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
         if isOctave
             phi_p_fit = smooth_oct(phi_t,phi_p,fil_opt{:});
         else
-            phi_p_fit = smooth(phi_t,phi_p,fil_opt{:});
+            phi_p_fit = smooth_mat(phi_t,phi_p,fil_opt{:});
         end
         % interpolate the smoothed phase for all signal periods:
         phi_p_fit = interp1(phi_t,phi_p_fit,per_mid,'nearest','extrap');                

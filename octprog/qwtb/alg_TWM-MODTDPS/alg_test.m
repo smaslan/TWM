@@ -10,20 +10,20 @@ function alg_test(calcset) %<<<1
     
     % samples to synthesize:
     %N = 30000;
-    N = round(logrand(3000,100000,1));
+    N = round(logrand(3000,100000));
     
     % sampling rate:
     fs = 10000;
     
     % carrier:
-    f0 = rounddig(logrand(50,fs/10,1),4);
+    f0 = rounddig(logrand(50,fs/10),4);
     %f0 = fs/10;
-    A0 = rounddig(logrand(1,50,1),3);
+    A0 = rounddig(logrand(1,50),3);
         
     % modulating signal:    
-    fm = rounddig(logrand(3/(N/fs),0.3*f0,1),4);
+    fm = rounddig(logrand(3/(N/fs),0.3*f0),4);
     %fm = 0.24*f0;
-    Am = A0*rounddig(logrand(0.02,0.98,1),3);    
+    Am = A0*rounddig(logrand(0.02,0.98),3);    
     phm = rand(1)*2*pi; % random phase
     wshape = 'sine';
     
