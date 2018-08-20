@@ -1,9 +1,12 @@
 Bugs:
- - fix alg. display config for low values (low abs uncertainty limit)
 
 Digitizers panel:
  - hide selector of DMM idn - confusing
 
-
 Doc:
+
+Algorithms:
+ - TWM-MODTDPS and TWM-FPNLSF: possibly wrong SFDR limits in unc. estimator?
+ - TWM-THDWFFT: - add timebase correcion for the returned fruencies
+                - also maybe replace local copies of WFFT and PSFE by QWTB calls?
 
