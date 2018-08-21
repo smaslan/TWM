@@ -59,19 +59,18 @@ type:: qwtb list
 #startsection:: TWM-HCRMS
         #startmatrix:: number formats
                 t;   si; 1e-9; 1e-7
-                env; si; 1e-9; 1e-6
+                rms; si; 1e-9; 1e-6
                 f0;  si; 1e-9; 1e-7
         #endmatrix:: number formats
         #startmatrix:: graphs
-                t; env
+                t; rms
         #endmatrix:: graphs
-        spectrum:: env
 #endsection:: TWM-HCRMS
 
 #startsection:: TWM-InDiSwell
         #startmatrix:: number formats
                 t;           si; 1e-9; 1e-7
-                env;         si; 1e-9; 1e-6
+                rms;         si; 1e-9; 1e-6
                 sag_start;   f;  1e-9; 1e-6
                 sag_dur;     f;  1e-9; 1e-6
                 sag_res;     f;  1e-6; 1e-6
@@ -83,9 +82,8 @@ type:: qwtb list
                 int_res;     f;  1e-6; 1e-6
         #endmatrix:: number formats
         #startmatrix:: graphs
-                t; env
+                t; rms
         #endmatrix:: graphs
-        spectrum:: env
 #endsection:: TWM-InDiSwell
 
 #startsection:: TWM-PSFE

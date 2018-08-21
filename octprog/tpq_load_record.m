@@ -1,5 +1,12 @@
-function [data] = tpq_load_record(header, group_id, repetition_id);
+function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_lim);
 % TracePQM: Loads record(s) from given path to memory.
+%
+% Usage:
+%   data = tpq_load_record(header)
+%   data = tpq_load_record(header, group_id)
+%   data = tpq_load_record(header, group_id, repetition_id)
+%   data = tpq_load_record(header, group_id, repetition_id, data_ofs)
+%   data = tpq_load_record(header, group_id, repetition_id, data_ofs, data_lim)
 %
 % Inputs:
 %   header - absolute path to the measurement header file (info-strings)
@@ -12,6 +19,12 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
 %                 - note this parameter may be zero, then the loader
 %                   will load all repetitions in the group and merge them in
 %                   the single 2D matrix of channel waveforms
+%                 - value -1 means to load last group
+%   data_ofs - optional, non-zero value means to load sample data from offset
+%              'data_ofs' samples. Default is 0 (start from first sample).
+%   data_lim - optional, non-zero value to limit maximum loaded samples count
+%              to 'data_lim'. Default is 0 (load all).
+%               
 % 
 % Outputs:
 %   data - structure of results containing:
@@ -44,7 +57,17 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
 % (c) 2018, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
-
+    
+    if nargin < 5
+        % default sample data limit: all data:
+        data_lim = 0;
+    end
+    
+    if nargin < 4
+        % default sample data start at offset 0:
+        data_ofs = 0;
+    end
+    
     if nargin < 3
         % load last average cycle is not defined
         repetition_id = -1;
@@ -168,6 +191,21 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     
     % override samples count by actual samples count in the selected record
     data.sample_count = sample_counts(ids(1));
+    
+    % limit sample data count by user initial offset:
+    if (data.sample_count - data_ofs) < 1
+        error(sprintf('User requires to start loading sample data at ''data_ofs = %d'', however there are only %d samples available! Change the ''data_ofs'' parameter value!',data_ofs,data.sample_count));
+    end
+    data.sample_count = data.sample_count - data_ofs;
+    
+    % limit sample data count by user limit:
+    if data_lim
+        data.sample_count = min(data.sample_count,data_lim);
+    end
+    data_ofs = data_ofs + 1;
+    data_end = data_ofs + data.sample_count - 1; 
+     
+     
      
     % allocate sample data array
     data.y = zeros(data.sample_count, data.channels_count*numel(ids));
@@ -197,12 +235,19 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
             % apply offset
             y = bsxfun(@plus,y,sample_offsets(ids(r),:));
                   
-            % store it into output array
-            data.y(:,1 + (r-1)*data.channels_count:r*data.channels_count) = y;    
+            % store it into output array:
+            %  note: selecting the samples range as user requested
+            data.y(:,1 + (r-1)*data.channels_count:r*data.channels_count) = y(data_ofs:data_end,:);    
 
         end
     
-    end
+    end       
+    
+    % return sampling period
+    data.Ts = mean(time_incerements(ids));
+    
+    % fix relative timestamps by the first sample offset:
+    relative_timestamps = relative_timestamps + (data_ofs - 1)*data.Ts;
     
     % return relataive timestamps as 2D matrix (repetition cycles, channel) 
     data.timestamp = relative_timestamps(ids,:);
@@ -210,8 +255,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id);
     % return apertures as 1D matrix (repetition cycles, 1):
     data.apertures = apertures(ids);
     
-    % return sampling period
-    data.Ts = mean(time_incerements(ids));
+    
     
     % return time vector (###note: I think it is useless, just eats memory...)
     %data.t(:,1) = [0:data.sample_count-1]*data.Ts;

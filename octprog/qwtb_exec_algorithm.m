@@ -84,6 +84,22 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     calcset.dof.req = 0;
     calcset.dof.gen = 0;
     
+    % get data segmentaion options:
+    %  note: this allows to select range of sample data to process    
+    % initial sample offset (optional):
+    try
+        sdata_ofs = infogetnumber(qinf,'sample data offset');
+    catch
+        sdata_ofs = 0;
+    end
+    % maximum sample count (optional):
+    try
+        sdata_lim = infogetnumber(qinf,'sample data limit');
+    catch
+        sdata_lim = 0;
+    end
+       
+    
     % get QWTB algorithm ID
     alg_id = infogettext(qinf, 'algorithm id');
     
@@ -179,7 +195,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     end
     
     % load last measurement group
-    data = tpq_load_record(meas_file,-1,avg_id);
+    data = tpq_load_record(meas_file,-1,avg_id,sdata_ofs,sdata_lim);
     
     % get unique phase indexes from the channels list
     phases = unique(data.corr.phase_idx);

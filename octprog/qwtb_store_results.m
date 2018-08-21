@@ -45,7 +45,15 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
   res = infosettextmatrix(res, 'variable names', resvars);
   
   
-  % TODO: filtering of the vairabels to save maybe???? 
+  % TODO: filtering of the variables to save maybe????
+  
+  % if the MAT file already exists, we will just append the new var
+  % ###note: this is because of Matlab, Octave's save('-append') works even with nonexistent file  
+  if exist(result_mat,'file')
+    app_mat = '-append';
+  else
+    app_mat = '';
+  end 
   
   % --- for each variable
   vars = {};
@@ -56,8 +64,8 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
     
     % find variable in the algorihtm outputs list
     vid = qwtb_find_parameter(alg_info.outputs, variable_name);
-    if ~numel(vid)
-      error(sprintf('QWTB result saver: Variable ''%s'' not found in the algorithm output variables info??? Wtf? QWTB wrapper inconsistent.'));
+    if ~vid
+      error(sprintf('QWTB result saver: Variable ''%s'' not found in the algorithm output variables info??? Wtf? QWTB wrapper inconsistent.',variable_name));
     end
     varinf = alg_info.outputs(vid);
     
@@ -71,20 +79,12 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
     % store variable size
     ovar = infosetmatrix(ovar, 'dimensions', size(variable.v));
     
-    % if the MAT file already exists, we will just append the new var
-    % ###note: this is because of Matlab, Octave's save('-append') works even with nonexistent file  
-    if exist(result_mat,'file')
-      app_mat = '-append';
-    else
-      app_mat = '';
-    end
-    
     if numel(variable.v) > limits.max_array && ~ischar(variable.v)
       % the variable is some badass array - it is tooo big to store it in text file, it goes to MAT file insted
-           
+      
       % store value to the MAT
       if isnumeric(variable.v)
-      
+
         % variable to store
         var_name = sprintf('%s_v_%s', varinf.name, phase_info.section);
       
@@ -96,12 +96,15 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
         save(result_mat, '-V4', app_mat, var_name);
         clear(var_name);
         
+        % we have stored something, so next MAT save will be appending:
+        app_mat = '-append';
+        
       else
         % non numeric output???
         % TODO: decide what to do
         
       end
-          
+      
       
       % store uncertainty to the MAT
       if isfield(variable,'u')
@@ -116,6 +119,9 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
         eval(sprintf('%s = variable.u;', var_name));
         save(result_mat, '-V4', app_mat, var_name);
         clear(var_name);
+        
+        % we have stored something, so next MAT save will be appending:
+        app_mat = '-append';
         
       end
       
