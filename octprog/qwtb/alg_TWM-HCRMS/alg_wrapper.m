@@ -242,7 +242,7 @@ function dataout = alg_wrapper(datain, calcset)
     
     % apply time scale uncertainty to the correction data:
     u_tb_corr = t*u_tb_corr*loc2covg(calcset.loc,50);       
-    dataout.t.u = (dataout.t.u.^2 + u_tb_corr.^2).^0.5;
+    dataout.t.u = (dataout.t.u.^2 + u_tb_corr.^2).^0.5;  
            
     % --------------------------------------------------------------------
     % End of the algorithm.

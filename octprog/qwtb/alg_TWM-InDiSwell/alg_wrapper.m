@@ -64,12 +64,19 @@ function dout = alg_wrapper(datain, calcset)
     % --------------------------------------------------------------------
     
     % --- calculate rms envelope using desired settings:
-    datain = rmfield(datain,{'nom_rms','hyst','sag_tres','swell_tres','int_tres'});
+    rem_flds = {'nom_rms','hyst','sag_tres','swell_tres','int_tres'};
+    for k = 1:numel(rem_flds)
+        try
+            datain = rmfield(datain,rem_flds{k});
+        end
+    end
     
     cset = calcset;
     cset.loc = 0.681; % calculate with standard unc.
     din = datain;
-    din = rmfield(din,'plot');
+    try
+        din = rmfield(din,'plot');
+    end
     dout = qwtb('TWM-HCRMS',din,cset);
     
     % restore path:

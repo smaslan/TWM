@@ -209,8 +209,8 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
     
     % generate time vector of the new samples: 
     dTs = 1./(f_env*fs*N1T/(fs/f0_avg));
-    tx = cumsum([0,dTs(1:end-1)]);
-    tx = tx(tx >= t0(1) & tx <= t0(end));        
+    tx = cumsum([t0(1),dTs(1:end-1)]);
+    tx = tx(tx <= t0(end));       
     
     % resample the signal to new samples times:
     yx = interp1(t0',y,tx','spline','extrap');
@@ -218,8 +218,7 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
     % round signal size to whole periods:
     N = floor(N/N1T)*N1T;
     yx = yx(1:N);
-    tx = tx(1:N); 
-    
+    tx = tx(1:N);   
         
 
     % --- detection of the phase offset of each period
@@ -633,6 +632,9 @@ function [env_time,u_env_time,env_rms,u_env_rms,dout] = hcrms_calc_pq(dout,t0,u_
         u_tx = 0;
                     
     end
+    
+    % time samples to vertical:
+    env_time = env_time.';
     
     % generate time samples uncertainty:
     u_env_time = repmat(u_tx,size(env_time));

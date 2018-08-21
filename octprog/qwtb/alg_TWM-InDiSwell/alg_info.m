@@ -521,8 +521,12 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Time vector';
     pid = pid + 1;
     
-    alginfo.outputs(pid).name = 'env';
+    alginfo.outputs(pid).name = 'rms';
     alginfo.outputs(pid).desc = 'Detected rms level envelope';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'f0';
+    alginfo.outputs(pid).desc = 'Average detected fundamental frequency';
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'sag_start';
