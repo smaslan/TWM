@@ -123,6 +123,7 @@
 				<Item Name="SGUI Set Control Enabled State By Label.vi" Type="VI" URL="../SGUI Set Control Enabled State By Label.vi"/>
 				<Item Name="SGUI Get Boolean State By Label.vi" Type="VI" URL="../SGUI Get Boolean State By Label.vi"/>
 				<Item Name="SGUI Set Boolean State By Label.vi" Type="VI" URL="../SGUI Set Boolean State By Label.vi"/>
+				<Item Name="SGUI Set Boolean State By Label Signaling.vi" Type="VI" URL="../SGUI Set Boolean State By Label Signaling.vi"/>
 				<Item Name="SGUI Set Variable By Label.vi" Type="VI" URL="../SGUI Set Variable By Label.vi"/>
 				<Item Name="SGUI Set Numeric By Label.vi" Type="VI" URL="../SGUI Set Numeric By Label.vi"/>
 				<Item Name="SGUI Set Complex String By Label.vi" Type="VI" URL="../SGUI Set Complex String By Label.vi"/>
