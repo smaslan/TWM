@@ -132,10 +132,8 @@ end
 % to be below 0.01 error, the sampling f should be 7 - 23 kHz.
 % minimum usable sampling frequency:
 fsmin = 7e3;
-fsmin = 1e3; %XXX
 % maximum usable sampling frequency:
 fsmax = 23e3;
-fsmax = 60e3; %XXX
 % optimal usable sampling frequency:
 fsoptim = 17e3;
 
