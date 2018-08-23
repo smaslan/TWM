@@ -45,12 +45,12 @@ function [res] = proc_wrms(sig)
         % randomize harmonics frequency positions +-bin because we don't exact position: 
         fx = sig.sim.fx + (2*rand(size(sig.sim.fx)) - 1)*bin_step;
         
-        % randomize frequencies of spurrs:
-        f_sp_rnd = (2*rand(size(sig.sim.f_spurr)) - 1)*bin_step;
+        % randomize frequencies of spurs:
+        f_sp_rnd = (2*rand(size(sig.sim.f_spur)) - 1)*bin_step;
         
-        % randmonize spurr phase angles:
+        % randmonize spur phase angles:
         % note: assume U and I are synchronized - worst case situation
-        p_sp_rnd = rand(size(sig.sim.f_spurr))*2*pi; 
+        p_sp_rnd = rand(size(sig.sim.f_spur))*2*pi; 
         
         % random common phase of harmonics:
         %  note: same for both v.channels, so it should not affect results
@@ -80,9 +80,9 @@ function [res] = proc_wrms(sig)
             A = sim.A + sim.u_A.*randn(size(sim.A));
             ph = sim.ph + sim.u_ph.*randn(size(sim.ph)) + phr;
             
-            % generate some spurrs with random phase:
-            fxs = [fx;sig.sim.f_spurr + f_sp_rnd];
-            A = [A;sim.spurr];
+            % generate some spurs with random phase:
+            fxs = [fx;sig.sim.f_spur + f_sp_rnd];
+            A = [A;sim.spur];
             ph = [ph;p_sp_rnd];
             
             % generate signal:

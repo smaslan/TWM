@@ -564,11 +564,11 @@ function dataout = alg_wrapper(datain, calcset)
     vcl{2}.Y0 = Ix(1);
     
     
-    % -- estimate SFDR spurrs:
-    % harmonic spurrs of dominant component:
-    %  ###todo: maybe it would be more correct to calculate spurrs of each harmonic...
+    % -- estimate SFDR spurs:
+    % harmonic spurs of dominant component:
+    %  ###todo: maybe it would be more correct to calculate spurs of each harmonic...
     %           but for now lets assume just main harmonic source 
-    f_spurr(:,1) = (fx(1)*2):fx(1):fs/2;
+    f_spur(:,1) = (fx(1)*2):fx(1):fs/2;
         
     for k = 1:numel(vcl)
         % get v.channel
@@ -577,8 +577,8 @@ function dataout = alg_wrapper(datain, calcset)
         % transducer SFDR of dominant component only:
         tr_sfdr = correction_interp_table(vc.tab.tr_sfdr, vc.rms, fx(1), 'f',1, i_mode);
         
-        % transducer spurr value:
-        tr_spurr = vc.Y0*10^(-tr_sfdr.sfdr/20);
+        % transducer spur value:
+        tr_spur = vc.Y0*10^(-tr_sfdr.sfdr/20);
         
         % high-side ADC amplitude of dominant component: 
         amp_hi = vc.Y_hi(h_list(1));
@@ -595,25 +595,25 @@ function dataout = alg_wrapper(datain, calcset)
             % low-side ADC SFDR for dominant component only:
             adc_sfdr_lo = correction_interp_table(vc.tab.lo_adc_sfdr, amp_lo, fx(1), 'f',1, i_mode);
             
-            % absolute spurr at ADC level:
-            spurr = ((amp_hi*10^(-adc_sfdr.sfdr/20))^2 + (amp_lo*10^(-adc_sfdr_lo.sfdr/20))^2)^0.5;
+            % absolute spur at ADC level:
+            spur = ((amp_hi*10^(-adc_sfdr.sfdr/20))^2 + (amp_lo*10^(-adc_sfdr_lo.sfdr/20))^2)^0.5;
             
             % effective differential SFDR:
             %amp_diff = Ux(1)/vc.tr_gain(h_list(1))
-            %adc_sfdr = log10(spurr/(amp_diff))*20
+            %adc_sfdr = log10(spur/(amp_diff))*20
             
         else
             % -- single-ended:
             
-            % absolute spurr at ADC level:
-            spurr = amp_hi*10^(-adc_sfdr.sfdr/20);
+            % absolute spur at ADC level:
+            spur = amp_hi*10^(-adc_sfdr.sfdr/20);
         end
                
-        % spurr harmonic bin ids in the original spectrum:
-        sid = round(f_spurr*N/fs + 1);
+        % spur harmonic bin ids in the original spectrum:
+        sid = round(f_spur*N/fs + 1);
 
-        % combine ADC and transducer spurrs:
-        vcl{k}.spurr = ((spurr*vc.tr_gain(sid)).^2 + (tr_spurr*ones(size(f_spurr))).^2).^0.5;                        
+        % combine ADC and transducer spurs:
+        vcl{k}.spur = ((spur*vc.tr_gain(sid)).^2 + (tr_spur*ones(size(f_spur))).^2).^0.5;                        
     end
     
     
@@ -629,25 +629,25 @@ function dataout = alg_wrapper(datain, calcset)
         ff = vcl{1}.adc_gain.f;
         fg = vcl{1}.adc_gain.gain;
         fp = vcl{1}.adc_phi.phi;
-        [u_fg_U,u_fp_U] = td_fft_filter_unc(fs, numel(datain.u.v), fft_size, ff,fg,fp, i_mode, fx(1:H),Ux(1:H));  
+        [u_fa_U,u_fp_U] = td_fft_filter_unc(fs, numel(datain.u.v), fft_size, ff,fg,fp, i_mode, fx(1:H),Ux(1:H));  
         
         % current channel:
         ff = vcl{2}.adc_gain.f;
         fg = vcl{2}.adc_gain.gain;
         fp = vcl{2}.adc_phi.phi;
-        [u_fg_I,u_fp_I] = td_fft_filter_unc(fs, numel(datain.u.v), fft_size, ff,fg,fp, i_mode, fx(1:H),Ux(1:H));
+        [u_fa_I,u_fp_I] = td_fft_filter_unc(fs, numel(datain.u.v), fft_size, ff,fg,fp, i_mode, fx(1:H),Ux(1:H));
         
         % expand harmonic uncertainties by FFT filter contribution:
-        u_Ux(1:H) = (u_Ux(1:H).^2 + u_fg_U.^2).^0.5;
-        u_Ix(1:H) = (u_Ix(1:H).^2 + u_fg_I.^2).^0.5;
+        u_Ux(1:H) = (u_Ux(1:H).^2 + u_fa_U.^2).^0.5;
+        u_Ix(1:H) = (u_Ix(1:H).^2 + u_fa_I.^2).^0.5;
         u_phx(1:H) = (u_phx(1:H).^2 + u_fp_U.^2 + u_fp_I.^2).^0.5;
               
         
         % -- estimate SFDR uncertainty:
-        % estimate uncertainty due to the spurrs:
-        u_U_sfdr = ((sum(0.5*vcl{1}.spurr.^2) + U_rms^2)^0.5 - U_rms)/3^0.5;    
-        u_I_sfdr = ((sum(0.5*vcl{2}.spurr.^2) + I_rms^2)^0.5 - I_rms)/3^0.5;    
-        u_P_sfdr = sum(0.5*vcl{1}.spurr.*vcl{2}.spurr)/3^0.5;
+        % estimate uncertainty due to the spurs:
+        u_U_sfdr = ((sum(0.5*vcl{1}.spur.^2) + U_rms^2)^0.5 - U_rms)/3^0.5;    
+        u_I_sfdr = ((sum(0.5*vcl{2}.spur.^2) + I_rms^2)^0.5 - I_rms)/3^0.5;    
+        u_P_sfdr = sum(0.5*vcl{1}.spur.*vcl{2}.spur)/3^0.5;
              
         
         
@@ -660,19 +660,20 @@ function dataout = alg_wrapper(datain, calcset)
             
         % corrected signal samples count:
         M = numel(vcl{1}.y);
-        
-        % fundamental periods in the record:
-        f0_per = fx(1)*M/fs;
-        
-        % samples per period of fundamental:
-        fs_rat = fs/fx(1);
-        
+                
         % process all harmonics
         u_P_st = [];
         u_S_st = [];
         u_I_st = [];
         u_U_st = [];
         for h = 1:H
+        
+            % ###note: these two values were outside the loop for fundamental, but that is wrong, because the estimator should
+            %          operate with each harmonic separately. So I moved them here to reflect sampling parameters for each component.        
+            % periods in the record:
+            f0_per = fx(h)*M/fs;        
+            % samples per period of harmonic:
+            fs_rat = fs/fx(h);
         
             % get U single-tone wrms uncertainty components:
             [dPx,dSx,dUx] = wrms_unc_st(lut_st, Ux(h),Ux(h), U_noise,U_noise, Ux_bits(h),Ux_bits(h), f0_per,fs_rat);
@@ -702,12 +703,18 @@ function dataout = alg_wrapper(datain, calcset)
         
         
         
-        % -- estimate rms alg. spurr uncertainty:
+        % -- estimate rms alg. spur uncertainty:
             
         % load single-tone wrms LUT data:
         mfld = fileparts(mfilename('fullpath'));    
         lut = load([mfld filesep() 'wrms_spurr_unc.lut'],'-mat','lut');
         lut_sp = lut.lut;
+        
+        % fundamental periods in the record:
+        f0_per = fx(1)*M/fs;        
+        
+        % samples per period of fundamental:
+        fs_rat = fs/fx(1);
             
         
         % process all harmonics
@@ -717,11 +724,11 @@ function dataout = alg_wrapper(datain, calcset)
         u_I_sp = [];
         for h = 2:H
         
-            % relative spurr position:
-            f_spurr = (fx(h) - fx(1))/(fs/2 - fx(1));
+            % relative spur position:
+            f_spur = (fx(h) - fx(1))/(fs/2 - fx(1));
             
             % get U single-tone wrms uncertainty components:
-            [dPx,dSx,dUx,dIx] = wrms_unc_spurr(lut_sp, Ux(1),Ix(1), f_spurr,Ux(h),Ix(h), f0_per,fs_rat);
+            [dPx,dSx,dUx,dIx] = wrms_unc_spur(lut_sp, Ux(1),Ix(1), f_spur,Ux(h),Ix(h), f0_per,fs_rat);
                     
             % calc. absolute uncertainty components:
             u_P_sp(h,1) = dPx*Sx(1)/3^0.5;
@@ -774,12 +781,12 @@ function dataout = alg_wrapper(datain, calcset)
             end
             % aux parameters to synthesize:
             vc.sim.noise = noises(v)./max(vc.adc_gain.gain);
-            vc.sim.spurr = vc.spurr./interp1(vc.adc_gain.f,vc.adc_gain.gain,f_spurr,i_mode,'extrap');
+            vc.sim.spur = vc.spur./interp1(vc.adc_gain.f,vc.adc_gain.gain,f_spur,i_mode,'extrap');
             vc.sim.lsb = lsbs(v)/vc.adc_gain.gain(h_list(1));
                    
             % remove all useless stuff to save memory for the monte-carlo method:
             %  note: this is quite important as the whole structure will be replicated for each cycle of MC! 
-            vc = rmfield(vc,{'y','Y','ph','Y_hi','u_Y','u_ph','spurr'});
+            vc = rmfield(vc,{'y','Y','ph','Y_hi','u_Y','u_ph','spur'});
             vc.adc_gain = rmfield(vc.adc_gain,{'u_gain','f'});
             vc.adc_phi = rmfield(vc.adc_phi,{'u_phi','f'});
             if vc.is_diff
@@ -799,7 +806,7 @@ function dataout = alg_wrapper(datain, calcset)
         sig.fh = fh; % reference frequency vector for all correction tables '*adc_*'
         sig.is_sim = 1; % enables waveform simulator as a source
         sig.sim.fx = fx(1:H); % identified harmonic frequencies
-        sig.sim.f_spurr = f_spurr;
+        sig.sim.f_spur = f_spur;
         % save reference RMS values, i.e. this should be returned by the wrms algorithm:
         sig.ref.P = P;        
         sig.ref.I = I_rms;
@@ -866,11 +873,11 @@ function dataout = alg_wrapper(datain, calcset)
     u_dc_u = vcl{1}.u_dc;
     u_dc_i = vcl{2}.u_dc;
     
-    % DC power component:
+    % DC power component (empirical):
     P0   = dc_u*dc_i;
-    u_P0 = ((dc_u*u_dc_i)^2 + (dc_i*u_dc_u)^2 + u_P^2)^0.5; % ###note: overestimated
-    u_dc_u = (u_dc_u^2 + u_U^2)^0.5; % ###note: overestimated
-    u_dc_i = (u_dc_i^2 + u_I^2)^0.5; % ###note: overestimated 
+    u_P0 = (1.5*(dc_u*u_dc_i)^2 + 1.5*(dc_i*u_dc_u)^2 + u_P^2)^0.5; % ###note: overestimated
+    u_dc_u = (u_dc_u^2 + 1.5*u_U^2)^0.5; % ###note: overestimated
+    u_dc_i = (u_dc_i^2 + 1.5*u_I^2)^0.5; % ###note: overestimated 
     
     % add DC components (DC coupling mode only):
     if ~is_ac

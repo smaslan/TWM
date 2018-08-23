@@ -82,19 +82,30 @@ function [vec,res] = qwtb_mcm_exec(fun,par,calcset)
             %  note: multicore slaves need to know where to find the algorithm functions 
             mc_setup.user_paths = {fileparts(mfilename('fullpath'))}; 
             if ispc
-                % windoze - most likely small CPU    
+                % windoze - most likely small CPU:
+                % use only small count of job files, coz windoze may get mad...    
                 mc_setup.max_chunk_count = 200;
-                % if cores count set to 0, run only master, assuming slave servers are already running on background
+                % run only master if cores count set to 0 (assuming slave servers are already running on background)
                 mc_setup.run_master_only = (calcset.mcm.procno == 0);
-                mc_setup.master_is_worker = 1; 
+                % lest master work as well, it won't do any harm:
+                mc_setup.master_is_worker = (calcset.mcm.procno <= 4); 
             else
-                % Unix: most likely cokl supercomputer - large CPU    
+                % Unix: possibly supercomputer - assume large CPU:
+                % set large number of job files, coz Linux or supercomputer should be able to handle it well:    
                 mc_setup.max_chunk_count = 10000;
-                mc_setup.run_master_only = 0;
-                mc_setup.master_is_worker = 0;
-                if exist(coklbind2,'file')
-                    % ###todo: maybe removed - this is specific for CMI's supercomputer but should not do any harm...
-                    mc_setup.run_after_slaves = @coklbind2;
+                % run only master if cores count set to 0 (assuming slave servers are already running on background)
+                mc_setup.run_master_only = (calcset.mcm.procno == 0);
+                % do not let master work, assuming there is fuckload of slave servers to do stuff:
+                mc_setup.master_is_worker = (calcset.mcm.procno <= 4);
+            end
+            % user function to execute before running MC?
+            if isfield(mc_setup,'user_fun')
+                % yaha, some function referenced:
+                if exist(mc_setup.user_fun,'file')
+                    % it exist, assign it:            
+                    mc_setup.run_after_slaves = mc_setup.user_fun;
+                else
+                    error('Monte Carlo option ''user_fun'' contains a link to non-existent function! Either fix the function name or do not assign ''mcm.user_fun''.');
                 end
             end
                             

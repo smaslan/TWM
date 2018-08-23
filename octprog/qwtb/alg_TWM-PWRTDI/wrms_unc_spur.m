@@ -1,4 +1,4 @@
-function [dPx,dSx,dIx,dUx] = wrms_unc_spurr(lut, amp_a,amp_b, f_spurr,a_spurr,b_spurr, f0_per,fs_rat)
+function [dPx,dSx,dIx,dUx] = wrms_unc_spur(lut, amp_a,amp_b, f_spur,a_spur,b_spur, f0_per,fs_rat)
 % Estimator of the uncertainty for windowed time-integration power or rms value algorihm.
 %
 % ###TODO: fix help
@@ -27,8 +27,8 @@ function [dPx,dSx,dIx,dUx] = wrms_unc_spurr(lut, amp_a,amp_b, f_spurr,a_spurr,b_
     nc = 1/amp_a;
     amp_a = nc*amp_a;
     amp_b = nc*amp_b;
-    a_spurr = nc*a_spurr;
-    b_spurr = nc*b_spurr;
+    a_spur = nc*a_spur;
+    b_spur = nc*b_spur;
     
     
     % -- P,S unc calculation:
@@ -41,11 +41,11 @@ function [dPx,dSx,dIx,dUx] = wrms_unc_spurr(lut, amp_a,amp_b, f_spurr,a_spurr,b_
        mult = mult*lut.ref_ab_rat/amp_b; 
     end
     
-    % under spurr/(U|I) range multiplier:
+    % under spur/(U|I) range multiplier:
     min_s_amp = lut.lut_PS.ax.s_amp.values(1);
     mult_a = mult;
-    if a_spurr < min_s_amp
-       mult_a = mult*a_spurr/min_s_amp; 
+    if a_spur < min_s_amp
+       mult_a = mult*a_spur/min_s_amp; 
     end
         
     % set LUT axes:
@@ -53,22 +53,22 @@ function [dPx,dSx,dIx,dUx] = wrms_unc_spurr(lut, amp_a,amp_b, f_spurr,a_spurr,b_
     axi.ab_rat.val = amp_b/amp_a;
     axi.f0_per.val = f0_per;
     axi.fs_rat.val = fs_rat;
-    axi.s_freq.val = f_spurr;
+    axi.s_freq.val = f_spur;
                 
     % get no noise unc. value:
-    axi.s_amp.val = a_spurr*mult_a;
+    axi.s_amp.val = a_spur*mult_a;
     unc_PS_a = interp_lut(lut.lut_PS,axi);
     
     
-    % under spurr/(U|I) range multiplier:
+    % under spur/(U|I) range multiplier:
     min_s_amp = lut.lut_PS.ax.s_amp.values(1);
     mult_b = mult;
-    if b_spurr < min_s_amp
-       mult_b = mult*b_spurr/min_s_amp; 
+    if b_spur < min_s_amp
+       mult_b = mult*b_spur/min_s_amp; 
     end
     
     % get no noise unc. value (second channel):
-    axi.s_amp.val = b_spurr*mult_b;
+    axi.s_amp.val = b_spur*mult_b;
     unc_PS_b = interp_lut(lut.lut_PS,axi);
         
     
@@ -78,14 +78,14 @@ function [dPx,dSx,dIx,dUx] = wrms_unc_spurr(lut, amp_a,amp_b, f_spurr,a_spurr,b_
     axi = struct();
     axi.f0_per.val = f0_per;
     axi.fs_rat.val = fs_rat;
-    axi.s_freq.val = f_spurr;
+    axi.s_freq.val = f_spur;
         
     % get reference unc. value:
-    axi.s_amp.val = a_spurr/amp_a;
+    axi.s_amp.val = a_spur/amp_a;
     unc_I_a = interp_lut(lut.lut_I,axi);
     
     % get reference unc. value:
-    axi.s_amp.val = b_spurr/amp_b;
+    axi.s_amp.val = b_spur/amp_b;
     unc_I_b = interp_lut(lut.lut_I,axi);
       
     

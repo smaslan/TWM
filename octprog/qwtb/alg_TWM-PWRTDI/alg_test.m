@@ -13,14 +13,15 @@ function alg_test(calcset) %<<<1
     calcset.unc = 'guf'; % uncertainty mode
     calcset.loc = 0.95;
     % MonteCarlo (for 'mcm' uncertainty mode) setup:
-    calcset.mcm.repeats = 100; % cycles
-    calcset.mcm.method = 'multicore'; % parallelization mode
+    calcset.mcm.repeats = 300; % cycles
+    calcset.mcm.method = 'multistation'; % parallelization mode
     calcset.mcm.procno = 0; % no. of parallel processes (0 to not start slaves)
+    %calcset.mcm.user_fun = @coklbind; % user function after servers startup (for CMI's supercomputer)
     %calcset.mcm.tmpdir = 'c:\work\_mc_jobs_'; % jobs sharing folder for 'multistation' mode
     
     % samples count to synthesize:
     %N = 2000;
-    N = round(logrand(5000,20000));    
+    N = round(logrand(5000,20000));   
     fprintf('N = %.0f samples\n',N);
         
     % sampling rate [Hz]

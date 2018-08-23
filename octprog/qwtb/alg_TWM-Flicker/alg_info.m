@@ -41,21 +41,6 @@ alginfo.remarks = 'If sampling frequency |fs| is not supplied, wrapper will calc
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     
-    alginfo.inputs(pid).name = 'y_lo';
-    alginfo.inputs(pid).desc = 'Sampled values - low-side';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
-    
-    alginfo.inputs(pid).name = 'time_shift_lo';
-    alginfo.inputs(pid).desc = 'Low-side channel timeshift';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
-    
-    
     
     % --- parameters:
     alginfo.inputs(pid).name = 'f_line';
@@ -106,12 +91,12 @@ alginfo.remarks = 'If sampling frequency |fs| is not supplied, wrapper will calc
     %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     % ADC jitter:
-    alginfo.inputs(pid).name = 'adc_jitter';
-    alginfo.inputs(pid).desc = 'ADC rms jitter';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
+%     alginfo.inputs(pid).name = 'adc_jitter';
+%     alginfo.inputs(pid).desc = 'ADC rms jitter';
+%     alginfo.inputs(pid).alternative = 0;
+%     alginfo.inputs(pid).optional = 1;
+%     alginfo.inputs(pid).parameter = 0;
+%     pid = pid + 1;
     %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     % ADC offset [V]:
@@ -190,28 +175,28 @@ alginfo.remarks = 'If sampling frequency |fs| is not supplied, wrapper will calc
     %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     % ADC SFDR (2D dependence, rows: fund. freqs., columns: fund. harmonic amplitudes)
-    alginfo.inputs(pid).name = 'adc_sfdr_f';
-    alginfo.inputs(pid).desc = 'ADC SFDR: fundamental frequency axis';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
+%     alginfo.inputs(pid).name = 'adc_sfdr_f';
+%     alginfo.inputs(pid).desc = 'ADC SFDR: fundamental frequency axis';
+%     alginfo.inputs(pid).alternative = 0;
+%     alginfo.inputs(pid).optional = 1;
+%     alginfo.inputs(pid).parameter = 0;
+%     pid = pid + 1;
     %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
-    alginfo.inputs(pid).name = 'adc_sfdr_a';
-    alginfo.inputs(pid).desc = 'ADC SFDR: fundamental harmonic amplitude';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
+%     alginfo.inputs(pid).name = 'adc_sfdr_a';
+%     alginfo.inputs(pid).desc = 'ADC SFDR: fundamental harmonic amplitude';
+%     alginfo.inputs(pid).alternative = 0;
+%     alginfo.inputs(pid).optional = 1;
+%     alginfo.inputs(pid).parameter = 0;
+%     pid = pid + 1;
     %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
-    alginfo.inputs(pid).name = 'adc_sfdr';
-    alginfo.inputs(pid).desc = 'ADC SFDR: 2D data';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
+%     alginfo.inputs(pid).name = 'adc_sfdr';
+%     alginfo.inputs(pid).desc = 'ADC SFDR: 2D data';
+%     alginfo.inputs(pid).alternative = 0;
+%     alginfo.inputs(pid).optional = 1;
+%     alginfo.inputs(pid).parameter = 0;
+%     pid = pid + 1;
     %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     % ADC input admittance matrices (1D dependences, rows: freqs.)
@@ -248,12 +233,12 @@ alginfo.remarks = 'If sampling frequency |fs| is not supplied, wrapper will calc
     pid = pid + 1;
     
     % relative time stamp of reference channel ('y'):
-    alginfo.inputs(pid).name = 'time_stamp';
-    alginfo.inputs(pid).desc = 'Relative time-stamp of ''y''';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 0;
-    pid = pid + 1;
+%     alginfo.inputs(pid).name = 'time_stamp';
+%     alginfo.inputs(pid).desc = 'Relative time-stamp of ''y''';
+%     alginfo.inputs(pid).alternative = 0;
+%     alginfo.inputs(pid).optional = 1;
+%     alginfo.inputs(pid).parameter = 0;
+%     pid = pid + 1;
     
     
     % Transducer type string (empty: no tran. correction; 'shunt': current shunt; 'rvd': resistive voltage divider)
