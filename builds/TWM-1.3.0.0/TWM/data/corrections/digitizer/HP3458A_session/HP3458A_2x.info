@@ -1,0 +1,33 @@
+% correction type
+type:: digitizer
+
+% description of the digitizer corrections setup
+name:: Two HP3458A dmms test
+
+% names of the channels as they appear in the digitizer identification
+#startmatrix:: channel identifiers
+  HP3458A, channel 1
+  HP3458A, channel 2
+#endmatrix:: channel identifiers
+
+% links to the channel corrections of particular channels
+#startmatrix:: channel correction paths
+  chn1\HP3458A_chn1.info
+  chn2\HP3458A_chn2.info	
+#endmatrix:: channel correction paths
+
+
+% timeshift between the channels [s]
+% note the first is always zero
+#startsection:: interchannel timeshift
+
+  % row vector of values, one for each channel
+  #startmatrix:: value
+    0.00;-7.01445E-07
+  #endmatrix:: value 
+  #startmatrix:: uncertainty
+    0.00;0.00
+  #endmatrix:: uncertainty 
+
+
+#endsection:: interchannel timeshift
