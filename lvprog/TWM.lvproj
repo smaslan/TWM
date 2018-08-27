@@ -493,6 +493,7 @@
 					<Item Name="Meas Proc QWTB View Phase Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB View Phase Mode.ctl"/>
 					<Item Name="Meas Proc QWTB Algorithm Flags.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Algorithm Flags.ctl"/>
 					<Item Name="Meas Proc QWTB Uncertainty Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Uncertainty Mode.ctl"/>
+					<Item Name="Meas Proc QWTB Get Results.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Get Results.vi"/>
 					<Item Name="Meas Proc QWTB Initialize Result Queue.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Initialize Result Queue.vi"/>
 					<Item Name="Meas Proc QWTB Close Result Queue.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Close Result Queue.vi"/>
 					<Item Name="Meas Proc QWTB Notify Result Queue.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Notify Result Queue.vi"/>
@@ -666,6 +667,7 @@
 				</Item>
 				<Item Name="high level" Type="Folder">
 					<Item Name="wa32 Read Till Key.vi" Type="VI" URL="../server/WinAPI32/high level/wa32 Read Till Key.vi"/>
+					<Item Name="wa32 Flush Read.vi" Type="VI" URL="../server/WinAPI32/high level/wa32 Flush Read.vi"/>
 				</Item>
 				<Item Name="read_me.txt" Type="Document" URL="../server/WinAPI32/read_me.txt"/>
 				<Item Name="wa32 CloseHandle.vi" Type="VI" URL="../server/WinAPI32/wa32 CloseHandle.vi"/>
@@ -678,31 +680,16 @@
 				<Item Name="wa32 PeekNamedPipe.vi" Type="VI" URL="../server/WinAPI32/wa32 PeekNamedPipe.vi"/>
 				<Item Name="wa32 ReadFile.vi" Type="VI" URL="../server/WinAPI32/wa32 ReadFile.vi"/>
 				<Item Name="wa32 WriteFile.vi" Type="VI" URL="../server/WinAPI32/wa32 WriteFile.vi"/>
-				<Item Name="wa32 Flush Read.vi" Type="VI" URL="../server/WinAPI32/high level/wa32 Flush Read.vi"/>
-			</Item>
-			<Item Name="TWM client" Type="Folder">
-				<Item Name="TWM Client Meas Setup.ctl" Type="VI" URL="../server/TWM client/TWM Client Meas Setup.ctl"/>
-				<Item Name="TWM Client Processing Setup.ctl" Type="VI" URL="../server/TWM client/TWM Client Processing Setup.ctl"/>
-				<Item Name="TWM Client Transducer Correction Item.ctl" Type="VI" URL="../server/TWM client/TWM Client Transducer Correction Item.ctl"/>
-				<Item Name="TWM Client Test.vi" Type="VI" URL="../server/TWM client/TWM Client Test.vi"/>
-				<Item Name="TWM Client Wait ACK.vi" Type="VI" URL="../server/TWM client/TWM Client Wait ACK.vi"/>
-				<Item Name="TWM Client Send Packet.vi" Type="VI" URL="../server/TWM client/TWM Client Send Packet.vi"/>
-				<Item Name="TWM Client Recieve Packet.vi" Type="VI" URL="../server/TWM client/TWM Client Recieve Packet.vi"/>
-				<Item Name="TWM Client Cmd Start.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Start.vi"/>
-				<Item Name="TWM Client Cmd Set Measurement.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Set Measurement.vi"/>
-				<Item Name="TWM Client Cmd Set Corrections.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Set Corrections.vi"/>
-				<Item Name="TWM Client Cmd Get Status.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Get Status.vi"/>
-				<Item Name="TWM Client Cmd Stop.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Stop.vi"/>
-				<Item Name="TWM Client Cmd Restart.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Restart.vi"/>
-				<Item Name="TWM Client Cmd Identify.vi" Type="VI" URL="../server/TWM client/TWM Client Cmd Identify.vi"/>
 			</Item>
 			<Item Name="TWM server" Type="Folder">
 				<Item Name="Server Cmd Parser - Set Measurement.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Set Measurement.vi"/>
 				<Item Name="Server Cmd Parser - Set Corrections.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Set Corrections.vi"/>
 				<Item Name="Server Cmd Answer - Get Status.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Get Status.vi"/>
+				<Item Name="Server Cmd Answer - Get Result.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Get Result.vi"/>
 				<Item Name="Server Cmd Answer - Identify.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Identify.vi"/>
 			</Item>
-			<Item Name="Server Event Start.ctl" Type="VI" URL="../server/Server Event Start.ctl"/>
+			<Item Name="TWM Client.lvlib" Type="Library" URL="../server/TWM client/TWM Client.lvlib"/>
+			<Item Name="Server Event.ctl" Type="VI" URL="../server/Server Event.ctl"/>
 			<Item Name="Server Client Request.ctl" Type="VI" URL="../server/Server Client Request.ctl"/>
 			<Item Name="Server Event Command.ctl" Type="VI" URL="../server/Server Event Command.ctl"/>
 			<Item Name="Server Event GUI command.ctl" Type="VI" URL="../server/Server Event GUI command.ctl"/>
@@ -1162,6 +1149,44 @@
 				<Property Name="TgtF_productName" Type="Str">HP3548A TWM drivers</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{35CC4655-EFA4-4509-92BF-EDD2DE25F6EE}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM_HP3458A.dll</Property>
+			</Item>
+			<Item Name="TWM client" Type="Packed Library">
+				<Property Name="Bld_buildCacheID" Type="Str">{1AF98330-9B00-411A-BF40-00073A3BEFD4}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">TWM client</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/TWM client</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{DB64396F-7FF5-45F4-8E08-882448D7416F}</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">TWM client.lvlibp</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/TWM client/TWM client.lvlibp</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/TWM client</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="PackedLib_callersAdapt" Type="Bool">true</Property>
+				<Property Name="Source[0].itemID" Type="Str">{D73CBD9A-7D77-4C5F-B1B4-D878C13079F2}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/server/TWM Client.lvlib</Property>
+				<Property Name="Source[1].Library.allowMissingMembers" Type="Bool">true</Property>
+				<Property Name="Source[1].Library.atomicCopy" Type="Bool">true</Property>
+				<Property Name="Source[1].Library.LVLIBPtopLevel" Type="Bool">true</Property>
+				<Property Name="Source[1].preventRename" Type="Bool">true</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">Library</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_enableDebugging" Type="Bool">true</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">TWM client</Property>
+				<Property Name="TgtF_internalName" Type="Str">TWM client</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 </Property>
+				<Property Name="TgtF_productName" Type="Str">TWM client</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{6C025CF9-40E7-49D2-B44F-F2225C8410EF}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">TWM client.lvlibp</Property>
 			</Item>
 		</Item>
 	</Item>
