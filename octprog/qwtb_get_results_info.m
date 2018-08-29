@@ -10,7 +10,7 @@
 %%    res_exist - non-zero if result file exist
 %%    chn_list - list of the phase/channels ('u1, i1;u2, i2' or 'u1;u2;u3' etc.)
 %% -----------------------------------------------------------------------------
-function [res_files, res_exist, alg_list, chn_list] = qwtb_get_results_info(meas_root, alg_id)
+function [res_files, res_exist, alg_list, chn_list, var_names] = qwtb_get_results_info(meas_root, alg_id)
 
   res_files = '';
   res_exist = 0;
@@ -81,7 +81,16 @@ function [res_files, res_exist, alg_list, chn_list] = qwtb_get_results_info(meas
     
   catch
     error('QWTB results viewer: Loading result file failed!');
-  end 
+  end
+  
+  % try to extract variable names:
+  cinf = infogetsection(rinf,list{1});  
+  var_names = infogettextmatrix(cinf,'variable names');
+  
+  % convert list of variable names:
+  var_names = catcellcsv(var_names(:)');
+  
+   
   
   % result file exist
   res_exist = 1;

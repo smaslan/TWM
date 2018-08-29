@@ -294,7 +294,8 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
   
   
     % === average averaging cycles === 
-    if (are_scalar && isempty(var_list)) || is_avg
+    %if (are_scalar && isempty(var_list)) || is_avg  %###todo: find out why there was isempty(var_list)????
+    if are_scalar || is_avg
         [avg, unca] = qwtb_average_results(results,cfg);
     end
   
