@@ -22,6 +22,7 @@ Modularity of the Power and PQ calculation algorithms used by the TWM is ensured
 Current version includes following algorithms:
 - TWM-PSFE: Calculation of fundamental harmonic parameters by Phase Sensitive Frequency Estimator for non-coherent sampling (frequency, amplitude and phase).
 - TWM-FPNLSF: Calculation of fundamental harmonic parameters by four parameter fitting for non-coherent sampling (frequency, amplitude, phase, offset).
+- TWM-MFSF: Multi-harmonic fitting for non-coherent sampling (frequency, amplitudes, phases, offset, THD).
 - TWM-MODTDPS: Calculation of amplitude modulation parameters for sine and rectangular modulation for non-coherent sampling.
 - TWM-Flicker: Calculation of short-term flicker severity according IEC 61000-4-15 for non-coherent sampling.
 - TWM-THDWFFT: Total Harmonic Distortion calculator and harmonics analyser for non-coherent sampling.

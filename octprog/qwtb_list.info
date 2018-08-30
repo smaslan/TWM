@@ -6,16 +6,17 @@ type:: qwtb list
 #startmatrix:: list of supported algorithms
         WRMS
         SP-WFFT
-        TWM-THDWFFT
 	TWM-PSFE
-	TWM-TEST
-	TWM-PWRTEST
-	TWM-PWRTDI
-        TWM-MODTDPS
         TWM-FPNLSF
+        TWM-MHFE
+        TWM-MODTDPS
+        TWM-THDWFFT
+	TWM-PWRTDI
         TWM-Flicker
         TWM-HCRMS
         TWM-InDiSwell
+	TWM-TEST
+	TWM-PWRTEST
 #endmatrix:: list of supported algorithms
 
 
@@ -242,3 +243,18 @@ type:: qwtb list
         #endmatrix:: number formats
 #endsection:: TWM-Flicker
 
+#startsection:: TWM-MFSF
+        #startmatrix:: number formats
+                f;  si; 1e-12; 1e-6
+                A;  si; 1e-12; 1e-7
+                ph;  f; 1e-12; 1e-7
+                ofs; f; 1e-12; 1e-6
+                thd; f; 1e-6;  1e-6
+        #endmatrix:: number formats
+        #startmatrix:: is phase
+                ph
+        #endmatrix:: is phase
+        #startmatrix:: graphs
+                spec_f; spec_A
+        #endmatrix:: graphs
+#endsection:: TWM-MFSF
