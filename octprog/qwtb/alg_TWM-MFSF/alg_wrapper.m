@@ -302,6 +302,8 @@ function dataout = alg_wrapper(datain, calcset)
         ph = ph - datain.time_stamp.v.*f_org*2*pi;
         % calc. abs uncertainty contribution:
         u_ph_ts = 2*pi*((datain.time_stamp.u.*f_org).^2 + (datain.time_stamp.v.*u_f).^2).^0.5;
+    else
+        u_ph_ts = repmat(0,size(f_org));
     end
        
     

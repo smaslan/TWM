@@ -484,11 +484,11 @@ alginfo.license = 'MIT License, see also MFSF license';
     alginfo.outputs(pid).desc = 'Amplitudes of harmonic components';
     pid = pid + 1;
     
-    alginfo.outputs(pid).name = 'ph';
+    alginfo.outputs(pid).name = 'phi';
     alginfo.outputs(pid).desc = 'Phases of harmonic components [rad]';
     pid = pid + 1;
     
-    alginfo.outputs(pid).name = 'ofs';
+    alginfo.outputs(pid).name = 'dc';
     alginfo.outputs(pid).desc = 'DC offset';
     pid = pid + 1;
     
