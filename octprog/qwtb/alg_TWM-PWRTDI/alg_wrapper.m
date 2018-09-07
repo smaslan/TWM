@@ -8,8 +8,7 @@ function dataout = alg_wrapper(datain, calcset)
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
 % Format input data --------------------------- %<<<1
-         
-    
+
     % Restore orientations of the input vectors to originals (before passing via QWTB)
     % This is critical for the correction data! 
     [datain,cfg] = qwtb_restore_twm_input_dims(datain,1);
@@ -143,7 +142,7 @@ function dataout = alg_wrapper(datain, calcset)
     % window for spectral analysis:
     %  note: this is not the window for the main RMS algorithms itself!
     %        This is just to calculate signal spectrum for purposes of corrections, uncertainty, etc.
-    win_type = 'flattop_248D';
+    win_type = 'flattop_144D';
          
     
     % --- get channel spectra:    
@@ -159,7 +158,7 @@ function dataout = alg_wrapper(datain, calcset)
         cset.verbose = 0;
         din.y.v = vc.y;                
         dout = qwtb('SP-WFFT',din,cset);
-        qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+        %qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
         fh    = dout.f.v(:); % freq. vector of the DFT bins
         vc.Y  = dout.A.v(:); % amplitude vector of the DFT bins
         vc.ph = dout.ph.v(:); % phase vector of the DFT bins
@@ -180,7 +179,7 @@ function dataout = alg_wrapper(datain, calcset)
             % get spectrum:
             din.y.v = vc.y_lo;                
             dout = qwtb('SP-WFFT',din,cset);
-            qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+            %qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
             fh       = dout.f.v(:); % freq. vector of the DFT bins
             vc.Y_lo  = dout.A.v(:); % amplitude vector of the DFT bins
             vc.ph_lo = dout.ph.v(:); % phase vector of the DFT bins
@@ -199,8 +198,11 @@ function dataout = alg_wrapper(datain, calcset)
     %  get window scaling factor:
     w_gain = mean(w);
     %  get window rms:
-    w_rms = mean(w.^2).^0.5;
-       
+    w_rms = mean(w.^2).^0.5;    
+    % window half-width:
+    w_size = 9;
+    % window side-lobe:
+    w_slob = 10^(-144/20);   
     
     
     
@@ -460,8 +462,7 @@ function dataout = alg_wrapper(datain, calcset)
     
     % --- Calculate uncertainty ---
     
-    % window half-width:
-    w_size = 11;
+    
     
     % return spectra of the corrected waveforms:   
     Uh = vcl{1}.Y;
@@ -482,10 +483,10 @@ function dataout = alg_wrapper(datain, calcset)
     I_max = -1;
     
     % stop harmonics search when lower than ? of dominant:
-    h_ratio = 2e-6;
+    h_ratio = max(5e-6,w_slob);
     
     % minimum processed harmonics even if they are small:
-    h_min = 5; 
+    %h_min = 5; 
     
     % max. analyzed harmonics (for noise estimate):
     h_max = 100;
@@ -505,7 +506,7 @@ function dataout = alg_wrapper(datain, calcset)
         hid = msk(id);
         
         % detect if we are done:
-        if h > h_min && U_max >= 0 && Uh(hid) < U_max*h_ratio && Ih(hid) < I_max*h_ratio
+        if U_max >= 0 && Uh(hid) < U_max*h_ratio && Ih(hid) < I_max*h_ratio
             % we can stop search, no relevant harmonics there
             break;
         end
@@ -519,12 +520,11 @@ function dataout = alg_wrapper(datain, calcset)
         h_bins = max((msk(id) - w_size),1):min(msk(id) + w_size,N);
         
         % remove harmonic bins from remaining list:
-        msk = setdiff(msk,h_bins);
-        msk = msk(msk <= N & msk > 0);
-        
+        msk = setdiff(msk,h_bins);       
     end
     H = numel(h_list);
     H = min(H,h_max_proc);
+              
     
     % build list of relevant harmonics:
     fx = fh(h_list);
@@ -537,6 +537,21 @@ function dataout = alg_wrapper(datain, calcset)
     u_phx = u_ph(h_list);
     Ux_lsb = vcl{1}.lsb(h_list);
     Ix_lsb = vcl{2}.lsb(h_list);
+    
+    
+    if isfield(calcset,'dbg_plots') && calcset.dbg_plots
+        figure;
+        loglog(fh,Uh)
+        hold on;
+        loglog(fh(msk),Uh(msk),'r')
+        loglog(fx,Ux,'ko')       
+        hold off;
+        title('Spectrum analysis');
+        xlabel('f [Hz]');
+        ylabel('U [V]');
+        legend('full','no harmonics');
+    end
+    
     
     % estimate basic parameters from spectrum):
     U_rms = sum(0.5*Uh.^2)^0.5/w_rms*w_gain;
@@ -569,6 +584,10 @@ function dataout = alg_wrapper(datain, calcset)
     %  ###todo: maybe it would be more correct to calculate spurs of each harmonic...
     %           but for now lets assume just main harmonic source 
     f_spur(:,1) = (fx(1)*2):fx(1):fs/2;
+    
+    % spur harmonic bin ids in the original spectrum:
+    sid_spur = round(f_spur*N/fs + 1);
+
         
     for k = 1:numel(vcl)
         % get v.channel
@@ -609,15 +628,10 @@ function dataout = alg_wrapper(datain, calcset)
             spur = amp_hi*10^(-adc_sfdr.sfdr/20);
         end
                
-        % spur harmonic bin ids in the original spectrum:
-        sid = round(f_spur*N/fs + 1);
-
         % combine ADC and transducer spurs:
-        vcl{k}.spur = ((spur*vc.tr_gain(sid)).^2 + (tr_spur*ones(size(f_spur))).^2).^0.5;                        
+        vcl{k}.spur = ((spur*vc.tr_gain(sid_spur)).^2 + (tr_spur*ones(size(f_spur))).^2).^0.5;
+                                
     end
-    
-    
-        
         
     
     
@@ -635,7 +649,7 @@ function dataout = alg_wrapper(datain, calcset)
         ff = vcl{2}.adc_gain.f;
         fg = vcl{2}.adc_gain.gain;
         fp = vcl{2}.adc_phi.phi;
-        [u_fa_I,u_fp_I] = td_fft_filter_unc(fs, numel(datain.u.v), fft_size, ff,fg,fp, i_mode, fx(1:H),Ux(1:H));
+        [u_fa_I,u_fp_I] = td_fft_filter_unc(fs, numel(datain.u.v), fft_size, ff,fg,fp, i_mode, fx(1:H),Ix(1:H));
         
         % expand harmonic uncertainties by FFT filter contribution:
         u_Ux(1:H) = (u_Ux(1:H).^2 + u_fa_U.^2).^0.5;
@@ -644,26 +658,61 @@ function dataout = alg_wrapper(datain, calcset)
               
         
         % -- estimate SFDR uncertainty:
+        
         % estimate uncertainty due to the spurs:
         u_U_sfdr = ((sum(0.5*vcl{1}.spur.^2) + U_rms^2)^0.5 - U_rms)/3^0.5;    
         u_I_sfdr = ((sum(0.5*vcl{2}.spur.^2) + I_rms^2)^0.5 - I_rms)/3^0.5;    
         u_P_sfdr = sum(0.5*vcl{1}.spur.*vcl{2}.spur)/3^0.5;
-             
         
+        % expand harmonic uncertainties by SFDR (worst case):
+        U_sp_x = interp1(f_spur,vcl{1}.spur,fx(2:H),'nearest','extrap');
+        I_sp_x = interp1(f_spur,vcl{2}.spur,fx(2:H),'nearest','extrap');        
+        u_Ux(2:H) = (u_Ux(2:H).^2 + U_sp_x.^2/3).^0.5;
+        u_Ix(2:H) = (u_Ix(2:H).^2 + I_sp_x.^2/3).^0.5;        
+        u_phx(2:H) = (u_phx(2:H).^2 + atan2(U_sp_x,Ux(2:H)).^2/3 + atan2(I_sp_x,Ix(2:H)).^2/3).^0.5;
+        
+        
+%         mcc = 1000;
+%         Usrms = sum(0.5*Ux.^2)^0.5;
+%         Isrms = sum(0.5*Ix.^2)^0.5;
+%         Usmc = (2^0.5*sum(bsxfun(@times,(2*rand(numel(f_spur),mcc)-1),vcl{1}.spur).^2,1) + Usrms^2).^0.5;
+%         Ismc = (2^0.5*sum(bsxfun(@times,(2*rand(numel(f_spur),mcc)-1),vcl{2}.spur).^2,1) + Isrms^2).^0.5;
+%         
+%         u_U_sfdr = max(abs(Usmc - Usrms))/3^0.5
+%         u_I_sfdr = max(abs(Ismc - Isrms))/3^0.5
+%         
+%         u_U_sfdr/U_rms
+%         u_I_sfdr/I_rms
+        
+                        
         
         % -- estimate rms alg. single-tone uncertainty:
             
         % load single-tone wrms LUT data:
-        mfld = fileparts(mfilename('fullpath'));    
-        lut = load([mfld filesep() 'wrms_single_tone_unc.lut'],'-mat','lut');
-        lut_st = lut.lut;
+%         mfld = fileparts(mfilename('fullpath'));    
+%         lut = load([mfld filesep() 'wrms_single_tone_unc.lut'],'-mat','lut');
+%         lut_st = lut.lut;
+        if isfield(calcset,'fetch_luts') && calcset.fetch_luts
+            global lut_st;
+        else
+            lut_st = [];
+        end           
+        if isempty(lut_st)
+            mfld = fileparts(mfilename('fullpath'));
+            lut = load([mfld filesep() 'wrms_single_tone_unc.lut'],'-mat','lut');
+            lut_st = lut.lut;            
+        end
+            
+        
+        
+        
+ 
             
         % corrected signal samples count:
         M = numel(vcl{1}.y);
                 
         % process all harmonics
         u_P_st = [];
-        u_S_st = [];
         u_I_st = [];
         u_U_st = [];
         for h = 1:H
@@ -684,15 +733,13 @@ function dataout = alg_wrapper(datain, calcset)
             % minimum uncertainty:
             %  ###todo: temporary, remove 
             dPx = max(dPx,0.1e-6);
-            dSx = max(dSx,0.1e-6);
             dIx = max(dIx,0.1e-6);
             dUx = max(dUx,0.1e-6);
             
             % calculate absolute uncertainty of the components:
             u_P_st(h,1) = dPx.*Sx(h)/3^0.5;
-            u_S_st(h,1) = dSx.*Sx(h)/3^0.5;
-            u_I_st(h,1) = 2^-0.5*dIx.*Ix(h)/3^0.5;
-            u_U_st(h,1) = 2^-0.5*dUx.*Ux(h)/3^0.5;
+            u_I_st(h,1) = dIx.*Ix(h)/3^0.5;
+            u_U_st(h,1) = dUx.*Ux(h)/3^0.5;
             
         end
         
@@ -706,53 +753,108 @@ function dataout = alg_wrapper(datain, calcset)
         % -- estimate rms alg. spur uncertainty:
             
         % load single-tone wrms LUT data:
-        mfld = fileparts(mfilename('fullpath'));    
-        lut = load([mfld filesep() 'wrms_spurr_unc.lut'],'-mat','lut');
-        lut_sp = lut.lut;
+%         mfld = fileparts(mfilename('fullpath'));    
+%         lut = load([mfld filesep() 'wrms_spurr_unc.lut'],'-mat','lut');
+%         lut_sp = lut.lut;
+        if isfield(calcset,'fetch_luts') && calcset.fetch_luts
+            global lut_sp;
+        else
+            lut_sp = [];
+        end
+        if isempty(lut_sp)
+            mfld = fileparts(mfilename('fullpath'));
+            lut = load([mfld filesep() 'wrms_spurr_unc.lut'],'-mat','lut');
+            lut_sp = lut.lut;            
+        end
+        
         
         % fundamental periods in the record:
         f0_per = fx(1)*M/fs;        
         
         % samples per period of fundamental:
         fs_rat = fs/fx(1);
-            
+
+        % minimum spur ratio to fundamental to take it into account:
+        spur_min_rat = 50e-6;
         
+        % DFT bin step [Hz]:
+        fft_step = fs/M;
+
         % process all harmonics
         u_P_sp = [];
-        u_S_sp = [];
         u_U_sp = [];
         u_I_sp = [];
+        hid_sp = [];
         for h = 2:H
         
-            % relative spur position:
-            f_spur = (fx(h) - fx(1))/(fs/2 - fx(1));
-            
-            % get U single-tone wrms uncertainty components:
-            [dPx,dSx,dUx,dIx] = wrms_unc_spur(lut_sp, Ux(1),Ix(1), f_spur,Ux(h),Ix(h), f0_per,fs_rat);
-                    
-            % calc. absolute uncertainty components:
-            u_P_sp(h,1) = dPx*Sx(1)/3^0.5;
-            u_S_sp(h,1) = dSx*Sx(1)/3^0.5;
-            u_U_sp(h,1) = dUx*Ux(1)/3^0.5;
-            u_I_sp(h,1) = dIx*Ix(1)/3^0.5;
+            if Ux(h) > spur_min_rat*Ux(1) || Ix(h) > spur_min_rat*Ix(1)            
+                
+                % relative spur position:
+                f_spur = (fx(h) - fx(1))/fft_step;
+                
+                % get U single-tone wrms uncertainty components:
+                [dPx,dUx,dIx] = wrms_unc_spur(lut_sp, Ux(1),Ix(1), f_spur,Ux(h),Ix(h), f0_per,fs_rat);
+                        
+                % calc. absolute uncertainty components:
+                u_P_sp(end+1,1) = dPx*Sx(1)/3^0.5;
+                u_U_sp(end+1,1) = dUx*Ux(1)/3^0.5;
+                u_I_sp(end+1,1) = dIx*Ix(1)/3^0.5;                
+                hid_sp(end+1) = h;
+                            
+            end
                     
         end
+        if ~isempty(u_P_sp)
+            % sum component uncertainties:
+            u_P_sp;
+            fx(hid_sp)/fx(1);
+            u_P_sp = sum(u_P_sp.^2)^0.5;
+            u_U_sp = sum((u_U_sp.*Ux(hid_sp)).^2)^0.5/sum((Ux(hid_sp).^2))^0.5;
+            u_I_sp = sum((u_I_sp.*Ix(hid_sp)).^2)^0.5/sum((Ix(hid_sp).^2))^0.5;
+        else
+            u_P_sp = 0;
+            u_U_sp = 0;
+            u_I_sp = 0;
+        end
         
-        % sum component uncertainties:
-        u_P_sp = sum(u_P_sp.^2).^0.5; 
-        u_U_sp = sum((u_U_sp.*Ux(1:H)).^2).^0.5/sum((Ux(1:H).^2))^0.5;
-        u_I_sp = sum((u_I_sp.*Ix(1:H)).^2).^0.5/sum((Ix(1:H).^2))^0.5;
         
         
-        % estimate corrections related uncertainty from relevant harmonics:
-        u_U = sum(0.5*u_Ux.^2).^0.5;
-        u_I = sum(0.5*u_Ix.^2).^0.5;
-        u_P = sum((0.5*((Ix.*cos(phx).*u_Ux).^2 + (Ux.*cos(phx).*u_Ix).^2 + (Ux.*Ix.*sin(phx).*u_phx).^2).^0.5).^2).^0.5;
+        % estimate corrections related uncertainty from relevant harmonics (worst case estimates):
+        %u_U = sum(0.5*u_Ux.^2).^0.5;
+        %u_I = sum(0.5*u_Ix.^2).^0.5;
+        u_U = (sum(0.5*(Ux + u_Ux).^2)^0.5 - sum(0.5*Ux.^2)^0.5);
+        u_I = (sum(0.5*(Ix + u_Ix).^2)^0.5 - sum(0.5*Ix.^2)^0.5);
         
-        % addup uncertainties from the algorithm itself:
-        u_U = (u_U.^2 + u_U_sfdr^2 + u_U_st.^2 + u_U_sp.^2).^0.5;
-        u_I = (u_I.^2 + u_I_sfdr^2 + u_I_st.^2 + u_I_sp.^2).^0.5;
-        u_P = (u_P.^2 + u_P_sfdr^2 + u_P_st.^2 + u_P_sp.^2).^0.5;
+        % run small MC for the power cos it's non-linear and the GUF does not work very nice in here:
+        %   note: it was crippled for Matlab < 2016b, do not remove bsxfun()!
+        mmc = 2000; % iterations        
+        H = numel(Ux);
+        %v_Ux  = bsxfun(@plus,Ux,bsxfun(@times,u_Ux,randn(H,mmc))); % randomize Ux: v_Ux = Ux + u_Ux.*randn(H,mcc)
+        %v_Ix  = bsxfun(@plus,Ix,bsxfun(@times,u_Ix,randn(H,mmc))); % randomize Ix: v_Ix = Ix + u_Ix.*randn(H,mcc)
+        %v_phx = bsxfun(@plus,phx,bsxfun(@times,u_phx,randn(H,mmc))); % randomize phx: v_phx = phx + u_phx.*randn(H,mcc)
+        %v_P   = 0.5*sum(v_Ux.*v_Ix.*cos(v_phx),1);
+        %u_P   = sum((0.5*((Ix.*cos(phx).*u_Ux).^2 + (Ux.*cos(phx).*u_Ix).^2 + (Ux.*Ix.*sin(phx).*u_phx).^2).^0.5).^2).^0.5 % GUF method
+        %u_P   = std(v_P,[],2)
+        %u_P   = est_scovint(v_P,P)*0.5*1.05 % ###note: schmutzig safety coeficient 1.05 empiricaly found so the estimator fail rate reduces < 1% in selftest        
+        k_in = 3^0.5;
+        v_Ux  = bsxfun(@plus,Ux,bsxfun(@times,u_Ux*k_in,2*rand(H,mmc)-1)); % randomize Ux: v_Ux = Ux + u_Ux.*randn(H,mcc)
+        v_Ix  = bsxfun(@plus,Ix,bsxfun(@times,u_Ix*k_in,2*rand(H,mmc)-1)); % randomize Ix: v_Ix = Ix + u_Ix.*randn(H,mcc)
+        v_phx = bsxfun(@plus,phx,bsxfun(@times,u_phx*k_in,2*rand(H,mmc)-1)); % randomize phx: v_phx = phx + u_phx.*randn(H,mcc)
+        v_P   = 0.5*sum(v_Ux.*v_Ix.*cos(v_phx),1);
+        %u_P   = sum((0.5*((Ix.*cos(phx).*u_Ux).^2 + (Ux.*cos(phx).*u_Ix).^2 + (Ux.*Ix.*sin(phx).*u_phx).^2).^0.5).^2).^0.5; % GUF method
+        %u_P   = std(v_P,[],2)
+        %u_P   = est_scovint(v_P,P)*0.5*1.00
+        u_P = max(abs(v_P - P))/k_in*1.05; % ###note: schmutzig safety coeficient 1.05 empiricaly found so the estimator fail rate reduces < 1% in selftest
+        
+                  
+        
+        % addup uncertainties from the algorithm itself (worst case estimates):
+        %u_U = (u_U.^2 + u_U_sfdr^2 + u_U_st.^2 + u_U_sp.^2).^0.5;
+        %u_I = (u_I.^2 + u_I_sfdr^2 + u_I_st.^2 + u_I_sp.^2).^0.5;
+        %u_P = (u_P.^2 + u_P_sfdr^2 + u_P_st.^2 + u_P_sp.^2).^0.5;
+        u_U = (u_U + u_U_sfdr + u_U_st + u_U_sp);
+        u_I = (u_I + u_I_sfdr + u_I_st + u_I_sp);        
+        u_P = (u_P + u_P_sfdr + u_P_st + u_P_sp);
                 
         
     elseif strcmpi(calcset.unc,'mcm')
@@ -942,12 +1044,12 @@ function dataout = alg_wrapper(datain, calcset)
     cset.verbose = 0;
     din.y.v = vcl{1}.y;                
     dout = qwtb('SP-WFFT',din,cset);
-    qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+    %qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
     fh               = dout.f.v(:); % freq. vector of the DFT bins
     dataout.spec_U.v = dout.A.v(:); % amplitude vector of the DFT bins    
     din.y.v = vcl{2}.y;                
     dout = qwtb('SP-WFFT',din,cset);
-    qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+    %qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
     fh               = dout.f.v(:); % freq. vector of the DFT bins
     dataout.spec_I.v = dout.A.v(:); % amplitude vector of the DFT bins
     dataout.spec_S.v = dataout.spec_U.v.*dataout.spec_I.v;

@@ -1,4 +1,4 @@
-function [dPx,dSx,dIx,dUx] = wrms_unc_spur(lut, amp_a,amp_b, f_spur,a_spur,b_spur, f0_per,fs_rat)
+function [dPx,dUx,dIx] = wrms_unc_spur(lut, amp_a,amp_b, f_spur,a_spur,b_spur, f0_per,fs_rat)
 % Estimator of the uncertainty for windowed time-integration power or rms value algorihm.
 %
 % ###TODO: fix help
@@ -91,7 +91,7 @@ function [dPx,dSx,dIx,dUx] = wrms_unc_spur(lut, amp_a,amp_b, f_spur,a_spur,b_spu
     
     % calculate alg. errors:
     dPx = (unc_PS_a.dP.val^2 + unc_PS_b.dP.val^2)^0.5;
-    dSx = (unc_PS_a.dS.val^2 + unc_PS_b.dS.val^2)^0.5;
+    %dSx = (unc_PS_a.dS.val^2 + unc_PS_b.dS.val^2)^0.5;
     dUx = unc_I_a.dI.val;
     dIx = unc_I_b.dI.val;
 
