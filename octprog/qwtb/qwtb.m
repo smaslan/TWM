@@ -37,7 +37,7 @@ function varargout = qwtb(varargin)
     % the path() is called.
     paths.orig = '';
     paths.changed = 0;
-    paths.removed = cell();
+    paths.removed = {};
 
     % check inputs:
     if nargin == 0
