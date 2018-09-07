@@ -160,7 +160,7 @@ switch T
                 a9 = denorm*-0.000019808998;
                 a10 = denorm*0.000000132974;
         case 9
-        %HFT116D low sidelobe 4.5 bins
+        %HFT116D low sidelobe 4.2 bins
                 denorm = 1/(1 + 1.9575375 + 1.4780705 + 0.6367431 + 0.1228389 + 0.0066288);
                 a0 = denorm*1;
                 a1 = denorm*-1.9575375;
@@ -173,6 +173,20 @@ switch T
                 a8 = 0;
                 a9 = 0;
                 a10 = 0;
+        case 10
+        %HFT144D low sidelobe 4.5 bins
+                denorm = 1/(1 + 1.96760033 + 1.57983607 + 0.81123644 + 0.22583558 + 0.02773848 + 0.00090360);
+                a0 = denorm*1;
+                a1 = denorm*-1.96760033;
+                a2 = denorm*1.57983607 ;
+                a3 = denorm*-0.81123644;
+                a4 = denorm*0.22583558;
+                a5 = denorm*-0.02773848;
+                a6 = denorm*0.00090360;
+                a7 = 0;
+                a8 = 0;
+                a9 = 0;
+                a10 = 0;                
         otherwise
         %matlab
         % https://www.mathworks.com/help/signal/ref/flattopwin.html

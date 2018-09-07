@@ -77,12 +77,16 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     % set uncertainty mode to calc. setup:
     if isempty(unc_mode)
         unc_mode = 'none';
-    end
+    end   
     calcset.unc = unc_mode;
     calcset.cor.req = 0;
     calcset.cor.gen = 0;
     calcset.dof.req = 0;
     calcset.dof.gen = 0;
+    
+    % some fixed options:
+    calcset.checkinputs = 1;
+    calcset.verbose = 1;
     
     % get data segmentaion options:
     %  note: this allows to select range of sample data to process    

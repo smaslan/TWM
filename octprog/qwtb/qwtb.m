@@ -1,8 +1,9 @@
 function varargout = qwtb(varargin) 
 % QWTB: Q-Wave Toolbox for data processing algorithms
-%   alginfo = QWTB()
-%       Gives informations on available algorithms.
-%   dataout = QWTB('algid', datain, [calcset])
+%   [alginfo, calcset] = QWTB()
+%       Gives informations on available algorithms and standard calculation
+%       settings.
+%   [dataout, datain, calcset] = QWTB('algid', datain, [calcset])
 %       Apply algorithm with id `algid` to input data `datain` with calculation
 %       settings `calcset`.
 %   [] = QWTB('algid', 'example')
@@ -21,14 +22,28 @@ function varargout = qwtb(varargin)
 % 2DO what if path to alg_ already exist!?
 % 2DO remove .par from datain on output
 
+% Internal documentaion %<<<1
+% paths - structure with fields: %<<<2
+%   paths.orig      - value of path() before calling qwtb
+%   paths.changed   - nonzero if value of path() was changed
+%   paths.added     - which path was added during processing of qwtb
+%   paths.removed{} - which paths were removed during processing of qwtb
+
     % start of qwtb function --------------------------- %<<<1
-    % remove old alg_paths because if previous instance of qwtb ends with error,
-    % it could left some alg directory in the path
-    path_rem_all_algdirs();
+
+    % get path at the beginning of qwtb script. this path will be restored if
+    % needed:
+    % paths.orig will be filled only when needed, but should be done first time
+    % the path() is called.
+    paths.orig = '';
+    paths.changed = 0;
+    paths.removed = cell();
+
     % check inputs:
     if nargin == 0
-        % returns all algorithms info
-        varargout{1} = get_all_alg_info();
+        % returns all algorithms info and standard calculation settings
+        [varargout{1} paths] = get_all_alg_info(paths);
+        varargout{2} = check_gen_calcset();
 
     elseif nargin == 1 || nargin > 3
         error(err_msg_gen(1)) % incorrect number of inputs!
@@ -39,19 +54,21 @@ function varargout = qwtb(varargin)
         if ischar(varargin{2});
             if strcmpi(varargin{2}, 'test')
                 % run test of the algorithm
-                run_alg_test(algid);
+                paths = run_alg_test(algid, paths);
             elseif strcmpi(varargin{2}, 'example')
                 % run example of the algorithm in user space
-                run_alg_example(algid);
+                paths = run_alg_example(algid, paths);
             elseif strcmpi(varargin{2}, 'addpath')
                 % add algorithm path to path()
-                path_add_algdir(algid);
+                ensure_alg_path(algid, paths);
             elseif strcmpi(varargin{2}, 'rempath')
                 % remove algorithm path from path()
-                path_rem_algdir(algid);
+                % (if the alg. path is not in path(), warning is issued by
+                % Octave/Matlab)
+                rmpath(algpath(algid));
             elseif strcmpi(varargin{2}, 'info')
                 % returns info on the algorithm
-                varargout{1} = get_one_alg_info(algid);
+                [varargout{1}, paths] = get_one_alg_info(algid, paths);
             elseif strcmpi(varargin{2}, 'license')
                 % show license of the algorithm
                 varargout{1} = show_license(algid);
@@ -64,27 +81,30 @@ function varargout = qwtb(varargin)
             datain = varargin{2};
             if nargin == 2
                 % calculation settings is missing, generate a standard one:
-                calcset = get_standard_calcset();
+                calcset = check_gen_calcset();
             else
                 calcset = varargin{3};
+                calcset = ensure_minimal_calcset(calcset);
             end
-
             % process data:
-            [dataout, datain, calcset] = check_and_run_alg(algid, datain, calcset);
+            [dataout, datain, calcset, paths] = check_and_run_alg(algid, datain, calcset, paths);
             varargout{1} = dataout;
             varargout{2} = datain;
             varargout{3} = calcset;
         end % if ischar
     end % if - input arguments
 
+    % restore original path if there were changes:
+    clean_up_path(paths)
+
 end % end qwtb function
 
 % -------------------------------- path related functions %<<<1
 function pth = qwtbdirpath() %<<<1
 % returns full path to the directory with qwtb script
+% it does not have to be identical to result of pwd()!
     % get full path to this (qwtb.m) script:
     pth = fileparts(mfilename('fullpath'));
-
 end % function qwtbdirpath
 
 function pth = algpath(algid) %<<<1
@@ -92,15 +112,77 @@ function pth = algpath(algid) %<<<1
     pth = [qwtbdirpath filesep() 'alg_' algid];
 end % function algpath
 
-function alginfo = get_all_alg_info() %<<<1
-% checks for directories with algorithms and returns info on all available
-% algorithms
+function paths = ensure_alg_path(algid, paths); %<<<1
+% XXX before every call of ensure should be check if it is valid alg directory!
+% ensure that path to algorithm algid is set properly.
+% function tries to be fast and do only minimum and fast changes to path
+    if ~is_any_algorithm_in_path
+        % there is no algorithm in the path, thus one needs only to add
+        % algorithm path:
+        pathtoadd = algpath(algid);
+        addpath(pathtoadd);
+        % only simple path was added, note it:
+        paths.changed = 1;
+        paths.added = pathtoadd;
+    else
+        % there is some algorithm in the path
+        if isempty(paths.orig)
+            paths.orig = path();
+        end
+        idx1 = strfind(paths.orig, 'alg_');
+        idx2 = strfind(paths.orig, ['alg_' algid]);
+        if length(idx1) == 1 && length(idx2) == 1
+            % there is only one alg_X directory in the path and it is 
+            % the algid, so probably(!) correct algorithm is in the path
+            % already, nothing has to be changed.
+            paths.changed = 0;
+        else
+            % path contains some other algorithm, path has to be purified of
+            % other algorithms and a correct one must be added.
+            paths = path_rem_all_algdirs(paths);
+            % check again for algs in path
+            if is_any_algorithm_in_path
+                % there is some algorithm in path but removing of suspected
+                % paths (directories) failed. Probably there is some alg_info or
+                % alg_wrapper in other directory than alg_X, so issue an error:
+                err_msg_gen(3);
+            end
+            % add path to the algid:
+            tmp = algpath(algid);
+            addpath(tmp);
+            paths.changed = 1;
+            paths.added = tmp;
+        end % length(idx1) == 1 || length(idx2) == 1
+    end % ~is_any_algorithm_in_path
+end % function ensure_alg_path
 
+function alg_in_path = is_any_algorithm_in_path()
+% returns true if any algorithm is in path
+    alg_in_path = exist('alg_wrapper', 'file') || exist('alg_info', 'file');
+end
+
+function clean_up_path(paths) %<<<1
+% revert changes in path to original state
+% function tries to be fast and do only the needed minimum changes to path
+    if paths.changed == 1
+        rmpath(paths.added)
+        if ~isempty(paths.removed)
+            addpath(paths.removed{:})
+        end
+    end % paths.changed
+end % function clean_up_path
+
+function [alginfo, paths] = get_all_alg_info(paths) %<<<1
+% Checks for directories with algorithms and returns info on all available
+% algorithms. Manages paths by itself, because clearly paths to all algs will be
+% added and removed.
+    % remove interfering paths:
+    paths = path_rem_all_algdirs(paths);
     % XXX in this function, if there is only one directory alg_X, dir cannot
     % find it and nothing is returned. if there are at least 2 directories,
     % output is correct. It seems to be problem of dir function in octave
     % get directory listings:
-    lis = dir([qwtbdirpath filesep() 'alg_*']);
+    lis = dir(algpath('*'));
     % get only directories:
     lis = lis([lis.isdir]);
     % prepare found algorithm counter:
@@ -108,11 +190,11 @@ function alginfo = get_all_alg_info() %<<<1
     % for all directories
     for i = 1:size(lis,1)
         % generate full path of current tested algorithm directory:
-        % maybe add algdir should be here !!! XXX
         algdir = [qwtbdirpath filesep() lis(i).name];
         if is_alg_dir(algdir)
             addpath(algdir);
             tmp = alg_info();
+            % Add fullpath of the algorithm into info structure: 
             tmp.fullpath = algdir;
             msg = check_alginfo(tmp);
             if isempty(msg)
@@ -122,7 +204,7 @@ function alginfo = get_all_alg_info() %<<<1
                 warning(['QWTB: algorithm info returned by alg_info.m in `' algdir '` has incorrect format and is excluded from results'])
                 disp(msg)
             end % if check_alginfo
-            % maybe path_rem_algdir should be here!!! XXX
+            % remove added path:
             rmpath(algdir);
         end % if is_alg_dir(algdir)
     end % for i = 1:size(lis,1)
@@ -134,21 +216,26 @@ function alginfo = get_all_alg_info() %<<<1
     end
 end % function get_all_alg_info
 
-function res = get_one_alg_info(algid) %<<<1
-% return info structure of one algorithm
-        path_add_algdir(algid);
-        tmp = alg_info();
-        tmp.fullpath = algpath(algid);
-        msg = check_alginfo(tmp);
-        if isempty(msg)
-            res = tmp;
-        else
-            warning(['QWTB: algorithm info returned by alg_info.m in `' algdir '` has incorrect format'])
-            disp(msg)
-        end % if check_alginfo
-        path_rem_algdir(algid);
+function [res, paths] = get_one_alg_info(algid, paths) %<<<1
+% Return info structure of one algorithm.
+    % check if it is valid algorithm:
+    if ~is_alg_dir(algpath(algid))
+        error(err_msg_gen(90, algid)); % alg not found
+    end
+    paths = ensure_alg_path(algid, paths);
+    tmp = alg_info();
+    % Add fullpath of the algorithm into info structure: 
+    tmp.fullpath = algpath(algid);
+    % checks if info is in proper format:
+    msg = check_alginfo(tmp);
+    if isempty(msg)
+        res = tmp;
+    else
+        % 2DO should be error or warning?
+        warning(['QWTB: algorithm info returned by alg_info.m in `' algpath(algid) '` has incorrect format'])
+        disp(msg)
+    end % if check_alginfo
 end % function get_one_alg_info
-
 
 function res = is_alg_dir(pth) %<<<1
 % checks if directory in pth is directory with algorithm, i.e. path exists
@@ -161,128 +248,162 @@ function res = is_alg_dir(pth) %<<<1
 
 end % function is_alg_dir
 
-function path_add_algdir(algid) %<<<1
-% checks and adds path of algorithm to load path
-    % check directory is algorithm directory:
-    if ~is_alg_dir(algpath(algid))
-            error(err_msg_gen(90, algid)) % algid not found!
+function paths = path_rem_all_algdirs(paths) %<<<1
+% Removes all alg directories from paths.
+% Because path to an algorithm can be absolute or relative
+% (like 'alg_SP-WFFT' or '/home/user/qwtb/qwtb/alg_SP-WFFT')
+% paths must be removed thoroughly.
+    % get all probable algorithm directories:
+        % Function dir() takes about 13 ms. One can use ls, it takes only 3-5
+        % ms, together with isdir, that takes just only 0.1 ms. But ls with
+        % wildcard character '*' behaves recursively and this is operating
+        % system specific so it is quite problematic.
+    lis = dir(algpath('*'));
+    % split full path to cells:
+    if isempty(paths.orig)
+        paths.orig = path();
     end
-    % add wrapper to a load path:
-    addpath(algpath(algid));
-end % path_add_algdir
-
-function path_rem_algdir(algid) %<<<1
-% removes path of algorithm from load path
-    % get full path to this (qwtb.m) script:
-    algdir = algpath(algid);
-    % pathsep is added because algdir could be only part of name of other
-    % algdir, and path returns path without pathsep at the end, thus if algdir
-    % would be last path, it would not be found
-    if ~isempty(strfind([path pathsep], [algdir pathsep]))
-        rmpath(algdir);
-    end
-end % path_rem_algdir
-
-function path_rem_all_algdirs() %<<<1
-% removes all alg directories from paths. if qwtb ends with error, it could left
-% some alg directory in the path
-
-    % get directory listings:
-    lis = dir([qwtbdirpath filesep() 'alg_*']);
-    % get only directories:
-    lis = lis([lis.isdir]);
-    % for all directories
+    pth = strsplit(paths.orig, pathsep);
+    indexes = [];
+    % for every probable alg. directory:
     for i = 1:size(lis,1)
-        % generate full path of current tested algorithm directory:
-        algdir = [qwtbdirpath filesep() lis(i).name];
-        if is_alg_dir(algdir)
-            % pathsep is added because algdir could be only part of name of other
-            % algdir, and path returns path without pathsep at the end, thus if algdir
-            % would be last path, it would not be found
-            if ~isempty(strfind([path pathsep], [algdir pathsep]))
-                rmpath(algdir)
+        % check if is really alg. directory:
+        if lis(i).isdir
+            if is_alg_dir(lis(i).name)
+                % if so, find it in full path:
+                idx = strfind(pth, lis(i).name);
+                % check which cells contains some positives
+                a = cellfun('isempty', idx);
+                % get indexes of cells:
+                indexes = [indexes find(not(a))];
             end
-        end % if is alg dir
-    end % for all dirs
+        end % lis(i).isdir
+    end % for size(lis,1)
+    indexes = unique(indexes);
+    % for all indexes remove path:
+    if ~isempty(indexes)
+        for i = indexes
+            rmpath(pth{i});
+            paths.removed{end+1} = pth{i};
+            paths.changed == 1;
+        end % for indexes
+    end % ~isempty(indexes)
 end % path_rem_all_algdirs
 
-
 % -------------------------------- algorithm related functions %<<<1
-function [dataout, datain, calcset] = check_and_run_alg(algid, datain, calcset) %<<<1
+function [dataout, datain, calcset, paths] = check_and_run_alg(algid, datain, calcset, paths) %<<<1
 % checks data, settings and calls wrapper
-
+    % check if it is valid algorithm:
+    if ~is_alg_dir(algpath(algid))
+        error(err_msg_gen(90, algid)); % alg not found
+    end
+    % preparation %<<<2
     dataout = [];
-    path_add_algdir(algid);
-    % get info structure:
-    alginfo = alg_info();
-    % XXX when algorithm run, it is checked that algorithm exists, however it is
-    % not checked that alginfo is correct. is it really needed here?
+    % XXX asi by tu melo byt i datain a calcset
+    % ensure algorithm path is loaded:
+    paths = ensure_alg_path(algid, paths);
 
-    % check calculation settings structure:
-    calcset = check_gen_calcset(calcset);
-    % check input data structure:
-    datain = check_gen_datain(alginfo, datain, calcset);
+    % check inputs %<<<2
+    if calcset.checkinputs || strcmpi(calcset.unc, 'mcm')
+        % (for the case of monte carlo: speed is not an issue and alginfo is needed)
 
-    % all ok, call wrapper:
-    % decide calculation mode:
-    if strcmpi(calcset.unc, 'none') % no uncertainty, just calculate value: %<<<2
-        if calcset.verbose
+        alginfo = alg_info();
+        % XXX when algorithm run, it is checked that algorithm exists, however it is
+        % not checked that alginfo is correct. is it really needed here?
+
+        % check calculation settings structure:
+        calcset = check_gen_calcset(calcset);
+        % check input data structure:
+        datain = check_gen_datain(alginfo, datain, calcset);
+        if ( strcmpi(calcset.unc, 'guf') && not(alginfo.providesGUF) )
+            % GUF required and cannot calculate GUF, raise error:
+            error(err_msg_gen(91, alginfo.id));
+        end
+    end
+
+    % do verbose %<<<2
+    if calcset.verbose
+        
+        if ~exist('alginfo','var')
+            alginfo = alg_info();
+        end
+        
+        if strcmpi(calcset.unc, 'none') % no uncertainty, just calculate value:
             disp('QWTB: no uncertainty calculation')
-        end
-        % calculate with specified algorithm:
-        dataout = alg_wrapper(datain, calcset);
-    elseif ( strcmpi(calcset.unc, 'guf') && not(alginfo.providesGUF) )
-        % GUF required and cannot calculate GUF, raise error:
-        error(err_msg_gen(91, alginfo.id));
-    elseif ( strcmpi(calcset.unc, 'guf') && alginfo.providesGUF ) || ( strcmpi(calcset.unc, 'mcm') && alginfo.providesMCM )
-        % uncertainty is calculated by algorithm or wrapper:
-        if calcset.verbose
-            disp('QWTB: uncertainty calculation by means of wrapper or algorithm')
-        end
-        dataout = alg_wrapper(datain, calcset);
-    elseif strcmpi(calcset.unc, 'mcm') % MCM is calculated by general method: %<<<2
-        if calcset.verbose 
-            disp('QWTB: general mcm uncertainty calculation')
-        end
+        elseif ( strcmpi(calcset.unc, 'guf') && alginfo.providesGUF ) || ( strcmpi(calcset.unc, 'mcm') && alginfo.providesMCM )
+            % uncertainty is calculated by algorithm or wrapper:
+                disp('QWTB: uncertainty calculation by means of wrapper or algorithm')
+        elseif strcmpi(calcset.unc, 'mcm') % MCM is calculated by general method:
+                disp('QWTB: general mcm uncertainty calculation')
+        else
+            % unknown settings of calcset.unc or algorithm. normally this shouldn't
+            % happen because calcset should be checked. however if user set
+            % calcset.checkinputs to 0 and set improper calcset.unc this will happen
+            error(err_msg_gen(-5, calcset.unc));
+        end % if calcset.unc
+    end
+
+    % call calculation %<<<2
+    if ( strcmpi(calcset.unc, 'mcm') && ~alginfo.providesMCM )
+        % MCM is calculated by general method:
         dataout = general_mcm(alginfo, datain, calcset);
     else
-        % unknown settings of calcset.unc or algorithm. this shouldn't happen because calcset should be checked.
-        error(err_msg_gen(-5, calcset.unc));
-    end % if calcset.unc
-    % remove algorithm path from path:
-    path_rem_algdir(algid);
+        % no general MCM, just call wrapper:
+        dataout = alg_wrapper(datain, calcset);
+    end
+
 end % function check_and_run_alg
 
-function run_alg_test(algid) %<<<1
-    path_add_algdir(algid);
+function paths = run_alg_test(algid, paths) %<<<1
+% Runs alg_test of algorithm algid.
+    % check if it is valid algorithm:
+    if ~is_alg_dir(algpath(algid))
+        error(err_msg_gen(90, algid)); % alg not found
+    end
+    paths = ensure_alg_path(algid, paths);
+    % check for alg_test.m function:
     if ~exist('alg_test.m','file')
         disp(['QWTB: self test of algorithm `' algid '` is not implemented']);
     else
-        calcset = get_standard_calcset();
+        % prepare standard calculation setting, no verbose:
+        calcset = check_gen_calcset();
         calcset.verbose = 0;
         calcset.mcm.verbose = 0;
+        % call the test:
         alg_test(calcset);
     end % if exist
-    path_rem_algdir(algid);
 end % run_alg_test
 
-function run_alg_example(algid) %<<<1
-    path_add_algdir(algid);
+function paths = run_alg_example(algid, paths) %<<<1
+% Runs alg_example of algorithm algid.
+    % check if it is valid algorithm:
+    if ~is_alg_dir(algpath(algid))
+        error(err_msg_gen(90, algid)); % alg not found
+    end
+    paths = ensure_alg_path(algid, paths);
     if ~exist('alg_example.m','file')
         disp(['QWTB: example of algorithm `' algid '` is not implemented']);
     else
-        calcset = get_standard_calcset();
+        % prepare standard calculation setting:
+        calcset = check_gen_calcset();
         % run example script in base workspace so user can operate with datain,
         % dataout and calcset:
+        % 2DO add frame around the following help so user clearly see it:
         disp(['For description of example, please take a look at script `alg_' algid filesep 'alg_example.m`.']);
         disp('Take a look at data input structure `DI`, output data structure `DO` and optionally at calculation settings structure `CS`.')
+        % call the example in the base context, thus user has
+        % access to the example variables after end of script:
         evalin('base', 'alg_example');
     end
-    path_rem_algdir(algid);
 end % run_alg_example function
 
 function [license]= show_license(algid) %<<<1
 % Display license of specified algorithm.
+% Does not alter paths.
+    % check if it is valid algorithm:
+    if ~is_alg_dir(algpath(algid))
+        error(err_msg_gen(90, algid)); % alg not found
+    end
     % construct path to the license file:
     licfilpath = [algpath(algid) filesep 'LICENSE.txt'];
     % test for license file:
@@ -435,27 +556,53 @@ function msg = check_alginfo(alginfo) %<<<1
 end % function check_alginfo
 
 % -------------------------------- structures related functions %<<<1
-function calcset = get_standard_calcset() %<<<1
-% creates a standard calculation settings
-    calcset.strict = 0;
-    calcset.verbose = 1;
-    calcset.unc = 'none';
-    calcset.loc = 0.6807;
-    calcset.cor.req = 0;
-    calcset.cor.gen = 1;
-    calcset.dof.req = 0;
-    calcset.dof.gen = 1;
-    calcset.mcm.repeats = 100;
-    calcset.mcm.verbose = 1;
-    calcset.mcm.method = 'singlecore';
-    calcset.mcm.procno = 0;
-    calcset.mcm.tmpdir = '.';
-    calcset.mcm.randomize = 1;
-end % function get_standard_calcset
+function calcset = ensure_minimal_calcset(calcset) %<<<1
+% ensure calcset contains at least the minimum set of fields, that are really
+% needed for functions even before calling check_gen_calcset.
+    if ~isfield(calcset, 'checkinputs')
+        % field "checkinputs" is needed because it must be queried 
+        % before check_gen_calcset
+        calcset.checkinputs = 1;
+    end
+end % function ensure_minimal_calcset
 
-function calcset = check_gen_calcset(calcset) %<<<1
-% Checks if calculation settings complies to the qwtb format. If .strict is set
-% to 0, missing fields are generated. Boolean values are reformatted to 0/1.
+function calcset = check_gen_calcset(varargin) %<<<1
+% Checks if calculation settings complies to the qwtb format.
+% If no input, standard calculation settings is generated.
+% If checkinputs is set to 0, function is skipped.
+% If .strict is set to 0, missing fields are generated.
+% Boolean values are reformatted to 0/1.
+
+    % This should be a standard values of calculation settings:
+    % calcset.strict = 0;
+    % calcset.verbose = 1;
+    % calcset.checkinputs = 1;
+    % calcset.unc = 'none';
+    % calcset.cor.req = 0;
+    % calcset.cor.gen = 1;
+    % calcset.dof.req = 0;
+    % calcset.dof.gen = 1;
+    % calcset.mcm.repeats = 100;
+    % calcset.mcm.verbose = 1;
+    % calcset.mcm.method = 'singlecore';
+    % calcset.mcm.procno = 0;
+    % calcset.mcm.tmpdir = '.';
+    % calcset.mcm.randomize = 1;
+
+    % check if there is some input:
+    if nargin == 0
+        calcset = struct();
+    else
+        calcset = varargin{1};
+    end
+
+    % check if check of inputs is disabled
+    if isfield(calcset, 'checkinputs')
+        if ~calcset.checkinputs
+            % checking of inputs is disabled, get out
+            return
+        end
+    end
 
     % strict %<<<2
     if ~( isfield(calcset, 'strict') )
@@ -473,6 +620,10 @@ function calcset = check_gen_calcset(calcset) %<<<1
         calcset.verbose = 1;
     else 
         calcset.verbose = 0;
+    end
+    % checkinputs %<<<2
+    if ~( isfield(calcset, 'checkinputs') )
+        calcset.checkinputs = 1;
     end
     % unc %<<<2
     if ~( isfield(calcset, 'unc') )
@@ -577,7 +728,7 @@ function calcset = check_gen_calcset(calcset) %<<<1
     end
     tmp = calcset.mcm.repeats;
     if ~(isscalarP(tmp) && tmp > 0 && abs(fix(tmp)) == tmp)
-        error(err_msg_gen(41)); % mcm.reapeats incorrect!
+        error(err_msg_gen(41)); % mcm.repeats incorrect!
     end
     % mcm.verbose %<<<2
     if ~( isfield(calcset.mcm, 'verbose') )
@@ -648,9 +799,16 @@ end % function check_gen_calcset
 function datain = check_gen_datain(alginfo, datain, calcset) %<<<1
 % Checks if input data has all quantities required by algorithm.
 % Checks if input data complies to the qwtb data format.
-% Raises error in the case of missing quantities or fields. Fields Q.d and Q.c
-% are generated if permitted and required.
+% Raises error in the case of missing quantities or fields. 
+% Fields Q.d and Q.c are generated if permitted and required.
+% If calcset.checkinputs is set to 0, function is skipped.
 
+    % check if check of inputs is disabled
+    if ~calcset.checkinputs
+        % checking of inputs is disabled, get out
+        return
+    end
+    
     % search for missing quantities in input data structure: %<<<2
     % parse requirements of the algorithm:
     [reqQ, reqQdesc, optQ, optQdesc, reqQG, reqQGdesc, optQG, optQGdesc, parQ, Qlist] = parse_alginfo_inputs(alginfo);
@@ -667,6 +825,10 @@ function datain = check_gen_datain(alginfo, datain, calcset) %<<<1
         Qname = Qinnames{i};
         Q = datain.(Qname);
 
+        % check if quantity is structure:
+        if ~isstruct(Q)
+                error(err_msg_gen(70, Qname)); % .v is missing!
+        end
         % find if quantity is parameter. add field 'par' to the quantity. it is
         % usefull in other functions (and must be removed before handing it back
         % to user):
@@ -730,17 +892,13 @@ function datain = check_gen_datain(alginfo, datain, calcset) %<<<1
             % Q.r: %<<<4
             Genr = 0;
             if ~( isfield(Q, 'r') )
-                % ### changed: when MCM is calculated by algorithm, there is no need to randomize inputs!
-                %              in fact it may be quite annoying
-                if strcmpi(calcset.unc, 'mcm') && ~alginfo.providesMCM
+                if strcmpi(calcset.unc, 'mcm') && ~alginfo.providesMCM % ### do not check if MCM is provided by user
                     if ~( calcset.mcm.randomize )
                         error(err_msg_gen(64, Qname)); % .r is missing!
                     else
                         % randomize quantity:
                         Genr = 2;
                     end % if randomize
-                elseif strcmpi(calcset.unc, 'mcm') && alginfo.providesMCM && ~calcset.mcm.randomize
-                    Genr = 1;
                 else
                     Genr = 1;
                 end % if mcm
@@ -875,8 +1033,7 @@ function datain = check_gen_datain(alginfo, datain, calcset) %<<<1
                 end % if cor.req
             end % if guf or mcm
             % Q.r: %<<<4
-            if strcmpi(calcset.unc, 'mcm') && ~alginfo.providesMCM
-                % ###note: disabled completely is MCM is done by alg. itself, but at least part of the checking should be there!
+            if strcmpi(calcset.unc, 'mcm') && ~alginfo.providesMCM % ### do not check if MCM is provided by user
                 % dimensions are same as Q.v but one dimension is equal calcset.mcm.repeats
                 ok = 1;
                 %%% if 
@@ -1372,11 +1529,13 @@ function msg = err_msg_gen(varargin) %<<<1
                 msg = ['Value of quantity `' varargin{2} '` has too many dimensions.'];
             case -7 % one input - calcset.unc.method
                 msg = ['Unknown settings of .mcm.method of calculation settings: `' varargin{2} '`.'];
-            % ------------------- base input errors 1-29: %<<<2
+            % ------------------- basic errors 1-29: %<<<2
             case 1
                 msg = 'Incorrect number of input arguments. Please read QWTB documentation.';
             case 2
                 msg = 'Second argument must be either structure with input data or `test`, `example`, `info`, `license`, `addpath`, `rempath`. Please read QWTB documentation.';
+            case 3
+                msg = 'There is some `alg_info` or `alg_wrapper` in load path and attempt to remove suspected directories from path failed. Check there is not any `alg_wrapper` or `alg_info` in the same directory as `qwtb.m` or in standard Matlab/GNU Octave load paths.';
             % ------------------- calculation settings errors 30-59: %<<<2
             case 30
                 msg = 'Field `verbose` is missing in calculation settings structure. Please read QWTB documentation.';
@@ -1440,7 +1599,9 @@ function msg = err_msg_gen(varargin) %<<<1
             case 68 % one input - Qname
                 msg = ['Correlation matrix of quantity `' varargin{2} '` has incorrect dimensions. Please read QWTB documentation.'];
             case 69 % two inputs - Qname, calcset.mcm.repeats
-                msg = ['Randomized values matrix of quantity `' varargin{2} '` has incorrect dimensions (calcset.mcm.reapeats = ' num2str(varargin{3}) '). Please read QWTB documentation.'];
+                msg = ['Randomized values matrix of quantity `' varargin{2} '` has incorrect dimensions (calcset.mcm.repeats = ' num2str(varargin{3}) '). Please read QWTB documentation.'];
+            case 70 % input quantity is not a structure (typically DI.x=5 instead of DI.x.v=5)
+                msg = ['Input quantity `' varargin{2} '` is not a structure. Maybe you set `datain.' varargin{2} '=something` instead of `datain.' varargin{2} '.v=something`?'];
             % ------------------- algorithm errors 90-119: %<<<2
             case 90 % one input - algid
                 msg = ['Algorithm `' varargin{2} '` not found. Please check available algorithms.'];

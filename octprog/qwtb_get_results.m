@@ -31,6 +31,7 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
 %                           1 - 0 - 2*pi [rad]
 %                           2 - +-180 [deg]
 %                           3 - 0-360 [deg]
+%           cfg.phi_ref_chn - reference channel ID for phase difference calculation
 %
 %     var_list - cell array with names of the variables to load.
 %                If empty, loads all variables.

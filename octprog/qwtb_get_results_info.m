@@ -16,6 +16,7 @@ function [res_files, res_exist, alg_list, chn_list, var_names] = qwtb_get_result
   res_exist = 0;
   alg_list = '';
   chn_list = '';
+  var_names = '';
   
   % path of the results header
   res_header = [meas_root filesep() 'results.info'];  

@@ -10,6 +10,8 @@ function alg_test(calcset) %<<<1
     calcset.unc = 'guf';
     % level of confidence (default 0.68 i.e. k=1):
     calcset.loc = 0.95;
+    % no QWTB input checking:
+    calcset.checkinputs = 0;
     
     
     % samples count to synthesize:

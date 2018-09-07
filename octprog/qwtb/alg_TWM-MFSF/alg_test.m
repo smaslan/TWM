@@ -21,6 +21,8 @@ function alg_test(calcset) %<<<1
     calcset.mcm.procno = 0; % no. of parallel processes (0 to not start slaves)
     %calcset.mcm.user_fun = @coklbind; % user function after servers startup (for CMI's supercomputer)
     %calcset.mcm.tmpdir = 'c:\work\_mc_jobs_'; % jobs sharing folder for 'multistation' mode
+    % no QWTB input checking:
+    calcset.checkinputs = 0;
     
     
     % samples count to synthesize:

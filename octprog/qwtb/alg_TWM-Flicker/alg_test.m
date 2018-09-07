@@ -7,6 +7,7 @@ function alg_test(calcset) %<<<1
     calcset.verbose = 1;
     calcset.unc = 'guf';
     calcset.loc = 0.95;
+    calcset.checkinputs = 0;
         
     %% Generate sample data
     % A time series representing voltage measured on a power supply line will be generated. Modulation

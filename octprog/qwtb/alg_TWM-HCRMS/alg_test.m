@@ -9,6 +9,8 @@ function alg_test(calcset) %<<<1
     calcset.unc = 'guf';
     calcset.loc = 0.95;
     calcset.dbg_plots = 0;
+    % no QWTB input checking:
+    calcset.checkinputs = 0;
     
     
     % total simulation time [s]:

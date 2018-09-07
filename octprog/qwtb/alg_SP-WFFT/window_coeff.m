@@ -133,6 +133,12 @@ avail_windows = {...
         % Citation: G. Heinzel, ‘Spectrum and spectral density estimation by the Discrete Fourier transform (DFT), including a comprehensive list of window functions and some new flat-top windows’, IEEE, 2003.
         % Implementation: Věra Nováková Zachovalová, <msira@cmi.cz>
         % License: MIT License.
+        'flattop_144D',...
+        % Flat top window.
+        % No additional arguments.
+        % Citation: G. Heinzel, ‘Spectrum and spectral density estimation by the Discrete Fourier transform (DFT), including a comprehensive list of window functions and some new flat-top windows’, IEEE, 2003.
+        % Implementation: Věra Nováková Zachovalová, <msira@cmi.cz>
+        % License: MIT License.
         'gaussian',...
         % Gaussian convolution window.
         % Additional arguments: 1: The width of the window is inversely proportional to the parameter `a`. Width a is measured in frequency units (sample rate/num samples). It should be f when multiplying in the time domain, but 1/f when multiplying in the frequency domain (for use in convolutions).
@@ -258,6 +264,8 @@ else
                         w = flattop(L, 8);
                 case 'flattop_116D'
                         w = flattop(L, 9);
+                case 'flattop_144D'
+                        w = flattop(L, 10);
                 % windows with additional arguments:
                 case 'cheb'
                         if isempty(thirdarg)

@@ -14,7 +14,7 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
     f(:,1) = p.f0*(1:p.H);
     
     % limit harmonics by frequency range 
-    h_num = find(f < p.fs*0.4,1,'last');
+    h_num = find(f < p.fs*0.41,1,'last');
     
     % samples count
     N = p.sample_count;
@@ -127,7 +127,7 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
         
         if p.randomize
             % randomize transducer SFDR:
-            tr_sfdr = (0.5*tr_sfdr/3^0.5).*randn(1);
+            tr_sfdr = tr_sfdr.*rand;
         else
             % discard SFDR if mc randomization not allowed 
             tr_sfdr = 0;
@@ -163,14 +163,14 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
         
         if p.randomize
             % randomize digitizer SFDR:
-            adc_sfdr = (0.5*adc_sfdr/3^0.5).*randn(1);
+            adc_sfdr = adc_sfdr.*rand;
         else
             % discard SFDR if mc randomization not allowed 
             adc_sfdr = 0;
         end
 
         % apply digitizer gain and SFDR (crippled for MATLAB < 2016b):
-        h_amps = bsxfun(@rdivide,h_amps,(adc_gain.gain + adc_gain.u_gain*randn(1)));
+        h_amps = bsxfun(@rdivide,h_amps,(adc_gain.gain + adc_gain.u_gain*randn));
         h_amps = bsxfun(@plus,h_amps,h_amps(1,:).*adc_sfdr);
         
         
@@ -247,3 +247,4 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
         
 
 end
+

@@ -17,18 +17,12 @@
 %%                          0: only scalars
 %%                          1: scalars, vectors
 %%                          2: scalars, vectors, matrices
-%%           cfg.unc_mode - uncertainty display mode:
-%%                           0: display none
-%%                           1: value ± uncertainty
-%%                           2: alternate rows: 1. row values, 2. row uncertainty
-%%           cfg.group_mode - ordering of the variables and phases/channels:
-%%                             0 - group all phases for each variable together
-%%                             1 - group all variables for each phase together
 %%           cfg.phi_mode - display mode of the phase:
 %%                           0 - +-pi [rad]
 %%                           1 - 0 - 2*pi [rad]
 %%                           2 - +-180 [deg]
 %%                           3 - 0-360 [deg]
+%%           cfg.phi_ref_chn - reference channel ID for phase difference calculation
 %%
 %%     plot_cfg - structure of plot setup:
 %%                plot_cfg.xlog - is x logarithmic?                             
@@ -48,14 +42,6 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
   if ~isfield(cfg,'max_dim')
     % maximum dimension of the variables to display 
     cfg.max_dim = 1;  
-  end
-  if ~isfield(cfg,'group_mode')
-    % group mode of the quantities (0: group phases, 1: group quantities)
-    cfg.group_mode = 0;
-  end
-  if ~isfield(cfg,'unc_mode')
-    % uncertainty mode (0: none, 1: plusminus, 2: alternate (qunat1, unc1, qunat2, unc2))
-    cfg.unc_mode = 0;
   end
   %if ~isfield(cfg,'max_array')
     % maximum array size for displaying

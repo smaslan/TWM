@@ -1,4 +1,4 @@
-function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_lim);
+function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_lim)
 % TracePQM: Loads record(s) from given path to memory.
 %
 % Usage:
@@ -19,7 +19,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
 %                 - note this parameter may be zero, then the loader
 %                   will load all repetitions in the group and merge them in
 %                   the single 2D matrix of channel waveforms
-%                 - value -1 means to load last group
+%                 - value -1 means to load last record from group
 %   data_ofs - optional, non-zero value means to load sample data from offset
 %              'data_ofs' samples. Default is 0 (start from first sample).
 %   data_lim - optional, non-zero value to limit maximum loaded samples count
@@ -40,8 +40,8 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
 %               - note for multiple repet. they are merged as data.y
 %     Ts - sampling period [s]
 %     corr - structure of correction data containing:
-%       phase_indexes - phase ID of each digitizer channel
-%                     - used to assign U and I channels to phases
+%       phase_idx - phase ID of each digitizer channel
+%                 - used to assign U and I channels to phases
 %       tran - cell array of transducers containing struct with:
 %         type - string defining transducer type 'shunt', 'divider' 
 %         name - string with transducer's name

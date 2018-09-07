@@ -7,6 +7,8 @@ function alg_test(calcset) %<<<1
     calcset.verbose = 1;
     calcset.unc = 'guf';
     calcset.loc = 0.95;
+    % no QWTB input checking:
+    calcset.checkinputs = 0;
     
     % samples to synthesize:
     %N = 30000;
