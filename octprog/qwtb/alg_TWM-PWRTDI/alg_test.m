@@ -15,7 +15,7 @@ function alg_test(calcset) %<<<1
     %  note: if the value is 1 and all quantities passed, the test is done successfully
     val.fast_mode = 0;
     % maximum number of test repetitions per test setups:
-    val.max_count = 100;
+    val.max_count = 300;
     % resutls path:
     val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_mcm.mat']; 
     
@@ -48,7 +48,7 @@ function alg_test(calcset) %<<<1
         % lest master work as well, it won't do any harm:
         mc_setup.master_is_worker = (mc_setup.cores <= 4);
         % multicore jobs directory:
-        mc_setup.share_fld = 'c:\work\_mc_jobs_'; 
+        mc_setup.share_fld = 'f:\work\_mc_jobs_'; 
     else
         % Unix: possibly supercomputer - assume large CPU:
         % set large number of job files, coz Linux or supercomputer should be able to handle it well:    
@@ -100,7 +100,7 @@ function alg_test(calcset) %<<<1
         
         % randomize corrections uncertainty:
         %com.rand_unc = [0 1];
-        com.rand_unc = [0];
+        com.rand_unc = [1];
         % differential sensors:
         %com.is_diff = [0 1];
         com.is_diff = [0];
@@ -307,7 +307,7 @@ function alg_test(calcset) %<<<1
                 din.u_tr_Zlo_Cp.u = [0e-12];
                 % create some corretion table for the digitizer gain/phase: 
                 [din.u_adc_gain_f,din.u_adc_gain,din.u_adc_phi] ...
-                  = gen_adc_tfer(din.fs.v/2+1,50, 1.05,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
+                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
                                  linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
                 din.u_adc_phi_f = din.u_adc_gain_f;         
                 din.u_adc_gain_a.v = [];
@@ -318,7 +318,7 @@ function alg_test(calcset) %<<<1
                 din.u_adc_sfdr.v = -log10(chns{1}.sfdr)*20;
                 % create identical low-side channel:
                 [din.u_lo_adc_gain_f,din.u_lo_adc_gain,din.u_lo_adc_phi] ...
-                  = gen_adc_tfer(din.fs.v/2+1,50, 1.05,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
+                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
                                  linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
                 din.u_lo_adc_phi_f = din.u_lo_adc_gain_f;         
                 din.u_lo_adc_gain_a.v = [];
@@ -356,7 +356,7 @@ function alg_test(calcset) %<<<1
                 % -- current channel:
                 % create some corretion table for the digitizer gain/phase tfer: 
                 [din.i_adc_gain_f,din.i_adc_gain,din.i_adc_phi] ...
-                  = gen_adc_tfer(din.fs.v/2+1,50, 0.95,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
+                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
                                  linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
                 din.i_adc_phi_f = din.i_adc_gain_f;         
                 din.i_adc_gain_a.v = [];
@@ -367,7 +367,7 @@ function alg_test(calcset) %<<<1
                 din.i_adc_sfdr.v = -log10(chns{2}.sfdr)*20;
                 % create some corretion table for the digitizer phase: 
                 [din.i_lo_adc_gain_f,din.i_lo_adc_gain,din.i_lo_adc_phi] ...
-                  = gen_adc_tfer(din.fs.v/2+1,50, 1.05,0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
+                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
                                  linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
                 din.i_lo_adc_phi_f = din.i_lo_adc_gain_f;         
                 din.i_lo_adc_gain_a.v = [];
@@ -433,7 +433,7 @@ function alg_test(calcset) %<<<1
     
     end
         
-    if is_full_val
+    if is_full_val > 0
         % --- FULL VALIDATION MODE ---
         
         fprintf('Processing test setups...\n');
@@ -451,6 +451,18 @@ function alg_test(calcset) %<<<1
         
     else
         % --- SINGLE VALIDATION MODE ---
+        
+        if is_full_val < 0
+            % load setup from previous validation report:
+            
+            res = load(val_path,'res');
+            par = res.res{-is_full_val}.par;
+            din = par.din;
+            cfg = par.cfg;
+            calcset = par.calcset;
+            rand_unc = par.rand_unc;
+          
+        end
     
         % --- generate the signal:        
         [datain,simout] = gen_pwr(din, cfg, rand_unc); % generate
@@ -458,7 +470,7 @@ function alg_test(calcset) %<<<1
         % add fake uncertainties to allow uncertainty calculation:
         %  ###todo: to be removed when QWTB supports no uncertainty checking 
         %alginf = qwtb('TWM-PWRTDI','info');
-        qwtb('TWM-PWRTDI','addpath');    
+        %qwtb('TWM-PWRTDI','addpath');    
         %datain = qwtb_add_unc(datain,alginf.inputs);
     
         % --- execute the algorithm:    

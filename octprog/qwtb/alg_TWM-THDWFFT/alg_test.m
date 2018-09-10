@@ -8,13 +8,13 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = 0;
+    is_full_val = 200;
     
     % minimum number of repetitions per test setup:
     %  note: if the value is 1 and all quantities passed, the test is done successfully
     val.fast_mode = 0;
     % maximum number of test repetitions per test setups:
-    val.max_count = 100;
+    val.max_count = 200;
     % resutls path:
     val_path = [fileparts(mfilename('fullpath')) filesep 'thdwfft_val_v1.mat'];
     
@@ -47,7 +47,7 @@ function alg_test(calcset) %<<<1
         % lest master work as well, it won't do any harm:
         mc_setup.master_is_worker = (mc_setup.cores <= 4);
         % multicore jobs directory:
-        mc_setup.share_fld = 'c:\work\_mc_jobs_'; 
+        mc_setup.share_fld = 'f:\work\_mc_jobs_'; 
     else
         % Unix: possibly supercomputer - assume large CPU:
         % set large number of job files, coz Linux or supercomputer should be able to handle it well:    
@@ -83,9 +83,11 @@ function alg_test(calcset) %<<<1
     
         % -- test setup combinations:        
         % randomize corrections uncertainty:
-        com.rand_unc = [0 1];
+        %com.rand_unc = [0 1];
+        com.rand_unc = [1];
         % randomize corrections uncertainty:
-        com.scallop_fix = [0 1];
+        %com.scallop_fix = [0 1];
+        com.scallop_fix = [0];
             
         % generate all test setup combinations:
         [vr,com] = var_init(com);

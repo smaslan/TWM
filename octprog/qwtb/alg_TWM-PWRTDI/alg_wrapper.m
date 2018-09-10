@@ -532,12 +532,13 @@ function dataout = alg_wrapper(datain, calcset)
     Ix = Ih(h_list);
     Sx = (0.5*Ux.*Ix);
     phx = ph(h_list);
-    u_Ux = u_Uh(h_list);
-    u_Ix = u_Ih(h_list);
-    u_phx = u_ph(h_list);
-    Ux_lsb = vcl{1}.lsb(h_list);
-    Ix_lsb = vcl{2}.lsb(h_list);
-    
+    u_Ux = top_bin_unc(u_Uh,h_list);
+    u_Ix = top_bin_unc(u_Ih,h_list);
+    u_phx = top_bin_unc(u_ph,h_list);
+    Ux_lsb = top_bin_unc(vcl{1}.lsb,h_list);
+    Ix_lsb = top_bin_unc(vcl{2}.lsb,h_list);
+
+   
     
     if isfield(calcset,'dbg_plots') && calcset.dbg_plots
         figure;
@@ -822,8 +823,8 @@ function dataout = alg_wrapper(datain, calcset)
         % estimate corrections related uncertainty from relevant harmonics (worst case estimates):
         %u_U = sum(0.5*u_Ux.^2).^0.5;
         %u_I = sum(0.5*u_Ix.^2).^0.5;
-        u_U = (sum(0.5*(Ux + u_Ux).^2)^0.5 - sum(0.5*Ux.^2)^0.5);
-        u_I = (sum(0.5*(Ix + u_Ix).^2)^0.5 - sum(0.5*Ix.^2)^0.5);
+        u_U = (sum(0.5*(Ux + u_Ux).^2)^0.5 - sum(0.5*Ux.^2)^0.5)*1.2;
+        u_I = (sum(0.5*(Ix + u_Ix).^2)^0.5 - sum(0.5*Ix.^2)^0.5)*1.2;
         
         % run small MC for the power cos it's non-linear and the GUF does not work very nice in here:
         %   note: it was crippled for Matlab < 2016b, do not remove bsxfun()!
@@ -841,11 +842,8 @@ function dataout = alg_wrapper(datain, calcset)
         v_Ix  = bsxfun(@plus,Ix,bsxfun(@times,u_Ix*k_in,2*rand(H,mmc)-1)); % randomize Ix: v_Ix = Ix + u_Ix.*randn(H,mcc)
         v_phx = bsxfun(@plus,phx,bsxfun(@times,u_phx*k_in,2*rand(H,mmc)-1)); % randomize phx: v_phx = phx + u_phx.*randn(H,mcc)
         v_P   = 0.5*sum(v_Ux.*v_Ix.*cos(v_phx),1);
-        %u_P   = sum((0.5*((Ix.*cos(phx).*u_Ux).^2 + (Ux.*cos(phx).*u_Ix).^2 + (Ux.*Ix.*sin(phx).*u_phx).^2).^0.5).^2).^0.5; % GUF method
-        %u_P   = std(v_P,[],2)
-        %u_P   = est_scovint(v_P,P)*0.5*1.00
-        u_P = max(abs(v_P - P))/k_in*1.05; % ###note: schmutzig safety coeficient 1.05 empiricaly found so the estimator fail rate reduces < 1% in selftest
-        
+        u_P   = max(abs(v_P - P))/k_in*1.3; % ###note: schmutzig safety coeficient 1.2 empiricaly found so the estimator fail rate reduces < 1% in selftest
+        %hist(v_P,50)
                   
         
         % addup uncertainties from the algorithm itself (worst case estimates):
@@ -1099,7 +1097,13 @@ function [tout] = conv_vchn_tabs(tin,pfx,list)
     
 end
 
-
+function [unc] = top_bin_unc(unc,bin)
+    % 'unc' is uncertainty of DFT bins, 'bin' are indices of the bins
+    % the function will get max(unc(bin),unc(bin+1),unc(bin-1)) for
+    % each 'bin'. 'unc' must be column vector. 
+    N = numel(unc);
+    unc = max([unc(bin),unc(min(bin+1,N)),unc(max(bin-1,1))],[],2);
+end
 
 
 

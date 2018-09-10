@@ -41,7 +41,36 @@ function [] = valid_report(res,vr)
         head_fmt = sprintf('%%-%ds',head_len);
                 
         % %-of-unc value [%]:          
-        punc = mean(rv.pass,1)*100;        
+        punc = mean(rv.pass,1)*100;
+        
+%         Q = numel(rc{1}.name_list);
+%         for k = 1:numel(rc)
+%             for q = 1:Q
+%                 [t,neg,pos] = scovint(rc{k}.punc(:,q),0.95);
+%                 pass(k,q) = (neg >= -1) && (pos <= 1);
+%             end            
+%         end
+%         punc = mean(pass,1)*100;        
+    
+%         Q = numel(rc{1}.name_list);
+%         for k = 1:numel(rc)
+%             pp(k,:) = mean(rc{k}.punc,1);                        
+%         end
+%         plot(pp(:,1:4))
+%         [v,id]=max(pp(:,4))
+
+        %find(~rv.pass(:,4))
+        
+        figure;
+        hist([[[rc{:}].punc](:,4:10:end)](:),50,1);
+        xlabel('%-of-uncertainty');
+        ylabel('probability [-]');
+        
+        
+        
+        
+
+        
         
         % print results:
         qu_names = sprintf('%-6s ',rc{1}.name_list{:});
