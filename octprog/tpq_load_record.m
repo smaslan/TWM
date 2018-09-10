@@ -277,7 +277,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     % --- Transducer Corrections ---
     
-    disp('loading transducers')
+    %disp('loading transducers')
     
     % get transducer paths
     transducer_paths = infogettextmatrix(cinf, 'transducer paths');
@@ -349,7 +349,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
   
     % --- Digitizer Corrections ---
         
-    disp('loading digitizer')
+    %disp('loading digitizer')
     
     % get digitizer corrections path:
     digitizer_path = infogettext(cinf, 'digitizer corrections path');

@@ -20,6 +20,8 @@
 				<Item Name="ADC Get Current Setup.vi" Type="VI" URL="../adc/Utilities/ADC Get Current Setup.vi"/>
 				<Item Name="ADC Selfcal Virtual Channels.vi" Type="VI" URL="../adc/Utilities/ADC Selfcal Virtual Channels.vi"/>
 				<Item Name="ADC Get Capabilities.vi" Type="VI" URL="../adc/Utilities/ADC Get Capabilities.vi"/>
+				<Item Name="ADC Reset Idle Timer.vi" Type="VI" URL="../adc/ADC Reset Idle Timer.vi"/>
+				<Item Name="ADC Update and Check Idle Timer.vi" Type="VI" URL="../adc/ADC Update and Check Idle Timer.vi"/>
 			</Item>
 			<Item Name="ADC Session.ctl" Type="VI" URL="../adc/ADC Session.ctl"/>
 			<Item Name="ADC Type.ctl" Type="VI" URL="../adc/ADC Type.ctl"/>
@@ -34,6 +36,7 @@
 			<Item Name="ADC Attribute.ctl" Type="VI" URL="../adc/ADC Attribute.ctl"/>
 			<Item Name="ADC Current Configuration.ctl" Type="VI" URL="../adc/ADC Current Configuration.ctl"/>
 			<Item Name="ADC Sampling Rate Step Mode.ctl" Type="VI" URL="../adc/ADC Sampling Rate Step Mode.ctl"/>
+			<Item Name="ADC On Close Action.ctl" Type="VI" URL="../adc/ADC On Close Action.ctl"/>
 			<Item Name="ADC Initialize Drivers.vi" Type="VI" URL="../adc/ADC Initialize Drivers.vi"/>
 			<Item Name="ADC Enumerate Devices.vi" Type="VI" URL="../adc/ADC Enumerate Devices.vi"/>
 			<Item Name="ADC Config Panel.vi" Type="VI" URL="../adc/ADC Config Panel.vi"/>
@@ -477,6 +480,7 @@
 						<Item Name="Meas Proc QWTB Set Params Table.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Set Params Table.vi"/>
 						<Item Name="Meas Proc QWTB Set Result Table Sizes.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Set Result Table Sizes.vi"/>
 						<Item Name="Meas Proc QWTB Fix Result Table Selection.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Fix Result Table Selection.vi"/>
+						<Item Name="Meas Proc QWTB Multicore Panel.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Multicore Panel.vi"/>
 					</Item>
 					<Item Name="Batch" Type="Folder">
 						<Item Name="Meas Batch Proc QWTB Panel.vi" Type="VI" URL="../measure/processing/QWTB/Batch/Meas Batch Proc QWTB Panel.vi"/>
@@ -494,6 +498,8 @@
 					<Item Name="Meas Proc QWTB View Phase Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB View Phase Mode.ctl"/>
 					<Item Name="Meas Proc QWTB Algorithm Flags.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Algorithm Flags.ctl"/>
 					<Item Name="Meas Proc QWTB Uncertainty Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Uncertainty Mode.ctl"/>
+					<Item Name="Meas Proc QWTB Multicore Type.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Multicore Type.ctl"/>
+					<Item Name="Meas Proc QWTB Multicore Setup.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Multicore Setup.ctl"/>
 					<Item Name="Meas Proc QWTB Get Results.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Get Results.vi"/>
 					<Item Name="Meas Proc QWTB Initialize Result Queue.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Initialize Result Queue.vi"/>
 					<Item Name="Meas Proc QWTB Close Result Queue.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Close Result Queue.vi"/>
@@ -506,6 +512,7 @@
 					<Item Name="Meas Proc QWTB Load Algorithm.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Load Algorithm.vi"/>
 					<Item Name="Meas Proc QWTB Generate Algorithm Info Section.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Generate Algorithm Info Section.vi"/>
 					<Item Name="Meas Proc QWTB Write Algorithm Processing Header.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Write Algorithm Processing Header.vi"/>
+					<Item Name="Meas Proc QWTB Multicore Start Servers.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Multicore Start Servers.vi"/>
 				</Item>
 				<Item Name="Meas Process Config.ctl" Type="VI" URL="../measure/processing/Meas Process Config.ctl"/>
 				<Item Name="Meas Process Mode.ctl" Type="VI" URL="../measure/processing/Meas Process Mode.ctl"/>

@@ -1,11 +1,22 @@
-function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, group_id)
+function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, group_id, verbose)
 % TWM: Executes QWTB algorithm based on the setup from meas. session
+%
+%  Usage:
+%   qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg)
+%   qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id)
+%   qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, group_id)
+%   qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, group_id, verbose) 
+%
 %  inputs:
 %   meas_file - full path of the measurement header
 %   calc_unc - uncertainty calculation mode override (use '' to default from QWTB session file)
 %   is_last_avg - 1 if last averaging cycle was measured, 0 otherwise
 %   avg_id - id of the repetition cycle to process (optional)
 %          - use 0 or leave empty to use last available 
+%   group_id - id of the measurement group (optional)
+%            - use -1 or leave empty to use last available
+%   verbose - verbose level of the executer (optional)
+%           - use 0 to disable any reports from QWTB and loader.
 %
 % This is part of the TWM - TracePQM WattMeter.
 % (c) 2018, Stanislav Maslan, smaslan@cmi.cz
@@ -22,10 +33,20 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     % load QWTB processing setup file
     qwtb_file = [meas_root 'qwtb'];
     
+    % default group id
+    if ~exist('group_id','var')
+        group_id = -1;
+    end
+    
     % default repetition cycle id
     if ~exist('avg_id','var')
         avg_id = -1;
     end
+    
+    % default verbose:
+    if ~exist('verbose','var')
+        verbose = 1;
+    end 
     
     % try to load QWTB processing info
     try
@@ -86,7 +107,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     
     % some fixed options:
     calcset.checkinputs = 1;
-    calcset.verbose = 1;
+    calcset.verbose = verbose;
     
     % get data segmentaion options:
     %  note: this allows to select range of sample data to process    
@@ -199,7 +220,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     end
     
     % load last measurement group
-    data = tpq_load_record(meas_file,-1,avg_id,sdata_ofs,sdata_lim);
+    data = tpq_load_record(meas_file,group_id,avg_id,sdata_ofs,sdata_lim);
     
     % get unique phase indexes from the channels list
     phases = unique(data.corr.phase_idx);
@@ -459,15 +480,16 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
                 % ###note: summing high+low side unc. which is maybe not correct?
             end
           
+            
             % for each digitizer channel assigned to the transducer:
             for c = 1:numel(tran.channels)
             
                 % waveform data quantity name:
                 pfx = dig_pfx{c};
                 d_pfx = 'y';
-                if ~isempty(pfx)
-                    pfx = [pfx '_'];
-                    d_pfx = [d_pfx '_' pfx];                
+                if ~isempty(pfx)                    
+                    d_pfx = [d_pfx '_' pfx];
+                    pfx = [pfx '_'];                
                 end
                 
                 % store range value:
