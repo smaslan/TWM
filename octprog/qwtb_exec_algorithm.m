@@ -1,4 +1,4 @@
-function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, group_id, verbose)
+function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, group_id, verbose, cfg)
 % TWM: Executes QWTB algorithm based on the setup from meas. session
 %
 %  Usage:
@@ -17,6 +17,10 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
 %            - use -1 or leave empty to use last available
 %   verbose - verbose level of the executer (optional)
 %           - use 0 to disable any reports from QWTB and loader.
+%   cfg - processing configuration structure (optional)
+%         cfg.mc_method - Monte Carlo execution mode {'singlecore', 'multicore', 'multistation'}
+%         cfg.mc_procno - number of parallel instances to run ('multicore' or 'multistation')
+%         cfg.mc_tmpdir - 'multistation' mode jobs sharing folder
 %
 % This is part of the TWM - TracePQM WattMeter.
 % (c) 2018, Stanislav Maslan, smaslan@cmi.cz
@@ -73,21 +77,40 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     unc_mode = infogettext(qinf,'uncertainty mode');
     
     % try to load MC cycles count:
-    if strcmpi(unc_mode,'mcm')
-        try
-            calcset.mcm.repeats = infogetnumber(qinf, 'monte carlo cycles');
-        catch
-            calcset.mcm.repeats = 100;
-        end
+    try
+        calcset.mcm.repeats = infogetnumber(qinf, 'monte carlo cycles');
+    catch
+        calcset.mcm.repeats = 100;
     end
+    
+    % ensure default processing configuration:
+    if ~exist('cfg','var')
+        cfg = struct();
+    end
+    if ~isfield(cfg,'mc_method')
+        cfg.mc_method = 'singlecore';
+    end
+    if ~isfield(cfg,'mc_procno')
+        cfg.mc_procno = 1;
+    end
+    if ~isfield(cfg,'mc_tmpdir')
+        cfg.mc_tmpdir = '';
+    end
+    
+    % assign processing setup to QWTB calcset:
+    calcset.mcm.method = cfg.mc_method;
+    calcset.mcm.procno = cfg.mc_procno;
+    if ~isempty(cfg.mc_tmpdir)
+        calcset.mcm.tmpdir = cfg.mc_tmpdir;
+    end
+    calcset    
     
     % try to load unc. coverage interval:
     try
         calcset.loc = infogetnumber(qinf, 'level of confidence [-]');
     catch
         calcset.loc = 0.95;
-    end
-        
+    end        
     
     % override uncertainty setup from file:
     if exist('calc_unc','var') && ~isempty(calc_unc)

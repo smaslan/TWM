@@ -57,8 +57,8 @@ function [] = qwtb_mcm_start_servers(shr_fld, cores, oct_pth)
     m_path = fileparts(mfilename('fullpath'));
     
     
-    %runmulticore()
-  
-    return
-
+    syscmd = ['qwtb_mcm_start_servers.bat "' oct_fld '" "' oct_name '" ' int2str(cores) ' "' shr_fld '"'];
+    %[pin,pout,pid] = popen2('qwtb_mcm_start_servers.bat',syscmd);
+    %system(syscmd,'async');
+    popen(syscmd,'r');
 end
