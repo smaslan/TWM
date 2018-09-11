@@ -21,6 +21,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
 %         cfg.mc_method - Monte Carlo execution mode {'singlecore', 'multicore', 'multistation'}
 %         cfg.mc_procno - number of parallel instances to run ('multicore' or 'multistation')
 %         cfg.mc_tmpdir - 'multistation' mode jobs sharing folder
+%         cfg.mc_user_fun - user function to be executed after 'multistation' starts servers
 %
 % This is part of the TWM - TracePQM WattMeter.
 % (c) 2018, Stanislav Maslan, smaslan@cmi.cz
@@ -65,6 +66,13 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         return    
     end
     
+    % get QWTB algorithm ID:
+    alg_id = infogettext(qinf, 'algorithm id');
+    
+    % fetch information struct of the QWTB algorithm:
+    alginfo = qwtb(alg_id,'info');
+       
+    
     % process all averaging cycles at once?
     proc_all = infogetnumber(qinf, 'calculate whole average at once');
     
@@ -102,8 +110,11 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     calcset.mcm.procno = cfg.mc_procno;
     if ~isempty(cfg.mc_tmpdir)
         calcset.mcm.tmpdir = cfg.mc_tmpdir;
+    end    
+    if isfield(cfg,'mc_user_fun')
+        calset.mcm.user_fun = cfg.user_fun;
     end
-    calcset    
+        
     
     % try to load unc. coverage interval:
     try
@@ -146,10 +157,6 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     catch
         sdata_lim = 0;
     end
-       
-    
-    % get QWTB algorithm ID
-    alg_id = infogettext(qinf, 'algorithm id');
     
     
     % get list of QWTB algorithm parameter names 
@@ -198,9 +205,6 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
   
 
     % --- identify input types of the algorithm
-      
-    % fetch information struct of the QWTB algorithm
-    alginfo = qwtb(alg_id,'info');
     
     % QWTB algorithm input parameters
     q_inp = alginfo.inputs;

@@ -56,9 +56,8 @@ function [] = qwtb_mcm_start_servers(shr_fld, cores, oct_pth)
     % this script path:
     m_path = fileparts(mfilename('fullpath'));
     
-    
-    syscmd = ['qwtb_mcm_start_servers.bat "' oct_fld '" "' oct_name '" ' int2str(cores) ' "' shr_fld '"'];
-    %[pin,pout,pid] = popen2('qwtb_mcm_start_servers.bat',syscmd);
-    %system(syscmd,'async');
+    % start servers in one window (to not confuse user):
+    syscmd = sprintf('START \"GNU Octave - multicore servers\" /D \"%s\" /BELOWNORMAL qwtb_mcm_start_servers.bat \"%s\" \"%s\" %d \"%s\"',m_path,oct_fld,oct_name,cores,shr_fld);
     popen(syscmd,'r');
+    
 end

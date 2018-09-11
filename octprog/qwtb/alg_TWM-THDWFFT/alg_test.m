@@ -213,7 +213,7 @@ function alg_test(calcset) %<<<1
             
         
             % samples count:
-            N = round(logrand(0.3,5)*fs);
+            N = round(logrand(0.3,3)*fs);
             sim.sample_count = N;
             % rms sampling jitter [s]:
             sim.t_jitter = logrand(1e-9,100e-9);

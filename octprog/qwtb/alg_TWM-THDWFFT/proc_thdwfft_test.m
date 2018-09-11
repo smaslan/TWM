@@ -11,11 +11,12 @@ function [res] = proc_thdwfft(par)
             [sig,fs_out,k1_out,h_amps] = thd_sim_wave(par.sim);
             
             % store simulated waveform data:
-            par.din.y.v = sig;
-            par.din.fs.v = fs_out;
+            par_proc = par;
+            par_proc.din.y.v = sig;
+            par_proc.din.fs.v = fs_out;
             
             % --- calculate THD ---
-            dout = qwtb('TWM-THDWFFT',par.din,par.calcset);
+            dout = qwtb('TWM-THDWFFT',par_proc.din,par_proc.calcset);
             
             % get ref. and calculated quantities:
             ref_list = [k1_out,     h_amps'];
