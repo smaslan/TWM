@@ -40,6 +40,12 @@ function [] = valid_report(res,vr)
         head_len = max(cellfun(@length,head));
         head_fmt = sprintf('%%-%ds',head_len);
                 
+%         fid = find(rv.pass == 0);
+%         fid
+%         plot(rc{fid(1)}.punc)
+%         size()
+        
+                
         % %-of-unc value [%]:          
         punc = mean(rv.pass,1)*100;        
         

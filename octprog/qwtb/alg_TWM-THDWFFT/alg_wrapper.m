@@ -119,12 +119,12 @@ function dataout = alg_wrapper(datain, calcset)
     % calculated THD (fundamental referenced):
     dataout.thd.v = r.k1_comp;
     % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
-    dataout.thd.u = max(r.k1_comp - r.k1_comp_a, r.k1_comp_b - r.k1_comp);
+    dataout.thd.u = max(abs([r.k1_comp_a, r.k1_comp_b] - r.k1_comp));
     
     % calculated THD (rms referenced):
     dataout.thd2.v = r.k2_comp;
     % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
-    dataout.thd2.u = max(r.k2_comp - r.k2_comp_a, r.k2_comp_b - r.k2_comp);
+    dataout.thd2.u = max(abs([r.k2_comp_a, r.k2_comp_b] - r.k2_comp));
     
     % calculated THD+N (fundamental referenced):
     dataout.thdn.v = r.k3_comp;

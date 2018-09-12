@@ -8,7 +8,7 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = 200;
+    is_full_val = 500;
     
     % minimum number of repetitions per test setup:
     %  note: if the value is 1 and all quantities passed, the test is done successfully
@@ -16,7 +16,7 @@ function alg_test(calcset) %<<<1
     % maximum number of test repetitions per test setups:
     val.max_count = 200;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'thdwfft_val_v1.mat'];
+    val_path = [fileparts(mfilename('fullpath')) filesep 'thdwfft_val_v2.mat'];
     
     
     
@@ -61,11 +61,15 @@ function alg_test(calcset) %<<<1
         % set supercomputer process affinity:
         mc_setup.run_after_slaves = @coklbind2;
     end
+    
+    if ~strcmpi(mc_setup.method,'cellfun')
+        fftw('threads', 1);
+    end
      
     
     
     % calculation setup:
-    calcset.verbose = (~is_full_val);
+    calcset.verbose = (is_full_val == 0);
     calcset.unc = 'guf';
     calcset.loc = 0.95;
     % no QWTB input checking:
@@ -74,7 +78,7 @@ function alg_test(calcset) %<<<1
 
 
 
-    if is_full_val
+    if is_full_val > 0
         % --- full test mode ---
         % generating multiple combinations of simulation/testing setup
         
@@ -253,7 +257,7 @@ function alg_test(calcset) %<<<1
             
             % store test setup to the list:
             pn = pn + 1;
-            par{pn}.din = din;
+            %par{pn}.din = din;
             par{pn}.calcset = calcset;
             par{pn}.sim = sim;
             par{pn}.simcom = simcom{c};
@@ -272,7 +276,7 @@ function alg_test(calcset) %<<<1
     
     
     
-    if is_full_val
+    if is_full_val > 0
         % --- FULL VALIDATION MODE ---
         
         fprintf('Processing test setups...\n');
@@ -292,6 +296,16 @@ function alg_test(calcset) %<<<1
     else
         % --- SINGLE VALIDATION MODE ---
     
+        if is_full_val < 0
+            % load setup from previous validation report:
+            
+            res = load(val_path,'res');
+            par = res.res{-is_full_val}.par;            
+            sim = par.sim;
+            din = sim.corr;
+            calcset = par.calcset;
+          
+        end
     
         % --- simulate waveforms ---
         [sig,fs_out,k1_out,h_amps] = thd_sim_wave(sim);

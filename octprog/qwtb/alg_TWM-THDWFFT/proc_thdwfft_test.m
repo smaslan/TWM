@@ -12,6 +12,7 @@ function [res] = proc_thdwfft(par)
             
             % store simulated waveform data:
             par_proc = par;
+            par_proc.din = par_proc.sim.corr;
             par_proc.din.y.v = sig;
             par_proc.din.fs.v = fs_out;
             
@@ -47,6 +48,7 @@ function [res] = proc_thdwfft(par)
         catch err
         
             disp(err);
+            %rethrow(err);
         
             % failed:
             is_pass = 0;

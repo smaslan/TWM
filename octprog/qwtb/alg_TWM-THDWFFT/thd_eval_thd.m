@@ -446,12 +446,11 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     else
       fix_thd = 2;
     end
-
  
     % --- Now finally evaluate THD for uncorrected harmonics --- 
     % calculate THD from randomized amplitudes U_org
     k1_org = 100*sumsq(U_org(2:end,:),1).^0.5./U_org(1,:);
-    k2_org = 100*sumsq(U_org(2:end,:),1).^0.5./sumsq(U_org,1).^0.5;    
+    k2_org = 100*sumsq(U_org(2:end,:),1).^0.5./sumsq(U_org,1).^0.5;
       
     % limit to positive values
     k1_org = max(k1_org,0);
@@ -492,8 +491,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     [sci,k2_fix_a,k2_fix_b] = scovint(k2_fix,probab);      
     [sci,k3_fix_a,k3_fix_b] = scovint(k3_fix,probab);
     [sci,k4_fix_a,k4_fix_b] = scovint(k4_fix,probab);
-   
-  
+
   
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%% !!! HARDCORE THD CORRECTIONS, TEMPORARY SOLUTION, THIS SHOULD BE FIXED !!! %%%%
@@ -537,14 +535,14 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         k2_fix_m = 100*sumsq(mean(U_fix(2:end,:),2),1).^0.5./sumsq(mean(U_fix,2),1).^0.5;
         k3_fix_m = 100*(0.5*sumsq(mean(U_fix(2:end,:),2),1) + noise_rms^2).^0.5./(0.5*mean(U_fix(1,:),2)^2).^0.5;
         k4_fix_m = 100*(0.5*sumsq(mean(U_fix(2:end,:),2),1) + noise_rms^2).^0.5./(0.5*sumsq(mean(U_fix,2),1) + noise_rms^2).^0.5;
-        k1_fix_a = max(k1_fix_a + (k1_fix_m - k1_fix_o),0);
-        k1_fix_b = k1_fix_b + (k1_fix_m - k1_fix_o);
-        k2_fix_a = max(k2_fix_a + (k2_fix_m - k2_fix_o),0);
-        k2_fix_b = k2_fix_b + (k2_fix_m - k2_fix_o);
-        k3_fix_a = max(k3_fix_a + (k3_fix_m - k3_fix_o),0);
-        k3_fix_b = k3_fix_b + (k3_fix_m - k3_fix_o);
-        k4_fix_a = max(k4_fix_a + (k4_fix_m - k4_fix_o),0);
-        k4_fix_b = k4_fix_b + (k4_fix_m - k4_fix_o);
+%         k1_fix_a = max(k1_fix_a + (k1_fix_m - k1_fix_o),0);
+%         k1_fix_b = k1_fix_b + (k1_fix_m - k1_fix_o);
+%         k2_fix_a = max(k2_fix_a + (k2_fix_m - k2_fix_o),0);
+%         k2_fix_b = k2_fix_b + (k2_fix_m - k2_fix_o);
+%         k3_fix_a = max(k3_fix_a + (k3_fix_m - k3_fix_o),0);
+%         k3_fix_b = k3_fix_b + (k3_fix_m - k3_fix_o);
+%         k4_fix_a = max(k4_fix_a + (k4_fix_m - k4_fix_o),0);
+%         k4_fix_b = k4_fix_b + (k4_fix_m - k4_fix_o);
       
     elseif fix_thd == 2
         %% version 2:
