@@ -27,7 +27,7 @@ for /f "tokens=2" %%a in ('tasklist /v ^| findstr /c:"%ctitle%"') do set cpid=%%
 wmic process %cpid% CALL SetPriority "Below Normal"
 
 REM ==== RUN SERVERS ====
-SET FUNC_NAME=startmulticoreslave("'%SHARE_PATH%'")
+SET FUNC_NAME=run_multicore_slave("'%SHARE_PATH%'")
 SET /a i=0
 :loop
 START "GNU Octave - multicore server #%i%" /D "%OCT_FLD%" %OPT% "%OCT_NAME%" -q -p "%CD%" --exec-path "%CD%" --eval %FUNC_NAME% --persist -i
