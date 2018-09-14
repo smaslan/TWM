@@ -1,8 +1,8 @@
 function [] = valid_report(res,vr,pass_loc)
 
-    fprintf('-----------------------------\n');
-    fprintf(' Algorithm validation report \n');
-    fprintf('-----------------------------\n\n');
+    fprintf('---------------------------\n');
+    fprintf(' Algorithm validation plot \n');
+    fprintf('---------------------------\n\n');
     
     if ischar(res)
         % file mode - load result:
@@ -50,58 +50,56 @@ function [] = valid_report(res,vr,pass_loc)
     fprintf('tests setup pass rate threshold = %.3f%% (i.e. %.3f%% of test runs must pass)\n',pass_prob,pass_prob);
     fprintf('pass rate uncertainty = <-%.3f;0>%% (i.e. level of confidence %.3f)\n\n',100*2*pass_unc/R^0.5,pass_loc);
     
-    fprintf('Passed rate of all test setups [%%]:\n');
-    fprintf('-----------------\n\n');
+    
     
     % --- for each variation combination:
     va = 1;
     for v = 1:vr.var_n
     
         % get test setups for given combination:
-        rc = res(va:va+R-1);        
-        %rv = vectorize_structs_elements(rc);
-        %pass = rv.pass; % original pass rate
-                
+        rc = res(va:va+R-1);
+        
+        f0 = zeros(R,1);
+        S = zeros(R,1);
+        fs = zeros(R,1);
         punc = [];
-        for k = 1:R
-            punc(k,:) = mean(abs(rc{k}.punc) < 1,1);
-        end                                  
-        
-%         pass = [];
-%         for k = 1:R
-%             pass(k) = mean(abs(rc{k}.punc(:,4)) < 1);
-%         end        
-%         figure
-%         plot(pass)
-%         [v,id] = min(pass)  
-        
-        % mean %-of-unc value [%]:
-        cunc = mean(punc,1)*100;
-        
-        % %-of-unc value [%]:          
-        punc = mean(punc > pass_prob,1)*100;             
-        
-        % print combination setup:
-        head = {'','',''};
-        P = sum(vr.par_n>1);
-        for p = 1:P
-            head{p} = sprintf('%s = %d',vr.names{p},getfield(rc{1}.par.simcom,vr.names{p}));    
+        for r = 1:R
+            f0(r) = rc{r}.par.cfg.chn{1}.fx(1);
+            S(r)  = rc{r}.par.cfg.N;
+            fs(r) = rc{r}.par.din.fs.v;            
+            punc(r,:) = mean(abs(rc{r}.punc) < 1,1);    
         end
-        head_len = max(cellfun(@length,head));
-        head_fmt = sprintf('%%-%ds',head_len);
+                
+        l_f0_per = S./fs.*f0;
+        l_fs_rat = fs./f0;
         
-        % print results:
-        qu_names = sprintf('%-6s ',rc{1}.name_list{:});
-        qu_puncs = sprintf('%6.2f ',punc);
-        qu_cuncs = sprintf('%6.2f ',cunc);
-        fprintf(['  ' head_fmt ' | %s| TOT\n  ' head_fmt ' | %s| %6.2f\n  ' head_fmt ' | %s| %6.2f <= average pass rates\n'],head{1},qu_names,head{2},qu_puncs,min(punc),head{2},qu_cuncs,min(cunc));
-        for p = P+1:numel(head)
-            fprintf(['  ' head_fmt '\n'],head{p});
+        Q = 10;
+        ax_f0_per = linspace(log10(min(l_f0_per)),log10(max(l_f0_per)),Q);      
+        ax_fs_rat = linspace(log10(min(l_fs_rat)),log10(max(l_fs_rat)),Q);
+        
+        cut = zeros([numel(ax_f0_per) numel(ax_fs_rat) R])*NaN;
+        zbuf = zeros([numel(ax_f0_per) numel(ax_fs_rat)]);                
+        for r = 1:R
+                        
+            pass = min(mean(punc(r,[1:5]) > pass_prob));
+            
+            y = interp1(ax_f0_per, [1:Q]', log10(l_f0_per(r)), 'nearest');
+            x = interp1(ax_fs_rat, [1:Q]', log10(l_fs_rat(r)), 'nearest');
+            
+            zbuf(y,x) = zbuf(y,x) + 1;
+            cut(y,x,zbuf(y,x)) = pass;
+                                
         end
-        fprintf('\n');
         
+        cut = nanmean(cut,3);
+        cut(isnan(cut)) = 0;
         
-           
+        contourf(10.^(ax_f0_per),10.^(ax_fs_rat),cut)
+        set(gca,'xscale','log')
+        set(gca,'yscale','log')
+        
+        %return
+                   
         % next combination test setups:
         va = va + R;
     end  

@@ -1,58 +1,23 @@
 function [res] = proc_pwrtdi_test(par)
+% TWM-PWRTDI validation - execution of test runs for given test setup.
 
-    punc = [];    
-    for r = 1:par.val.max_count
+    % test runs execution setup:
+    mc_setup = par.mc_setup_runs;
     
-        name_list = {'U',          'I',          'S',      'P',      'Q',      'PF',      'phi',                'Udc',      'Idc',      'Pdc'};
-        
-        try
-            % --- generate the signal:        
-            [datain,simout] = gen_pwr(par.din, par.cfg, par.rand_unc);
-        
-            % --- execute the algorithm:    
-            calcset.mcm.randomize = 0;
-            dout = qwtb('TWM-PWRTDI',datain,par.calcset);
-            
-            % get ref. and calculated quantities:
-            ref_list =  [simout.U_rms, simout.I_rms, simout.S, simout.P, simout.Q, simout.PF, simout.phi_ef*180/pi, simout.Udc, simout.Idc, simout.Pdc];
-            dut_list =  [dout.U.v,     dout.I.v,     dout.S.v, dout.P.v, dout.Q.v, dout.PF.v, dout.phi_ef.v*180/pi, dout.Udc.v, dout.Idc.v, dout.Pdc.v];
-            unc_list =  [dout.U.u,     dout.I.u,     dout.S.u, dout.P.u, dout.Q.u, dout.PF.u, dout.phi_ef.u*180/pi, dout.Udc.u, dout.Idc.u, dout.Pdc.u];
-                        
-            % compare generated and calculated:
-            dev_list = (dut_list - ref_list);
-            
-            % percent-of-uncertainty list:
-            punc_list = dev_list./unc_list;
-            
-            % store %-unc to list:
-            punc(end+1,:) = punc_list;
-            
-            % all passed?
-            is_pass = all(dev_list./unc_list < 1);
-            
-        catch err
-        
-            disp(err);
-        
-            % failed:
-            is_pass = 0;
-            
-            % default items:
-            simout = struct();
-        
-        end
-        
-        qwtb('TWM-PWRTDI','addpath');
-        
-        % one test done:
-        par.val.max_count = par.val.max_count - 1;
-
-        % done?
-        if (is_pass && par.val.fast_mode) || par.val.max_count <= 0
-            break;
-        end
+    % create test run jobs:
+    jobs = repmat({par},[par.val.max_count,1]);
     
-    end
+    % execute the jobs:
+    runres = runmulticore(mc_setup.method, @proc_pwrtdi_test_run, jobs, mc_setup.cores, mc_setup.share_fld, 2, mc_setup);
+       
+    % merge the results:
+    punc = [];
+    for k = 1:par.val.max_count
+        punc_t = runres{k}.punc;
+        if ~isempty(punc_t)
+            punc(end+1,:) = punc_t;
+        end
+    end       
     
     if ~size(punc,1)
         % empty list - failed all times!
@@ -69,6 +34,10 @@ function [res] = proc_pwrtdi_test(par)
         
         % pass?
         pass = pass_prob > par.calcset.loc;
+        
+        if isfield(par.val,'dbg_print') && par.val.dbg_print
+            fprintf(' --- runs = %.0f, pass rate = %.1f%%, mean %%-of-unc = %.0f%%, pass = %.0f\n', size(punc,1), min(pass_prob(1:5))*100, max(mean(punc(:,1:5),1))*100, all(pass(1:5)));
+        end
                  
     end
     
@@ -80,6 +49,6 @@ function [res] = proc_pwrtdi_test(par)
     % %-of-unc histogram:
     res.punc = single(punc);
     % store name list:
-    res.name_list = name_list;      
+    res.name_list = runres{1}.name_list;      
     
 end

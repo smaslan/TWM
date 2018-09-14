@@ -9,15 +9,49 @@ function alg_test(calcset) %<<<1
 
     
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = 0;
+    is_full_val = -136;
     
     % minimum number of repetitions per test setup:
     %  note: if the value is 1 and all quantities passed, the test is done successfully
-    val.fast_mode = 0;
-    % maximum number of test repetitions per test setups:
-    val.max_count = 300;
+    %val.fast_mode = 0; % ###note: note implemented
+    % maximum number of test repetitions per test setup:
+    val.max_count = 290;
+    % print debug lines:
+    val.dbg_print = 1;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_mcm.mat']; 
+    val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_mcm.mat'];
+    
+    
+    % --- test execution setup ---
+    % paralellize at which level:
+    %  'testsetup' - run test setups parallel (good for 'guf' validation)
+    %  'testrun' - run test runs within the test setup parallel (good for 'mcm' validation)
+    %  'mcm' - run Monte Carlo iterations in parallel (good only for small cores count) 
+    %par_level = {'testrun','testsetup'};
+    par_level = 'testrun';
+    if is_full_val <= 0
+        par_level = 'mcm'; % override for single test    
+    end
+    
+    % parallel instances (use 0 to not start servers, user must run them manually):
+    par_cores = 0;
+    
+    % parallel execution mode (QWTB naming convence) {'singlecore', 'multicore', 'multistation'}:
+    par_mode = 'multistation';
+    
+    % 'multistation' mode jobs sharing folder:
+    if ispc
+        % windoze:
+        par_mc_folder = 'g:\work\_mc_jobs_';
+        if ~exist(par_mc_folder,'file')
+            par_mc_folder = 'c:\work\_mc_jobs_';
+        end        
+    else
+        % linux:
+        par_mc_folder = 'mc_rubbish';        
+    end
+    
+        
     
     
     
@@ -25,82 +59,94 @@ function alg_test(calcset) %<<<1
     % note: This is execution of the algorithm test, not execution mode if the algorithm itself!
     %       Do not use multicore processing here and for the algorithm at once!  
     % multicore cores count (0 to not start any, user must start servers manually):
-    if ~ispc    
-        mc_setup.cores = 400; % for supercomputer
+    if ispc    
+        mc_setup.cores = 0; % never start servers in windoze (started manually)
     else
-        mc_setup.cores = 0; % do not start servers in windoze (started manually)
-    end        
-    % multicore method {'cellfun','parcellfun','multicore'}:
-    mc_setup.method = 'multicore';
-    % multicore options: jobs grouping for 'parcellfun': 
-    mc_setup.ChunksPerProc = 0;    
+        mc_setup.cores = par_cores; % for supercomputer        
+    end            
     % multicore behaviour:
     mc_setup.min_chunk_size = 1;
+    % multicore jobs directory:
+    mc_setup.share_fld = par_mc_folder;
     % paths required for the calculation:
     %  note: multicore slaves need to know where to find the algorithm functions 
-    mc_setup.user_paths = {fileparts(mfilename('fullpath')),[fileparts(mfilename('fullpath')) filesep '..']}; 
+    mc_setup.user_paths = {fileparts(mfilename('fullpath')), fileparts(which('qwtb'))}; 
+    % run only master if cores count set to 0 (assuming slave servers are already running on background)
+    mc_setup.run_master_only = (mc_setup.cores == 0);
     if ispc
         % windoze - most likely small CPU:
         % use only small count of job files, coz windoze may get mad...    
         mc_setup.max_chunk_count = 200;
-        % run only master if cores count set to 0 (assuming slave servers are already running on background)
-        mc_setup.run_master_only = (mc_setup.cores == 0);
         % lest master work as well, it won't do any harm:
-        mc_setup.master_is_worker = (mc_setup.cores <= 4);
-        % multicore jobs directory:
-        mc_setup.share_fld = 'f:\work\_mc_jobs_'; 
+        mc_setup.master_is_worker = (mc_setup.cores <= 4);         
     else
         % Unix: possibly supercomputer - assume large CPU:
         % set large number of job files, coz Linux or supercomputer should be able to handle it well:    
         mc_setup.max_chunk_count = 10000;
-        % run only master if cores count set to 0 (assuming slave servers are already running on background)
-        mc_setup.run_master_only = (mc_setup.cores == 0);
-        % do not let master work, assuming there is fuckload of slave servers to do stuff:
-        mc_setup.master_is_worker = (mc_setup.cores <= 4);
-        % multicore jobs directory:
-        mc_setup.share_fld = 'mc_rubbish';
-        %try
-        mc_setup.run_after_slaves = @coklbind2;
-        %end
+        % lest master will not work, because there is fuckload of servers to do the stuff:
+        mc_setup.master_is_worker = 0;
+        if par_cores
+            try
+                mc_setup.run_after_slaves = @coklbind2;
+            catch
+                fprintf('User function ''@coklbind2'' not found!\n');
+            end
+        end
+    end    
+    % multicore method {'cellfun','parcellfun','multicore'}:        
+    mc_setup.method = 'for'; % by defaul no parallel
+    if any(strcmpi(par_level,'testsetup'))
+        mc_setup.method = par_mode_qwtb2mc(par_mode);
     end
+      
+    % --- Test runs within the test setup execution mode: 
+    % use the same setup as for test runs:
+    mc_setup_runs = mc_setup;
+    % decide parallel mode:
+    mc_setup_runs.method = 'for'; % by defaul no parallel
+    if any(strcmpi(par_level,'testrun'))
+        mc_setup_runs.method = par_mode_qwtb2mc(par_mode);
+    end
+       
     
     
-    
-    
-    % --- Algorithm calculation setup ---:    
-    calcset.verbose = ~is_full_val;
-    calcset.unc = 'guf'; % uncertainty mode
+    % --- Algorithm calculation setup ---:
+     
+    calcset.verbose = (is_full_val <= 0);
+    calcset.unc = 'mcm'; % uncertainty mode
     calcset.loc = 0.95;
     calcset.dbg_plots = 0;
     % MonteCarlo (for 'mcm' uncertainty mode) setup:
-    calcset.mcm.repeats = 1000; % cycles
-    if ~is_full_val
-        calcset.mcm.method = 'multistation'; % parallelization mode
-    else
-        calcset.mcm.method = 'singlecore'; % do not change (for full validation test only)
+    calcset.mcm.repeats = 1000; % Monte Carlo cycles
+    %calcset.mcm.max_jobs = 200; % limit jobs count
+    calcset.mcm.method = 'singlecore'; % default execution on single core 
+    if strcmpi(par_level,'mcm')
+        calcset.mcm.method = par_mode; % parallelization allowed
     end
-    calcset.mcm.procno = 0; % no. of parallel processes (0 to not start slaves)
-    %calcset.mcm.user_fun = @coklbind2; % user function after servers startup (for CMI's supercomputer)
-    %calcset.mcm.tmpdir = 'c:\work\_mc_jobs_'; % jobs sharing folder for 'multistation' mode
+    calcset.mcm.procno = par_cores; % no. of parallel processes (0 to not start slaves)
+    if ~ispc && par_cores
+        try
+            calcset.mcm.user_fun = @coklbind2; % user function after servers startup (for CMI's supercomputer)
+        catch
+            fprintf('User function ''@coklbind2'' not found!\n');
+        end    
+    end
+    if strcmpi(calcset.unc,'mcm')
+        calcset.mcm.tmpdir = par_mc_folder; % jobs sharing folder for 'multistation' mode
+    end
     % no QWTB input checking:
     calcset.cor.req = 0; calcset.cor.gen = 0; calcset.dof.req = 0; calcset.dof.gen = 0;
-    calcset.checkinputs = 0;
-        
+    calcset.checkinputs = 0;        
     % faster mode - uncertainty LUTs are stored in globals to prevent repeated file access (for validation on supercomp. only):
     calcset.fetch_luts = (is_full_val > 0);
     
-    
-    if is_full_val
+    if is_full_val > 0
         % --- full validation mode ---
-        
-        % add variation lib:
-        addpath([fileparts(mfilename('fullpath')) filesep 'var']);
     
-        % -- test setup combinations:
-        
+        % -- test setup combinations:      
         % randomize corrections uncertainty:
-        %com.rand_unc = [0 1];
-        com.rand_unc = [1];
+        com.rand_unc = [0 1];
+        %com.rand_unc = [1];
         % differential sensors:
         %com.is_diff = [0 1];
         com.is_diff = [0];
@@ -112,7 +158,7 @@ function alg_test(calcset) %<<<1
         % --- single test mode ---
         simcom = {struct()};
         
-        simcom{1}.rand_unc = 1;
+        simcom{1}.rand_unc = 0;
         simcom{1}.is_diff = 0;
     end
         
@@ -294,10 +340,21 @@ function alg_test(calcset) %<<<1
             if true
             
                 % maximum digitizer interchannel time shift expressed as phase shift at nyquist frequency [rad]: 
-                max_chn2chn_phi   = 1.0;
-                max_chn2chn_phi_u = 0.05; % uncertainty
+                max_chn2chn_phi   = 0.1;
+                %max_chn2chn_phi_u = 0.02; % uncertainty
                 max_chn2chn_td   = max_chn2chn_phi/(2*pi*0.5*din.fs.v); % expressed as delay
-                max_chn2chn_td_u = max_chn2chn_phi_u/(2*pi*0.5*din.fs.v); % expressed as delay
+                %max_chn2chn_td_u = max_chn2chn_phi_u/(2*pi*0.5*din.fs.v) % expressed as delay
+                max_chn2chn_td_u = 20e-9;
+                
+                % maximum change of gain of digitizer from DC to AC at fs/2 [-]:
+                adc_mgain_acdc = 0.01; 
+                % maximum phase error of digitizer [rad]:
+                adc_mphi = 0.001;
+                % maximum change of gain of transducer from DC to AC at fs/2 [-]:
+                tr_mgain_acdc = 0.02;
+                % maximum phase error of transducer [rad]:
+                tr_mphi = 0.001;
+                
             
                 % -- voltage channel:
                 din.u_tr_Zlo_f.v  = [];
@@ -307,8 +364,9 @@ function alg_test(calcset) %<<<1
                 din.u_tr_Zlo_Cp.u = [0e-12];
                 % create some corretion table for the digitizer gain/phase: 
                 [din.u_adc_gain_f,din.u_adc_gain,din.u_adc_phi] ...
-                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
-                                 linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
+                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-adc_mgain_acdc,+adc_mgain_acdc),0.00005,linrand(0.5,3), ...
+                                 0.2*din.fs.v,logrand(0.005,0.03), ...
+                                 linrand(-adc_mphi,+adc_mphi),0.00008,0.000002,linrand(0.7,3));
                 din.u_adc_phi_f = din.u_adc_gain_f;         
                 din.u_adc_gain_a.v = [];
                 din.u_adc_phi_a.v = [];
@@ -318,8 +376,9 @@ function alg_test(calcset) %<<<1
                 din.u_adc_sfdr.v = -log10(chns{1}.sfdr)*20;
                 % create identical low-side channel:
                 [din.u_lo_adc_gain_f,din.u_lo_adc_gain,din.u_lo_adc_phi] ...
-                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
-                                 linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
+                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-adc_mgain_acdc,+adc_mgain_acdc),0.00005,linrand(0.5,3), ...
+                                 0.2*din.fs.v,logrand(0.005,0.03), ...
+                                 linrand(-adc_mphi,+adc_mphi),0.00008,0.000002,linrand(0.7,3));
                 din.u_lo_adc_phi_f = din.u_lo_adc_gain_f;         
                 din.u_lo_adc_gain_a.v = [];
                 din.u_lo_adc_phi_a.v = [];
@@ -333,14 +392,15 @@ function alg_test(calcset) %<<<1
                 din.u_lo_adc_bits.v = linrand(bits_min,bits_max);
                 din.u_lo_adc_nrng.v = 1;
                 % digitizer offset:
-                din.u_adc_offset.v = linrand(-0.01,0.01);
+                din.u_adc_offset.v = linrand(-0.005,0.005);
                 din.u_adc_offset.u = 0.0001;
-                din.u_lo_adc_offset.v = linrand(-0.01,0.01);
+                din.u_lo_adc_offset.v = linrand(-0.005,0.005);
                 din.u_lo_adc_offset.u = 0.0001;                
                 % create some corretion table for the transducer gain/phase: 
                 [din.u_tr_gain_f,din.u_tr_gain,din.u_tr_phi] ...
-                  = gen_adc_tfer(din.fs.v/2+1,50, U_rng,0.000002*U_rng, linrand(-0.05,+0.05),0.000050 ,linrand(0.5,3) ,linrand(0.1,0.25)*din.fs.v,0.03, ...
-                                 linrand(-0.001,+0.001),0.000080,0.000002,linrand(0.7,3));
+                  = gen_adc_tfer(din.fs.v/2+1,50, U_rng,0.000002*U_rng, linrand(-tr_mgain_acdc,+tr_mgain_acdc),0.000050,linrand(0.5,3), ...
+                                 linrand(0.1,0.25)*din.fs.v,0.005, ...
+                                 linrand(-tr_mphi,+tr_mphi),0.000080,0.000002,linrand(0.7,3));
                 din.u_tr_phi_f = din.u_tr_gain_f;
                 din.u_tr_gain_a.v = [];
                 din.u_tr_phi_a.v = [];         
@@ -356,8 +416,9 @@ function alg_test(calcset) %<<<1
                 % -- current channel:
                 % create some corretion table for the digitizer gain/phase tfer: 
                 [din.i_adc_gain_f,din.i_adc_gain,din.i_adc_phi] ...
-                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
-                                 linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
+                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-adc_mgain_acdc,+adc_mgain_acdc),0.00005,linrand(0.5,3), ...
+                                 0.2*din.fs.v,logrand(0.005,0.03), ...
+                                 linrand(-adc_mphi,+adc_mphi),0.00008,0.000002,linrand(0.7,3));
                 din.i_adc_phi_f = din.i_adc_gain_f;         
                 din.i_adc_gain_a.v = [];
                 din.i_adc_phi_a.v = [];
@@ -367,8 +428,9 @@ function alg_test(calcset) %<<<1
                 din.i_adc_sfdr.v = -log10(chns{2}.sfdr)*20;
                 % create some corretion table for the digitizer phase: 
                 [din.i_lo_adc_gain_f,din.i_lo_adc_gain,din.i_lo_adc_phi] ...
-                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-0.05,+0.05),0.00005 ,linrand(0.5,3) ,0.2*din.fs.v,0.03, ...
-                                 linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
+                  = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-adc_mgain_acdc,+adc_mgain_acdc),0.00005,linrand(0.5,3), ...
+                                 0.2*din.fs.v,logrand(0.005,0.03), ...
+                                 linrand(-adc_mphi,+adc_mphi),0.00008,0.000002,linrand(0.7,3));
                 din.i_lo_adc_phi_f = din.i_lo_adc_gain_f;         
                 din.i_lo_adc_gain_a.v = [];
                 din.i_lo_adc_phi_a.v = [];
@@ -382,14 +444,15 @@ function alg_test(calcset) %<<<1
                 din.i_lo_adc_bits.v = linrand(bits_min,bits_max);
                 din.i_lo_adc_nrng.v = 1;
                 % digitizer offset:
-                din.i_adc_offset.v = linrand(-0.01,0.01);
+                din.i_adc_offset.v = linrand(-0.005,0.005);
                 din.i_adc_offset.u = 0.0001;
-                din.i_lo_adc_offset.v = linrand(-0.01,0.01);
+                din.i_lo_adc_offset.v = linrand(-0.005,0.005);
                 din.i_lo_adc_offset.u = 0.0001;
                 % create some corretion table for the transducer gain/phase: 
                 [din.i_tr_gain_f,din.i_tr_gain,din.i_tr_phi] ...
-                  = gen_adc_tfer(din.fs.v/2+1,50, I_rng,0.000002*I_rng, linrand(-0.05,+0.05),0.000050 ,linrand(0.5,3) ,linrand(0.1,0.25)*din.fs.v,0.03, ...
-                                 linrand(-0.001,+0.001),0.000080,0.000002,linrand(0.7,3));
+                  = gen_adc_tfer(din.fs.v/2+1,50, I_rng,0.000002*I_rng, linrand(-tr_mgain_acdc,+tr_mgain_acdc),0.000050,linrand(0.5,3), ...
+                                 linrand(0.1,0.25)*din.fs.v,0.005, ...
+                                 linrand(-tr_mphi,+tr_mphi),0.000080,0.000002,linrand(0.7,3));
                 din.i_tr_phi_f = din.i_tr_gain_f;
                 din.i_tr_gain_a.v = [];
                 din.i_tr_phi_a.v = [];
@@ -418,17 +481,9 @@ function alg_test(calcset) %<<<1
             par{pn}.cfg = cfg;
             par{pn}.simcom = simcom{c};
             par{pn}.val = val;
-            par{pn}.rand_unc = rand_unc;        
-            
-            if ~is_full_val
-                fprintf('N = %.0f samples\n',N);
-                fprintf('fs = %0.4f Hz\n',din.fs.v);
-                fprintf('f0 = %0.4f Hz\n',f0);
-                fprintf('f0 periods = %0.2f\n',f0_per);
-                fprintf('fs/f0 ratio = %0.2f\n',fs_rat);
-                fprintf('Harmonics = %s\n',sprintf('%.3g ',sort([f_harm f_iharm])));
-            end
-        
+            par{pn}.rand_unc = rand_unc;
+            par{pn}.mc_setup_runs = mc_setup_runs;
+                           
         end
     
     end
@@ -459,9 +514,35 @@ function alg_test(calcset) %<<<1
             par = res.res{-is_full_val}.par;
             din = par.din;
             cfg = par.cfg;
-            calcset = par.calcset;
+            %calcset = par.calcset;
             rand_unc = par.rand_unc;
-          
+            
+            %calcset.dbg_plots = 1;
+                   
+%             cfg.chn{1}.dc = 0;
+%             cfg.chn{2}.dc = 0;
+%             din.u_adc_offset.v = 0;
+%             din.i_adc_offset.v = 0;
+
+%             din.u_adc_bits.v = 24;
+%             din.i_adc_bits.v = 24;
+
+            %cfg.chn{1}.adc_std_noise
+            
+%             din.u_adc_gain.v = repmat(din.u_adc_gain.v(1),size(din.u_adc_gain.v));
+%             din.u_tr_gain.v = repmat(din.u_tr_gain.v(1),size(din.u_tr_gain.v));
+            
+        end
+        
+        if is_full_val <= 0
+            f0 = cfg.chn{1}.fx(1);
+            fprintf('N = %.0f samples\n',cfg.N);
+            fprintf('fs = %0.4f Hz\n',din.fs.v);
+            fprintf('f0 = %0.4f Hz\n',f0);
+            fprintf('f0 periods = %0.2f\n',(cfg.N/din.fs.v)*f0);
+            fprintf('fs/f0 ratio = %0.2f\n',din.fs.v/f0);
+            fprintf('Harmonics = %s\n',sprintf('%.3g ',sort([cfg.chn{1}.fx/f0])));
+            fprintf('AC coupling = %.0f\n',din.ac_coupling.v);
         end
     
         % --- generate the signal:        

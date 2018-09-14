@@ -35,15 +35,18 @@ function [res] = proc_wrms(sig)
         % --- SIMULATION MODE: synthesize known U,I waveforms ---
         
         % generate window for the DC elimination (periodic!):
-        w = blackmanharris(sig.N,'periodic');
-        w = w(:);                 
+        w = flattop(sig.N+1,10); % ###note: select the same subtype as in main algorithm (HFT144D)!!!        
+        w = w(:);
+        w = w(1:end-1); % periodic window mode                 
         w_gain = mean(w);
         
         % DFT bin step [Hz]:
-        bin_step = 0.5*sig.fs/sig.N;
+        %  note: this is kind of uncertainty that should quantify accuracy of harmonic peak detection in DFT spectrum with window
+        bin_step = sig.fs/sig.N;
         
         % randomize harmonics frequency positions +-bin because we don't exact position: 
         fx = sig.sim.fx + (2*rand(size(sig.sim.fx)) - 1)*bin_step;
+        %fx = sig.sim.fx + randn(size(sig.sim.fx))*bin_step;
         
         % randomize frequencies of spurs:
         f_sp_rnd = (2*rand(size(sig.sim.f_spur)) - 1)*bin_step;
@@ -74,10 +77,11 @@ function [res] = proc_wrms(sig)
             end
             
             % generate time vector:
-            t(:,1) = [0:sig.N-1]/sig.fs*2*pi;
+            t(:,1) = ([0:sig.N-1]/sig.fs + sim.jitter*randn(1,sig.N))*2*pi;
             
             % randomize harmonics:
-            A = sim.A + sim.u_A.*randn(size(sim.A));
+            %A = sim.A + sim.u_A.*randn(size(sim.A));
+            A = sim.A + sim.u_A.*randn(1); % ###note: assuming the gain error is correlated for all frequencies
             ph = sim.ph + sim.u_ph.*randn(size(sim.ph)) + phr;
             
             % generate some spurs with random phase:
@@ -85,14 +89,21 @@ function [res] = proc_wrms(sig)
             A = [A;sim.spur];
             ph = [ph;p_sp_rnd];
             
-            % generate signal:
-            y = sum(bsxfun(@times,A',sin(bsxfun(@plus,bsxfun(@times,t,fxs'),ph'))),2);
+            % generate signal (crippled for Matlab < 2016b):
+            %  y = sum(A'.*sin(t.*fxs' + ph'),2)
+            %y = sum(bsxfun(@times,A',sin(bsxfun(@plus,bsxfun(@times,t,fxs'),ph'))),2);
+            y = sin(bsxfun(@plus, t*fxs', ph'))*A;
             
             % add rms noise:
             %  ###todo: this is not very accurate as the noise gain 
             %           should change the noise level for each frequency... may be improved
             y = y + sim.noise*randn(size(y));
             
+            % -- add DC component:            
+            dc_ref = vc.dc_adc*(1 + randn*sig.sim.rnd_dc);
+            u_dc_ref = vc.dc_adc/vc.dc*vc.u_dc; % DC uncertainty scaled to original voltage
+            y = y + dc_ref + randn*u_dc_ref;
+                        
             % emulate quantisation:
             y = round(y/sim.lsb)*sim.lsb;
             
@@ -101,13 +112,19 @@ function [res] = proc_wrms(sig)
             y = y - dc; 
             
             % get tfer correction filter values for the harmonics:
-            fg = interp1(fh,vc.adc_gain.gain,fx,i_mode,'extrap');
-            fp = interp1(fh,vc.adc_phi.phi,fx,i_mode,'extrap');
+            %  note: interpolating to NOMINAL frequencies of the DFT bins, whereas the value were generated 
+            %        with randomized frequencies, so the random frequency error effect is evaluated 
+            fg = interp1(fh,vc.adc_gain.gain,sig.sim.fx,i_mode,'extrap');
+            fp = interp1(fh,vc.adc_phi.phi,sig.sim.fx,i_mode,'extrap');
                        
             % store reference harmonic values:
             vcl{v}.ref.A = sim.A.*fg;
             vcl{v}.ref.ph = sim.ph + fp;
             vcl{v}.ref.rms = sum(0.5*vcl{v}.ref.A.^2)^0.5;
+            
+            % store DC error (absolute):
+            %  note: rescaled by corrections
+            vcl{v}.dc_err = (dc - dc_ref)/(vc.dc_adc/vc.dc);
                                     
             % store generated signal:
             vcl{v}.y = y;
@@ -242,6 +259,8 @@ function [res] = proc_wrms(sig)
         res.dU = (res.U/sig.ref.U - 1)*vcl{1}.exp_coef;
         res.dI = (res.I/sig.ref.I - 1)*vcl{2}.exp_coef;
         res.dP = (res.P/sig.ref.P - 1)*vcl{1}.exp_coef*vcl{2}.exp_coef;
+        res.dUdc = vcl{1}.dc_err*vcl{1}.exp_coef;
+        res.dIdc = vcl{2}.dc_err*vcl{2}.exp_coef;
     else
         % REAL PROCESSING:
         % return updated v.channels:

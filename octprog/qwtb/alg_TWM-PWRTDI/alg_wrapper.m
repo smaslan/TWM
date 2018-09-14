@@ -166,6 +166,7 @@ function dataout = alg_wrapper(datain, calcset)
         
         % estimate DC offset of channel:           
         vc.dc = vc.Y(1);
+        vc.dc_adc = vc.dc; 
         % remove DC from time-domain signal:
         vc.y = vc.y - vc.dc;
 
@@ -186,6 +187,7 @@ function dataout = alg_wrapper(datain, calcset)
             
             % estimate DC offset of channel:           
             vc.dc_lo = vc.Y_lo(1);
+            vc.dc_lo_adc = vc.dc_lo;
             % remove DC from time-domain signal:
             vc.y_lo = vc.y_lo - vc.dc_lo;            
             
@@ -570,8 +572,8 @@ function dataout = alg_wrapper(datain, calcset)
     I_noise = sum(0.5*Ins.^2)^0.5/w_rms*w_gain;
     
     % calculate bits per harmonic pk-pk range:
-    Ux_bits = log2(Ux./Ux_lsb);
-    Ix_bits = log2(Ix./Ix_lsb);    
+    Ux_bits = log2(Ux./Ux_lsb)-1;
+    Ix_bits = log2(Ix./Ix_lsb)-1;    
     
     % store some of the estimated parameters to v.channel list: 
     vcl{1}.rms = U_rms;
@@ -820,11 +822,47 @@ function dataout = alg_wrapper(datain, calcset)
         
         
         
+        % -- uncertainty of corrections:
+        %   Note: we have uncertain detection of harmonic frequencies, so we have to calculate uncertainty
+        %         of corrections caused by the frequency uncertainty
+        
+        % approximate worst case error of frequency (0.5 DFT bins):
+        u_fdb = ((fh(2) - fh(1))*0.5);
+        
+        % expand the harmonic uncertainties for each v. channel:
+        for v = 1:numel(vcl)
+        
+            gain_0 = interp1(fh,vcl{v}.adc_gain.gain, (fx+0),     i_mode,'extrap');
+            gain_a = interp1(fh,vcl{v}.adc_gain.gain, (fx+u_fdb), i_mode,'extrap');
+            gain_b = interp1(fh,vcl{v}.adc_gain.gain, (fx-u_fdb), i_mode,'extrap');
+            phi_0  = interp1(fh,vcl{v}.adc_phi.phi, (fx+0),     i_mode,'extrap');
+            phi_a  = interp1(fh,vcl{v}.adc_phi.phi, (fx+u_fdb), i_mode,'extrap');
+            phi_b  = interp1(fh,vcl{v}.adc_phi.phi, (fx-u_fdb), i_mode,'extrap');
+            
+            % estimate of standard uncertainty of gain/phase caused by harmonic frequency uncertainty: 
+            u_gain_f = max(abs([gain_a, gain_b] - gain_0),[],2)/3^0.5;
+            u_phi_f = max(abs([phi_a, phi_b] - phi_0),[],2)/3^0.5;
+            
+            %u_gain_f./gain_0
+                       
+            % expand the uncertainty of harmonics:
+            if vcl{v}.name == 'u'
+                u_Ux = (u_Ux.^2 + (u_gain_f./gain_0.*Ux).^2).^0.5;
+            else
+                u_Ix = (u_Ix.^2 + (u_gain_f./gain_0.*Ix).^2).^0.5;
+            end
+            u_phx = (u_phx.^2 + u_phi_f.^2).^0.5;            
+        end
+        
+        
+        
+        
+        
         % estimate corrections related uncertainty from relevant harmonics (worst case estimates):
         %u_U = sum(0.5*u_Ux.^2).^0.5;
         %u_I = sum(0.5*u_Ix.^2).^0.5;
-        u_U = (sum(0.5*(Ux + u_Ux).^2)^0.5 - sum(0.5*Ux.^2)^0.5)*1.2;
-        u_I = (sum(0.5*(Ix + u_Ix).^2)^0.5 - sum(0.5*Ix.^2)^0.5)*1.2;
+        u_U = (sum(0.5*(Ux + u_Ux).^2)^0.5 - sum(0.5*Ux.^2)^0.5);
+        u_I = (sum(0.5*(Ix + u_Ix).^2)^0.5 - sum(0.5*Ix.^2)^0.5);
         
         % run small MC for the power cos it's non-linear and the GUF does not work very nice in here:
         %   note: it was crippled for Matlab < 2016b, do not remove bsxfun()!
@@ -842,7 +880,7 @@ function dataout = alg_wrapper(datain, calcset)
         v_Ix  = bsxfun(@plus,Ix,bsxfun(@times,u_Ix*k_in,2*rand(H,mmc)-1)); % randomize Ix: v_Ix = Ix + u_Ix.*randn(H,mcc)
         v_phx = bsxfun(@plus,phx,bsxfun(@times,u_phx*k_in,2*rand(H,mmc)-1)); % randomize phx: v_phx = phx + u_phx.*randn(H,mcc)
         v_P   = 0.5*sum(v_Ux.*v_Ix.*cos(v_phx),1);
-        u_P   = max(abs(v_P - P))/k_in*1.3; % ###note: schmutzig safety coeficient 1.2 empiricaly found so the estimator fail rate reduces < 1% in selftest
+        u_P   = max(abs(v_P - P))/k_in*1.0;
         %hist(v_P,50)
                   
         
@@ -859,13 +897,23 @@ function dataout = alg_wrapper(datain, calcset)
         % -- Monte-Carlo mode:
         
         % prepare waveform simulation parameters:
-        harmonics = [Ux(1:H),Ix(1:H)];
+        harmonics =   [  Ux(1:H),  Ix(1:H)];
         u_harmonics = [u_Ux(1:H),u_Ix(1:H)];
-        noises = [U_noise,I_noise];        
-        lsbs = [Ux(1)/2^Ux_bits(1),Ix(1)/2^Ix_bits(1)];
-                
+        noises =      [U_noise,  I_noise];        
+        lsbs = [Ux(1)/2^Ux_bits(1), Ix(1)/2^Ix_bits(1)];
+        jitters = [datain.u_adc_jitter.v, datain.i_adc_jitter.v];
+        % add spurs to all harmonic ucnertainties because we cannot say true amplitudes: 
+        spurs = [max(vcl{1}.spur), max(vcl{2}.spur)];
+        u_spurs = repmat(spurs,[H 1]);
+        u_spurs(1,:) = [0, 0]; % nor spur to fundamental harmonics obviously        
+        u_harmonics = (u_harmonics.^2 + u_spurs.^2).^0.5;
+       
+        % decimate frequency axis (to save memory for paralleling): 
+        fh_dec = unique(sort([0;fx;f_spur;logspace(log10(1),log10(max(fh)),100)']));
+               
+                                        
         % -- prepare virtual channels to simulate:
-        vcp = vcl;
+        vcp = vcl;        
         for v = 1:numel(vcl)        
             vc = vcp{v};
                             
@@ -873,20 +921,26 @@ function dataout = alg_wrapper(datain, calcset)
             vc.sim.A = harmonics(:,v)./vc.adc_gain.gain(h_list(1:H));
             vc.sim.u_A = u_harmonics(:,v)./vc.adc_gain.gain(h_list(1:H));
             if vc.name == 'u'
+                vc.sim.ph = -vc.adc_phi.phi(h_list(1:H));
+                vc.sim.u_ph = 0*u_phx(1:H);
+            else
                 vc.sim.ph = phx(1:H) - vc.adc_phi.phi(h_list(1:H));
                 vc.sim.u_ph = u_phx(1:H);
-            else
-                vc.sim.ph = 0*phx(1:H);
-                vc.sim.u_ph = 0*u_phx(1:H);
             end
             % aux parameters to synthesize:
-            vc.sim.noise = noises(v)./max(vc.adc_gain.gain);
-            vc.sim.spur = vc.spur./interp1(vc.adc_gain.f,vc.adc_gain.gain,f_spur,i_mode,'extrap');
+            vc.sim.noise = noises(v)./vc.adc_gain.gain(h_list(1));
+            %vc.sim.spur = vc.spur./interp1(vc.adc_gain.f,vc.adc_gain.gain,f_spur,i_mode,'extrap');
+            vc.sim.spur = [];
             vc.sim.lsb = lsbs(v)/vc.adc_gain.gain(h_list(1));
+            vc.sim.jitter = jitters(v);       
+            
+            % reinterpoalte corrections to decimated freqyency axis:
+            vc.adc_gain.gain = interp1(fh,vc.adc_gain.gain,fh_dec,i_mode,'extrap');
+            vc.adc_phi.phi = interp1(fh,vc.adc_phi.phi,fh_dec,i_mode,'extrap');
                    
             % remove all useless stuff to save memory for the monte-carlo method:
             %  note: this is quite important as the whole structure will be replicated for each cycle of MC! 
-            vc = rmfield(vc,{'y','Y','ph','Y_hi','u_Y','u_ph','spur'});
+            vc = rmfield(vc,{'y','Y','ph','Y_hi','u_Y','u_ph','spur','lsb','tr_gain'});
             vc.adc_gain = rmfield(vc.adc_gain,{'u_gain','f'});
             vc.adc_phi = rmfield(vc.adc_phi,{'u_phi','f'});
             if vc.is_diff
@@ -895,7 +949,7 @@ function dataout = alg_wrapper(datain, calcset)
             end
             
             vcp{v} = vc;
-        end
+        end      
         
         % store other calculation parameters 
         sig.vc = vcp; % v.channels    
@@ -903,22 +957,75 @@ function dataout = alg_wrapper(datain, calcset)
         sig.fs = fs;
         sig.fft_size = fft_size;
         sig.N = size(datain.u.v,1);
-        sig.fh = fh; % reference frequency vector for all correction tables '*adc_*'
+        sig.fh = fh_dec; % reference frequency vector for all correction tables '*adc_*'
         sig.is_sim = 1; % enables waveform simulator as a source
         sig.sim.fx = fx(1:H); % identified harmonic frequencies
-        sig.sim.f_spur = f_spur;
-        % save reference RMS values, i.e. this should be returned by the wrms algorithm:
+        sig.sim.f_spur = []; %f_spur;
+        sig.sim.rnd_dc = 0.01; % randomize DC offset [%]
+        % save reference RMS values, i.e. this should be returned by the wrms algorithm:        
         sig.ref.P = P;        
         sig.ref.I = I_rms;
         sig.ref.U = U_rms;
 
+        %mean(vcl{1}.spur)/Ux(1)
+        %datain.u_adc_bits.v
+        
+        
+
         % execute Monte-Carlo:
         res = qwtb_mcm_exec(@proc_wrms,sig,calcset);
         
+        
+        % --simulation was done without SFDR (computantionaly expensive), so add SFDR to histograms now:        
+        % worst case SFDR effect:
+        u_U_sfdr = ((sum(0.5*vcl{1}.spur.^2) + U_rms^2)^0.5 - U_rms);    
+        u_I_sfdr = ((sum(0.5*vcl{2}.spur.^2) + I_rms^2)^0.5 - I_rms);    
+        u_P_sfdr = sum(0.5*vcl{1}.spur.*vcl{2}.spur);        
+        % add SFDR to histograms (assume plus and minus effect, because SFDR is partially in the detected harmonics
+        % that are simualted by MC, so the RMS is shifted to plus):
+        v_U = (2*rand(calcset.mcm.repeats,1) - 1)*u_U_sfdr + res.dU*U_rms; 
+        v_I = (2*rand(calcset.mcm.repeats,1) - 1)*u_I_sfdr + res.dI*I_rms;
+        v_P = (2*rand(calcset.mcm.repeats,1) - 1)*u_P_sfdr + res.dP*abs(P);
+        
+%         figure;
+%         hist(res.dU,50)
+%         figure;
+%         hist(res.dP,50)
+        
+        % coverage factor estimate:
+        ke = loc2covg(calcset.loc,50);
+        
         % calculate uncertainties:
-        u_U = U_rms*est_scovint(res.dU,0)/2;
-        u_I = I_rms*est_scovint(res.dI,0)/2;
-        u_P = P*est_scovint(res.dP,0)/2;
+        u_U = scovint_ofs(v_U, calcset.loc, 0)/ke;
+        u_I = scovint_ofs(v_I, calcset.loc, 0)/ke;
+        u_P = scovint_ofs(v_P, calcset.loc, 0)/ke;
+        
+        % override DC uncertainty:
+        u_Udc = scovint_ofs(res.dUdc, calcset.loc, 0)/ke;
+        u_Idc = scovint_ofs(res.dIdc, calcset.loc, 0)/ke;
+                
+        % this is very crude estimator of uncertainty evaluation error caused by the small MC iterations count:
+        %  note: it estimates expansion coeficient based on evaluation of uncertainty from S subsets of the randomized quantities 
+        s_U = [];
+        s_I = [];
+        s_P = [];
+        for k = 1:100
+            prm = randperm(calcset.mcm.repeats);
+            prm = prm(1:round(0.5*calcset.mcm.repeats));        
+            s_U(k) = scovint_ofs(v_U(prm), calcset.loc, 0)/ke;
+            s_I(k) = scovint_ofs(v_I(prm), calcset.loc, 0)/ke;
+            s_P(k) = scovint_ofs(v_P(prm), calcset.loc, 0)/ke;
+        end      
+        k_U = 1 + std(s_U)*2^-0.5/u_U;
+        k_I = 1 + std(s_I)*2^-0.5/u_I;
+        k_P = 1 + std(s_P)*2^-0.5/u_P;
+        
+        % expand the original uncertainty estimates:
+        u_U = u_U*k_U;
+        u_I = u_I*k_I;
+        u_P = u_P*k_P;
+        vcl{1}.u_dc = u_Udc*k_U;
+        vcl{2}.u_dc = u_Idc*k_I;
     
     else
         % -- no uncertainty mode:
@@ -1106,4 +1213,8 @@ function [unc] = top_bin_unc(unc,bin)
 end
 
 
-
+function unc = scovint_ofs(x, loc, avg)
+% scovint for offsetted histogram
+    [slen,sql,sqr] = scovint(x, loc);
+    unc = max(abs([sqr sql] - avg));
+end

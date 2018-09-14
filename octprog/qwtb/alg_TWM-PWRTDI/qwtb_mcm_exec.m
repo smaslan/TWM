@@ -25,7 +25,7 @@ function [vec,res] = qwtb_mcm_exec(fun,par,calcset)
         %         so rather using ordinary loop  
         if iscell(par)
             for k = 1:N
-                res{k} = fun(par{k});
+                res{k} = fun(par{k});                
             end
         else
             for k = 1:N
@@ -92,7 +92,11 @@ function [vec,res] = qwtb_mcm_exec(fun,par,calcset)
             else
                 % Unix: possibly supercomputer - assume large CPU:
                 % set large number of job files, coz Linux or supercomputer should be able to handle it well:    
-                mc_setup.max_chunk_count = 10000;
+                if isfield(calcset.mcm,'max_jobs')
+                    mc_setup.max_chunk_count = calcset.mcm.max_jobs; % user limit
+                else
+                    mc_setup.max_chunk_count = 10000;
+                end                
                 % run only master if cores count set to 0 (assuming slave servers are already running on background)
                 mc_setup.run_master_only = (calcset.mcm.procno == 0);
                 % do not let master work, assuming there is fuckload of slave servers to do stuff:

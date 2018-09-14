@@ -3,228 +3,427 @@ function alg_test(calcset) %<<<1
 %
 % See also qwtb
 
-    % calculation setup:
-    calcset.verbose = 1;
+    % testing mode {0: single test, ? >= 1: N repeated tests, ? < 0: repeat particular test from previous test setups}:
+    is_full_val = 0;-115;
+    
+    % maximum number of test repetitions per test setup (includes retries when alg. returns error):
+    val.max_count = 150;
+    % minimum number of test repetitions per test setup:
+    val.min_count = 100;
+    % print debug lines:
+    val.dbg_print = 1;
+    % resutls path:
+    val_path = [fileparts(mfilename('fullpath')) filesep 'modtdps_val_rect.mat'];
+    
+    
+    % --- test execution setup ---
+    % parallel instances (use 0 to not start servers, user must run them manually):
+    par_cores = 0;
+    
+    % parallel execution mode (QWTB naming convence) {'singlecore', 'multicore', 'multistation'}:
+    par_mode = 'multistation';
+    
+    % 'multistation' mode jobs sharing folder:
+    if ispc
+        % windoze:
+        par_mc_folder = 'g:\work\_mc_jobs_';
+    else
+        % linux:
+        par_mc_folder = 'mc_rubbish';        
+    end
+    
+    
+    
+    % --- Test function multicore setup:    
+    % note: This is execution of the algorithm test, not execution mode if the algorithm itself!
+    %       Do not use multicore processing here and for the algorithm at once!  
+    % multicore cores count (0 to not start any, user must start servers manually):
+    if ispc    
+        mc_setup.cores = 0; % never start servers in windoze (started manually)
+    else
+        mc_setup.cores = par_cores; % for supercomputer        
+    end            
+    % multicore behaviour:
+    mc_setup.min_chunk_size = 1;
+    % multicore jobs directory:
+    mc_setup.share_fld = par_mc_folder;
+    % paths required for the calculation:
+    %  note: multicore slaves need to know where to find the algorithm functions 
+    mc_setup.user_paths = {fileparts(mfilename('fullpath')), fileparts(which('qwtb'))}; 
+    % run only master if cores count set to 0 (assuming slave servers are already running on background)
+    mc_setup.run_master_only = (mc_setup.cores == 0);
+    if ispc
+        % windoze - most likely small CPU:
+        % use only small count of job files, coz windoze may get mad...    
+        mc_setup.max_chunk_count = 500;
+        % lest master work as well, it won't do any harm:
+        mc_setup.master_is_worker = (mc_setup.cores <= 4);         
+    else
+        % Unix: possibly supercomputer - assume large CPU:
+        % set large number of job files, coz Linux or supercomputer should be able to handle it well:    
+        mc_setup.max_chunk_count = 10000;
+        % lest master will not work, because there is fuckload of servers to do the stuff:
+        mc_setup.master_is_worker = 0;
+        if par_cores
+            try
+                mc_setup.run_after_slaves = @coklbind2;
+            catch
+                fprintf('User function ''@coklbind2'' not found!\n');
+            end
+        end
+    end    
+    % multicore method {'cellfun','parcellfun','multicore'}:        
+    mc_setup.method = par_mode_qwtb2mc(par_mode);
+
+      
+
+    % --- calculation setup:
+    calcset.verbose = (is_full_val <= 0);
     calcset.unc = 'guf';
     calcset.loc = 0.95;
     % no QWTB input checking:
     calcset.checkinputs = 0;
+    % faster mode - uncertainty LUTs are stored in globals to prevent repeated file access (for validation on supercomp. only):
+    calcset.fetch_luts = (is_full_val > 0);
     
-    % samples to synthesize:
-    %N = 30000;
-    N = round(logrand(3000,100000));
+    % calculation modes:
+    a_modes =  {struct('wshape','sine', 'corr',1),
+                struct('wshape','sine', 'corr',0),
+                struct('wshape','rect', 'corr',0)};
     
-    % sampling rate:
-    fs = 10000;
+    if is_full_val > 0
+        % --- full validation mode ---
     
-    % carrier:
-    f0 = rounddig(logrand(50,fs/10),4);
-    %f0 = fs/10;
-    A0 = rounddig(logrand(1,50),3);
+        % -- test setup combinations:      
+        % randomize corrections uncertainty:
+        com.rand_unc = [0 1];
+        %com.rand_unc = [1];
+        % calculation mode (see above):
+        com.mode = [3];
+    
+        % generate all test setup combinations:
+        [vr,com] = var_init(com);
+        simcom = var_get_all_fast(com,vr,5000,1);        
+    else        
+        % --- single test mode ---
+        simcom = {struct()};
         
-    % modulating signal:    
-    fm = rounddig(logrand(3/(N/fs),0.3*f0),4);
-    %fm = 0.24*f0;
-    Am = A0*rounddig(logrand(0.02,0.98),3);    
-    phm = rand(1)*2*pi; % random phase
-    wshape = 'sine';
-    
-    % DC component:
-    dc = linrand(-0.1,0.1);
-    
-    %f0 = 882.6;
-    %A0 = 14.6;
-    %Am = 3*4.4384;
-    %fm = 45.79;
-    
-    
-    % print some header:
-    fprintf('samples count = %g\n', N);
-    fprintf('sampling rate = %.7g kSa/s\n', 0.001*fs);
-    fprintf('fundamental frequency = %.7g Hz\n', f0);
-    fprintf('modulating periods = %.7g\n', (N/fs)*fm);
-    fprintf('fundamental samples per period = %.7g\n', fs/f0);
-    fprintf('modulation to carrier frequency ratio = %.5g\n', fm/f0);
-    fprintf('\n');
-    
-        
-    
-    % digitizer std noise:    
-    adc_std_noise = 100e-6;
-    
-    % digitizer jitter:
-    jitter = 100e-9;
-    
-    % enable algorithm self-compensation?
-    din.comp_err.v = 1;
-    
-    % uncomment to enable differential sensor connection?
-    %  note: this is an additional loop impedance of the differential sensor
-    %Zx = 10;
-    
-    % randomize uncertainties?
-    rand_unc = 0;
-    
-    
-    % -- SFDR harmonics/interharmonics generator:
-    % max spurr amplitude relative to fundamental [-]:
-    sfdr = logrand(10e-6,0.001);
-    % harmonics count:
-    sfdr_hn = 10;
-    % randomize amplitude (zero to sfdr-level)?
-    sfdr_rand = 1;
-    % randomize frequency (relative to f0)?
-    sfdr_rand_f = 0.1;
-    
-
-    % store some input quantities:
-    din.fs.v = fs;    
-    din.wave_shape.v = wshape;
-        
-    % store correction data:
-    if true
-        % create some corretion table for the digitizer gain: 
-        din.adc_gain_f.v = [0;1e3;1e6];
-        din.adc_gain_a.v = [];
-        din.adc_gain.v = [1.0000; 1.01000; 1.02000];
-        din.adc_gain.u = [0.0001; 0.0002;  0.0003]; 
-        % create some corretion table for the digitizer phase: 
-        din.adc_phi_f.v = [0;1e3;1e6];
-        din.adc_phi_a.v = [];
-        din.adc_phi.v = [0.00000; 0.00010; 0.0010];
-        din.adc_phi.u = [0.00010; 0.00020; 0.0020];
-        % create some corretion table for the digitizer gain: 
-        din.lo_adc_gain_f = din.adc_gain_f;
-        din.lo_adc_gain_a = din.adc_gain_a;
-        din.lo_adc_gain = din.adc_gain; 
-        % create some corretion table for the digitizer phase: 
-        din.lo_adc_phi_f = din.adc_phi_f;
-        din.lo_adc_phi_a = din.adc_phi_a;
-        din.lo_adc_phi = din.adc_phi;
-        % generate some ADC sfdr:
-        din.adc_sfdr_a.v = [];
-        din.adc_sfdr_f.v = [];
-        din.adc_sfdr.v = -log10(sfdr)*20;
-        din.lo_adc_sfdr_a = din.adc_sfdr_a;
-        din.lo_adc_sfdr_f = din.adc_sfdr_f;
-        din.lo_adc_sfdr = din.adc_sfdr;
-        % create corretion of the digitizer timebase:
-        din.adc_freq.v = 0.000100;
-        din.adc_freq.u = 0.000005;
-        % create ADC offset voltages:
-        din.adc_offset.v = 0.001;
-        din.adc_offset.u = 0.000005;
-        din.lo_adc_offset.v = -0.002;
-        din.lo_adc_offset.u = 0.000005;
-        
-        % define some low-side channel timeshift:
-        din.time_shift_lo.v = 1.234e-4;
-        din.time_shift_lo.u = 10e-6;
-        
-        % ADC aperture correction:
-        din.adc_aper_corr.v = 1; % state
-        din.adc_aper.v = 10e-6; % aperture value
-        
-        
-        % transducer type:
-        din.tr_type.v = 'rvd';        
-        % create some corretion table for the transducer gain: 
-        din.tr_gain_f.v = [0;1e3;1e6];
-        din.tr_gain_a.v = [];
-        din.tr_gain.v = [1.0000; 0.9900; 0.9500]*70;
-        din.tr_gain.u = [0.0001; 0.0002; 0.0005]*70; 
-        % create some corretion table for the transducer phase: 
-        din.tr_phi_f.v = [0;1e3;1e6];
-        din.tr_phi_a.v = [];
-        din.tr_phi.v = [0.0000; -0.0010; -0.0020];
-        din.tr_phi.u = [0.0001;  0.0002;  0.0010];     
-        % RVD transducer low-side impedance:
-        din.tr_Zlo_f.v  = [];
-        din.tr_Zlo_Rp.v = [200];
-        din.tr_Zlo_Cp.v = [1e-12];        
-        din.tr_Zlo_Rp.u = [1e-6];
-        din.tr_Zlo_Cp.u = [1e-12];    
-    
+        % randomize corrections uncertainty:
+        simcom{1}.rand_unc = 0;
+        % calculation mode (see above): 
+        simcom{1}.mode = 3; 
     end
     
+    
+    
 
-    % generate the signal:
-    cfg.N = N; % samples count
-    cfg.f0 = f0; % carrier frequency
-    cfg.A0 = A0; % carrier amplitude
-    cfg.fm = fm; % modulating frequency
-    cfg.Am = Am; % modulating amplitude    
-    cfg.phm = phm; % modulating phase
-    cfg.wshape = wshape; 
-    cfg.dc = dc; % dc offset
-    cfg.sfdr = sfdr; % sfdr max amplitude
-    cfg.sfdr_hn = sfdr_hn; % sfdr max harmonics count
-    cfg.sfdr_rand = sfdr_rand; % randomize sfdr amplitudes?
-    cfg.sfdr_rand_f = sfdr_rand_f; % randomize sfdr frequency?
-    cfg.adc_std_noise = adc_std_noise; % ADC noise level  
-    if exist('Zx','var')
-        cfg.Zx = Zx; % differential mode enabled 
-    end        
-    datain = gen_mod(din, cfg, rand_unc);
+    % --- FOR EACH TEST SETUP GROUP: ---
+    if is_full_val
+        fprintf('Generating test setups...\n');
+    end
+    par = {};
+    pn = 0;
+    simcom_num = numel(simcom);
+    for c = 1:simcom_num
     
-    
-    % workaround for QWTB uncertainty checking
-    %  ###todo: to be removed when QWTB fixed
-    alginf = qwtb('TWM-MODTDPS','info');
-    qwtb('TWM-MODTDPS','addpath');
-    datain = qwtb_add_unc(datain,alginf.inputs);
-    
-    % --- execute the algorithm:
-    dout = qwtb('TWM-MODTDPS',datain,calcset);
-    
-    
-    % get calculated values:
-    A0x   = dout.A0.v;   
-    u_A0x = dout.A0.u;    
-    Amx   = dout.A_mod.v;   
-    u_Amx = dout.A_mod.u;    
-    modx   = dout.mod.v;   
-    u_modx = dout.mod.u;    
-    f0x   = dout.f0.v;
-    u_f0x = dout.f0.u;    
-    fmx   = dout.f_mod.v;
-    u_fmx = dout.f_mod.u;
-    %ofsx   = dout.dc.v;
-    %u_ofsx = inf;
-    
-    % prepare reference values:
-    modr = 100*Am/A0;
-    
-    % prepare list of quantities to print:
-    r_list = [A0    Am    modr   f0    fm];
-    x_list = [A0x   Amx   modx   f0x   fmx];
-    u_list = [u_A0x u_Amx u_modx u_f0x u_fmx];
-    un_list = {'V','V','%','Hz','Hz'};
-    fmt_list = {'si','si','f','si','si'};
-    n_list = {'A0','Am','mod','f0','fm'};
-        
-    
-    % print results table:
-    fprintf('\n------------+-------------+----------------------------+-------------+---------\n');
-    fprintf('    NAME    |     REF     |     CALC +- UNCERTAINTY    |     DEV     | %%-UNC\n');
-    fprintf('------------+-------------+----------------------------+-------------+---------\n');
-    for k = 1:numel(n_list)
-    
-%         if strcmpi(fmt_list{k},'si')
-%             [ss,sv,su,sn] = unc2str_si(x_list(k),u_list(k),un_list{k});
-%             [ss,dv,ss,sn] = unc2str_si(x_list(k)-r_list(k),u_list(k),un_list{k});
-%             [ss,rv,ss,sn] = unc2str_si(r_list(k),u_list(k),un_list{k});
-%             sn = ['[' sn ']'];
-%         else
-            [ss,sv,su] = unc2str(x_list(k),u_list(k));
-            [ss,dv] = unc2str(x_list(k)-r_list(k),u_list(k));
-            [ss,rv] = unc2str(r_list(k),u_list(k));
-            sn = ['[' un_list{k} ']'];
-%        end
-        fprintf('%5s %-5s | %11s | %11s +- %-11s | %11s | %+3.0f\n',n_list{k},sn,rv,sv,su,dv,(x_list(k)-r_list(k))/u_list(k)*100);
+        % --- FOR EACH VALIDATION TEST: ---
+        val_num = max(1,is_full_val);
+        for v = 1:val_num
             
+            din = struct();
+            
+            % calculation mode struct:
+            mode = a_modes{simcom{c}.mode};       
+            
+            % samples to synthesize:
+            N = round(logrand(3000,100000));
+            
+            % sampling rate:
+            %  note: randomize in small range, no need for full range testing, because all other parameters are relative to this
+            fs = logrand(9000,11000);
+            
+            % input voltage range:
+            U_rng = logrand(5,70);
+            
+            % carrier:
+            f0 = rounddig(logrand(50,fs/10),4);
+            % carrier amplitude:
+            A0 = rounddig(logrand(0.1,1)*U_rng,3);
+            
+            % maximum modulating/carrier freq. ratio:
+            if strcmpi(mode.wshape,'sine')
+                fmf0_rat_max = 0.32; % for sine
+            else
+                fmf0_rat_max = 0.24; % for rect
+            end                               
+                
+            % modulating signal frequency:    
+            fm = rounddig(logrand(3/(N/fs),fmf0_rat_max*f0),4);
+            % modulating signal amplitude:
+            Am = A0*rounddig(logrand(0.02,0.98),3);    
+            % modulating signal phase [rad]: 
+            phm = rand(1)*2*pi; % random phase
+            % modulating signal shape: 
+            wshape = mode.wshape;
+            
+            % DC component:
+            dc = linrand(-0.02,0.02)*A0;
+            
+            % digitizer std noise:    
+            adc_std_noise = logrand(1e-6,50e-6);
+            
+            % digitizer jitter:
+            jitter = logrand(1e-9,100e-9);
+            
+            % enable algorithm self-compensation?
+            din.comp_err.v = mode.corr;
+            
+            % randomize correctio uncertainties?
+            rand_unc = simcom{c}.rand_unc;
+            
+            % uncomment to enable differential sensor connection?
+            %  note: this is an additional loop impedance of the differential sensor
+            %Zx = 10;
+            
+            
+            % -- SFDR harmonics/interharmonics generator:
+            % max spurr amplitude relative to fundamental [-]:
+            sfdr = logrand(10e-6,0.001);
+            % harmonics count:
+            sfdr_hn = 10;
+            % randomize amplitude (zero to sfdr-level)?
+            sfdr_rand = 1;
+            % randomize frequency (relative to f0)?
+            sfdr_rand_f = 0.1;
+            
+        
+            % store some input quantities:
+            din.fs.v = fs;    
+            din.wave_shape.v = wshape;
+                
+            % store correction data:
+            if true
+
+                % maximum digitizer interchannel time shift expressed as phase shift at nyquist frequency [rad]: 
+                max_chn2chn_phi   = 0.1;
+                max_chn2chn_td   = max_chn2chn_phi/(2*pi*0.5*din.fs.v); % expressed as delay
+                max_chn2chn_td_u = 20e-9;
+                
+                % maximum change of gain of digitizer from DC to AC at fs/2 [-]:
+                adc_mgain_acdc = 0.01; 
+                % maximum phase error of digitizer [rad]:
+                adc_mphi = 0.001;
+                % maximum change of gain of transducer from DC to AC at fs/2 [-]:
+                tr_mgain_acdc = 0.02;
+                % maximum phase error of transducer [rad]:
+                tr_mphi = 0.001;
+                
+                % create some corretion table for the digitizer gain:                 
+                gain_unc = logrand(5e-6,50e-6);
+                [din.adc_gain_f,din.adc_gain,din.adc_phi] ...
+                  = gen_adc_tfer(din.fs.v/2+1,linrand(30,50), linrand(0.95,1.05),gain_unc, ... % f_max, n_steps, nom_gain, nom_gain_unc
+                                 linrand(-adc_mgain_acdc,+adc_mgain_acdc),gain_unc*logrand(1,5),linrand(0.5,3), ... % ac-dc [-], max_unc [-], shape (power)
+                                 0.2*din.fs.v,logrand(0.005,0.03), ... % ripple period [Hz], ripple amplitude [dB] 
+                                 linrand(-adc_mphi,+adc_mphi),0.00008,0.000002,linrand(0.7,3)); % phi_at_fs/2, max_phi_unc, min_phi_unc, shape (power)
+                din.adc_phi_f = din.adc_gain_f;         
+                din.adc_gain_a.v = [];
+                din.adc_phi_a.v = [];               
+                % create some corretion table for the digitizer gain: 
+                din.lo_adc_gain_f = din.adc_gain_f;
+                din.lo_adc_gain_a = din.adc_gain_a;
+                din.lo_adc_gain = din.adc_gain; 
+                % create some corretion table for the digitizer phase: 
+                din.lo_adc_phi_f = din.adc_phi_f;
+                din.lo_adc_phi_a = din.adc_phi_a;
+                din.lo_adc_phi = din.adc_phi;
+                % generate some ADC sfdr:
+                w_sfdr = linrand(0.1,0.9);
+                din.adc_sfdr_a.v = [];
+                din.adc_sfdr_f.v = [];
+                din.adc_sfdr.v = -log10(sfdr*w_sfdr)*20;
+                din.lo_adc_sfdr_a = din.adc_sfdr_a;
+                din.lo_adc_sfdr_f = din.adc_sfdr_f;
+                din.lo_adc_sfdr = din.adc_sfdr;
+                % create corretion of the digitizer timebase:
+                din.adc_freq.v = linrand(-0.000100,0.000100);
+                din.adc_freq.u = 0.000005;
+                % create ADC offset voltages:
+                din.adc_offset.v = linrand(-0.002,0.002);
+                din.adc_offset.u = 0.0001;
+                din.lo_adc_offset.v = linrand(-0.002,0.002);
+                din.lo_adc_offset.u = 0.0001;  
+                % define some low-side channel timeshift:
+                din.time_shift_lo.v = linrand(-1,1)*max_chn2chn_td;
+                din.time_shift_lo.u = logrand(0.1,1)*max_chn2chn_td_u;
+                % digitizer resolution:
+                din.adc_bits.v = linrand(16,28);
+                din.adc_nrng.v = 1; % nominal range +-1V                
+                % ADC aperture correction:
+                din.adc_aper_corr.v = 1; % state always on
+                din.adc_aper.v = logrand(1e-6,100e-6); % aperture value
+                
+                
+                % transducer type:
+                ttypz = {'rvd','shunt'};
+                din.tr_type.v = ttypz{(rand > 0.5) + 1};        
+                % create some corretion table for the transducer gain: 
+                gain_unc = logrand(5e-6,50e-6);
+                [din.tr_gain_f,din.tr_gain,din.tr_phi] ...
+                  = gen_adc_tfer(din.fs.v/2+1,linrand(30,50), U_rng,gain_unc*U_rng, ... % f_max, n_steps, nom_gain, nom_gain_unc
+                                 linrand(-tr_mgain_acdc,+tr_mgain_acdc),gain_unc*logrand(1,5),linrand(0.5,3), ... % ac-dc [-], max_unc [-], shape (power)
+                                 linrand(0.1,0.25)*din.fs.v,0.005, ... % ripple period [Hz], ripple amplitude [dB]
+                                 linrand(-tr_mphi,+tr_mphi),0.000080,0.000002,linrand(0.7,3)); % phi_at_fs/2, max_phi_unc, min_phi_unc, shape (power)
+                din.tr_phi_f = din.tr_gain_f;
+                din.tr_gain_a.v = [];
+                din.tr_phi_a.v = [];
+                % transducer SFDR:
+                din.tr_sfdr.v = -log10(sfdr*(1-w_sfdr))*20;
+                din.tr_sfdr_f.v = [];
+                din.tr_sfdr_a.v = [];                
+                % RVD transducer low-side impedance:
+                din.tr_Zlo_f.v  = [];
+                din.tr_Zlo_Rp.v = [200];
+                din.tr_Zlo_Cp.v = [1e-12];        
+                din.tr_Zlo_Rp.u = [1e-6];
+                din.tr_Zlo_Cp.u = [1e-12];    
+            
+            end
+            
+        
+            % generate the signal:
+            cfg.N = N; % samples count
+            cfg.f0 = f0; % carrier frequency
+            cfg.A0 = A0; % carrier amplitude
+            cfg.fm = fm; % modulating frequency
+            cfg.Am = Am; % modulating amplitude    
+            cfg.phm = phm; % modulating phase
+            cfg.wshape = wshape; 
+            cfg.dc = dc; % dc offset
+            cfg.sfdr = sfdr; % sfdr max amplitude
+            cfg.sfdr_hn = sfdr_hn; % sfdr max harmonics count
+            cfg.sfdr_rand = sfdr_rand; % randomize sfdr amplitudes?
+            cfg.sfdr_rand_f = sfdr_rand_f; % randomize sfdr frequency?
+            cfg.adc_std_noise = adc_std_noise; % ADC noise level  
+            if exist('Zx','var')
+                cfg.Zx = Zx; % differential mode enabled 
+            end
+            
+            % store test setup:
+            pn = pn + 1;
+            par{pn}.rand_unc = rand_unc;
+            par{pn}.cfg = cfg;
+            par{pn}.din = din;
+            par{pn}.val = val;
+            par{pn}.simcom = simcom{c};
+            par{pn}.calcset = calcset;
+            
+        end % test setups loop
+        
+    end % combinations loop           
+            
+    
+    
+    if is_full_val > 0
+        % --- FULL VALIDATION MODE ---
+        
+        fprintf('Processing test setups...\n');
+
+        % -- processing start:
+        res = runmulticore(mc_setup.method, @proc_modtdps_test, par, mc_setup.cores, mc_setup.share_fld, 2, mc_setup);
+               
+        % store results:
+        save(val_path,'-v7','res','simcom','vr');
+        
+        qwtb('TWM-MODTDPS','addpath');
+        
+        % print results:
+        valid_report(res,vr);
+        
+    else
+        % --- SINGLE VALIDATION MODE ---
+        
+        if is_full_val < 0
+            % load setup from previous validation report:
+            
+            res = load(val_path,'res');
+            par = res.res{-is_full_val}.par;
+            rand_unc = par.rand_unc;
+            din = par.din;
+            cfg = par.cfg;
+            
+            tset = calcset;
+            calcset = par.calcset;
+            calcset.verbose = tset.verbose;            
+                        
+        end
+        
+        % print some header with test setup info:
+        if is_full_val <= 0            
+            fprintf('samples count = %g\n', cfg.N);
+            fprintf('sampling rate = %.7g kSa/s\n', 0.001*din.fs.v);
+            fprintf('fundamental frequency = %.7g Hz\n', cfg.f0);
+            fprintf('modulating periods = %.7g\n', (cfg.N/din.fs.v)*cfg.fm);
+            fprintf('fundamental samples per period = %.7g\n', din.fs.v/cfg.f0);
+            fprintf('modulation to carrier frequency ratio = %.5g\n', cfg.fm/cfg.f0);
+            fprintf('\n');
+        end
+        
+        % --- synthesize the signal:    
+        datain = gen_mod(din, cfg, rand_unc);
+        
+        % --- execute the algorithm:
+        dout = qwtb('TWM-MODTDPS',datain,calcset);
+        
+        
+        % get calculated values:
+        A0x   = dout.A0.v;   
+        u_A0x = dout.A0.u;    
+        Amx   = dout.A_mod.v;   
+        u_Amx = dout.A_mod.u;    
+        modx   = dout.mod.v;   
+        u_modx = dout.mod.u;    
+        f0x   = dout.f0.v;
+        u_f0x = dout.f0.u;    
+        fmx   = dout.f_mod.v;
+        u_fmx = dout.f_mod.u;
+        %ofsx   = dout.dc.v;
+        %u_ofsx = inf;
+        
+        % prepare reference values:
+        modr = 100*cfg.Am/cfg.A0;
+        
+        % prepare list of quantities to print:
+        r_list = [cfg.A0 cfg.Am modr cfg.f0 cfg.fm];
+        x_list = [A0x   Amx   modx   f0x   fmx];
+        u_list = [u_A0x u_Amx u_modx u_f0x u_fmx];
+        un_list = {'V','V','%','Hz','Hz'};
+        fmt_list = {'si','si','f','si','si'};
+        n_list = {'A0','Am','mod','f0','fm'};
+            
+        
+        % print results table:
+        fprintf('\n------------+-------------+----------------------------+-------------+---------\n');
+        fprintf('    NAME    |     REF     |     CALC +- UNCERTAINTY    |     DEV     | %%-UNC\n');
+        fprintf('------------+-------------+----------------------------+-------------+---------\n');
+        for k = 1:numel(n_list)
+        
+    %         if strcmpi(fmt_list{k},'si')
+    %             [ss,sv,su,sn] = unc2str_si(x_list(k),u_list(k),un_list{k});
+    %             [ss,dv,ss,sn] = unc2str_si(x_list(k)-r_list(k),u_list(k),un_list{k});
+    %             [ss,rv,ss,sn] = unc2str_si(r_list(k),u_list(k),un_list{k});
+    %             sn = ['[' sn ']'];
+    %         else
+                [ss,sv,su] = unc2str(x_list(k),u_list(k));
+                [ss,dv] = unc2str(x_list(k)-r_list(k),u_list(k));
+                [ss,rv] = unc2str(r_list(k),u_list(k));
+                sn = ['[' un_list{k} ']'];
+    %        end
+            fprintf('%5s %-5s | %11s | %11s +- %-11s | %11s | %+3.0f\n',n_list{k},sn,rv,sv,su,dv,(x_list(k)-r_list(k))/u_list(k)*100);
+                
+        end
+        fprintf('------------+-------------+----------------------------+-------------+---------\n\n');
+    
     end
-    fprintf('------------+-------------+----------------------------+-------------+---------\n\n');
        
     
 end

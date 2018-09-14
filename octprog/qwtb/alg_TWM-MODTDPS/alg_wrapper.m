@@ -38,6 +38,11 @@ function dataout = alg_wrapper(datain, calcset)
         error('Multiple input records in ''y'' not allowed!'); 
     end
     
+    if ~isfield(calcset, 'fetch_luts')
+        % by default do not prefetch uncertainty LUT tables: 
+        calcset.fetch_luts = 0;
+    end
+    
     % Rebuild TWM style correction tables:
     % This is not necessary but the TWM style tables are more comfortable to use then raw correction matrices
     tab = qwtb_restore_correction_tables(datain,cfg);
@@ -83,7 +88,7 @@ function dataout = alg_wrapper(datain, calcset)
     cset.unc = 'none';
     cset.verbose = 0;
     dout = qwtb('PSFE',din,cset);
-    qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called    
+    %qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called    
     f0 = dout.f.v;
     A0 = dout.A.v;
     
@@ -97,7 +102,7 @@ function dataout = alg_wrapper(datain, calcset)
     cset.verbose = 0;
     din.y.v = vc.y;                
     dout = qwtb('SP-WFFT',din,cset);
-    qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+    %qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
     fh    = dout.f.v(:); % freq. vector of the DFT bins
     vc.Y  = dout.A.v(:); % amplitude vector of the DFT bins
     vc.ph = dout.ph.v(:); % phase vector of the DFT bins
@@ -107,7 +112,7 @@ function dataout = alg_wrapper(datain, calcset)
         % get low-side spectrum:
         din.y.v = vc.y_lo;                
         dout = qwtb('SP-WFFT',din,cset);
-        qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+        %qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
         fh       = dout.f.v(:); % freq. vector of the DFT bins
         vc.Y_lo  = dout.A.v(:); % amplitude vector of the DFT bins
         vc.ph_lo = dout.ph.v(:); % phase vector of the DFT bins
@@ -142,7 +147,7 @@ function dataout = alg_wrapper(datain, calcset)
     tot_gain = ag.gain;        
     
     % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
-    if vc.ap_corr && ta > 1e-12 
+    if vc.ap_corr && abs(ta) > 1e-12 
         vc.y = vc.y.*ap_gain;               
     end
             
@@ -162,7 +167,7 @@ function dataout = alg_wrapper(datain, calcset)
         vc.y_lo = vc.y_lo.*ag.gain; % to time-domain signal
         
         % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
-        if vc.ap_corr_lo && ta > 1e-12 
+        if vc.ap_corr_lo && abs(ta) > 1e-12 
             vc.y_lo = vc.y_lo.*ap_gain; % to time-domain signal                        
         end
                     
@@ -236,7 +241,7 @@ function dataout = alg_wrapper(datain, calcset)
     % --- main algorithm start --- 
     
     % estimate the modulation:
-    [me, dc,f0,A0, fm,Am,phm, n_A0,n_Am] = mod_tdps(fs,vc.y,wave_shape,comp_err);
+    [me, dc,f0,A0, fm,Am,phm, n_A0,n_Am,u_f0x] = mod_tdps(fs,vc.y,wave_shape,comp_err);
     
     
     
@@ -291,7 +296,7 @@ function dataout = alg_wrapper(datain, calcset)
             % recalculate spectrum from the difference signal:          
             din.y.v = vc.y;                
             dout = qwtb('SP-WFFT',din,cset);
-            qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
+            %qwtb('TWM-MODTDPS','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
             fh = dout.f.v(:); % freq. vector of the DFT bins
             Y  = dout.A.v(:); % amplitude vector of the DFT bins
             w  = dout.w.v(:); % window coefficients
@@ -322,7 +327,7 @@ function dataout = alg_wrapper(datain, calcset)
         end
         
         % run unc. estimator: 
-        unc = unc_estimate(dc,f0,A0,fm,Am,phm, numel(vc.y),fh,Y*tot_gain,fs, sfdr_sys,lsb,jitt, wave_shape,comp_err, w);     
+        unc = unc_estimate(dc,f0,A0,fm,Am,phm, numel(vc.y),fh,Y*tot_gain,fs, sfdr_sys,lsb,jitt, wave_shape,comp_err, w, calcset.fetch_luts);     
     
     else
         % -- no uncertainty:
@@ -338,10 +343,11 @@ function dataout = alg_wrapper(datain, calcset)
   
     
     % build virtual list of involved freqs. (sine mod. components):
-    % note: we use it even for square
-    fc =  [f0; f0-fm;    f0+fm];
-    Ac =  [A0; 0.5*Am;   0.5*Am];
-    phc = [0;  pi/2-phm; -pi/2+phm];
+    %   note: we use it even for square
+    df0 = 1e-1;
+    fc =  [f0; f0+df0; f0-fm;     f0+fm];
+    Ac =  [A0; A0;     0.5*Am;    0.5*Am];
+    phc = [0;  0;      +pi/2-phm; -pi/2+phm];
     
     
     % revert amplitudes back to pre-corrections state:
@@ -364,10 +370,15 @@ function dataout = alg_wrapper(datain, calcset)
         [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,vc.tran,fc,[], A0_hi,ph0_hi,u_A0_hi,u_ph0_hi);            
         u_trg = u_trg./trg;
         trg = trg./Ac;
+        trp = trp - phc;
     else
         u_trg = u_A0_hi./Ac;
-        trg = A0_hi./Ac;             
+        trg = A0_hi./Ac;
+        trp = ph0_hi - phc;             
     end
+    
+    % estimate of modulating amplitude error due to phase of imperfect corrections (relative):    
+    ur_Am_pc = abs(mod(diff(trp(3:end)+u_trp(3:end)) + pi,2*pi) - pi)/3^0.5;
     
     if vc.is_diff
         % DIFF mode:
@@ -380,31 +391,37 @@ function dataout = alg_wrapper(datain, calcset)
                         
     end
     
-    % carrier relative unc. from corrections:
-    ur_A0 = u_trg(1);
-    u_A0 = A0.*ur_A0;
-    u_A0 = (u_A0.^2 + n_A0.^2 + (A0*unc.dA0.val)^2).^0.5;
+    
     
     % carrier frequency uncertainty:
-    u_f0 = unc.df0.val*f0;
-    
+    u_f0 = f0*(unc.df0.val^2 + datain.adc_freq.u^2)^0.5;
+    u_f0 = (u_f0^2 + u_f0x^2)^0.5;
+
     % modulating frequency uncertainty:
-    u_fm = unc.dfm.val*fm;
+    u_fm = fm*(unc.dfm.val^2 + datain.adc_freq.u^2)^0.5;
     
     % -- modulation relative unc. from corrections:
     % difference of the mean of sideband correction values from the carrier (because we used carrier freq. correction for entire signal):
     %  ###todo: this is very schmutzige solution because it does not take into account the sideband phase errors but it seems to work  
-    %ur_mod = sum((trg(2:end)/trg(1) - 1).^2).^0.5/3^0.5;
-    ur_mod = abs(mean(trg(2:end))/trg(1) - 1)/3^0.5;
+    ur_mod_a = sum((trg(3:end)/trg(1) - 1).^2).^0.5/3^0.5;
+    ur_mod_b = abs(mean(trg(3:end))/trg(1) - 1)/3^0.5;
+    ur_mod = mean([ur_mod_a,ur_mod_b]);
     if strcmpi(wave_shape,'rect')
         % rectangular wave mode:
-        % extend the estaimte by some tictoc coefficient because rectangular modulation will cause event worse errors due to much mode sidebands 
+        % extend the estimate by some tictoc coefficient because rectangular modulation will cause even worse errors due to much more sidebands 
         ur_mod = ur_mod*2;
     end
     
+    % relative uncertainty of amplitude due to uncertainty frequency:
+    ur_A_frq = u_f0/df0*abs(diff(trg(1:2)));
     
+    % carrier relative unc. from corrections:
+    ur_A0 = u_trg(1);
+    u_A0 = A0.*ur_A0;
+    u_A0 = (u_A0.^2 + n_A0.^2 + (A0*unc.dA0.val)^2 + (A0*ur_A_frq)^2).^0.5;
+        
     % uncertainty of the side bands:
-    ur_mod = (ur_mod.^2 + sum(u_trg(2:end).^2/3)).^0.5;
+    ur_mod = (ur_mod.^2 + sum(u_trg(3:end).^2/3) + ur_Am_pc^2 + ur_A_frq^2).^0.5;
     ur_mod_tmp = ur_mod;
     % add parameter estimator uncertainty:
     ur_mod = (ur_mod^2 + (n_A0/A0)^2 + (n_Am/Am)^2 + unc.dmod.val^2)^0.5;
@@ -448,11 +465,11 @@ end % function
 
 
 
-function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_shape,comp_err, w)
+function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_shape,comp_err, w, fetch_luts)
 % Uncertainty estimator of the MODTDPS algorithm mod_tdps()
 %  
 % Usage:
-%  unc = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_shape,comp_err, w)
+%  unc = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_shape,comp_err, w, fetch_luts)
 %
 % Parameters:
 %  dc - dc offset
@@ -471,6 +488,7 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
 %  wave_shape - modulating waveform {'sine' or 'rect'}
 %  comp_err - non-zero to enable self-compensation of the algorithm error
 %  w - window coefficients used for the spectrum Y(fh) calculation
+%  fetch_lust - prefetches the uncertainty LUT tables to global variables (for fast execution during validation)
 %
 % Returns:
 %  unc.df0.val - relative frequency uncertainty
@@ -590,15 +608,27 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
         
     if strcmpi(wave_shape,'sine') && comp_err
         % try to estimate uncertainty:       
-        unc = interp_lut([mfld 'sine_corr_unc.lut'],ax);
+        %unc = interp_lut([mfld 'sine_corr_unc.lut'],ax);
+        
+        if fetch_luts, global modtdps_lut_sc; else modtdps_lut_sc = []; end           
+        modtdps_lut_sc = fetch_lut(modtdps_lut_sc, [mfld 'sine_corr_unc.lut']);
+        unc = interp_lut(modtdps_lut_sc,ax);
         
     elseif strcmpi(wave_shape,'sine') && ~comp_err
         % try to estimate uncertainty:       
-        unc = interp_lut([mfld 'sine_ncorr_unc.lut'],ax);
+        %unc = interp_lut([mfld 'sine_ncorr_unc.lut'],ax);
+        
+        if fetch_luts, global modtdps_lut_snc; else modtdps_lut_snc = []; end           
+        modtdps_lut_snc = fetch_lut(modtdps_lut_snc, [mfld 'sine_ncorr_unc.lut']);
+        unc = interp_lut(modtdps_lut_snc,ax);
         
     elseif strcmpi(wave_shape,'rect')
         % try to estimate uncertainty:       
-        unc = interp_lut([mfld 'rect_ncorr_unc.lut'],ax);
+        %unc = interp_lut([mfld 'rect_ncorr_unc.lut'],ax);
+        
+        if fetch_luts, global modtdps_lut_rnc; else modtdps_lut_rnc = []; end           
+        modtdps_lut_rnc = fetch_lut(modtdps_lut_rnc, [mfld 'rect_ncorr_unc.lut']);
+        unc = interp_lut(modtdps_lut_rnc,ax);
  
     else
         % no uncertainty:
@@ -606,16 +636,21 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
         error('Uncertainty estimator for given parameters of the algorithm is not avilable! Only ''sine'' and ''rect'' mode are available.');
         
     end
-    
+        
     % scale down to (k = 1):    
     unc.df0.val = 0.5*unc.df0.val;
-    unc.dA0.val = 0.5*unc.dA0.val;
+    unc.dA0.val = 0.5*unc.dA0.val*1.1; % ###note: empiric extension
     unc.dfm.val = 0.5*unc.dfm.val;
     unc.dmod.val = 0.5*unc.dmod.val;
 
 end
 
-
+function [lut] = fetch_lut(lut,pth)
+    if isempty(lut)
+        lut = load(pth,'-mat','lut');
+        lut = lut.lut;
+    end
+end
 
 
 

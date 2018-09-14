@@ -63,17 +63,29 @@ function [] = valid_report(res,vr,pass_loc)
         %pass = rv.pass; % original pass rate
                 
         punc = [];
+        punc_id = [];
         for k = 1:R
-            punc(k,:) = mean(abs(rc{k}.punc) < 1,1);
+            if ~isempty(rc{k}.punc)
+                punc(end+1,:) = mean(abs(rc{k}.punc) < 1,1);
+                punc_id(end+1) = k; 
+            end
         end                                  
-        
-%         pass = [];
-%         for k = 1:R
-%             pass(k) = mean(abs(rc{k}.punc(:,4)) < 1);
-%         end        
+                        
 %         figure
-%         plot(pass)
-%         [v,id] = min(pass)  
+%         plot(punc(:,4))
+%         [v,id] = min(punc(:,4));
+%         punc_id(id)
+%         figure
+%         plot(rc{punc_id(id)}.punc(:,4))
+
+%         mcc = 1000;
+%         trsh = loc + randn(1,size(punc,2),mcc)*pass_unc;
+%         punc = mean(punc > trsh,1);       
+%         hist(punc(1,4,:)(:),50)
+%         [x,a,b] = scovint(punc(1,1,:)(:),0.95)     
+%         punc = mean(punc,3)*100;
+        
+
         
         % mean %-of-unc value [%]:
         cunc = mean(punc,1)*100;

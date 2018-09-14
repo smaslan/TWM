@@ -21,6 +21,32 @@ function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am] = mod_fit_sin(fs,u,wshape)
     % estimae carrier freq.:
     [f0] = PSFE(u,1/fs);
     
+%     fest = ipdft_spect(fft(u),fs);
+%     [f0] = MFSF(u, 1/fs, [1 2 3 4 5 6],fest)
+        
+%     if strcmpi(wshape,'rect')
+%         f_N = [0   3000 7000 10000 1e9];
+%         f_w = [1.5 1.5  1.2  1.05  1.05];
+%         f_w = interp1(f_N,f_w,N,'linear','extrap') 
+%         % filter the signal with narrow band-pass filter:
+%         fc = f0*[1/f_w,f_w];
+%         if isOctave
+%             [b,a] = butter(1, fc/(fs/2));
+%         else
+%             [b,a] = butter(1, fc/(fs/2), 'bandpass');
+%         end
+%         uf = filtfilt(b, a, u);
+%         % reestimate the carrier again:
+%         [f0] = PSFE(uf,1/fs);
+%         clear uf;
+%     end
+    
+%     plot(u)
+%     hold on;
+%     plot(uf)
+%     hold off;
+       
+    
     % calculate 90deg timeshift:
     ts = 1/f0*0.25;
     
