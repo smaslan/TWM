@@ -40,8 +40,30 @@ function [] = valid_report(res,vr)
         head_len = max(cellfun(@length,head));
         head_fmt = sprintf('%%-%ds',head_len);
                 
+        pp = [];
+        com = [];
+        for r = 1:R
+            pp(r) = mean(abs(rc{r}.punc(:,1)) < 1);
+            
+            com(end+1:end+size(rc{r}.punc,1),:) = rc{r}.punc(:,:);
+        end
+        [v,id] = min(pp)        
+        figure
+        plot(pp)
+        
+        figure
+        axnm = {'\Delta{}thd/u(thd) [-]', '\Delta{}A(1)/u(A(1)) [-]', '\Delta{}A(2..H)/u(A(2..H)) [-]'};
+        for k = 1:3
+            subplot(1,3,k);
+            hist(com(:,k),50,1);
+            xlabel(axnm{k});
+            ylabel('p [-]');
+            %set(gca, 'yscale', 'log')
+        end
+
+        
 %         fid = find(rv.pass == 0);
-%         fid
+%         fid        
 %         plot(rc{fid(1)}.punc)
 %         size()
         

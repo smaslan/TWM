@@ -42,7 +42,7 @@ function [res] = proc_wrms(sig)
         
         % DFT bin step [Hz]:
         %  note: this is kind of uncertainty that should quantify accuracy of harmonic peak detection in DFT spectrum with window
-        bin_step = sig.fs/sig.N;
+        bin_step = sig.fs/sig.N*1.0;
         
         % randomize harmonics frequency positions +-bin because we don't exact position: 
         fx = sig.sim.fx + (2*rand(size(sig.sim.fx)) - 1)*bin_step;
@@ -80,8 +80,8 @@ function [res] = proc_wrms(sig)
             t(:,1) = ([0:sig.N-1]/sig.fs + sim.jitter*randn(1,sig.N))*2*pi;
             
             % randomize harmonics:
-            %A = sim.A + sim.u_A.*randn(size(sim.A));
-            A = sim.A + sim.u_A.*randn(1); % ###note: assuming the gain error is correlated for all frequencies
+            A = sim.A + sim.u_A.*randn(size(sim.A));
+            %A = sim.A + sim.u_A.*randn(1); % ###note: assuming the gain error is correlated for all frequencies
             ph = sim.ph + sim.u_ph.*randn(size(sim.ph)) + phr;
             
             % generate some spurs with random phase:

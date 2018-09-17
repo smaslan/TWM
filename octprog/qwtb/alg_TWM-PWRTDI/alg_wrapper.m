@@ -880,17 +880,17 @@ function dataout = alg_wrapper(datain, calcset)
         v_Ix  = bsxfun(@plus,Ix,bsxfun(@times,u_Ix*k_in,2*rand(H,mmc)-1)); % randomize Ix: v_Ix = Ix + u_Ix.*randn(H,mcc)
         v_phx = bsxfun(@plus,phx,bsxfun(@times,u_phx*k_in,2*rand(H,mmc)-1)); % randomize phx: v_phx = phx + u_phx.*randn(H,mcc)
         v_P   = 0.5*sum(v_Ux.*v_Ix.*cos(v_phx),1);
-        u_P   = max(abs(v_P - P))/k_in*1.0;
+        u_P   = max(abs(v_P - P))/k_in*1.1;
         %hist(v_P,50)
                   
         
         % addup uncertainties from the algorithm itself (worst case estimates):
-        %u_U = (u_U.^2 + u_U_sfdr^2 + u_U_st.^2 + u_U_sp.^2).^0.5;
-        %u_I = (u_I.^2 + u_I_sfdr^2 + u_I_st.^2 + u_I_sp.^2).^0.5;
-        %u_P = (u_P.^2 + u_P_sfdr^2 + u_P_st.^2 + u_P_sp.^2).^0.5;
-        u_U = (u_U + u_U_sfdr + u_U_st + u_U_sp);
-        u_I = (u_I + u_I_sfdr + u_I_st + u_I_sp);        
-        u_P = (u_P + u_P_sfdr + u_P_st + u_P_sp);
+        u_U = (u_U.^2 + u_U_sfdr^2 + u_U_st.^2 + u_U_sp.^2).^0.5;
+        u_I = (u_I.^2 + u_I_sfdr^2 + u_I_st.^2 + u_I_sp.^2).^0.5;
+        u_P = (u_P.^2 + u_P_sfdr^2 + u_P_st.^2 + u_P_sp.^2).^0.5;
+%         u_U = (u_U + u_U_sfdr + u_U_st + u_U_sp);
+%         u_I = (u_I + u_I_sfdr + u_I_st + u_I_sp);        
+%         u_P = (u_P + u_P_sfdr + u_P_st + u_P_sp);
                 
         
     elseif strcmpi(calcset.unc,'mcm')
@@ -986,7 +986,10 @@ function dataout = alg_wrapper(datain, calcset)
         v_U = (2*rand(calcset.mcm.repeats,1) - 1)*u_U_sfdr + res.dU*U_rms; 
         v_I = (2*rand(calcset.mcm.repeats,1) - 1)*u_I_sfdr + res.dI*I_rms;
         v_P = (2*rand(calcset.mcm.repeats,1) - 1)*u_P_sfdr + res.dP*abs(P);
-        
+%         v_U = res.dU*U_rms; 
+%         v_I = res.dI*I_rms;
+%         v_P = res.dP*abs(P);
+                
 %         figure;
 %         hist(res.dU,50)
 %         figure;
@@ -1108,9 +1111,17 @@ function dataout = alg_wrapper(datain, calcset)
     u_S = ((u_U*I)^2 + (u_I*U)^2)^0.5;        
         
     % calculate power factor:
-    %  ###note: contains DC component of not AC coupled!
+    %  ###note: contains DC component if not AC coupled!
+%     PF = P/S;
+%     u_PF = ((u_P./P).^2 + (u_S./S).^2).^0.5; % ###note: ignoring corelations, may be improved
+    mmc = 2000; % iterations                        
+    k_in = 3^0.5;
+    v_Px  = bsxfun(@plus,P,bsxfun(@times,u_P*k_in,2*rand(1,mmc)-1));
+    v_Sx  = bsxfun(@plus,S,bsxfun(@times,u_S*k_in,2*rand(1,mmc)-1));
+    v_P   = v_Px./v_Sx;
     PF = P/S;
-    u_PF = ((u_P./P).^2 + (u_S./S).^2).^0.5; % ###note: ignoring corelations, may be improved
+    u_PF  = max(abs(v_P - P))/k_in;
+    
         
         
     

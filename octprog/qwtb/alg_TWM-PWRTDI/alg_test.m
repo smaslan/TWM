@@ -9,7 +9,7 @@ function alg_test(calcset) %<<<1
 
     
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = -136;
+    is_full_val = 10000;
     
     % minimum number of repetitions per test setup:
     %  note: if the value is 1 and all quantities passed, the test is done successfully
@@ -19,7 +19,7 @@ function alg_test(calcset) %<<<1
     % print debug lines:
     val.dbg_print = 1;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_mcm.mat'];
+    val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_guf4.mat'];
     
     
     % --- test execution setup ---
@@ -28,7 +28,7 @@ function alg_test(calcset) %<<<1
     %  'testrun' - run test runs within the test setup parallel (good for 'mcm' validation)
     %  'mcm' - run Monte Carlo iterations in parallel (good only for small cores count) 
     %par_level = {'testrun','testsetup'};
-    par_level = 'testrun';
+    par_level = 'testsetup';
     if is_full_val <= 0
         par_level = 'mcm'; % override for single test    
     end
@@ -42,7 +42,7 @@ function alg_test(calcset) %<<<1
     % 'multistation' mode jobs sharing folder:
     if ispc
         % windoze:
-        par_mc_folder = 'g:\work\_mc_jobs_';
+        par_mc_folder = 'f:\work\_mc_jobs_';
         if ~exist(par_mc_folder,'file')
             par_mc_folder = 'c:\work\_mc_jobs_';
         end        
@@ -113,7 +113,7 @@ function alg_test(calcset) %<<<1
     % --- Algorithm calculation setup ---:
      
     calcset.verbose = (is_full_val <= 0);
-    calcset.unc = 'mcm'; % uncertainty mode
+    calcset.unc = 'guf'; % uncertainty mode
     calcset.loc = 0.95;
     calcset.dbg_plots = 0;
     % MonteCarlo (for 'mcm' uncertainty mode) setup:
@@ -148,8 +148,8 @@ function alg_test(calcset) %<<<1
         com.rand_unc = [0 1];
         %com.rand_unc = [1];
         % differential sensors:
-        %com.is_diff = [0 1];
-        com.is_diff = [0];
+        com.is_diff = [0 1];
+        %com.is_diff = [0];
     
         % generate all test setup combinations:
         [vr,com] = var_init(com);

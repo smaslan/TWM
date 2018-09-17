@@ -8,15 +8,15 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = 500;
+    is_full_val = 100;
     
     % minimum number of repetitions per test setup:
     %  note: if the value is 1 and all quantities passed, the test is done successfully
     val.fast_mode = 0;
     % maximum number of test repetitions per test setups:
-    val.max_count = 200;
+    val.max_count = 100;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'thdwfft_val_v2.mat'];
+    val_path = [fileparts(mfilename('fullpath')) filesep 'thdwfft_val_v6.mat'];
     
     
     
@@ -45,7 +45,7 @@ function alg_test(calcset) %<<<1
         % run only master if cores count set to 0 (assuming slave servers are already running on background)
         mc_setup.run_master_only = (mc_setup.cores == 0);
         % lest master work as well, it won't do any harm:
-        mc_setup.master_is_worker = (mc_setup.cores <= 4);
+        mc_setup.master_is_worker = 0;(mc_setup.cores <= 4);
         % multicore jobs directory:
         mc_setup.share_fld = 'f:\work\_mc_jobs_'; 
     else
@@ -55,7 +55,7 @@ function alg_test(calcset) %<<<1
         % run only master if cores count set to 0 (assuming slave servers are already running on background)
         mc_setup.run_master_only = (mc_setup.cores == 0);
         % do not let master work, assuming there is fuckload of slave servers to do stuff:
-        mc_setup.master_is_worker = (mc_setup.cores <= 4);
+        mc_setup.master_is_worker = 0;(mc_setup.cores <= 4);
         % multicore jobs directory:
         mc_setup.share_fld = 'mc_rubbish';
         % set supercomputer process affinity:
@@ -87,11 +87,11 @@ function alg_test(calcset) %<<<1
     
         % -- test setup combinations:        
         % randomize corrections uncertainty:
-        %com.rand_unc = [0 1];
-        com.rand_unc = [1];
+        com.rand_unc = [0 1];
+        %com.rand_unc = [1];
         % randomize corrections uncertainty:
-        %com.scallop_fix = [0 1];
-        com.scallop_fix = [0];
+        com.scallop_fix = [0 1];
+        %com.scallop_fix = [1];
             
         % generate all test setup combinations:
         [vr,com] = var_init(com);
@@ -102,7 +102,7 @@ function alg_test(calcset) %<<<1
         simcom = {struct()};
         
         simcom{1}.rand_unc = 1;
-        simcom{1}.scallop_fix = 0;        
+        simcom{1}.scallop_fix = 1;        
     end
     
     
@@ -156,6 +156,8 @@ function alg_test(calcset) %<<<1
               = gen_adc_tfer(fs/2+1,50, input_range,0.000050, linrand(-0.05,+0.05),0.000100 ,linrand(0.5,3) ,0.2*fs,0.03, ...
                              linrand(-0.001,+0.001),0.00008,0.000002,linrand(0.7,3));
             din.tr_gain_a.v = [];
+            % jitter
+            din.adc_jitter.v = logrand(1e-9,100e-9);
             
             % note: split SFDR somehow between digitizer and transducer 
             % generate some SFDR values for digitizer:
@@ -182,6 +184,22 @@ function alg_test(calcset) %<<<1
             % fake some digitizer parameters:
             din.adc_nrng.v = 1.0; % +/- range
             din.adc_bits.v = logrand(16,28);  % bit resolution
+            
+            
+            if ~simcom{c}.rand_unc
+                % discard all correction uncertainties when randomization not allowed:        
+                corrz = fieldnames(din);        
+                for k = 1:numel(corrz)
+                    c_data = getfield(din,corrz{k});
+                    if isfield(c_data,'u')
+                        c_data.u = 0*c_data.u;
+                        din = setfield(din,corrz{k},c_data);
+                    end            
+                end
+                din.adc_sfdr.v = 180;
+                din.tr_sfdr.v = 180;
+                din.adc_jitter.v = 0;
+            end
             
             
             % these are used just for convenient use of the correction data:
@@ -220,7 +238,7 @@ function alg_test(calcset) %<<<1
             N = round(logrand(0.3,3)*fs);
             sim.sample_count = N;
             % rms sampling jitter [s]:
-            sim.t_jitter = logrand(1e-9,100e-9);
+            sim.t_jitter = din.adc_jitter.v;
             % sampling rate [Hz]:
             sim.fs = fs;
             sim.fs_unc = 0; % sampling freq. uncertainty
@@ -304,6 +322,29 @@ function alg_test(calcset) %<<<1
             sim = par.sim;
             din = sim.corr;
             calcset = par.calcset;
+            
+            %sim.randomize = 0;
+            %sim.adc_noise_lev = 0;
+            %din.adc_sfdr.v = 180;
+            %din.tr_sfdr.v = 180;
+            %din.plot.v = 1;
+%             din.adc_gain.v = 1;
+%             din.adc_gain.u = 0;
+%             din.adc_gain_f.v = [];
+%             din.tr_gain.v = 1;
+%             din.tr_gain.u = 0;
+%             din.tr_gain_f.v = [];
+            
+            sim.corr = din;
+            
+            
+            % these are used just for convenient use of the correction data:
+            %   Restore orientations of the input vectors to originals (before passing via QWTB)
+            din.y.v = ones(3,1); % fake data vector just to make following function work!
+            [din,scfg] = qwtb_restore_twm_input_dims(din,1);
+            %   Rebuild TWM style correction tables (just for more convenient calculations):
+            tab = qwtb_restore_correction_tables(din,scfg);
+            sim.tab = tab;
           
         end
     

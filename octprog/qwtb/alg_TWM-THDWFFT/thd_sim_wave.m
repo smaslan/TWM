@@ -120,7 +120,7 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
         if any(isnan(tr_sfdr.sfdr))
             error('THD simulator, corrections: Range of transducer SFDR not sufficient!');
         end
-        
+                
         % convert to spur:fundamental ratio:
         tr_sfdr = 10.^(-tr_sfdr.sfdr/20);
         tr_sfdr(1,:) = 0; % no SFDR to fundamental itself
@@ -131,7 +131,10 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
         else
             % discard SFDR if mc randomization not allowed 
             tr_sfdr = 0;
-        end
+        end        
+        %tr_sfdr
+        
+        %mean(h_amps(1,:).*tr_sfdr.*tr_gain,2)
         
         % apply transducer SFDR:
         h_amps = bsxfun(@plus, h_amps, h_amps(1,:).*tr_sfdr);
@@ -244,7 +247,8 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
     
     % apply total gain correction so we know what the alg. should return:
     h_amps = h_amps.*mean(gain_tot,2);
-        
+    
+    h_amps = reshape(mean(h_amps_org,2),[h_num 1]);    
 
 end
 

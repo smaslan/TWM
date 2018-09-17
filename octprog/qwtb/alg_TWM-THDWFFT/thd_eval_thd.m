@@ -233,7 +233,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     % --- apply transducer gain correction 
     % calculate effective transfer of the transducer:
     if ~isempty(corr.tr_type.v)    
-        sig_tmp = mean(sig,2); % ###Todo: denormalize, because now the tr. correction estimates wron RMS!!! 
+        sig_tmp = mean(sig,2); % ###Todo: denormalize, because now the tr. correction estimates wrong RMS!!! 
         [tr_gain,ph_tmp,u_tr_gain] = correction_transducer_loading(tab,corr.tr_type.v,f,[],sig_tmp,0*sig_tmp,0*sig_tmp,0*sig_tmp);    
         tr_gain = tr_gain./sig_tmp;
         u_tr_gain = u_tr_gain./sig_tmp;
@@ -377,7 +377,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     if any(isnan(tr_sfdr.sfdr))
         error('THD, corrections: Amplitude range of transducer SFDR not sufficient!');
     end
-  
+    
     % calculate absolute spur value from transducer:
     tr_spur = a0*10^(-tr_sfdr.sfdr/20);
     
@@ -422,6 +422,8 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     u_spur = repmat(spur,size(U_hstd));
     % fundamental harmonic should have no spur content:
     u_spur(1) = 0;
+    
+    %u_spur = 0*u_spur;
             
     
    
@@ -446,6 +448,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     else
       fix_thd = 2;
     end
+    %fix_thd = 2;
  
     % --- Now finally evaluate THD for uncorrected harmonics --- 
     % calculate THD from randomized amplitudes U_org
@@ -458,7 +461,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     
     % mean THD values
     k1_org_m = mean(k1_org);
-    k2_org_m = mean(k2_org);    
+    k2_org_m = mean(k2_org);
     
     
     % find uncertainty
@@ -491,6 +494,8 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     [sci,k2_fix_a,k2_fix_b] = scovint(k2_fix,probab);      
     [sci,k3_fix_a,k3_fix_b] = scovint(k3_fix,probab);
     [sci,k4_fix_a,k4_fix_b] = scovint(k4_fix,probab);
+    
+    %hist(k1_fix,50)
 
   
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -519,8 +524,10 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         %% for uncorrected THD values 
         k1_org_o = k1_org_m;
         k2_org_o = k2_org_m;
-        k1_org_m = 100*sumsq(mean(U_org(2:end,:),2),1).^0.5./mean(U_org(1,:),2);
-        k2_org_m = 100*sumsq(mean(U_org(2:end,:),2),1).^0.5./sumsq(mean(U_org,2),1).^0.5;
+        %k1_org_m = 100*sumsq(mean(U_org(2:end,:),2),1).^0.5./mean(U_org(1,:),2);
+        %k2_org_m = 100*sumsq(mean(U_org(2:end,:),2),1).^0.5./sumsq(mean(U_org,2),1).^0.5;
+        k1_org_m = 100*sumsq(U_org_m(2:end),1).^0.5./U_org_m(1);
+        k2_org_m = 100*sumsq(U_org_m(2:end),1).^0.5./sumsq(U_org_m,1).^0.5;
         k1_org_a = max(k1_org_a + (k1_org_m - k1_org_o),0);
         k1_org_b = k1_org_b + (k1_org_m - k1_org_o);
         k2_org_a = max(k2_org_a + (k2_org_m - k2_org_o),0);
@@ -530,19 +537,23 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         k1_fix_o = k1_fix_m;
         k2_fix_o = k2_fix_m;
         k3_fix_o = k3_fix_m;
-        k4_fix_o = k4_fix_m;
-        k1_fix_m = 100*sumsq(mean(U_fix(2:end,:),2),1).^0.5./mean(U_fix(1,:),2);
-        k2_fix_m = 100*sumsq(mean(U_fix(2:end,:),2),1).^0.5./sumsq(mean(U_fix,2),1).^0.5;
-        k3_fix_m = 100*(0.5*sumsq(mean(U_fix(2:end,:),2),1) + noise_rms^2).^0.5./(0.5*mean(U_fix(1,:),2)^2).^0.5;
-        k4_fix_m = 100*(0.5*sumsq(mean(U_fix(2:end,:),2),1) + noise_rms^2).^0.5./(0.5*sumsq(mean(U_fix,2),1) + noise_rms^2).^0.5;
-%         k1_fix_a = max(k1_fix_a + (k1_fix_m - k1_fix_o),0);
-%         k1_fix_b = k1_fix_b + (k1_fix_m - k1_fix_o);
-%         k2_fix_a = max(k2_fix_a + (k2_fix_m - k2_fix_o),0);
-%         k2_fix_b = k2_fix_b + (k2_fix_m - k2_fix_o);
-%         k3_fix_a = max(k3_fix_a + (k3_fix_m - k3_fix_o),0);
-%         k3_fix_b = k3_fix_b + (k3_fix_m - k3_fix_o);
-%         k4_fix_a = max(k4_fix_a + (k4_fix_m - k4_fix_o),0);
-%         k4_fix_b = k4_fix_b + (k4_fix_m - k4_fix_o);
+        k4_fix_o = k4_fix_m;        
+%         k1_fix_m = 100*sumsq(mean(U_fix(2:end,:),2),1).^0.5./mean(U_fix(1,:),2);
+%         k2_fix_m = 100*sumsq(mean(U_fix(2:end,:),2),1).^0.5./sumsq(mean(U_fix,2),1).^0.5;
+%         k3_fix_m = 100*(0.5*sumsq(mean(U_fix(2:end,:),2),1) + noise_rms^2).^0.5./(0.5*mean(U_fix(1,:),2)^2).^0.5;
+%         k4_fix_m = 100*(0.5*sumsq(mean(U_fix(2:end,:),2),1) + noise_rms^2).^0.5./(0.5*sumsq(mean(U_fix,2),1) + noise_rms^2).^0.5;
+        k1_fix_m = 100*sumsq(U_fix_m(2:end),1).^0.5./U_fix_m(1);
+        k2_fix_m = 100*sumsq(U_fix_m(2:end),1).^0.5./sumsq(U_fix_m,1).^0.5;
+        k3_fix_m = 100*(0.5*sumsq(U_fix_m(2:end),1) + noise_rms^2).^0.5./(0.5*U_fix_m(1)^2).^0.5;
+        k4_fix_m = 100*(0.5*sumsq(U_fix_m(2:end),1) + noise_rms^2).^0.5./(0.5*sumsq(U_fix_m,1) + noise_rms^2).^0.5;
+        k1_fix_a = max(k1_fix_a + (k1_fix_m - k1_fix_o),0);
+        k1_fix_b = k1_fix_b + (k1_fix_m - k1_fix_o);
+        k2_fix_a = max(k2_fix_a + (k2_fix_m - k2_fix_o),0);
+        k2_fix_b = k2_fix_b + (k2_fix_m - k2_fix_o);
+        k3_fix_a = max(k3_fix_a + (k3_fix_m - k3_fix_o),0);
+        k3_fix_b = k3_fix_b + (k3_fix_m - k3_fix_o);
+        k4_fix_a = max(k4_fix_a + (k4_fix_m - k4_fix_o),0);
+        k4_fix_b = k4_fix_b + (k4_fix_m - k4_fix_o);
       
     elseif fix_thd == 2
         %% version 2:

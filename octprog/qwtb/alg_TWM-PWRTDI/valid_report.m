@@ -67,13 +67,17 @@ function [] = valid_report(res,vr,pass_loc)
             punc(k,:) = mean(abs(rc{k}.punc) < 1,1);
         end                                  
         
-%         pass = [];
-%         for k = 1:R
-%             pass(k) = mean(abs(rc{k}.punc(:,4)) < 1);
-%         end        
-%         figure
-%         plot(pass)
-%         [v,id] = min(pass)  
+        p_id = 4;
+        pass = [];
+        for k = 1:R
+            pass(k) = mean(abs(rc{k}.punc(:,p_id)) < 1);
+        end        
+        figure
+        plot(pass)
+        [v,id] = min(pass)
+        figure
+        plot(rc{id}.punc(:,p_id))
+          
         
         % mean %-of-unc value [%]:
         cunc = mean(punc,1)*100;

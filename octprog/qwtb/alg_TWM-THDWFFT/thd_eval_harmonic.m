@@ -51,6 +51,10 @@ function [U_org,U_org_m,U_org_a,U_org_b,U_fix,U_fix_m,U_fix_a,U_fix_b,is_high] =
   ua_harm = ua_harm(:);
   u_gain = u_gain(:);
   u_spur = u_spur(:);
+
+
+  % mean offset caused by spur
+  spur_ofs = -0.5*u_spur;
   
 
   % --- ORIGINAL HARMONIC ---
@@ -64,7 +68,10 @@ function [U_org,U_org_m,U_org_a,U_org_b,U_fix,U_fix_m,U_fix_a,U_fix_b,is_high] =
   % ###note: was crippled to make it compatible with Matlab < 2016
   %U_a_org = (1.0 + 2*(rand(H,MC) - 0.5)*u_flat + randn(H,MC).*u_gain).*U_harm + ua_harm.*randn(H,MC) + u_spur.*2*(rand(1,MC) - 0.5);
   U_a_org = (1.0 + 2*(rand(H,MC) - 0.5)*u_flat + bsxfun(@times,randn(H,MC),u_gain));
-  U_a_org = bsxfun(@times,U_a_org,U_harm) + bsxfun(@times,ua_harm,randn(H,MC)) + bsxfun(@times,u_spur,2*(rand(1,MC) - 0.5));
+  U_a_org = bsxfun(@times,U_a_org,U_harm) + bsxfun(@times,ua_harm,randn(H,MC)) + bsxfun(@times,1.6*u_spur,2*(rand(1,MC) - 0.333)) + repmat(spur_ofs,[1,MC]);
+  
+  
+  
   % rectify because amplitude cannot be negative
   U_a_org = abs(U_a_org);
   
@@ -75,11 +82,11 @@ function [U_org,U_org_m,U_org_a,U_org_b,U_fix,U_fix_m,U_fix_a,U_fix_b,is_high] =
   is_a = (U_a_org > U_n_org);
   U_org = (is_a).*U_a_org + (~is_a).*U_b_org;
 
-  %h = 2;
-  %figure;
-  %hist(U_a_org(h,:),20)  
-  %figure;
-  %hist(U_org(h,:),20)
+%   h = 2;
+%   figure;
+%   hist(U_a_org(h,:),20)  
+%   figure;
+%   hist(U_org(h,:),20)
     
   % find uncerainty bounds for every harmonic
   U_org_a = zeros(H,1);
@@ -92,7 +99,7 @@ function [U_org,U_org_m,U_org_a,U_org_b,U_fix,U_fix_m,U_fix_a,U_fix_b,is_high] =
   % note: normally I would go for arithmetic mean of the randomized data but it is so assymetric
   %       that it is not a good estimate. Instead I assume mean is equal to the input amplitudes:
   %U_org_m = mean(U_org,2);
-  U_org_m = U_harm;
+  U_org_m = abs(U_harm + spur_ofs);
   
   
     
@@ -128,7 +135,8 @@ function [U_org,U_org_m,U_org_a,U_org_b,U_fix,U_fix_m,U_fix_a,U_fix_b,is_high] =
   % mean input noise:
   U_noise_fix = U_noise/noise_gain*mk;
   % corrected harmonics from the mean input harmonic levels:
-  U_fix_m = fft_window_leak_fix_amp(win_leak,U_harm,U_noise_fix);
+  %U_fix_m = fft_window_leak_fix_amp(win_leak,U_harm,U_noise_fix);
+  U_fix_m = fft_window_leak_fix_amp(win_leak,U_org_m,U_noise_fix);
       
   % --- calculate uncertainty ---
   % find uncertainty bounds for every harmonic
