@@ -1,4 +1,4 @@
-function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am,u_f0x] = mod_tdps(fs,u,wshape,comp_err)
+function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am,u_f0x,u_fmx] = mod_tdps(fs,u,wshape,comp_err)
 % Simple algorithm for detection of modulation envelope and estimation
 % of modulation parameters.
 %
@@ -32,7 +32,7 @@ function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am,u_f0x] = mod_tdps(fs,u,wshape,comp_
     
     % detect envelope and estimate parameters:
     [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am] = mod_fit_sin(fs,u,wshape);
-
+    
     
     if strcmpi(wshape,'sine')
         % --- error self-compesantion ---
@@ -107,5 +107,6 @@ function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am,u_f0x] = mod_tdps(fs,u,wshape,comp_
     u_Am = (u_Am^2 + 4*std(Amx)^2/3)^0.5;
     u_A0 = (u_A0^2 + 4*std(A0x)^2/3)^0.5;    
     u_f0x = std(f0x);
+    u_fmx = std(fmx);
 
 end

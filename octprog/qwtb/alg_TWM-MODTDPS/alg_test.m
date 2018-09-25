@@ -4,7 +4,7 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     % testing mode {0: single test, ? >= 1: N repeated tests, ? < 0: repeat particular test from previous test setups}:
-    is_full_val = 0;-115;
+    is_full_val = 150;
     
     % maximum number of test repetitions per test setup (includes retries when alg. returns error):
     val.max_count = 150;
@@ -109,7 +109,7 @@ function alg_test(calcset) %<<<1
         simcom = {struct()};
         
         % randomize corrections uncertainty:
-        simcom{1}.rand_unc = 0;
+        simcom{1}.rand_unc = 1;
         % calculation mode (see above): 
         simcom{1}.mode = 3; 
     end

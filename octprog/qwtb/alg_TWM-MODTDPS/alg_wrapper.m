@@ -241,7 +241,7 @@ function dataout = alg_wrapper(datain, calcset)
     % --- main algorithm start --- 
     
     % estimate the modulation:
-    [me, dc,f0,A0, fm,Am,phm, n_A0,n_Am,u_f0x] = mod_tdps(fs,vc.y,wave_shape,comp_err);
+    [me, dc,f0,A0, fm,Am,phm, n_A0,n_Am,u_f0x,u_fmx] = mod_tdps(fs,vc.y,wave_shape,comp_err);
     
     
     
@@ -399,6 +399,7 @@ function dataout = alg_wrapper(datain, calcset)
 
     % modulating frequency uncertainty:
     u_fm = fm*(unc.dfm.val^2 + datain.adc_freq.u^2)^0.5;
+    u_fm = (u_fm^2 + u_fmx^2)^0.5;
     
     % -- modulation relative unc. from corrections:
     % difference of the mean of sideband correction values from the carrier (because we used carrier freq. correction for entire signal):
