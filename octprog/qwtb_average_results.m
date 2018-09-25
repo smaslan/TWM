@@ -91,7 +91,7 @@ function [avg, unca] = qwtb_average_results(res,cfg)
         else
           % average variable and uncertainty
           avg{p}{v}.val = mean(val,3);
-          avg{p}{v}.unc = mean(unc,3);
+          avg{p}{v}.unc = nanmean(unc,3);
           unca{p}{v}.val = std(val,[],3)/R^0.5; % type A uncertainty estimate
           unca{p}{v}.unc = avg{p}{v}.unc;
         end

@@ -40,9 +40,9 @@ function [] = valid_report(res,vr,pass_loc)
     %   for Monte Carlo the pass rate is (should be) exactly level-of-confidence. Without this 
     %   tweak, the pass probability of the group of N runs would be about 50%...
     %   This may (should) be improved!  
-    pass_unc = std(mean(abs(randn(N,1000)) < loc2covg(loc,50),1))*loc2covg(pass_loc,50);
-    pass_prob = loc - pass_unc; 
-        
+    pass_unc = std(mean(abs(randn(N,1000)) < loc2covg(loc,50),1)')*loc2covg(pass_loc,50)
+    pass_prob = loc - pass_unc;
+    
         
     fprintf('combinations = %d\n',vr.var_n);
     fprintf('tests per setup combination = %d\n',R);
@@ -51,7 +51,7 @@ function [] = valid_report(res,vr,pass_loc)
     fprintf('pass rate uncertainty = <-%.3f;0>%% (i.e. level of confidence %.3f)\n\n',100*2*pass_unc/R^0.5,pass_loc);
     
     fprintf('Passed rate of all test setups [%%]:\n');
-    fprintf('-----------------\n\n');
+    fprintf('-----------------------------------\n\n');
     
     % --- for each variation combination:
     va = 1;
@@ -63,20 +63,28 @@ function [] = valid_report(res,vr,pass_loc)
         %pass = rv.pass; % original pass rate
                 
         punc = [];
+        h_list = [];
         for k = 1:R
             punc(k,:) = mean(abs(rc{k}.punc) < 1,1);
+            h_list(end+1:end+size(rc{k}.punc,1),:) = rc{k}.punc;
         end                                  
         
-        p_id = 4;
-        pass = [];
-        for k = 1:R
-            pass(k) = mean(abs(rc{k}.punc(:,p_id)) < 1);
-        end        
+%         p_id = 4;
+%         pass = [];
+%         for k = 1:R
+%             pass(k) = mean(abs(rc{k}.punc(:,p_id)) < 1);
+%         end        
+%         figure
+%         plot(pass)
+%         [v,id] = min(pass)
+%         figure
+%         plot(rc{id}.punc(:,p_id))
+
         figure
-        plot(pass)
-        [v,id] = min(pass)
-        figure
-        plot(rc{id}.punc(:,p_id))
+        hist(h_list(:,4),50,1);
+        %semilogy(xx,nn);
+        xlabel('\Delta{}P [-]');
+        ylabel('p [-]');
           
         
         % mean %-of-unc value [%]:

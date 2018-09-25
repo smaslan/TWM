@@ -15,11 +15,11 @@ function alg_test(calcset) %<<<1
     %  note: if the value is 1 and all quantities passed, the test is done successfully
     %val.fast_mode = 0; % ###note: note implemented
     % maximum number of test repetitions per test setup:
-    val.max_count = 290;
+    val.max_count = 200;
     % print debug lines:
     val.dbg_print = 1;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_guf4.mat'];
+    val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_guf7.mat'];
     
     
     % --- test execution setup ---
@@ -212,7 +212,7 @@ function alg_test(calcset) %<<<1
             N = round(logrand(5000,20000));
                 
             % sampling rate [Hz]
-            din.fs.v = 10000;        
+            din.fs.v = rounddig(linrand(9000,11000),3);        
             
             % min max allowed fundamental frequency:
             %  note: given by uncertainty estimator range

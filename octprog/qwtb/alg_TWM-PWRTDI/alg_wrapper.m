@@ -861,8 +861,8 @@ function dataout = alg_wrapper(datain, calcset)
         % estimate corrections related uncertainty from relevant harmonics (worst case estimates):
         %u_U = sum(0.5*u_Ux.^2).^0.5;
         %u_I = sum(0.5*u_Ix.^2).^0.5;
-        u_U = (sum(0.5*(Ux + u_Ux).^2)^0.5 - sum(0.5*Ux.^2)^0.5);
-        u_I = (sum(0.5*(Ix + u_Ix).^2)^0.5 - sum(0.5*Ix.^2)^0.5);
+        u_U = (sum(0.5*(Ux + u_Ux).^2)^0.5 - sum(0.5*Ux.^2)^0.5)*1.15;
+        u_I = (sum(0.5*(Ix + u_Ix).^2)^0.5 - sum(0.5*Ix.^2)^0.5)*1.15;
         
         % run small MC for the power cos it's non-linear and the GUF does not work very nice in here:
         %   note: it was crippled for Matlab < 2016b, do not remove bsxfun()!
@@ -880,7 +880,7 @@ function dataout = alg_wrapper(datain, calcset)
         v_Ix  = bsxfun(@plus,Ix,bsxfun(@times,u_Ix*k_in,2*rand(H,mmc)-1)); % randomize Ix: v_Ix = Ix + u_Ix.*randn(H,mcc)
         v_phx = bsxfun(@plus,phx,bsxfun(@times,u_phx*k_in,2*rand(H,mmc)-1)); % randomize phx: v_phx = phx + u_phx.*randn(H,mcc)
         v_P   = 0.5*sum(v_Ux.*v_Ix.*cos(v_phx),1);
-        u_P   = max(abs(v_P - P))/k_in*1.1;
+        u_P   = max(abs(v_P - P))/k_in*1.25;
         %hist(v_P,50)
                   
         
@@ -1118,9 +1118,12 @@ function dataout = alg_wrapper(datain, calcset)
     k_in = 3^0.5;
     v_Px  = bsxfun(@plus,P,bsxfun(@times,u_P*k_in,2*rand(1,mmc)-1));
     v_Sx  = bsxfun(@plus,S,bsxfun(@times,u_S*k_in,2*rand(1,mmc)-1));
-    v_P   = v_Px./v_Sx;
+    v_PF   = v_Px./v_Sx;
     PF = P/S;
-    u_PF  = max(abs(v_P - P))/k_in;
+    u_PF  = max(abs(v_PF - PF))/k_in;
+    
+%     figure
+%     hist(v_PF,50)
     
         
         

@@ -43,7 +43,7 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
             if ~qu.is_big && ~isempty(qu.val)
                 % quantity loaded and numeric
                 
-                uc = (qu.unc.^2 + (2*ua.unc).^2).^0.5;                         
+                uc = (qu.unc.^2 + (2*ua.val).^2).^0.5;                         
                 vinf = infosetmatrix(vinf,'value',qu.val);  
                 vinf = infosetmatrix(vinf,'uncertainty',uc);
             else

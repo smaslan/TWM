@@ -105,10 +105,20 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         cfg.mc_tmpdir = '';
     end
     
+    % override uncertainty setup from file:
+    if exist('calc_unc','var') && ~isempty(calc_unc)
+        % yaha
+        unc_mode = calc_unc;
+    end
+    % set uncertainty mode to calc. setup:
+    if isempty(unc_mode)
+        unc_mode = 'none';
+    end 
+    
     % assign processing setup to QWTB calcset:
     calcset.mcm.method = cfg.mc_method;
     calcset.mcm.procno = cfg.mc_procno;
-    if ~isempty(cfg.mc_tmpdir)
+    if ~isempty(cfg.mc_tmpdir) && strcmpi(unc_mode,'mcm')
         calcset.mcm.tmpdir = cfg.mc_tmpdir;
     end    
     if isfield(cfg,'mc_user_fun')
@@ -123,16 +133,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         calcset.loc = 0.95;
     end        
     
-    % override uncertainty setup from file:
-    if exist('calc_unc','var') && ~isempty(calc_unc)
-        % yaha
-        unc_mode = calc_unc;
-    end
-    
-    % set uncertainty mode to calc. setup:
-    if isempty(unc_mode)
-        unc_mode = 'none';
-    end   
+    % uncertainty mode:  
     calcset.unc = unc_mode;
     calcset.cor.req = 0;
     calcset.cor.gen = 0;
