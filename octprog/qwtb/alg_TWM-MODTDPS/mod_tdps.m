@@ -95,18 +95,29 @@ function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am,u_f0x,u_fmx] = mod_tdps(fs,u,wshape
         % try various mod phases:
         phi = 2*pi*(k-1)/M;
         
+        % randomize f0 a bit:
+        df0 = -(k-M/2)/M*0.01*f0;
+        
+        % randomize fm a bit:
+        dfm = (k-M/2)/M*0.01*fm;
+        
         % synth signal form the current model:
-        ux = mod_synth(fs,N, dc, f0,A0,phi, fm,Am,phm, wshape);
+        ux = mod_synth(fs,N, dc, f0+df0,A0,phi, fm+dfm,Am,phm, wshape);
         
         % calculate parameters of the model:
         [me_t, dcx,f0x(k),A0x(k), fmx(k),Amx(k),phmx] = mod_fit_sin(fs,ux,wshape);
+        
+        % fix fm back to mominal:
+        fmx(k) = fmx(k) - dfm;
+        % fix f0 back to mominal:
+        f0x(k) = f0x(k) - df0;
                 
     end
     
     % add some estimate of unc. of the modulating signal initial phase shift:
     u_Am = (u_Am^2 + 4*std(Amx)^2/3)^0.5;
     u_A0 = (u_A0^2 + 4*std(A0x)^2/3)^0.5;    
-    u_f0x = std(f0x);
-    u_fmx = std(fmx);
+    u_f0x = 2*std(f0x);
+    u_fmx = 2*std(fmx);
 
 end
