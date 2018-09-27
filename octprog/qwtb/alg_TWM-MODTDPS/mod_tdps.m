@@ -1,4 +1,4 @@
-function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am,u_f0x,u_fmx] = mod_tdps(fs,u,wshape,comp_err)
+function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am,u_f0x,u_fmx] = mod_tdps(fs,u,wshape,comp_err,unc)
 % Simple algorithm for detection of modulation envelope and estimation
 % of modulation parameters.
 %
@@ -8,7 +8,8 @@ function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am,u_f0x,u_fmx] = mod_tdps(fs,u,wshape
 %   fs       - sampling rate [Hz]
 %   u        - signal waveform (vector of any direction)
 %   wshape   - expected waveshape: 'sine' or 'rect'
-%   comp_err - try to self-compensate error of the algorithm 
+%   comp_err - try to self-compensate error of the algorithm
+%   unc      - enable uncertainty estimation 
 %
 % Returns:
 %   me - modulation envelope vector
@@ -85,39 +86,83 @@ function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am,u_f0x,u_fmx] = mod_tdps(fs,u,wshape
         
     end
     
-    A0x = [];
-    Amx = [];
-    fmx = [];
-    f0x = [];
-    M = 15;    
-    for k = 1:M
+    
+    
+    if unc
+    
+        % empiric range of fm where artifacts for near integer f0/fm ratios occures [Hz]: 
+        ca = fm/f0/N*5000;
+            
+        A0x = [];
+        Amx = [];
+        fmx = [];
+        f0x = [];
+        M = 30;    
+        for k = 1:M
+            
+            % try various mod phases:
+            phi = 2*pi*(k-1)/M;
+            
+            % randomize f0 a bit:
+            df0 = 0;
+            
+            % randomize fm a bit:
+            dfm = randn*2*ca;
+            
+            % synth signal form the current model:
+            ux = mod_synth(fs,N, dc, f0+df0,A0,phi, fm+dfm,Am,phm, wshape);
+            
+            % calculate parameters of the model:
+            [me_t, dcx,f0x(k),A0x(k), fmx(k),Amx(k),phmx] = mod_fit_sin(fs,ux,wshape);
+            
+            % fix fm back to mominal:
+            fmx(k) = fmx(k) - dfm;
+            % fix f0 back to mominal:
+            f0x(k) = f0x(k) - df0;
+                    
+        end
         
-        % try various mod phases:
-        phi = 2*pi*(k-1)/M;
         
-        % randomize f0 a bit:
-        df0 = -(k-M/2)/M*0.01*f0;
+    %     A0x = [];
+    %     Amx = [];
+    %     fmx = [];
+    %     f0x = [];
+    %     M = 100;    
+    %     for k = 1:M
+    %         
+    %         % randomize fm a bit:
+    %         dfm(k) = randn*0.0005*fm;
+    %         
+    %         % synth signal form the current model:
+    %         ux = mod_synth(fs,N, dc, f0,A0,phi, fm+dfm(k),Am,phm, wshape);
+    %         
+    %         % calculate parameters of the model:
+    %         [me_t, dcx,f0x(k),A0x(k), fmx(k),Amx(k),phmx] = mod_fit_sin(fs,ux,wshape);
+    %         
+    %     end    
+    %     figure
+    %     plot(dfm,fmx,'o')
         
-        % randomize fm a bit:
-        dfm = (k-M/2)/M*0.01*fm;
         
-        % synth signal form the current model:
-        ux = mod_synth(fs,N, dc, f0+df0,A0,phi, fm+dfm,Am,phm, wshape);
         
-        % calculate parameters of the model:
-        [me_t, dcx,f0x(k),A0x(k), fmx(k),Amx(k),phmx] = mod_fit_sin(fs,ux,wshape);
+        % add some estimate of unc. of the modulating signal initial phase shift:
+        u_Am = (u_Am^2 + 4*std(Amx)^2/3)^0.5;
+        u_A0 = (u_A0^2 + 4*std(A0x)^2/3)^0.5;    
+        u_f0x = 2*std(f0x);
+        u_fmx = 2*std(fmx);
+    
+    else
         
-        % fix fm back to mominal:
-        fmx(k) = fmx(k) - dfm;
-        % fix f0 back to mominal:
-        f0x(k) = f0x(k) - df0;
-                
+        u_Am = 0;
+        u_A0 = 0;
+        u_f0x = 0;
+        u_fmx = 0;
+        
     end
     
-    % add some estimate of unc. of the modulating signal initial phase shift:
-    u_Am = (u_Am^2 + 4*std(Amx)^2/3)^0.5;
-    u_A0 = (u_A0^2 + 4*std(A0x)^2/3)^0.5;    
-    u_f0x = 2*std(f0x);
-    u_fmx = 2*std(fmx);
+    
+    
+    %(N/fs*fm)
+    %u_fm_rect = abs(1/(1/fs + 1/fm) - fm)/1
 
 end

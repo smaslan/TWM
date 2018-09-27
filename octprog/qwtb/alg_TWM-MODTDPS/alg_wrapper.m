@@ -241,7 +241,7 @@ function dataout = alg_wrapper(datain, calcset)
     % --- main algorithm start --- 
     
     % estimate the modulation:
-    [me, dc,f0,A0, fm,Am,phm, n_A0,n_Am,u_f0x,u_fmx] = mod_tdps(fs,vc.y,wave_shape,comp_err);
+    [me, dc,f0,A0, fm,Am,phm, n_A0,n_Am,u_f0x,u_fmx] = mod_tdps(fs,vc.y,wave_shape,comp_err,~strcmpi(calcset.unc,'none'));
     
     
     

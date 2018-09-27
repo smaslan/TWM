@@ -4,16 +4,16 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     % testing mode {0: single test, ? >= 1: N repeated tests, ? < 0: repeat particular test from previous test setups}:
-    is_full_val = 150;
+    is_full_val = 1000;
     
     % maximum number of test repetitions per test setup (includes retries when alg. returns error):
-    val.max_count = 150;
+    val.max_count = 300;
     % minimum number of test repetitions per test setup:
-    val.min_count = 100;
+    val.min_count = 200;
     % print debug lines:
     val.dbg_print = 1;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'modtdps_val_rect.mat'];
+    val_path = [fileparts(mfilename('fullpath')) filesep 'modtdps_val_all.mat'];
     
     
     % --- test execution setup ---
@@ -29,7 +29,7 @@ function alg_test(calcset) %<<<1
         par_mc_folder = 'g:\work\_mc_jobs_';
     else
         % linux:
-        par_mc_folder = 'mc_rubbish';        
+        par_mc_folder = 'mc_rubbish_m';        
     end
     
     
@@ -99,7 +99,7 @@ function alg_test(calcset) %<<<1
         com.rand_unc = [0 1];
         %com.rand_unc = [1];
         % calculation mode (see above):
-        com.mode = [3];
+        com.mode = [1 2 3];
     
         % generate all test setup combinations:
         [vr,com] = var_init(com);
@@ -350,6 +350,11 @@ function alg_test(calcset) %<<<1
             rand_unc = par.rand_unc;
             din = par.din;
             cfg = par.cfg;
+            
+            %cfg.fm += 1;
+            %cfg.f0 += 1;
+            %cfg.N /= 2;
+            %din.fs.v /= 2;
             
             tset = calcset;
             calcset = par.calcset;

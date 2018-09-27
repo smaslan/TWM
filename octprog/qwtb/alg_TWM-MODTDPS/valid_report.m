@@ -64,19 +64,31 @@ function [] = valid_report(res,vr,pass_loc)
                 
         punc = [];
         punc_id = [];
+        punc_list = [];
         for k = 1:R
             if ~isempty(rc{k}.punc)
                 punc(end+1,:) = mean(abs(rc{k}.punc) < 1,1);
-                punc_id(end+1) = k; 
+                punc_id(end+1) = k;
+                punc_list(end+1:end+size(rc{k}.punc,1),:) = rc{k}.punc; 
             end
-        end                                  
+        end
+        
+%         id_to_plot = [1 2 4 5];        
+%         figure
+%         for k = 1:numel(id_to_plot)
+%             subplot(2,2,k);
+%             hist(punc_list(:,id_to_plot(k)),50,1);
+%             xlabel(rc{1}.name_list{id_to_plot(k)});
+%             ylabel('pdf [-]');
+%             box on;
+%         end                                  
                         
-%         figure
-%         plot(punc(:,4))
-%         [v,id] = min(punc(:,4));
-%         punc_id(id)
-%         figure
-%         plot(rc{punc_id(id)}.punc(:,4))
+        figure
+        plot(punc(:,5))
+        [v,id] = min(punc(:,5));
+        punc_id(id)+va-1
+        figure
+        plot(rc{punc_id(id)}.punc(:,5))
 
 %         mcc = 1000;
 %         trsh = loc + randn(1,size(punc,2),mcc)*pass_unc;

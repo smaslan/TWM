@@ -237,7 +237,7 @@ function dout = gen_mod(din,cfg,rand_unc)
                 
         if strcmpi(cfg.wshape,'rect')
             % synthesize reactangular wave:
-            u = sin(t*fxc(1) + phc(1)).*(Ac(1) + 2*Ac(1)*cfg.Am/cfg.A0*(0.5 - (mod(t*cfg.fm + cfg.phm,2*pi) > pi)));
+            u = sin(t*fxc(1) + phc(1)).*(Ac(1) + 2*Ac(1)*cfg.Am/cfg.A0*(0.5 - (mod((t + rand(cfg.N,1)*2*pi/din.fs.v)*cfg.fm + cfg.phm,2*pi) > pi)));
             % remove rect. wave data from harmonics list to generate:
             fxc = fxc(2:end);
             Ac  = Ac(2:end);
