@@ -47,8 +47,8 @@ function [avg, unca] = qwtb_average_results(res,cfg)
       
       % allocate averaging matrices
       dims = [sz R];
-      val = zeros(dims);
-      unc = zeros(dims);
+      val = zeros(dims)*NaN;
+      unc = zeros(dims)*NaN;
     
       % build averageing matrices 
       skip = 0;
@@ -59,7 +59,7 @@ function [avg, unca] = qwtb_average_results(res,cfg)
         end
         
         if res{r}{p}{v}.size ~= sz
-          error(sprintf('QWTB results averager: Averaging variable ''%s'' failes because dimensions are not equal!',res{r}{v}.name));
+          error(sprintf('QWTB results averager: Averaging variable ''%s'' failed because dimensions are not equal!',res{r}{v}.name));
         end
 
         % merge average data
@@ -82,7 +82,6 @@ function [avg, unca] = qwtb_average_results(res,cfg)
             val = mod(val,2*pi);         
           end
         end
-      
         if R == 1
           avg{p}{v}.val = val;
           avg{p}{v}.unc = unc;
@@ -90,15 +89,18 @@ function [avg, unca] = qwtb_average_results(res,cfg)
           unca{p}{v}.unc = zeros(size(val)); % type A uncertainty estimate
         else
           % average variable and uncertainty
-          avg{p}{v}.val = mean(val,3);
+          avg{p}{v}.val = nanmean(val,3);
           avg{p}{v}.unc = nanmean(unc,3);
-          unca{p}{v}.val = std(val,[],3)/R^0.5; % type A uncertainty estimate
+          unca{p}{v}.val = nanstd(val,[],3)/R^0.5; % type A uncertainty estimate
           unca{p}{v}.unc = avg{p}{v}.unc;
         end
+        avg{p}{v}.unc(isnan(avg{p}{v}.unc)) = 0;
+        unca{p}{v}.val(isnan(unca{p}{v}.val)) = 0;
+        unca{p}{v}.unc(isnan(unca{p}{v}.unc)) = 0;
       else
         % leave if variable is big
         break;
-      end
+      end                               
     
     end
   end 

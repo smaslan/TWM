@@ -287,7 +287,6 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     % combine the timestamp and time shift correction to get absolute record start shifts:
     tm_stamp   = bsxfun(@plus,tm_stamp,its);
     u_tm_stamp = repmat(data.corr.dig.time_shifts.u_its,[size(tm_stamp,1) 1]); % uncertainty   
-    
     % ####todo: in future here should be override of time-shift calibration data by self-calibration
     
     
@@ -452,6 +451,11 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
             % execute algorithm
             dout = qwtb(alg_id,di,calcset);
             
+            % discard uncertainties if unc. disabled:
+            if strcmpi(unc_mode,'none')
+                dout = qwtb_rem_unc(dout);    
+            end
+            
             % store current channel phase setup info (index; U, I tag)
             phase_info.index = data.corr.phase_idx(p);
             phase_info.tags = tags;
@@ -547,6 +551,11 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
             
             % execute algorithm
             dout = qwtb(alg_id,di,calcset);
+            
+            % discard uncertainties if unc. disabled:
+            if strcmpi(unc_mode,'none')
+                dout = qwtb_rem_unc(dout);    
+            end
             
             % store current channel phase setup info (index; U, I tag)
             phase_info.index = data.corr.phase_idx(p);
@@ -747,6 +756,20 @@ function [din] = qwtb_add_unc(din,pin)
                 v_data.u = 0*v_data.v;
                 din = setfield(din,names{k},v_data);
             end
+        end        
+    end    
+end
+
+
+function [din] = qwtb_rem_unc(din)
+% this removes uncertainties from all din QWTB quantities
+    names = fieldnames(din);
+    N = numel(names);
+    for k = 1:N
+        v_data = getfield(din,names{k});
+        if isfield(v_data,'u')
+            v_data = rmfield(v_data,'u');
+            din = setfield(din,names{k},v_data);
         end        
     end    
 end
