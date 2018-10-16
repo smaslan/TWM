@@ -71,7 +71,7 @@ function dataout = alg_wrapper(datain, calcset)
     
     % window type for spectrum analysis (rather do not change):
     %  note: is not used for calculation of parameters, just for some support functions
-    win_type = 'flattop_matlab';
+    win_type = 'flattop_144D';
        
     
     % fix frequency sampling rate timebase error:
@@ -403,10 +403,11 @@ function dataout = alg_wrapper(datain, calcset)
     
     % -- modulation relative unc. from corrections:
     % difference of the mean of sideband correction values from the carrier (because we used carrier freq. correction for entire signal):
-    %  ###todo: this is very schmutzige solution because it does not take into account the sideband phase errors but it seems to work  
+    %  ###todo: this is very schmutzige empiric solution because it does not take into account the sideband phase errors but it seems to work  
     ur_mod_a = sum((trg(3:end)/trg(1) - 1).^2).^0.5/3^0.5;
     ur_mod_b = abs(mean(trg(3:end))/trg(1) - 1)/3^0.5;
-    ur_mod = mean([ur_mod_a,ur_mod_b]);
+    %ur_mod = mean([ur_mod_a,ur_mod_b]);
+    ur_mod = [0.8*ur_mod_a + 0.2*ur_mod_b];
     if strcmpi(wave_shape,'rect')
         % rectangular wave mode:
         % extend the estimate by some tictoc coefficient because rectangular modulation will cause even worse errors due to much more sidebands 
@@ -425,10 +426,13 @@ function dataout = alg_wrapper(datain, calcset)
     ur_mod = (ur_mod.^2 + sum(u_trg(3:end).^2/3) + ur_Am_pc^2 + ur_A_frq^2).^0.5;
     ur_mod_tmp = ur_mod;
     % add parameter estimator uncertainty:
-    ur_mod = (ur_mod^2 + (n_A0/A0)^2 + (n_Am/Am)^2 + unc.dmod.val^2)^0.5;
+    %ur_mod = (ur_mod^2 + (n_A0/A0)^2 + (n_Am/Am)^2 + (unc.dmod.val*A0/Am)^2)^0.5;
         
     % modulating amplitude abs unc.:    
     u_Am = Am.*(ur_mod_tmp.^2 + ur_A0.^2 + (n_Am/Am)^2 + (unc.dmod.val*A0/Am)^2).^0.5;
+    
+    % relative modulating uncertainty:
+    u_mod = Am/A0*((u_Am/Am)^2 + (u_A0/A0)^2)^0.5;
     
     
     % --- returning results ---
@@ -455,7 +459,7 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.A_mod.v = Am;
     dataout.A_mod.u = u_Am*ke;
     dataout.mod.v = 100*Am/A0;
-    dataout.mod.u = 100*ur_mod*ke;
+    dataout.mod.u = 100*u_mod*ke;
            
     % --------------------------------------------------------------------
     % End of the demonstration algorithm.
@@ -517,8 +521,9 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     % get window scaling factor:
     w_gain = mean(w);
     % get window rms:
-    w_rms = mean(w.^2).^0.5;
-    
+    w_rms = mean(w.^2).^0.5;    
+    % window half width (DFT bins):
+    wind_w = 9;
 
     % peak signal value:
     Apk = A0 + Am + abs(dc);
@@ -526,8 +531,21 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     % DFT bins of the sine modulation freq. components:
     fid = round([f0;f0-fm;f0+fm]/fs*N) + 1;
     
+    % add higher harmonics bins for rect:
+    if strcmpi(wave_shape,'rect')       
+        for k = 3:2:133
+            hhid = round((f0 + fm*k)/fs*N + 1);
+            if hhid + wind_w < F                
+                fid = [fid; hhid];
+            end                        
+            hhid = round(abs(f0 - fm*k)/fs*N + 1);
+            if hhid - wind_w >= 1 && hhid + wind_w < F                 
+                fid = [fid; hhid];
+            end
+        end        
+    end
+    
     % remove harmonic DFT bins:
-    wind_w = 7;
     sid = [];
     for k = 1:numel(fid)
         sid = [sid,(fid(k) - wind_w):(fid(k) + wind_w)];    
@@ -540,6 +558,7 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     
     % remove DC offset from DFT residue:
     nid = nid(nid > wind_w);
+    inid = nid;
     
     % identify and remove top harmonics:
     h_max = [];
@@ -558,6 +577,15 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     % now 'nid' should contain only residual noise and small harmonics...
     
     
+%     figure
+%     loglog(fh,Y)
+%     hold on;
+%     loglog(fh(inid),Y(inid),'r')
+%     loglog(fh(nid),Y(nid),'k')
+%     hold off;
+    
+    
+    
     % noise level estimate from the spectrum residue to full bw.:
     if numel(nid) < 2
         Y_noise = [0];
@@ -569,7 +597,7 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     noise_rms = sum(0.5*Y_noise.^2).^0.5/w_rms*w_gain;
     
     % signal SFDR estimate [dB]:
-    sfdr_sig = -20*log10(sum(h_max.^2)^0.5/Y(fid(1)));
+    sfdr_sig = -20*log10(sum(h_max.^2)^0.5/Y(fid(1)));      
     
     % select worst SFDR source [dB]:
     %  note: either user defined SFDR or measured SFDR
@@ -603,6 +631,7 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     ax.fm_per.val = N/fs*fm;
     
     %ax
+    %ax.sfdr.val = 130
     
     % current folder:
     mfld = [fileparts(mfilename('fullpath')) filesep()];
@@ -613,6 +642,8 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
         
         if fetch_luts, global modtdps_lut_sc; else modtdps_lut_sc = []; end           
         modtdps_lut_sc = fetch_lut(modtdps_lut_sc, [mfld 'sine_corr_unc.lut']);
+        modtdps_lut_sc.ax.sfdr.min_lim = 'error';
+        modtdps_lut_sc.ax.sfdr.max_lim = 'const';
         unc = interp_lut(modtdps_lut_sc,ax);
         
     elseif strcmpi(wave_shape,'sine') && ~comp_err
@@ -621,6 +652,8 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
         
         if fetch_luts, global modtdps_lut_snc; else modtdps_lut_snc = []; end           
         modtdps_lut_snc = fetch_lut(modtdps_lut_snc, [mfld 'sine_ncorr_unc.lut']);
+        modtdps_lut_snc.ax.sfdr.min_lim = 'error';
+        modtdps_lut_snc.ax.sfdr.max_lim = 'const';
         unc = interp_lut(modtdps_lut_snc,ax);
         
     elseif strcmpi(wave_shape,'rect')
@@ -629,6 +662,8 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
         
         if fetch_luts, global modtdps_lut_rnc; else modtdps_lut_rnc = []; end           
         modtdps_lut_rnc = fetch_lut(modtdps_lut_rnc, [mfld 'rect_ncorr_unc.lut']);
+        modtdps_lut_rnc.ax.sfdr.min_lim = 'error';
+        modtdps_lut_rnc.ax.sfdr.max_lim = 'const';       
         unc = interp_lut(modtdps_lut_rnc,ax);
  
     else
@@ -637,7 +672,15 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
         error('Uncertainty estimator for given parameters of the algorithm is not avilable! Only ''sine'' and ''rect'' mode are available.');
         
     end
-        
+    
+    if strcmpi(wave_shape,'sine')
+        % ### emprirical extension of modulation depth uncertainty (schmutzig, but effective...):
+        rfm_f    = [0 0.05 0.1 0.2 0.33];
+        rfm_dmod = [1 1    1.3 1.8 2.6]; 
+        k_dmod = interp1(rfm_f,rfm_dmod,ax.fmf0_rat.val,'linear','extrap');                       
+        unc.dmod.val = unc.dmod.val*k_dmod;
+    end
+             
     % scale down to (k = 1):    
     unc.df0.val = 0.5*unc.df0.val;
     unc.dA0.val = 0.5*unc.dA0.val*1.1; % ###note: empiric extension

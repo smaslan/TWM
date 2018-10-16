@@ -131,7 +131,8 @@ function [me, dc,f0,A0, fm,Am,phm, u_A0,u_Am] = mod_fit_sin(fs,u,wshape)
             
             % modulation amplitude:
             Am = 0.5*abs(mean(u_tops) - mean(u_lows));
-            u_Am = (std(u_tops)^2 + std(u_lows)^2)^0.5/numel(u_tops)^0.5;
+            %u_Am = (std(u_tops)^2 + std(u_lows)^2)^0.5/numel(u_tops)^0.5;
+            u_Am = (std(u_tops)^2 + std(u_lows)^2)^0.5;
             
             % carrier amplitude:
             A0 = 0.5*abs(mean(u_tops) + mean(u_lows));

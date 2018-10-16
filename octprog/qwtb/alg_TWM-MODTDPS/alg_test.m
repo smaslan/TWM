@@ -4,7 +4,10 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     % testing mode {0: single test, ? >= 1: N repeated tests, ? < 0: repeat particular test from previous test setups}:
-    is_full_val = 1000;
+    is_full_val = 0;
+    %is_full_val = -27;
+    %is_full_val = -1609;
+    %is_full_val = -1738;
     
     % maximum number of test repetitions per test setup (includes retries when alg. returns error):
     val.max_count = 300;
@@ -13,7 +16,7 @@ function alg_test(calcset) %<<<1
     % print debug lines:
     val.dbg_print = 1;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'modtdps_val_all.mat'];
+    val_path = [fileparts(mfilename('fullpath')) filesep 'modtdps_val_sgl2.mat'];
     
     
     % --- test execution setup ---
@@ -99,7 +102,7 @@ function alg_test(calcset) %<<<1
         com.rand_unc = [0 1];
         %com.rand_unc = [1];
         % calculation mode (see above):
-        com.mode = [1 2 3];
+        com.mode = [1 3];
     
         % generate all test setup combinations:
         [vr,com] = var_init(com);
@@ -118,7 +121,7 @@ function alg_test(calcset) %<<<1
     
 
     % --- FOR EACH TEST SETUP GROUP: ---
-    if is_full_val
+    if is_full_val > 0
         fprintf('Generating test setups...\n');
     end
     par = {};
@@ -345,17 +348,39 @@ function alg_test(calcset) %<<<1
         if is_full_val < 0
             % load setup from previous validation report:
             
-            res = load(val_path,'res');
-            par = res.res{-is_full_val}.par;
+            % try to reload last result from temp:
+            tmp_res_path = [fileparts(mfilename('fullpath')) filesep 'lastres_temp.mat'];
+            try
+                tmp = load(tmp_res_path,'tmp','val_path','is_full_val');                
+                res = tmp.tmp{1};
+                if ~strcmp(tmp.val_path,val_path) || tmp.is_full_val ~= is_full_val
+                    error('not the same results set!');
+                end
+                disp(' - loading from temp result');
+            catch
+                % failed, we will reload it from full set (slow):
+                disp(' - loading from full results set (wait)');                
+                res = load(val_path,'res');
+                res = res.res{-is_full_val};                 
+            end
+            par = res.par;
+            
+            % save the selected result to temp to speedup future reloading:
+            tmp = {res};
+            save(tmp_res_path,'tmp','val_path','is_full_val');
+            
+
             rand_unc = par.rand_unc;
             din = par.din;
             cfg = par.cfg;
             
             %cfg.fm += 1;
             %cfg.f0 += 1;
-            %cfg.N /= 2;
+            %cfg.N /= 3;
             %din.fs.v /= 2;
             
+            %cfg.fm = cfg.f0*0.1;
+                        
             tset = calcset;
             calcset = par.calcset;
             calcset.verbose = tset.verbose;            
