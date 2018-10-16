@@ -4,10 +4,7 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     % testing mode {0: single test, ? >= 1: N repeated tests, ? < 0: repeat particular test from previous test setups}:
-    is_full_val = 0;
-    %is_full_val = -27;
-    %is_full_val = -1609;
-    %is_full_val = -1738;
+    is_full_val = 5000;
     
     % maximum number of test repetitions per test setup (includes retries when alg. returns error):
     val.max_count = 300;
@@ -16,7 +13,7 @@ function alg_test(calcset) %<<<1
     % print debug lines:
     val.dbg_print = 1;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'modtdps_val_sgl2.mat'];
+    val_path = [fileparts(mfilename('fullpath')) filesep 'modtdps_val_sgl3.mat'];
     
     
     % --- test execution setup ---
@@ -30,12 +27,14 @@ function alg_test(calcset) %<<<1
     if ispc
         % windoze:
         par_mc_folder = 'g:\work\_mc_jobs_';
+        if ~exist(par_mc_folder,'file')
+            par_mc_folder = 'f:\work\_mc_jobs_';
+        end        
     else
         % linux:
         par_mc_folder = 'mc_rubbish_m';        
     end
-    
-    
+
     
     % --- Test function multicore setup:    
     % note: This is execution of the algorithm test, not execution mode if the algorithm itself!
@@ -99,10 +98,11 @@ function alg_test(calcset) %<<<1
     
         % -- test setup combinations:      
         % randomize corrections uncertainty:
-        com.rand_unc = [0 1];
-        %com.rand_unc = [1];
+        com.rand_unc = [0];
+        %com.rand_unc = [0];
         % calculation mode (see above):
-        com.mode = [1 3];
+        com.mode = [1 2];
+        %com.mode = [1];
     
         % generate all test setup combinations:
         [vr,com] = var_init(com);
@@ -114,14 +114,31 @@ function alg_test(calcset) %<<<1
         % randomize corrections uncertainty:
         simcom{1}.rand_unc = 1;
         % calculation mode (see above): 
-        simcom{1}.mode = 3; 
+        simcom{1}.mode = 1; 
     end
     
     
-    
+    % --- single axis variation:    
+    sens.par.fs = 10000;
+    sens.par.N = 2*12345;
+    sens.par.f0 = 53;
+    sens.par.modd = 0.5;
+    sens.par.fmod = 0.1;
+    sens.qu = 'modd';
+    sens.lbl = 'Am/A0';
+    sens.ax = logspace(log10(0.05),log10(0.95),20);
+    %sens.ax = logspace(log10(sens.par.fs/sens.par.N*3.01/sens.par.f0),log10(0.32),15);
+    sens.ax_scale = 'log';    
+    sens.enab = 0;
+    %sens.ax
+        
 
     % --- FOR EACH TEST SETUP GROUP: ---
-    if is_full_val > 0
+    if sens.enab
+        % override test setups count if single axis variation enabled: 
+        is_full_val = numel(sens.ax);
+    end
+    if is_full_val
         fprintf('Generating test setups...\n');
     end
     par = {};
@@ -139,17 +156,29 @@ function alg_test(calcset) %<<<1
             mode = a_modes{simcom{c}.mode};       
             
             % samples to synthesize:
-            N = round(logrand(3000,100000));
+            if sens.enab && isfield(sens.par,'N')
+                N = sens.par.N;
+            else
+                N = round(logrand(3000,100000));
+            end
             
             % sampling rate:
             %  note: randomize in small range, no need for full range testing, because all other parameters are relative to this
-            fs = logrand(9000,11000);
+            if sens.enab && isfield(sens.par,'fs')
+                fs = sens.par.fs;
+            else
+                fs = logrand(9000,11000);
+            end
             
             % input voltage range:
             U_rng = logrand(5,70);
             
             % carrier:
-            f0 = rounddig(logrand(50,fs/10),4);
+            if sens.enab && isfield(sens.par,'f0')
+                f0 = sens.par.f0;
+            else
+                f0 = rounddig(logrand(50,fs/10),4);
+            end
             % carrier amplitude:
             A0 = rounddig(logrand(0.1,1)*U_rng,3);
             
@@ -161,9 +190,22 @@ function alg_test(calcset) %<<<1
             end                               
                 
             % modulating signal frequency:    
-            fm = rounddig(logrand(3/(N/fs),fmf0_rat_max*f0),4);
-            % modulating signal amplitude:
-            Am = A0*rounddig(logrand(0.02,0.98),3);    
+            if sens.enab && strcmpi(sens.qu,'fmod')
+                fm = sens.ax(v)*f0;
+            elseif sens.enab && isfield(sens.par,'fmod')
+                fm = f0*sens.par.fmod;
+            else
+                fm = rounddig(logrand(3/(N/fs),fmf0_rat_max*f0),4);
+            end
+            % modulating signal amplitude:            
+            if sens.enab && strcmpi(sens.qu,'modd')
+                modd = sens.ax(v);
+            elseif sens.enab && isfield(sens.par,'modd')
+                modd = sens.par.modd;                
+            else
+                modd = rounddig(logrand(0.02,0.98),3);
+            end
+            Am = A0*modd;    
             % modulating signal phase [rad]: 
             phm = rand(1)*2*pi; % random phase
             % modulating signal shape: 
@@ -290,8 +332,7 @@ function alg_test(calcset) %<<<1
                 din.tr_Zlo_Rp.u = [1e-6];
                 din.tr_Zlo_Cp.u = [1e-12];    
             
-            end
-            
+            end                  
         
             % generate the signal:
             cfg.N = N; % samples count
@@ -310,6 +351,23 @@ function alg_test(calcset) %<<<1
             if exist('Zx','var')
                 cfg.Zx = Zx; % differential mode enabled 
             end
+                        
+            if sens.enab && (v > 1)
+                % - single axis variation:
+                
+                % temp config:
+                cfg_t = cfg;
+                
+                % restore first set:                 
+                din = par{pn_first}.din;
+                cfg = par{pn_first}.cfg;
+                % override the single axis, so everything but the axis stays constant:
+                if strcmpi(sens.qu,'fmod')
+                    cfg.fm = cfg_t.fm;    
+                elseif strcmpi(sens.qu,'modd')
+                    cfg.Am = cfg_t.Am;
+                end
+            end
             
             % store test setup:
             pn = pn + 1;
@@ -319,6 +377,9 @@ function alg_test(calcset) %<<<1
             par{pn}.val = val;
             par{pn}.simcom = simcom{c};
             par{pn}.calcset = calcset;
+            if v == 1
+                pn_first = pn; % store first test setup ID    
+            end
             
         end % test setups loop
         
@@ -335,18 +396,26 @@ function alg_test(calcset) %<<<1
         res = runmulticore(mc_setup.method, @proc_modtdps_test, par, mc_setup.cores, mc_setup.share_fld, 2, mc_setup);
                
         % store results:
-        save(val_path,'-v7','res','simcom','vr');
+        save(val_path,'-v7','res','simcom','vr','sens');
         
+        % restore path (###todo: should be removed when QWTB works correctly)
         qwtb('TWM-MODTDPS','addpath');
         
         % print results:
-        valid_report(res,vr);
+        if sens.enab
+            % - single axis validation:
+            valid_report(val_path);
+        else
+            % - random validation:   
+            valid_report(res,vr);
+        end
         
     else
         % --- SINGLE VALIDATION MODE ---
         
         if is_full_val < 0
             % load setup from previous validation report:
+            
             
             % try to reload last result from temp:
             tmp_res_path = [fileparts(mfilename('fullpath')) filesep 'lastres_temp.mat'];
@@ -369,18 +438,15 @@ function alg_test(calcset) %<<<1
             tmp = {res};
             save(tmp_res_path,'tmp','val_path','is_full_val');
             
-
             rand_unc = par.rand_unc;
             din = par.din;
             cfg = par.cfg;
             
             %cfg.fm += 1;
             %cfg.f0 += 1;
-            %cfg.N /= 3;
+            %cfg.N /= 2;
             %din.fs.v /= 2;
             
-            %cfg.fm = cfg.f0*0.1;
-                        
             tset = calcset;
             calcset = par.calcset;
             calcset.verbose = tset.verbose;            
@@ -500,4 +566,5 @@ function [din] = qwtb_add_unc(din,pin)
         end        
     end    
 end
+   
    
