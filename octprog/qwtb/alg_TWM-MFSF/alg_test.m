@@ -19,8 +19,14 @@ function alg_test(calcset) %<<<1
     calcset.mcm.repeats = 1000; % cycles
     calcset.mcm.method = 'multistation'; % parallelization mode
     calcset.mcm.procno = 0; % no. of parallel processes (0 to not start slaves)
-    %calcset.mcm.user_fun = @coklbind; % user function after servers startup (for CMI's supercomputer)
-    %calcset.mcm.tmpdir = 'c:\work\_mc_jobs_'; % jobs sharing folder for 'multistation' mode
+    %calcset.mcm.user_fun = @coklbind; % user function after servers startup (for CMI's supercomputer)    
+    calcset.mcm.tmpdir = 'c:\work\_mc_jobs_'; % jobs sharing folder for 'multistation' mode
+    if ~exist(calcset.mcm.tmpdir,'file')
+        calcset.mcm.tmpdir = 'f:\work\_mc_jobs_'; % jobs sharing folder for 'multistation' mode
+    end
+    if ~exist(calcset.mcm.tmpdir,'file')
+        calcset.mcm = rmfield(calcset.mcm,'tmpdir');
+    end
     % no QWTB input checking:
     calcset.checkinputs = 0;
     
@@ -33,7 +39,10 @@ function alg_test(calcset) %<<<1
     din.fs.v = 10000;
     
     % number of harmonics to analyze:
-    din.H.v = 3;
+    din.H.v = 3; 
+    
+    % initial guess/method (default not assigned):
+    %din.fest.v = 'psfe'; 
     
     % randomize uncertainties:
     %  note: enables randomization of the correction values by their uncertainties

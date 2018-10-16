@@ -38,7 +38,7 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
         datain.adcres.v = 1e-16;
     end
 
-    if isfield(datain,'fest') && datain.fest.v < 0
+    if isfield(datain,'fest') && ((isnumeric(datain.fest.v) && datain.fest.v < 0) || ischar(datain.fest.v) && strcmpi(datain.fest.v,'ipdft'))
         datain.fest.v = -1;
         % Get initial estimate by the ipdft_spect() method
         %  ###note: This is added from older version of MFSF algorithm, because the fast uncertainty estimator
@@ -46,6 +46,21 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
         
         % get initial estimate by ipdft_spect():
         fest = ipdft_spect(fft(datain.y.v),1/Ts);
+    elseif isfield(datain,'fest') && ischar(datain.fest.v) && strcmpi(datain.fest.v,'psfe')
+        datain.fest.v = -1;
+        % Get initial estimate by the PSFE method
+        %  ###note: This was added because PSFE can sometimes detect fundamental better even for heavily distorted signals
+        
+        % get initial estimate by external call of QWTB PSFE:
+        din.y.v = datain.y.v;
+        din.Ts.v = Ts;
+        cset = calcset;
+        cset.unc = 'none';
+        cset.verbose = 0;
+        dout = qwtb('PSFE',din,cset);
+        fest = dout.f.v;        
+    elseif isfield(datain,'fest') && ischar(datain.fest.v)
+        error(sprintf('MFSF error: initial estimate mode ''%s'' not recognised!',datain.fest.v));        
     else
         % standard mode (user estimate or default auto method of MFSF (peak FFT bin)):
         fest = datain.fest.v;
