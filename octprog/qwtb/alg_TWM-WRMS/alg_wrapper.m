@@ -45,71 +45,69 @@ function dataout = alg_wrapper(datain, calcset)
     % ------------------------------------------------------------------------------------------
     
     % put copies of waveform to both U/I channels:
-    din.u = data.y;
-    din.i = data.y;
-    if cfg.is_diff
+    din.u = datain.y;
+    din.i = datain.y;
+    if cfg.y_is_diff
         din.u_lo = data.y_lo;
         din.i_lo = data.y_lo;  
     end
     
-    
-      
+    din.fs.v = fs; 
+    din.adc_freq = datain.adc_freq;
+    din.adc_aper = datain.adc_aper;
+    din.u_tr_type = 'rvd';
+    din.i_tr_type = 'shunt';
+    din.time_shift.v = 0; din.time_shift.u = 0;
         
+    list = {'adc_gain','adc_phi','adc_offset','adc_jitter','adc_bits','adc_nrng','adc_lsb','adc_aper_corr','adc_Yin_f','adc_Yin_Cp','adc_Yin_Gp','time_shift','tr_gain','tr_phi','adc_sfdr','tr_sfdr','tr_Zlo','tr_Zlo_f','tr_Zlo_Rp','tr_Zlo_Cp','tr_Zca_f','tr_Zca_Ls','tr_Zca_Rs', 'tr_Yca_f','tr_Yca_Cp','tr_Yca_D', 'tr_Zcal_f','tr_Zcal_Ls','tr_Zcal_Rs', 'tr_Zcam_f','tr_Zcam', 'Zcb_f','Zcb_Ls','Zcb_Rs', 'Ycb_f','Ycb_Cp','Ycb_D'};
+    din = close_ui_tabs(din,datain,'u',list);
+    din = close_ui_tabs(din,datain,'i',list);
     
-    
-    qwtb('TWM-WRMS',datain,calset);
+    %fieldnames(din)
+
+    % execute TWM-PWRTDI
+    qwtb('TWM-PWRTDI',din,calcset);
   
 
 
 end % function
 
-
-function [lsb] = adc_get_lsb(din,pfx)
-% obtain ADC resolution for channel starting with prefix 'pfx', e.g.:
-% adc_get_lsb(datain,'u_lo_') will load LSB value from 'datain.u_lo_adc_lsb'
-% if LSB is not found, it tries to calculate the value from bit resolution and nominal range
-% 
-    if isfield(din,[pfx 'adc_lsb'])
-        % direct LSB value: 
-        lsb = getfield(din,[pfx 'lsb']); lsb = lsb.v;
-    elseif isfield(din,[pfx 'adc_bits']) && isfield(din,[pfx 'adc_nrng'])
-        % LSB value from nom. range and bit resolution:
-        bits = getfield(din,[pfx 'adc_bits']); bits = bits.v;
-        nrng = getfield(din,[pfx 'adc_nrng']); nrng = nrng.v;        
-        lsb = nrng*2^-(bits-1);        
-    else
-        % nope - its not there...
-        error('PWDTDI algorithm: Missing ADC LSB value or ADC range and bit resolution!');
-    end
-end
-
-% convert correction tables 'pfx'_list{:} to list{:}
-% i.e. get rid of prefix (usually 'u_' or 'i_')
-% list - names of the correction tables
-% pfx - prefix without '_' 
-function [tout] = conv_vchn_tabs(tin,pfx,list)
-    
-    tout = struct();
+ 
+% copies TWM tables named in 'list' from 'tin' to 'tout' adding preffix 'pfx':
+%  pfx = 'u'; list = {'adc_gain',...}; tin.adc_gain => tout.u_adc_gain; ...
+function [tout] = close_ui_tabs(tout,tin,pfx,list)
     for t = 1:numel(list)    
         name = [pfx '_' list{t}];
-        if isfield(tin,name)
-            tout = setfield(tout, list{t}, getfield(tin,name));
+        sname = list{t};
+        if isfield(tin,sname)
+            tout = setfield(tout, name, getfield(tin,sname));
         end
-    end
-    
+        name = [pfx '_' list{t} '_a'];        
+        sname = [list{t} '_a'];
+        if isfield(tin,sname)
+            tout = setfield(tout, name, getfield(tin,sname));
+        end
+        name = [pfx '_' list{t} '_f'];
+        sname = [list{t} '_f'];
+        if isfield(tin,sname)
+            tout = setfield(tout, name, getfield(tin,sname));
+        end
+        
+        name = [pfx '_lo_' list{t}];
+        sname = ['lo_' list{t}];
+        if isfield(tin,sname)
+            tout = setfield(tout, name, getfield(tin,sname));
+        end        
+        name = [pfx '_lo_' list{t} '_a'];
+        sname = ['lo_' list{t} '_a'];
+        if isfield(tin,sname)
+            tout = setfield(tout, name, getfield(tin,sname));
+        end
+        name = [pfx '_lo_' list{t} '_f'];
+        sname = ['lo_' list{t} '_f'];
+        if isfield(tin,sname)
+            tout = setfield(tout, name, getfield(tin,sname));
+        end
+    end    
 end
 
-function [unc] = top_bin_unc(unc,bin)
-    % 'unc' is uncertainty of DFT bins, 'bin' are indices of the bins
-    % the function will get max(unc(bin),unc(bin+1),unc(bin-1)) for
-    % each 'bin'. 'unc' must be column vector. 
-    N = numel(unc);
-    unc = max([unc(bin),unc(min(bin+1,N)),unc(max(bin-1,1))],[],2);
-end
-
-
-function unc = scovint_ofs(x, loc, avg)
-% scovint for offsetted histogram
-    [slen,sql,sqr] = scovint(x, loc);
-    unc = max(abs([sqr sql] - avg));
-end
