@@ -163,8 +163,9 @@ function alg_test(calcset) %<<<1
     end
         
     
-
-    fprintf('Generating test setups...\n');    
+    if is_full_val > 0
+        fprintf('Generating test setups...\n');
+    end    
         
     % list of test setups:
     par = {};
@@ -282,7 +283,7 @@ function alg_test(calcset) %<<<1
             % -- VOLTAGE:
             id = id + 1;
             % channel parameters:
-            chns{id}.name = 'u';
+            chns{id}.name = 'y';
             chns{id}.type = 'rvd';
             % harmonic amplitudes:
             U0 = logrand(0.1,1)*U_max;
@@ -304,7 +305,7 @@ function alg_test(calcset) %<<<1
             if simcom{c}.is_diff
                 chns{id}.Zx = 10;
             end
-            chns{id+1} = chns{id}; % fake secondary channel
+            %chns{id+1} = chns{id}; % fake secondary channel
         
                 
             if true
@@ -443,10 +444,10 @@ function alg_test(calcset) %<<<1
             fprintf('Harmonics = %s\n',sprintf('%.3g ',sort([cfg.chn{1}.fx/f0])));
             fprintf('AC coupling = %.0f\n',din.ac_coupling.v);
         end
-    
+        
         % --- generate the signal:        
         [datain,simout] = gen_pwr(din, cfg, rand_unc); % generate
-        
+                
         % add fake uncertainties to allow uncertainty calculation:
         %  ###todo: to be removed when QWTB supports no uncertainty checking 
         %alginf = qwtb('TWM-PWRTDI','info');
