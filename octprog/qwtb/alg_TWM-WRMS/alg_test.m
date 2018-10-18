@@ -280,11 +280,13 @@ function alg_test(calcset) %<<<1
             
             chns = {}; id = 0;    
                
-            % -- VOLTAGE:
+            % -- signal parameters:
             id = id + 1;
             % channel parameters:
             chns{id}.name = 'y';
-            chns{id}.type = 'rvd';
+            tr_type = {'shunt','rvd'};
+            tr_type = tr_type{1 + (rand > 0.5)};
+            chns{id}.type = tr_type;
             % harmonic amplitudes:
             U0 = logrand(0.1,1)*U_max;
             chns{id}.A = U0*[1     logrand(0.01,0.1,[1 n_harm-1]) logrand(0.001,0.01)]';
@@ -379,6 +381,8 @@ function alg_test(calcset) %<<<1
                 din.tr_sfdr_a.v = [];
                 din.tr_sfdr_f.v = [];
                 din.tr_sfdr.v = [180];
+                % transducer type:
+                din.tr_type.v = chns{1}.type;
                 % differential timeshift:
                 din.time_shift_lo.v = linrand(-1,1)*max_chn2chn_td;
                 din.time_shift_lo.u = logrand(0.1,1)*max_chn2chn_td_u;
@@ -462,15 +466,15 @@ function alg_test(calcset) %<<<1
         % --- plot results:
             
         % make list of quantities to display:
-        ref_list =  [simout.U_rms, simout.I_rms, simout.S, simout.P, simout.Q, simout.PF, simout.phi_ef*180/pi, simout.Udc, simout.Idc, simout.Pdc];
-        dut_list =  [dout.U.v,     dout.I.v,     dout.S.v, dout.P.v, dout.Q.v, dout.PF.v, dout.phi_ef.v*180/pi, dout.Udc.v, dout.Idc.v, dout.Pdc.v];
-        unc_list =  [dout.U.u,     dout.I.u,     dout.S.u, dout.P.u, dout.Q.u, dout.PF.u, dout.phi_ef.u*180/pi, dout.Udc.u, dout.Idc.u, dout.Pdc.u];
-        name_list = {'U',          'I',          'S',      'P',      'Q',      'PF',      'phi',                'Udc',      'Idc',      'Pdc'};
+        ref_list =  [simout.rms, simout.dc];
+        dut_list =  [dout.rms.v, dout.dc.v];
+        unc_list =  [dout.rms.u, dout.dc.u];
+        name_list = {'rms',      'dc'};
             
         % plot table of results:
-        fprintf('\n----+-------------+----------------------------+-------------+----------+----------+-----------\n');
-        fprintf('    |     REF     |        CALC +- UNC         |   ABS DEV   |  DEV [%%] |  UNC [%%] | %%-OF-UNC\n');
-        fprintf('----+-------------+----------------------------+-------------+----------+----------+-----------\n');
+        fprintf('\n-----+-------------+----------------------------+-------------+----------+----------+-----------\n');
+        fprintf('     |     REF     |        CALC +- UNC         |   ABS DEV   |  DEV [%%] |  UNC [%%] | %%-OF-UNC\n');
+        fprintf('-----+-------------+----------------------------+-------------+----------+----------+-----------\n');
         for k = 1:numel(ref_list)
             
             ref = ref_list(k);
@@ -495,10 +499,10 @@ function alg_test(calcset) %<<<1
                 puc = NaN;
             end
             
-            fprintf('%-3s | %11s | %11s +- %-11s | %11s | %+8.4f | %8.4f | %+3.0f\n',name,rv,sv,su,dv,100*dev/ref,abs(unc/dut)*100,puc);
+            fprintf('%-4s | %11s | %11s +- %-11s | %11s | %+8.4f | %8.4f | %+3.0f\n',name,rv,sv,su,dv,100*dev/ref,abs(unc/dut)*100,puc);
             
         end
-        fprintf('----+-------------+----------------------------+-------------+----------+----------+-----------\n');
+        fprintf('-----+-------------+----------------------------+-------------+----------+----------+-----------\n');
     
     end
       
