@@ -566,10 +566,16 @@ function dataout = alg_wrapper(datain, calcset)
     % estimate noise levels for the removed harmonics components:
     Uns = interp1(fh(msk),Uh(msk),fh,'nearest','extrap');
     Ins = interp1(fh(msk),Ih(msk),fh,'nearest','extrap');
-    
+       
     % estimate RMS noise from windowed spectrum:
     U_noise = sum(0.5*Uns.^2)^0.5/w_rms*w_gain;
     I_noise = sum(0.5*Ins.^2)^0.5/w_rms*w_gain;
+    % rms of the identified harmonic components NOT used for uncertainty analysis:
+    U_resid = sum(Ux(H+1:end).^2)^0.5;
+    I_resid = sum(Ix(H+1:end).^2)^0.5;
+    % expand noise by the removed, but unused component:
+    U_noise = (U_noise^2 + U_resid^2)^0.5;
+    I_noise = (I_noise^2 + I_resid^2)^0.5;
     
     % calculate bits per harmonic pk-pk range:
     Ux_bits = log2(Ux./Ux_lsb)-1;
@@ -896,6 +902,13 @@ function dataout = alg_wrapper(datain, calcset)
     elseif strcmpi(calcset.unc,'mcm')
         % -- Monte-Carlo mode:
         
+        % add spurs to all harmonic ucnertainties because we cannot say true amplitudes: 
+        U_sp_x = interp1(f_spur,vcl{1}.spur,fx(2:H),'nearest','extrap')/3^0.5*1.2;
+        I_sp_x = interp1(f_spur,vcl{2}.spur,fx(2:H),'nearest','extrap')/3^0.5*1.2;        
+        u_Ux(2:H) = (u_Ux(2:H).^2 + U_sp_x.^2).^0.5;
+        u_Ix(2:H) = (u_Ix(2:H).^2 + I_sp_x.^2).^0.5;        
+        u_phx(2:H) = (u_phx(2:H).^2 + atan2(U_sp_x,Ux(2:H)).^2 + atan2(I_sp_x,Ix(2:H)).^2).^0.5;
+            
         % prepare waveform simulation parameters:
         harmonics =   [  Ux(1:H),  Ix(1:H)];
         u_harmonics = [u_Ux(1:H),u_Ix(1:H)];
@@ -903,10 +916,11 @@ function dataout = alg_wrapper(datain, calcset)
         lsbs = [Ux(1)/2^Ux_bits(1), Ix(1)/2^Ix_bits(1)];
         jitters = [datain.u_adc_jitter.v, datain.i_adc_jitter.v];
         % add spurs to all harmonic ucnertainties because we cannot say true amplitudes: 
-        spurs = [max(vcl{1}.spur), max(vcl{2}.spur)];
-        u_spurs = repmat(spurs,[H 1]);
-        u_spurs(1,:) = [0, 0]; % nor spur to fundamental harmonics obviously        
-        u_harmonics = (u_harmonics.^2 + u_spurs.^2).^0.5;
+%         spurs = [max(vcl{1}.spur), max(vcl{2}.spur)];
+%         u_spurs = repmat(spurs,[H 1]);
+%         u_spurs(1,:) = [0, 0]; % nor spur to fundamental harmonics obviously        
+%         u_harmonics = (u_harmonics.^2 + u_spurs.^2).^0.5;
+       
        
         % decimate frequency axis (to save memory for paralleling): 
         fh_dec = unique(sort([0;fx;f_spur;logspace(log10(1),log10(max(fh)),100)']));
@@ -978,9 +992,9 @@ function dataout = alg_wrapper(datain, calcset)
         
         % --simulation was done without SFDR (computantionaly expensive), so add SFDR to histograms now:        
         % worst case SFDR effect:
-        u_U_sfdr = ((sum(0.5*vcl{1}.spur.^2) + U_rms^2)^0.5 - U_rms);    
-        u_I_sfdr = ((sum(0.5*vcl{2}.spur.^2) + I_rms^2)^0.5 - I_rms);    
-        u_P_sfdr = sum(0.5*vcl{1}.spur.*vcl{2}.spur);        
+        u_U_sfdr = ((sum(0.5*vcl{1}.spur.^2) + U_rms^2)^0.5 - U_rms)*1.1;    
+        u_I_sfdr = ((sum(0.5*vcl{2}.spur.^2) + I_rms^2)^0.5 - I_rms)*1.1;    
+        u_P_sfdr = sum(0.5*vcl{1}.spur.*vcl{2}.spur)*1.1;        
         % add SFDR to histograms (assume plus and minus effect, because SFDR is partially in the detected harmonics
         % that are simualted by MC, so the RMS is shifted to plus):
         v_U = (2*rand(calcset.mcm.repeats,1) - 1)*u_U_sfdr + res.dU*U_rms; 

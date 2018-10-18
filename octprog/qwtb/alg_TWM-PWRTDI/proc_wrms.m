@@ -42,7 +42,7 @@ function [res] = proc_wrms(sig)
         
         % DFT bin step [Hz]:
         %  note: this is kind of uncertainty that should quantify accuracy of harmonic peak detection in DFT spectrum with window
-        bin_step = sig.fs/sig.N*1.0;
+        bin_step = sig.fs/sig.N*1.3;
         
         % randomize harmonics frequency positions +-bin because we don't exact position: 
         fx = sig.sim.fx + (2*rand(size(sig.sim.fx)) - 1)*bin_step;
@@ -112,7 +112,7 @@ function [res] = proc_wrms(sig)
             y = y - dc; 
             
             % get tfer correction filter values for the harmonics:
-            %  note: interpolating to NOMINAL frequencies of the DFT bins, whereas the value were generated 
+            %  note: interpolating to NOMINAL frequencies of the DFT bins, whereas the values were generated 
             %        with randomized frequencies, so the random frequency error effect is evaluated 
             fg = interp1(fh,vc.adc_gain.gain,sig.sim.fx,i_mode,'extrap');
             fp = interp1(fh,vc.adc_phi.phi,sig.sim.fx,i_mode,'extrap');

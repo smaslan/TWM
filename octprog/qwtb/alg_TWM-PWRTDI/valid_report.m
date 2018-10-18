@@ -69,22 +69,22 @@ function [] = valid_report(res,vr,pass_loc)
             h_list(end+1:end+size(rc{k}.punc,1),:) = rc{k}.punc;
         end                                  
         
-%         p_id = 4;
-%         pass = [];
-%         for k = 1:R
-%             pass(k) = mean(abs(rc{k}.punc(:,p_id)) < 1);
-%         end        
-%         figure
-%         plot(pass)
-%         [v,id] = min(pass)
-%         figure
-%         plot(rc{id}.punc(:,p_id))
-
+        p_id = 1;
+        pass = [];
+        for k = 1:R
+            pass(k) = mean(abs(rc{k}.punc(:,p_id)) < 1);
+        end        
         figure
-        hist(h_list(:,4),50,1);
-        %semilogy(xx,nn);
-        xlabel('\Delta{}P [-]');
-        ylabel('p [-]');
+        plot(pass)
+        [v,id] = min(pass)
+        figure
+        plot(rc{id}.punc(:,p_id))
+
+%         figure
+%         hist(h_list(:,4),50,1);
+%         %semilogy(xx,nn);
+%         xlabel('\Delta{}P [-]');
+%         ylabel('p [-]');
           
         
         % mean %-of-unc value [%]:

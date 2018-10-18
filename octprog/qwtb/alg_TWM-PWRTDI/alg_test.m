@@ -9,17 +9,19 @@ function alg_test(calcset) %<<<1
 
     
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = 10000;
+    is_full_val = 3000;
+    %is_full_val = -1417;
+    %is_full_val = -1914;
     
     % minimum number of repetitions per test setup:
     %  note: if the value is 1 and all quantities passed, the test is done successfully
     %val.fast_mode = 0; % ###note: note implemented
     % maximum number of test repetitions per test setup:
-    val.max_count = 200;
+    val.max_count = 300;
     % print debug lines:
     val.dbg_print = 1;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_guf7.mat'];
+    val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_mcm7.mat'];
     
     
     % --- test execution setup ---
@@ -28,7 +30,7 @@ function alg_test(calcset) %<<<1
     %  'testrun' - run test runs within the test setup parallel (good for 'mcm' validation)
     %  'mcm' - run Monte Carlo iterations in parallel (good only for small cores count) 
     %par_level = {'testrun','testsetup'};
-    par_level = 'testsetup';
+    par_level = 'testrun';
     if is_full_val <= 0
         par_level = 'mcm'; % override for single test    
     end
@@ -113,7 +115,7 @@ function alg_test(calcset) %<<<1
     % --- Algorithm calculation setup ---:
      
     calcset.verbose = (is_full_val <= 0);
-    calcset.unc = 'guf'; % uncertainty mode
+    calcset.unc = 'mcm'; % uncertainty mode
     calcset.loc = 0.95;
     calcset.dbg_plots = 0;
     % MonteCarlo (for 'mcm' uncertainty mode) setup:
@@ -145,11 +147,11 @@ function alg_test(calcset) %<<<1
     
         % -- test setup combinations:      
         % randomize corrections uncertainty:
-        com.rand_unc = [0 1];
+        com.rand_unc = [0];
         %com.rand_unc = [1];
         % differential sensors:
-        com.is_diff = [0 1];
-        %com.is_diff = [0];
+        %com.is_diff = [0 1];
+        com.is_diff = [0];
     
         % generate all test setup combinations:
         [vr,com] = var_init(com);
@@ -164,7 +166,9 @@ function alg_test(calcset) %<<<1
         
     
 
-    fprintf('Generating test setups...\n');    
+    if is_full_val > 0
+        fprintf('Generating test setups...\n');
+    end    
         
     % list of test setups:
     par = {};
@@ -510,14 +514,36 @@ function alg_test(calcset) %<<<1
         if is_full_val < 0
             % load setup from previous validation report:
             
-            res = load(val_path,'res');
-            par = res.res{-is_full_val}.par;
+            
+            % try to reload last result from temp:
+            tmp_res_path = [fileparts(mfilename('fullpath')) filesep 'lastres_temp.mat'];
+            try
+                tmp = load(tmp_res_path,'tmp','val_path','is_full_val');                
+                res = tmp.tmp{1};
+                if ~strcmp(tmp.val_path,val_path) || tmp.is_full_val ~= is_full_val
+                    error('not the same results set!');
+                end
+                fprintf('Loading result #%d from temp...\n',-is_full_val);
+            catch
+                % failed, we will reload it from full set (slow):
+                fprintf('Loading result #%d from full results set (wait)...\n',-is_full_val);                
+                res = load(val_path,'res');
+                res = res.res{-is_full_val};                 
+            end
+            par = res.par;
+            
+            % save the selected result to temp to speedup future reloading:
+            tmp = {res};
+            save(tmp_res_path,'tmp','val_path','is_full_val');
+            
+            
             din = par.din;
             cfg = par.cfg;
             %calcset = par.calcset;
             rand_unc = par.rand_unc;
             
-            %calcset.dbg_plots = 1;
+            calcset.dbg_plots = 1;
+            %calcset.unc = 'guf';
                    
 %             cfg.chn{1}.dc = 0;
 %             cfg.chn{2}.dc = 0;
