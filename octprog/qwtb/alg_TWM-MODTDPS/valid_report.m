@@ -1,4 +1,4 @@
-function [] = valid_report(res,vr,pass_loc)
+function [] = valid_report(res,vr,pass_loc,graph)
 
     fprintf('-----------------------------\n');
     fprintf(' Algorithm validation report \n');
@@ -14,6 +14,11 @@ function [] = valid_report(res,vr,pass_loc)
     if ~exist('pass_loc','var')
         % default pass results level of confidence:
         pass_loc = 0.681;
+    end
+    
+    if ~exist('graph','var')
+        % default pass results level of confidence:
+        graph = 0;
     end
     
     % total test setups:
@@ -51,7 +56,7 @@ function [] = valid_report(res,vr,pass_loc)
     fprintf('pass rate uncertainty = <-%.3f;0>%% (i.e. level of confidence %.3f)\n\n',100*2*pass_unc/R^0.5,pass_loc);
     
     fprintf('Passed rate of all test setups [%%]:\n');
-    fprintf('-----------------\n\n');
+    fprintf('---------------------------------\n\n');
     
     % --- for each variation combination:
     va = 1;
@@ -72,31 +77,33 @@ function [] = valid_report(res,vr,pass_loc)
                 punc_list(end+1:end+size(rc{k}.punc,1),:) = rc{k}.punc; 
             end
         end
+
+        if graph        
+    %         id_to_plot = [1 2 4 5];        
+    %         figure
+    %         for k = 1:numel(id_to_plot)
+    %             subplot(2,2,k);
+    %             hist(punc_list(:,id_to_plot(k)),50,1);
+    %             xlabel(rc{1}.name_list{id_to_plot(k)});
+    %             ylabel('pdf [-]');
+    %             box on;
+    %             ax = axis();axis([-1.2 1.2 ax(3:4)]);
+    %         end                                  
+                            
+            qid = 2;
+            figure
+            plot(punc(:,qid))
+    %         figure
+    %         hist(punc(:,qid),[0:0.02:1],1)
+            [v,id] = min(punc(:,qid));
+            failz = find(punc(:,qid) < pass_prob);
+            if ~isempty(failz)
+                fails_list = punc_id(failz)+va-1
+            end
+            figure
+            plot(rc{punc_id(id)}.punc(:,qid))
         
-%         id_to_plot = [1 2 4 5];        
-%         figure
-%         for k = 1:numel(id_to_plot)
-%             subplot(2,2,k);
-%             hist(punc_list(:,id_to_plot(k)),50,1);
-%             xlabel(rc{1}.name_list{id_to_plot(k)});
-%             ylabel('pdf [-]');
-%             box on;
-%             ax = axis();axis([-1.2 1.2 ax(3:4)]);
-%         end                                  
-                        
-        qid = 1;
-        figure
-        plot(punc(:,qid))
-%         figure
-%         hist(punc(:,qid),[0:0.02:1],1)
-        [v,id] = min(punc(:,qid));
-        failz = find(punc(:,qid) < pass_prob);
-        if ~isempty(failz)
-            fails_list = punc_id(failz)+va-1
         end
-        figure
-        plot(rc{punc_id(id)}.punc(:,qid))
-        
         
         
 
@@ -116,10 +123,13 @@ function [] = valid_report(res,vr,pass_loc)
         punc = mean(punc > pass_prob,1)*100;             
         
         % print combination setup:
+        
         head = {'','',''};
-        P = sum(vr.par_n>1);
+        use_var = ~strcmpi(vr.names,'pvpid');
+        use_var = find(use_var);        
+        P = numel(use_var);
         for p = 1:P
-            head{p} = sprintf('%s = %d',vr.names{p},getfield(rc{1}.par.simcom,vr.names{p}));    
+            head{p} = sprintf('%s = %d',vr.names{use_var(p)},getfield(rc{1}.par.simcom,vr.names{use_var(p)}));    
         end
         head_len = max(cellfun(@length,head));
         head_fmt = sprintf('%%-%ds',head_len);
@@ -128,8 +138,8 @@ function [] = valid_report(res,vr,pass_loc)
         qu_names = sprintf('%-6s ',rc{1}.name_list{:});
         qu_puncs = sprintf('%6.2f ',punc);
         qu_cuncs = sprintf('%6.2f ',cunc);
-        fprintf(['  ' head_fmt ' | %s| TOT\n  ' head_fmt ' | %s| %6.2f\n  ' head_fmt ' | %s| %6.2f <= average pass rates\n'],head{1},qu_names,head{2},qu_puncs,min(punc),head{2},qu_cuncs,min(cunc));
-        for p = P+1:numel(head)
+        fprintf(['  ' head_fmt ' | %s| TOT\n  ' head_fmt ' | %s| %6.2f\n  ' head_fmt ' | %s| %6.2f <= average pass rates\n'],head{1},qu_names,head{2},qu_puncs,min(punc),head{3},qu_cuncs,min(cunc));
+        for p = P+2:numel(head)
             fprintf(['  ' head_fmt '\n'],head{p});
         end
         fprintf('\n');

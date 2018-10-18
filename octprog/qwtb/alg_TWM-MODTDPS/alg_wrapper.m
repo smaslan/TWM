@@ -148,7 +148,7 @@ function dataout = alg_wrapper(datain, calcset)
     
     % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
     if vc.ap_corr && abs(ta) > 1e-12 
-        vc.y = vc.y.*ap_gain;               
+        vc.y = vc.y.*ap_gain;              
     end
             
     
@@ -359,6 +359,17 @@ function dataout = alg_wrapper(datain, calcset)
     ag = correction_interp_table(tab.adc_gain, Ac, fc, 'f', 1);
     ap = correction_interp_table(tab.adc_phi,  Ac, fc, 'f', 1);
     
+    % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
+    if vc.ap_corr && abs(ta) > 1e-12
+        % calculate aperture gain/phase correction:
+        ap_gain = (pi*ta*fc)./sin(pi*ta*fc);
+        ap_phi  =  pi*ta*fc;
+        
+        ag.gain = ag.gain.*ap_gain;                      
+        ap.phi = ap.phi.*ap_phi;
+    end
+    
+    
     % apply digitizer tfer:            
     A0_hi = Ac.*ag.gain;
     ph0_hi = phc + ap.phi;
@@ -404,10 +415,11 @@ function dataout = alg_wrapper(datain, calcset)
     % -- modulation relative unc. from corrections:
     % difference of the mean of sideband correction values from the carrier (because we used carrier freq. correction for entire signal):
     %  ###todo: this is very schmutzige empiric solution because it does not take into account the sideband phase errors but it seems to work  
-    ur_mod_a = sum((trg(3:end)/trg(1) - 1).^2).^0.5/3^0.5;
+    ur_mod_a = sum((trg(3:end)/trg(1) - 1).^2)^0.5/3^0.5;
     ur_mod_b = abs(mean(trg(3:end))/trg(1) - 1)/3^0.5;
     %ur_mod = mean([ur_mod_a,ur_mod_b]);
-    ur_mod = [0.8*ur_mod_a + 0.2*ur_mod_b];
+    ur_mod = [0.2*ur_mod_a + 0.8*ur_mod_b];
+    %ur_mod = ur_mod_a;
     if strcmpi(wave_shape,'rect')
         % rectangular wave mode:
         % extend the estimate by some tictoc coefficient because rectangular modulation will cause even worse errors due to much more sidebands 
@@ -629,8 +641,7 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     ax.modd.val = Am/A0;
     % periods count of carrier:
     ax.fm_per.val = N/fs*fm;
-    
-    %ax
+        
     %ax.sfdr.val = 130
     
     % current folder:
@@ -676,8 +687,8 @@ function [unc] = unc_estimate(dc,f0,A0,fm,Am,phm, N,fh,Y,fs,sfdr,lsb,jitt, wave_
     if strcmpi(wave_shape,'sine')
         % ### emprirical extension of modulation depth uncertainty (schmutzig, but effective...):
         rfm_f    = [0 0.05 0.1 0.2 0.33];
-        rfm_dmod = [1 1    1.3 1.8 2.6]; 
-        k_dmod = interp1(rfm_f,rfm_dmod,ax.fmf0_rat.val,'linear','extrap');                       
+        rfm_dmod = [1 1.1  1.7 2.2 2.7]; 
+        k_dmod = interp1(rfm_f,rfm_dmod,ax.fmf0_rat.val,'linear','extrap');                      
         unc.dmod.val = unc.dmod.val*k_dmod;
     end
              

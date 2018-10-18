@@ -101,7 +101,7 @@ function alg_test(calcset) %<<<1
         com.rand_unc = [0];
         %com.rand_unc = [0];
         % calculation mode (see above):
-        com.mode = [1 2];
+        com.mode = [1 2 3];
         %com.mode = [1];
     
         % generate all test setup combinations:
@@ -446,6 +446,25 @@ function alg_test(calcset) %<<<1
             %cfg.f0 += 1;
             %cfg.N /= 2;
             %din.fs.v /= 2;
+            
+%             din.tr_gain.v = din.tr_gain.v(1);
+%             din.tr_gain.u = din.tr_gain.u(1);
+%             din.tr_gain_a.v = [];
+%             din.tr_gain_f.v = [];            
+%             din.adc_gain.v = din.adc_gain.v(1);
+%             din.adc_gain.u = din.adc_gain.u(1);
+%             din.adc_gain_a.v = [];
+%             din.adc_gain_f.v = [];
+%             din.tr_phi.v = 0;
+%             din.tr_phi.u = 0;
+%             din.tr_phi_a.v = [];
+%             din.tr_phi_f.v = [];
+%             din.adc_phi.v = 0;
+%             din.adc_phi.u = 0;
+%             din.adc_phi_a.v = [];
+%             din.adc_phi_f.v = [];
+            %din.adc_aper.v = 1e-3;
+
             
             tset = calcset;
             calcset = par.calcset;
