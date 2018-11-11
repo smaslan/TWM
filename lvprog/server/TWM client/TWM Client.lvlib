@@ -9,8 +9,10 @@
 	<Item Name="TWM Client Meas Setup.ctl" Type="VI" URL="../TWM Client Meas Setup.ctl"/>
 	<Item Name="TWM Client Result Max Dim.ctl" Type="VI" URL="../TWM Client Result Max Dim.ctl"/>
 	<Item Name="TWM Client Transducer Correction Item.ctl" Type="VI" URL="../TWM Client Transducer Correction Item.ctl"/>
+	<Item Name="TWM Client Algorithm Info.ctl" Type="VI" URL="../TWM Client Algorithm Info.ctl"/>
 	<Item Name="TWM Client Cmd Get Result.vi" Type="VI" URL="../TWM Client Cmd Get Result.vi"/>
 	<Item Name="TWM Client Cmd Get Status.vi" Type="VI" URL="../TWM Client Cmd Get Status.vi"/>
+	<Item Name="TWM Client Cmd Get Algorithm Info.vi" Type="VI" URL="../TWM Client Cmd Get Algorithm Info.vi"/>
 	<Item Name="TWM Client Cmd Identify.vi" Type="VI" URL="../TWM Client Cmd Identify.vi"/>
 	<Item Name="TWM Client Cmd Restart.vi" Type="VI" URL="../TWM Client Cmd Restart.vi"/>
 	<Item Name="TWM Client Cmd Set Corrections.vi" Type="VI" URL="../TWM Client Cmd Set Corrections.vi"/>
