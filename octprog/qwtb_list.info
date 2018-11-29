@@ -184,7 +184,7 @@ type:: qwtb list
                 P;       si; 1e-9; 1e-7
                 S;       si; 1e-9; 1e-7
                 Q;       si; 1e-9; 1e-7
-                PF;      si; 1e-6; 1e-7
+                PF;      f;  1e-6; 1e-7
                 phi_ef;  f;  1e-6; 1e-7
                 Udc;     si; 1e-9; 1e-7
                 Idc;     si; 1e-9; 1e-7
@@ -194,6 +194,9 @@ type:: qwtb list
                 spec_I;  si; 1e-8; 1e-7
                 spec_S;  si; 1e-8; 1e-7
         #endmatrix:: number formats
+        #startmatrix:: is phase
+                phi_ef
+        #endmatrix:: is phase
         #startmatrix:: graphs
                 spec_f; spec_U
                 spec_f; spec_I
@@ -252,7 +255,7 @@ type:: qwtb list
                 f0; si; 1e-12; 1e-8                
                 A;  si; 1e-12; 1e-7
                 phi; f; 1e-12; 1e-7
-                dc;  f; 1e-12; 1e-6
+                dc; si; 1e-12; 1e-6
                 thd; f; 1e-6;  1e-6
         #endmatrix:: number formats
         #startmatrix:: is phase

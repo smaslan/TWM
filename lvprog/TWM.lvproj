@@ -988,7 +988,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">3</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1005,7 +1005,7 @@
 				<Property Name="Destination[4].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{D08CC45C-C063-4695-9193-C0D8FEFBEC43}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{8409EB9F-9EA6-4C45-AEA1-575787D0D3CD}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1041,7 +1041,9 @@
 				<Property Name="Source[9].type" Type="Str">Container</Property>
 				<Property Name="SourceCount" Type="Int">10</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
-				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
+
+V1.3.2 - most of the bugs fixed</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM</Property>

@@ -48,8 +48,8 @@ function dataout = alg_wrapper(datain, calcset)
     din.u = datain.y;
     din.i = datain.y;
     if cfg.y_is_diff
-        din.u_lo = data.y_lo;
-        din.i_lo = data.y_lo;  
+        din.u_lo = datain.y_lo;
+        din.i_lo = datain.y_lo;  
     end
     
     % copy options:
@@ -61,8 +61,8 @@ function dataout = alg_wrapper(datain, calcset)
     din.fs.v = fs; 
     din.adc_freq = datain.adc_freq;
     din.adc_aper = datain.adc_aper;
-    din.u_tr_type = 'rvd';
-    din.i_tr_type = 'shunt';
+    din.u_tr_type.v = 'rvd';
+    din.i_tr_type.v = 'shunt';
     din.time_shift.v = 1e-9; din.time_shift.u = 0; % fake some timeshift
     
     % copy corrections to both U/I channels:    

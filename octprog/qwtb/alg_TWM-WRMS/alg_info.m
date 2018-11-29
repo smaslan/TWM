@@ -3,7 +3,7 @@ function alginfo = alg_info() %<<<1
 %
 % See also qwtb
 
-    alginfo.id = 'TWM-PWRTDI';
+    alginfo.id = 'TWM-WRMS';
     alginfo.name = 'RMS level calculation using windowed Time-Domain-Integration.';
     alginfo.desc = 'Calculation of RMS level in time-domain from windowed signals. Frequency dependent corrections are made using FFT filtering.';
     alginfo.citation = 'K. B. Ellingsberg, ''''Predictable maximum RMS-error for windowed RMS (RMWS),'''' 2012 Conference on Precision electromagnetic Measurements, Washington, DC, 2012, pp. 308-309. doi: 10.1109/CPEM.2012.6250925';
