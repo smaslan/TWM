@@ -144,6 +144,7 @@
 				<Item Name="MAT Determine Data Type.vi" Type="VI" URL="../octave/mat/MAT Determine Data Type.vi"/>
 				<Item Name="MAT Type Representation.ctl" Type="VI" URL="../octave/mat/MAT Type Representation.ctl"/>
 				<Item Name="MAT read fixed test.vi" Type="VI" URL="../octave/mat/MAT read fixed test.vi"/>
+				<Item Name="MAT Search Matrix.vi" Type="VI" URL="../octave/mat/MAT Search Matrix.vi"/>
 				<Item Name="MAT Read Matrix.vi" Type="VI" URL="../octave/mat/MAT Read Matrix.vi"/>
 				<Item Name="MAT Read Matrix Header.vi" Type="VI" URL="../octave/mat/MAT Read Matrix Header.vi"/>
 				<Item Name="MAT Save Matrix.vi" Type="VI" URL="../octave/mat/MAT Save Matrix.vi"/>
@@ -441,6 +442,7 @@
 		<Item Name="measure" Type="Folder">
 			<Item Name="GUI" Type="Folder">
 				<Item Name="GUI Waveform Info.ctl" Type="VI" URL="../measure/GUI/GUI Waveform Info.ctl"/>
+				<Item Name="GUI Set Error To String.vi" Type="VI" URL="../measure/GUI/GUI Set Error To String.vi"/>
 				<Item Name="GUI Set Error and Display Error Status.vi" Type="VI" URL="../measure/GUI/GUI Set Error and Display Error Status.vi"/>
 				<Item Name="GUI Write Sequence Item Status.vi" Type="VI" URL="../measure/GUI/GUI Write Sequence Item Status.vi"/>
 				<Item Name="GUI Write Sampling Status.vi" Type="VI" URL="../measure/GUI/GUI Write Sampling Status.vi"/>
@@ -449,7 +451,9 @@
 				<Item Name="GUI Wavefrom Panel.vi" Type="VI" URL="../measure/GUI/GUI Wavefrom Panel.vi"/>
 				<Item Name="GUI Waveform Show.vi" Type="VI" URL="../measure/GUI/GUI Waveform Show.vi"/>
 				<Item Name="GUI Waveform Update.vi" Type="VI" URL="../measure/GUI/GUI Waveform Update.vi"/>
-				<Item Name="GUI Set Error To String.vi" Type="VI" URL="../measure/GUI/GUI Set Error To String.vi"/>
+				<Item Name="GUI FFT panel 2x.vi" Type="VI" URL="../measure/GUI/GUI FFT panel 2x.vi"/>
+				<Item Name="GUI FFT Show.vi" Type="VI" URL="../measure/GUI/GUI FFT Show.vi"/>
+				<Item Name="GUI FFT Update.vi" Type="VI" URL="../measure/GUI/GUI FFT Update.vi"/>
 			</Item>
 			<Item Name="sequence" Type="Folder">
 				<Item Name="Meas Generate Sequence.vi" Type="VI" URL="../measure/sequence/Meas Generate Sequence.vi"/>
@@ -513,6 +517,8 @@
 					<Item Name="Meas Proc QWTB Generate Algorithm Info Section.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Generate Algorithm Info Section.vi"/>
 					<Item Name="Meas Proc QWTB Write Algorithm Processing Header.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Write Algorithm Processing Header.vi"/>
 					<Item Name="Meas Proc QWTB Multicore Start Servers.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Multicore Start Servers.vi"/>
+					<Item Name="Meas Proc QWTB Spectrum Data.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Spectrum Data.ctl"/>
+					<Item Name="Meas Proc QWTB Load Result Spectra.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Load Result Spectra.vi"/>
 				</Item>
 				<Item Name="Meas Process Config.ctl" Type="VI" URL="../measure/processing/Meas Process Config.ctl"/>
 				<Item Name="Meas Process Mode.ctl" Type="VI" URL="../measure/processing/Meas Process Mode.ctl"/>
@@ -570,6 +576,7 @@
 			<Item Name="get_exe_path.vi" Type="VI" URL="../other/get_exe_path.vi"/>
 			<Item Name="Merge Error Ex.vi" Type="VI" URL="../other/Merge Error Ex.vi"/>
 			<Item Name="About Dialog.vi" Type="VI" URL="../other/About Dialog.vi"/>
+			<Item Name="graph_redef_bounds.vi" Type="VI" URL="../other/graph_redef_bounds.vi"/>
 		</Item>
 		<Item Name="ini" Type="Folder">
 			<Item Name="ini_auto" Type="Folder">
