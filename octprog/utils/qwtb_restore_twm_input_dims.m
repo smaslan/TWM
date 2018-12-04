@@ -161,13 +161,14 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
             din = twm_qwtb_restore_input_dim_corr(din, [p 'tr_gain'], {[p 'tr_gain_f'];[p 'tr_gain_a']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, [p 'tr_phi'], {[p 'tr_phi_f'];[p 'tr_phi_a']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, [p 'tr_sfdr'], {[p 'tr_sfdr_f'];[p 'tr_sfdr_a']}, opt);            
-            din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zlo_Rp'];[p 'tr_Zlo_Cp']}, {[p 'tr_Zlo_f']}, opt);
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zlo_Rp'];[p 'tr_Zlo_Cp']}, {[p 'tr_Zlo_f']}, opt);            
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zca_Rs'];[p 'tr_Zca_Ls']}, {[p 'tr_Zca_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Yca_Cp'];[p 'tr_Yca_D']}, {[p 'tr_Yca_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zcal_Rs'];[p 'tr_Zcal_Ls']}, {[p 'tr_Zcal_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zcam']}, {[p 'tr_Zcam_f']}, opt);            
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'Zcb_Rs'];[p 'Zcb_Ls']}, {[p 'Zcb_f']}, opt);
             din = twm_qwtb_restore_input_dim_corr(din, {[p 'Ycb_Cp'];[p 'Ycb_D']}, {[p 'Ycb_f']}, opt);
+            din = twm_qwtb_restore_input_dim_corr(din, {[p 'tr_Zbuf_Rs'];[p 'tr_Zbuf_Ls']}, {[p 'tr_Zbuf_f']}, opt);
         end
         
         % create default transducer type(s):
@@ -218,9 +219,18 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         % create default ADC resolution:
         din = qwtb_rtwm_inps_default(din,true,'adc_bits',40);
         din = qwtb_rtwm_inps_default(din,cfg.y_is_diff,'lo_adc_bits',40);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'u_adc_bits',40);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'i_adc_bits',40);
+        din = qwtb_rtwm_inps_default(din,cfg.u_is_diff,'u_lo_adc_bits',40);
+        din = qwtb_rtwm_inps_default(din,cfg.i_is_diff,'i_lo_adc_bits',40);
         % create default ADC range:
         din = qwtb_rtwm_inps_default(din,true,'adc_nrng',1000);
         din = qwtb_rtwm_inps_default(din,cfg.y_is_diff,'lo_adc_nrng',1000);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'u_adc_nrng',1000);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'i_adc_nrng',1000);
+        din = qwtb_rtwm_inps_default(din,cfg.u_is_diff,'u_lo_adc_nrng',1000);
+        din = qwtb_rtwm_inps_default(din,cfg.i_is_diff,'i_lo_adc_nrng',1000);
+
         
         
         % fix input data, so the vectors are always vertical

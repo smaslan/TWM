@@ -4,7 +4,7 @@ function alg_test(calcset) %<<<1
 % See also qwtb
 
     % testing mode {0: single test, ? >= 1: N repeated tests, ? < 0: repeat particular test from previous test setups}:
-    is_full_val = 5000;
+    is_full_val = 0;
     
     % maximum number of test repetitions per test setup (includes retries when alg. returns error):
     val.max_count = 300;

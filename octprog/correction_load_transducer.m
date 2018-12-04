@@ -21,6 +21,7 @@ function [tran] = correction_load_transducer(file)
 %   tran.Zcb - 1D table of cable series Z
 %   tran.Ycb - 1D table of cable shunting Y
 %   tran.Zlo - 1D table of RVD's low side resistor Z
+%   tran.Zbuf - 1D table of buffer output impedance series Z (zero value if no buffer file found)
 %
 %
 % This is part of the TWM - TracePQM WattMeter.
@@ -162,7 +163,7 @@ function [tran] = correction_load_transducer(file)
     catch
         % default value {0 Ohm, 0 H}
         Zcb_file = {[], 1e-9, 1e-12, 0.0, 0.0};
-        tran.has_Ycb = 0;         
+        tran.has_Zcb = 0;         
     end
     tran.Zcb = correction_load_table(Zcb_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
     tran.Zcb.qwtb = qwtb_gen_naming('Zcb','f','',{'Rs','Ls'},{'u_Rs','u_Ls'},{'Rs','Ls'});
@@ -195,6 +196,17 @@ function [tran] = correction_load_transducer(file)
     end
     tran.SFDR = correction_load_table(sfdr_file,'rms',{'f','sfdr'});
     tran.SFDR.qwtb = qwtb_gen_naming('tr_sfdr','f','a',{'sfdr'},{''},{''});
+    
+    % load buffer series output impedance (optional):
+    try
+        Zbuf_file = [root_fld correction_load_transducer_get_file_key(inf,'buffer output series impedance path')];
+    catch
+        % default value {0 Ohm, 0 H}
+        Zbuf_file = {[], 0.0, 0.0, 0.0, 0.0};       
+    end
+    tran.Zbuf = correction_load_table(Zbuf_file,'',{'f','Rs','Ls','u_Rs','u_Ls'});
+    tran.Zbuf.qwtb = qwtb_gen_naming('tr_Zbuf','f','',{'Rs','Ls'},{'u_Rs','u_Ls'},{'Rs','Ls'});
+    
     
     % this is a list of the correction that will be passed to the QWTB algorithm
     % note: any correction added to this list will be passed to the QWTB

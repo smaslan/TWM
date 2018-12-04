@@ -9,7 +9,8 @@ function alg_test(calcset) %<<<1
 
     
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = 3000;
+    is_full_val = 0;
+    %is_full_val = 3000;
     %is_full_val = -1417;
     %is_full_val = -1914;
     
@@ -115,7 +116,7 @@ function alg_test(calcset) %<<<1
     % --- Algorithm calculation setup ---:
      
     calcset.verbose = (is_full_val <= 0);
-    calcset.unc = 'mcm'; % uncertainty mode
+    calcset.unc = 'guf'; % uncertainty mode
     calcset.loc = 0.95;
     calcset.dbg_plots = 0;
     % MonteCarlo (for 'mcm' uncertainty mode) setup:
@@ -161,7 +162,7 @@ function alg_test(calcset) %<<<1
         simcom = {struct()};
         
         simcom{1}.rand_unc = 0;
-        simcom{1}.is_diff = 0;
+        simcom{1}.is_diff = 1;
     end
         
     

@@ -45,7 +45,7 @@ function [tab] = qwtb_build_correction_table(din,names,name_ax,default,default_u
         for k = 1:V 
             data = getfield(din,names{k});
             default{k} = data.v;
-            if isfield(data,'u') && ~isempty(data.u)
+            if isfield(data,'u') && all(size(data.v) == size(data.u))
                 default_unc{k} = data.u;
             else
                 default_unc{k} = [];
@@ -56,7 +56,8 @@ function [tab] = qwtb_build_correction_table(din,names,name_ax,default,default_u
             ct = getfield(din,name_ax{k});
             default_ax{k} = ct.v;
         end             
-    end    
+    end
+        
         
     % create primary axis:
     q_data = {default_ax{1}};
@@ -75,7 +76,7 @@ function [tab] = qwtb_build_correction_table(din,names,name_ax,default,default_u
         q_data{end+1} = default{k};
         q_names{end+1} = var_names{k};
         % uncertainty:
-        if numel(default_unc) >= k && ~isempty(default_unc)
+        if numel(default_unc) >= k && all(size(default{k}) == size(default_unc{k}))
             q_data{end+1} = default_unc{k};
             q_names{end+1} = ['u_' var_names{k}];
         end

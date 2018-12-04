@@ -46,7 +46,7 @@ function [] = twm_selftest(tmp_path)
     runid = runid + 1; runz{runid} = struct('mode','ui', 'is_diff',[1 1]);
     
     % verbose level (0: stfu, 1: small talk, 2: all):
-    verbose = 1;    
+    verbose = 2;    
     
     try 
         % --- for each test combination --- 
@@ -669,7 +669,7 @@ function [] = twm_selftest(tmp_path)
                 
             
             % --- execute validation algorithm on the simulated measurement:
-            qwtb_exec_algorithm(session_file, '', 1, -1, -1, 0);
+            qwtb_exec_algorithm(session_file, 'guf', 1, -1, -1, 0);
             
             
             
@@ -698,7 +698,7 @@ function [] = twm_selftest(tmp_path)
                     fid = find(strcmpi(rec.qu{q}.name,rnames),1,'first');
                     if isempty(fid)
                         rec.qu{q}
-                       error(sprintf('Compare: quantity ''%s'' not found in the results!',rec.qu{q}.name)); 
+                        error(sprintf('Compare: quantity ''%s'' not found in the results!',rec.qu{q}.name)); 
                     end
                     
                     % get results record:
@@ -816,6 +816,9 @@ function [] = twm_selftest(tmp_path)
                         ref = dut.val; % comparing value of quantity
                         comp_tol = 1e-9;
                     end
+                    
+                
+                    
                     if ~matchtol(ref,rec.qu{q}.data,comp_tol)
                         disp('----- Calculated:')
                         rec.qu{q}.data
@@ -1452,6 +1455,21 @@ function [list] = gen_tab_list()
     tab.auto_pass = 1;
     tab.is_csv = 1;
     tab.corr_name = 'rvd low side impedance path';
+    tab.mode = 'tr';
+    list{end+1} = tab;
+    
+    tab = struct();
+    tab.tab_name = 'tr_Zbuf';
+    tab.tab_dim = 1;
+    tab.qu{1} = struct('qu','f', 'name','tr_Zbuf_f', 'sub','v', 'desc','Transducer output buffer ouput series impedance - frequency axis');
+    tab.qu{2} = struct('qu','Rs', 'name','tr_Zbuf_Rs', 'sub','v', 'desc','Transducer output buffer ouput series impedance - Rs');
+    tab.qu{3} = struct('qu','Ls', 'name','tr_Zbuf_Ls', 'sub','v', 'desc','Transducer output buffer ouput series impedance - Ls');
+    tab.qu{4} = struct('qu','u_Rs', 'name','tr_Zbuf_Rs', 'sub','u', 'desc','Transducer output buffer ouput series impedance - u(Rs)');
+    tab.qu{5} = struct('qu','u_Ls', 'name','tr_Zbuf_Ls', 'sub','u', 'desc','Transducer output buffer ouput series impedance - u(Ls)');
+    tab.auto_gen = 1;
+    tab.auto_pass = 1;
+    tab.is_csv = 1;
+    tab.corr_name = 'buffer output series impedance path';
     tab.mode = 'tr';
     list{end+1} = tab;
     
