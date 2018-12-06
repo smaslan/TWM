@@ -199,7 +199,7 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
         res_file = res_files{temp_res_id};
         
         % load selected result file    
-        res = qwtb_parse_result(res_file, cfg, var_list);
+        [res,chn_list] = qwtb_parse_result(res_file, cfg, var_list);
         L = numel(res);
         
         % check if all the variables for all phases/channels are scalar
@@ -249,13 +249,23 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
     % find the reference result in the loaded list
     res_id = find(result_ids == res_id, 1);
   
+    % pick reference channel for differential phase measurements:
+    if isnumeric(cfg.phi_ref_chn)
+        ref_chn = cfg.phi_ref_chn;
+    elseif isempty(cfg.phi_ref_chn)
+        ref_chn = 0;
+    elseif any(strcmpi(chn_list,cfg.phi_ref_chn))
+        ref_chn = find(strcmpi(chn_list,cfg.phi_ref_chn),1);
+    else
+        error(sprintf('Result loader: Desired reference channel ''%s'' nto found in channels/phases list!',cfg.phi_ref_chn));
+    end
   
   
     % === align phase to phase/channel? ===
     R = numel(results);
     C = numel(results{1});
     V = numel(results{1}{1});
-    if cfg.phi_ref_chn && C > 1
+    if ref_chn && C > 1
         % yes and more than one channel:
         
         % channels to be aligned to reference:
@@ -274,7 +284,7 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
                 % for each result:
                 for r = 1:R
                     % get reference phase:
-                    ref = results{r}{cfg.phi_ref_chn}{v};          
+                    ref = results{r}{ref_chn}{v};          
                     ref_val = ref.val;
                     if isfield(ref,'unc')
                         ref_unc = ref.unc; % ###TODO implement uncertainty

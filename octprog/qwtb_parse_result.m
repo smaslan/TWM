@@ -38,8 +38,10 @@
 %%                  min_unc_rel - minimum allowed rel. uncertainty of the var.
 %%                                for displaying (default 1e-6)
 %% ----------------------------------------------------------------------------- 
-function [chn_list] = qwtb_parse_result(result_path, cfg, var_list)
+function [chn_list,list] = qwtb_parse_result(result_path, cfg, var_list)
 
+  list = {};
+  
   if ~exist('var_list','var')
     % no variable list specified - load all
     var_list = {};
