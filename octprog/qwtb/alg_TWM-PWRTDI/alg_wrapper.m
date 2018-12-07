@@ -92,7 +92,7 @@ function dataout = alg_wrapper(datain, calcset)
     clear vcl; id = 0; % virt. chn. list     
     % -- build virtual channel (U):
     id = id + 1;
-    vcl{id}.tran = 'rvd';
+    vcl{id}.tran = datain.u_tr_type.v;
     vcl{id}.name = 'u'; 
     vcl{id}.is_diff = cfg.u_is_diff;
     vcl{id}.y = datain.u.v;
@@ -108,7 +108,7 @@ function dataout = alg_wrapper(datain, calcset)
     vcl{id}.tsh = 0; % high-side channel shift (do not change!)    
     % -- build virtual channel (I):
     id = id + 1;
-    vcl{id}.tran = 'shunt';
+    vcl{id}.tran = datain.i_tr_type.v;
     vcl{id}.name = 'i';
     vcl{id}.is_diff = cfg.i_is_diff;
     vcl{id}.y = datain.i.v;
@@ -227,7 +227,7 @@ function dataout = alg_wrapper(datain, calcset)
         vc = vcl{k};
         
         % current channel?
-        is_current = strcmpi(vc.tran,'shunt');
+        is_current = strcmpi(vc.name,'i');
                 
         % correct ADC offset:
         vc.Y(1) = vc.Y(1) - vc.adc_ofs.v; % remove DC offset from working spectrum
@@ -274,7 +274,7 @@ function dataout = alg_wrapper(datain, calcset)
         % obtain ADC LSB value:
         vc.lsb = adc_get_lsb(datain,[vc.name '_']);
         % apply ADC gain to it:
-        vc.lsb = vc.lsb.*ag.gain.*ap_gain;
+        vc.lsb = vc.lsb.*ag.gain;
                  
         
         if vc.is_diff
@@ -325,7 +325,7 @@ function dataout = alg_wrapper(datain, calcset)
             % obtain ADC LSB value for low-side:
             vc.lsb_lo = adc_get_lsb(datain,[vc.name '_lo_']);
             % apply ADC gain to it:
-            vc.lsb_lo = vc.lsb_lo.*agl.gain.*ap_gain;          
+            vc.lsb_lo = vc.lsb_lo.*agl.gain;          
                         
             
             % estimate transducer correction tfer from the spectrum estimates:
@@ -343,7 +343,7 @@ function dataout = alg_wrapper(datain, calcset)
             u_ph = ap.u_phi;
             % low-side:
               Y_lo  = vc.Y_lo.*exp(j*vc.ph_lo);
-            u_Y_lo  = vc.Y.*(agl.u_gain./agl.gain);
+            u_Y_lo  = vc.Y_lo.*(agl.u_gain./agl.gain);
             u_ph_lo = apl.u_phi;
             % estimate digitizer input rms level:
             dA = abs(Y - Y_lo);
@@ -912,7 +912,7 @@ function dataout = alg_wrapper(datain, calcset)
         % prepare waveform simulation parameters:
         harmonics =   [  Ux(1:H),  Ix(1:H)];
         u_harmonics = [u_Ux(1:H),u_Ix(1:H)];
-        noises =      [U_noise,  I_noise];        
+        noises =      [U_noise,  I_noise];       
         lsbs = [Ux(1)/2^Ux_bits(1), Ix(1)/2^Ix_bits(1)];
         jitters = [datain.u_adc_jitter.v, datain.i_adc_jitter.v];
         % add spurs to all harmonic ucnertainties because we cannot say true amplitudes: 
@@ -924,6 +924,7 @@ function dataout = alg_wrapper(datain, calcset)
        
         % decimate frequency axis (to save memory for paralleling): 
         fh_dec = unique(sort([0;fx;f_spur;logspace(log10(1),log10(max(fh)),100)']));
+        
                
                                         
         % -- prepare virtual channels to simulate:
@@ -989,7 +990,6 @@ function dataout = alg_wrapper(datain, calcset)
         % execute Monte-Carlo:
         res = qwtb_mcm_exec(@proc_wrms,sig,calcset);
         
-        
         % --simulation was done without SFDR (computantionaly expensive), so add SFDR to histograms now:        
         % worst case SFDR effect:
         u_U_sfdr = ((sum(0.5*vcl{1}.spur.^2) + U_rms^2)^0.5 - U_rms)*1.1;    
@@ -1028,7 +1028,7 @@ function dataout = alg_wrapper(datain, calcset)
         s_P = [];
         for k = 1:100
             prm = randperm(calcset.mcm.repeats);
-            prm = prm(1:round(0.5*calcset.mcm.repeats));        
+            prm = prm(1:round(0.5*calcset.mcm.repeats));
             s_U(k) = scovint_ofs(v_U(prm), calcset.loc, 0)/ke;
             s_I(k) = scovint_ofs(v_I(prm), calcset.loc, 0)/ke;
             s_P(k) = scovint_ofs(v_P(prm), calcset.loc, 0)/ke;

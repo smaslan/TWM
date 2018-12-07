@@ -58,17 +58,18 @@ function dataout = alg_wrapper(datain, calcset)
     end 
     
     % copy some channel independent data:
-    din.fs.v = fs; 
+    din.fs.v = fs;
     din.adc_freq = datain.adc_freq;
     din.adc_aper = datain.adc_aper;
-    din.u_tr_type.v = 'rvd';
-    din.i_tr_type.v = 'shunt';
+    din.u_tr_type = datain.tr_type;
+    din.i_tr_type = datain.tr_type;
     din.time_shift.v = 1e-9; din.time_shift.u = 0; % fake some timeshift
     
     % copy corrections to both U/I channels:    
     list = {'adc_gain','adc_phi','adc_offset','adc_jitter','adc_bits','adc_nrng','adc_lsb','adc_aper_corr','adc_Yin_f','adc_Yin_Cp','adc_Yin_Gp','time_shift','tr_gain','tr_phi','adc_sfdr','tr_sfdr','tr_Zlo','tr_Zlo_f','tr_Zlo_Rp','tr_Zlo_Cp','tr_Zca_f','tr_Zca_Ls','tr_Zca_Rs', 'tr_Yca_f','tr_Yca_Cp','tr_Yca_D', 'tr_Zcal_f','tr_Zcal_Ls','tr_Zcal_Rs', 'tr_Zcam_f','tr_Zcam', 'Zcb_f','Zcb_Ls','Zcb_Rs', 'Ycb_f','Ycb_Cp','Ycb_D'};
     din = close_ui_tabs(din,datain,'u',list);
     din = close_ui_tabs(din,datain,'i',list);
+    calcset.checkinputs = 0;
     
     %fieldnames(din)
 
@@ -77,14 +78,14 @@ function dataout = alg_wrapper(datain, calcset)
     
     % --- copy results to output:
     dataout.spec_f = dout.spec_f;
-    if strcmpi(datain.tr_type.v,'shunt')
-        dataout.rms = dout.I;
-        dataout.dc  = dout.Idc;
-        dataout.spec_A = dout.spec_I;
-    elseif strcmpi(datain.tr_type.v,'rvd')
+    if strcmpi(datain.tr_type.v,'shunt') || strcmpi(datain.tr_type.v,'rvd')
         dataout.rms = dout.U;
         dataout.dc  = dout.Udc;
         dataout.spec_A = dout.spec_U;
+%     elseif strcmpi(datain.tr_type.v,'rvd')
+%         dataout.rms = dout.U;
+%         dataout.dc  = dout.Udc;
+%         dataout.spec_A = dout.spec_U;
     else
         error(sprintf('TWM-WRMS: Not supported transducer type ''%s''!',datain.tr_type.v));
     end
