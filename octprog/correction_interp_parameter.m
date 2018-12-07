@@ -51,12 +51,14 @@ function [values,w] = correction_interp_parameter(values, w, par, dim, correctio
                
         if isempty(w)
           % numeric - interpolate       
-          values = interp1(cell2mat(x_vals)(:),values,xi,'extrap');
+          x_val_tmp = cell2mat(x_vals);
+          values = interp1(x_val_tmp(:),values,xi,'extrap');
         else
           % CSV mode - just update interpolation weigth matrix
           
           % convert parameter to vertical vector
-          x_vals = cell2mat(x_vals)(:);
+          x_vals = cell2mat(x_vals);
+          x_vals = x_vals(:);
           
           %w = zeros(size(values));
           
@@ -77,8 +79,8 @@ function [values,w] = correction_interp_parameter(values, w, par, dim, correctio
             w(1:end ~= id & 1:end ~= id+1,:) = 0;
             
             % now apply interpolation to the remaining rows
-            w(id + 0,:) .*= (1 - wei); 
-            w(id + 1,:) .*= wei;
+            w(id + 0,:) = w(id + 0,:).*(1 - wei); 
+            w(id + 1,:) = w(id + 1,:).*wei;
           
           end
                       

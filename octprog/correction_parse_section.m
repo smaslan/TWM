@@ -50,7 +50,7 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
 
   % merge selected measurement group INFO section with global meas. INFO file for easier search
   group_sec = infogetsection(meas_inf,group_sec_name);
-  group_sec = infosetsection(group_sec,meas_inf,{});
+  meas_inf = infosetsection(group_sec,meas_inf,{});
   
 
   % get this correction's section from correction file header 

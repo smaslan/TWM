@@ -31,12 +31,12 @@ function [ret, higher] = correction_compare_attributes(a, b, prec, ceps)
     % 'a' is already numeric or can be numeric, can the 'b' be also numeric?
     
     % 'b' is already entire numeric?
-    b_is_num = all(cellfun('isnumeric',b));
+    b_is_num = all(cellfun(@isnumeric,b));
     
     if ~b_is_num
       % try to convert 'b' to numeric
       try
-        b = cellfun('str2num',b,'UniformOutput',true);
+        b = cellfun(@str2num,b,'UniformOutput',true);
         b_is_num = 1;
       catch
         % nope! - something was not convertable        
@@ -69,7 +69,7 @@ function [ret, higher] = correction_compare_attributes(a, b, prec, ceps)
     else
       % 'b' is not numeric and cannot be numeric
 
-      if ischar(a) && all(cellfun('ischar',b))
+      if ischar(a) && all(cellfun(@ischar,b))
         % 'a' and 'b' strings - compare strings
         
         % match found?
@@ -83,7 +83,7 @@ function [ret, higher] = correction_compare_attributes(a, b, prec, ceps)
   else
     % 'a' is obviously not numeric and cannot be numeric  
   
-    if ischar(a) && all(cellfun('ischar',b))
+    if ischar(a) && all(cellfun(@ischar,b))
       % kej, 'a' and 'b' are all strings, compare strings
       ret = find(strcmpi(a,b),1);
 
