@@ -22,10 +22,10 @@ function dataout = alg_wrapper(datain, calcset)
         fs = 1/mean(diff(datain.t.v));
     end
              
-    if cfg.y_is_diff
-        % Input data 'y' is differential: if it is not allowed, put error message here
-        error('Differential input data ''y'' not allowed!');     
-    end
+%     if cfg.y_is_diff
+%         % Input data 'y' is differential: if it is not allowed, put error message here
+%         error('Differential input data ''y'' not allowed!');     
+%     end
     
     if cfg.is_multi
         % Input data 'y' contains more than one record: if it is not allowed, put error message here
@@ -52,7 +52,6 @@ function dataout = alg_wrapper(datain, calcset)
     cset.verbose = 0;
     din.y.v = datain.y.v;                
     dout = qwtb('SP-WFFT',din,cset);
-    %qwtb('TWM-PWRTDI','addpath'); % ###todo: fix qwtb so it does not loose the path every time another alg. is called
     fh    = dout.f.v(:); % freq. vector of the DFT bins
     A     = dout.A.v(:); % amplitude vector of the DFT bins
     ph    = dout.ph.v(:); % phase vector of the DFT bins
@@ -63,6 +62,13 @@ function dataout = alg_wrapper(datain, calcset)
     %  get window rms:
     w_rms = mean(w.^2).^0.5;    
    
+    % get ADC aperture value [s]:
+    ta = abs(datain.adc_aper.v);
+    
+    % calculate aperture gain/phase correction:
+    fap = fh + 1e-12; % needed for DC work
+    ap_gain = (pi*ta*fap)./sin(pi*ta*fap);
+    ap_phi  =  pi*ta*fh;
     
     % corrections interpolation mode:
     % ###note: do not change, this works best for frequency characteristics
@@ -81,15 +87,7 @@ function dataout = alg_wrapper(datain, calcset)
     if any(isnan(ap.phi))
         error('High-side ADC phase correction: not sufficient range of correction data!');
     end
-    
-    % get ADC aperture value [s]:
-    ta = abs(datain.adc_aper.v);
-    
-    % calculate aperture gain/phase correction:
-    fap = fh + 1e-12; % needed for DC work
-    ap_gain = (pi*ta*fap)./sin(pi*ta*fap);
-    ap_phi  =  pi*ta*fh;
-        
+       
     % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
     if datain.adc_aper_corr.v && ta > 1e-12
         ag.gain = ag.gain.*ap_gain;
@@ -103,16 +101,77 @@ function dataout = alg_wrapper(datain, calcset)
     % compesante phase by timestamp:
     ph = ph - fh.*datain.time_stamp.v*2*pi;
     
-    ph = rem(ph + pi,2*pi) - pi; 
     
-    % apply transducer correction:
-    rms_ref = sum(0.5*A.^2).^0.5*w_gain/w_rms;
-    Y = abs(A); % amplitudes, rectify DC
-    fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
-    [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], Y,ph,0*Y,0*ph, 'rms',rms_ref);
-    trg(1) = trg(1)*sign(A(1));
-    A = trg;
-    ph = trp;
+    if cfg.y_is_diff
+        % --- differential mode ---:
+        
+        % get low-side spectrum
+        din.y.v = datain.y_lo.v;                
+        dout = qwtb('SP-WFFT',din,cset);
+        A_lo   = dout.A.v(:); % amplitude vector of the DFT bins
+        ph_lo  = dout.ph.v(:); % phase vector of the DFT bin
+    
+        % correct ADC offset:
+        A_lo(1) = A_lo(1) - datain.lo_adc_offset.v; % remove DC offset from working spectrum
+            
+        % get gain/phase correction for the freq. components (high-side ADC):
+        ag = correction_interp_table(tab.lo_adc_gain, abs(A_lo), fh, 'f',1, i_mode);
+        ap = correction_interp_table(tab.lo_adc_phi,  abs(A_lo), fh, 'f',1, i_mode);
+        
+        if any(isnan(ag.gain))
+            error('High-side ADC gain correction: not sufficient range of correction data!');
+        end
+        if any(isnan(ap.phi))
+            error('High-side ADC phase correction: not sufficient range of correction data!');
+        end
+           
+        % apply aperture corrections (when enabled and some non-zero value entered for the aperture time):
+        if datain.lo_adc_aper_corr.v && ta > 1e-12
+            ag.gain = ag.gain.*ap_gain;
+            ap.phi = ap.phi + ap_phi;
+        end      
+         
+        % apply high-side adc tfer to the spectrum estimate:        
+        A_lo  = A_lo.*ag.gain;
+        ph_lo = ph_lo + ap.phi;
+    
+        % compesante phase by timestamp:
+        ph_lo = ph_lo - fh.*(datain.time_stamp.v - datain.time_shift_lo.v)*2*pi;
+        
+        % high-side:            
+          Y  = A.*exp(j*ph);
+        u_Y  = 0*Y;
+        u_ph = 0*Y;
+        % low-side:
+          Y_lo  = A_lo.*exp(j*ph_lo);
+        u_Y_lo  = 0*Y_lo;
+        u_ph_lo = 0*Y_lo;
+        % estimate digitizer input rms level:
+        dA = abs(Y - Y_lo);
+        rms_ref = sum(0.5*dA.^2).^0.5*w_gain/w_rms;            
+        % calculate transducer tfer:
+        fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
+        [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh_dc,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo, 'rms',rms_ref);
+        A = trg;
+        ph = trp;
+        
+    
+    else
+        % --- single ended mode ---
+        
+        % apply transducer correction:
+        rms_ref = sum(0.5*A.^2).^0.5*w_gain/w_rms;
+        Y = abs(A); % amplitudes, rectify DC
+        fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
+        [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], Y,ph,0*Y,0*ph, 'rms',rms_ref);
+        trg(1) = trg(1)*sign(A(1));
+        A = trg;
+        ph = trp;
+        
+    end
+     
+    
+    
     
         
     % get nearest frequency bin in spectrum: 
