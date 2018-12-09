@@ -136,7 +136,7 @@ function dataout = alg_wrapper(datain, calcset)
         ph_lo = ph_lo + ap.phi;
     
         % compesante phase by timestamp:
-        ph_lo = ph_lo - fh.*(datain.time_stamp.v - datain.time_shift_lo.v)*2*pi;
+        ph_lo = ph_lo - fh.*(datain.time_stamp.v + datain.time_shift_lo.v)*2*pi;
         
         % high-side:            
           Y  = A.*exp(j*ph);
@@ -151,9 +151,12 @@ function dataout = alg_wrapper(datain, calcset)
         rms_ref = sum(0.5*dA.^2).^0.5*w_gain/w_rms;            
         % calculate transducer tfer:
         fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
-        [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh_dc,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo, 'rms',rms_ref);
+        [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo, 'rms',rms_ref);
         A = trg;
         ph = trp;
+        
+        figure
+        loglog(fh,A)
         
     
     else
@@ -169,7 +172,50 @@ function dataout = alg_wrapper(datain, calcset)
         ph = trp;
         
     end
-     
+    
+    
+    
+    
+    % search dominant component:
+    [Amax,mid] = max(A);     
+    
+    % local copy of spectrum:
+    w_size = 11;
+    Ax = A*0;
+    Ax(w_size:end) = A(w_size:end);
+    
+    % max harmonics to search:
+    H_max = 100;
+    
+    % min ratio to fundamental to take it into account:
+    h_min_ratio = 10e-6;
+    
+    % spestrum width:
+    N = numel(A);
+        
+    h_list = [];            
+    for h = 1:H_max
+                
+        % look for highest harmonic:            
+        [v,id] = max(Ax);                     
+        
+        % leave if harmonics too low:
+        if v < Amax*h_min_ratio || isempty(id)
+            break;
+        end
+    
+        % found harmonics list:
+        h_list(end+1) = id;
+        
+        % DFT bins occupied by the harmonic
+        h_bins = max((id - w_size),1):min(id + w_size,N);
+        
+        % remove harmonic bins from remaining list:
+        Ax(h_bins) = 0;
+        
+    end
+    
+        
     
     
     
@@ -182,7 +228,7 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.f.v = fh(fid);
     dataout.A.v = A(fid);
     dataout.ph.v = ph(fid);
-    dataout.rms.v = ((sum(0.5*A(2:end).^2).^0.5*w_gain/w_rms)^2 + A(1)^2)^0.5;
+    dataout.rms.v = (A(1)^2 + sum(0.5*A(h_list).^2))^0.5;
     dataout.dc.v = A(1);              
     dataout.f.u = 0;
     dataout.A.u = 0;

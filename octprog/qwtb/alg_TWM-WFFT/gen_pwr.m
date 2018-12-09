@@ -136,7 +136,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
         is_diff = isfield(chn,'Zx');
                 
         % i-channel timeshift:
-        if chn.name == 'i'
+        if is_pwr && chn.name == 'i'
             tsh = -din.time_shift.v + randn(1)*din.time_shift.u*rand_unc; % ###todo: decide if this has correct polarity!!!!!!!!!!!!!!!           
         else
             tsh = 0;
@@ -147,7 +147,11 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
         end            
         
         % channel prefix (eg.: 'u_'):
-        cpfx = [chn.name '_'];
+        if is_pwr
+            cpfx = [chn.name '_'];
+        else
+            cpfx = '';
+        end
                                         
         % load channel corrections for given v.channel:
         % note: this removes 'u_' or 'i_' prefix so the rest of code can be run in loop for both U and I v.channels
@@ -223,12 +227,12 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
             sub_chn{2} = [chn.name '_lo']; % low-side
             
             % ADC offset:
-            adc_ofs(1) = getfield(din,[chn.name '_adc_offset']);
-            adc_ofs(2) = getfield(din,[chn.name '_lo_adc_offset']);
+            adc_ofs(1) = getfield(din,[cpfx 'adc_offset']);
+            adc_ofs(2) = getfield(din,[cpfx 'lo_adc_offset']);
             
             % ADC jitter:
-            adc_jitt(1) = getfield(din,[chn.name '_adc_jitter']);
-            adc_jitt(2) = getfield(din,[chn.name '_lo_adc_jitter']);
+            adc_jitt(1) = getfield(din,[cpfx 'adc_jitter']);
+            adc_jitt(2) = getfield(din,[cpfx 'lo_adc_jitter']);
             
         else
             % -- single-ended connection (create single channel):

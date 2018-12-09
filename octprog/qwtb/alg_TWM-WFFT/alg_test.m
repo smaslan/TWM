@@ -159,7 +159,7 @@ function alg_test(calcset) %<<<1
         simcom = {struct()};
         
         simcom{1}.rand_unc = 0;
-        simcom{1}.is_diff = 0;
+        simcom{1}.is_diff = 1;
     end
         
     
@@ -224,6 +224,9 @@ function alg_test(calcset) %<<<1
             %f0 = 124;
             f0 = rounddig(logrand(f0_min,f0_max),3);
             
+            % round to coherent:
+            f0 = round(N/din.fs.v*f0)/N*din.fs.v;
+            
             % store nominal frequency parameter:
             din.f_nom.v = f0;        
             
@@ -235,13 +238,11 @@ function alg_test(calcset) %<<<1
             din.lo_adc_jitt.v = din.adc_jitt.v;
           
                 
-            % nominal voltage range:
-            U_rng = logrand(10,70);
-            U_max = 5/7*U_rng; % max aplitude to generate
+            % nominal range:
+            A_rng = logrand(0.1,10);
+            A_max = 0.7*A_rng; % max aplitude to generate
             
-            % nominal current range:
-            I_rng = logrand(0.5,5);
-            I_max = 5/7*I_rng; % max aplitude to generate
+            
             
             % ADC RMS noise [V]:
             adc_noise = logrand(1e-6,10e-6);
@@ -293,16 +294,17 @@ function alg_test(calcset) %<<<1
             chns{id}.name = 'y';
             tr_type = {'shunt','rvd'};
             tr_type = tr_type{1 + (rand > 0.5)};
+            tr_type = 'shunt';
             chns{id}.type = tr_type;
             % harmonic amplitudes:
-            U0 = logrand(0.1,1)*U_max;
-            chns{id}.A = U0*[1     logrand(0.01,0.1,[1 n_harm-1]) logrand(0.001,0.01)]';
+            A0 = logrand(0.1,1)*A_max;
+            chns{id}.A = A0*[1     logrand(0.01,0.1,[1 n_harm-1]) logrand(0.000001,0.0001)]';
             % harmonic phases:
             chns{id}.ph =   [0     linrand(-0.9,0.9,[1 n_harm-1]) rand*2]'*pi;
             % harmonic component frequencies:
             chns{id}.fx = f0*[f_harm f_iharm]';
             % DC component:
-            chns{id}.dc = linrand(-1,1)*0.05*U0;
+            chns{id}.dc = linrand(-1,1)*0.05*A0;
             % SFDR simulation:
             chns{id}.sfdr = adc_sfdr; % sfdr max amplitude
             chns{id}.sfdr_hn = 10; % sfdr max harmonics count
@@ -378,9 +380,9 @@ function alg_test(calcset) %<<<1
                 din.lo_adc_offset.u = 0.0001;                
                 % create some corretion table for the transducer gain/phase: 
                 [din.tr_gain_f,din.tr_gain,din.tr_phi] ...
-                  = gen_adc_tfer(din.fs.v/2+1,50, U_rng,0.000002*U_rng, linrand(-tr_mgain_acdc,+tr_mgain_acdc),0.000050,linrand(0.5,3), ...
+                  = gen_adc_tfer(din.fs.v/2+1,50, A_rng,0.000002*A_rng, linrand(-tr_mgain_acdc,+tr_mgain_acdc),0.000050,linrand(0.5,3), ...
                                  linrand(0.1,0.25)*din.fs.v,0.005, ...
-                                 linrand(-tr_mphi,+tr_mphi),0.000080,0.000002,linrand(0.7,3));
+                                 linrand(-tr_mphi,+tr_mphi),0.000080,0.000002,linrand(0.7,3));                                 
                 din.tr_phi_f = din.tr_gain_f;
                 din.tr_gain_a.v = [];
                 din.tr_phi_a.v = [];         
@@ -473,7 +475,7 @@ function alg_test(calcset) %<<<1
         % --- plot results:
             
         % make list of quantities to display:
-        ref_list =  [f0,       U0,       0,         simout.rms, chns{1}.dc];
+        ref_list =  [f0,       A0,       0,         simout.rms, chns{1}.dc];
         dut_list =  [dout.f.v, dout.A.v, dout.ph.v, dout.rms.v, dout.dc.v];
         unc_list =  [dout.f.u, dout.A.u, dout.ph.u, dout.rms.u, dout.dc.u];
         name_list = {'f',      'A',      'ph',      'rms',      'dc'};

@@ -401,6 +401,8 @@ function alg_test(calcset) %<<<1
                 din.u_adc_offset.u = 0.0001;
                 din.u_lo_adc_offset.v = linrand(-0.005,0.005);
                 din.u_lo_adc_offset.u = 0.0001;                
+                % transducer type:
+                din.u_tr_type.v = chns{1}.type;
                 % create some corretion table for the transducer gain/phase: 
                 [din.u_tr_gain_f,din.u_tr_gain,din.u_tr_phi] ...
                   = gen_adc_tfer(din.fs.v/2+1,50, U_rng,0.000002*U_rng, linrand(-tr_mgain_acdc,+tr_mgain_acdc),0.000050,linrand(0.5,3), ...
@@ -419,6 +421,8 @@ function alg_test(calcset) %<<<1
                 
                 
                 % -- current channel:
+                % transducer type:
+                din.i_tr_type.v = chns{2}.type;
                 % create some corretion table for the digitizer gain/phase tfer: 
                 [din.i_adc_gain_f,din.i_adc_gain,din.i_adc_phi] ...
                   = gen_adc_tfer(din.fs.v/2+1,50, linrand(0.95,1.05),0.000002, linrand(-adc_mgain_acdc,+adc_mgain_acdc),0.00005,linrand(0.5,3), ...
