@@ -155,8 +155,8 @@ function dataout = alg_wrapper(datain, calcset)
         A = trg;
         ph = trp;
         
-        figure
-        loglog(fh,A)
+%         figure
+%         loglog(fh,A)
         
     
     else
@@ -173,7 +173,9 @@ function dataout = alg_wrapper(datain, calcset)
         
     end
     
-    
+    % wrap phase to +-180deg:
+    %  note: this is critical to avoid insane phase due to time_stamp correction!
+    ph = mod(ph + pi, 2*pi) - pi;
     
     
     % search dominant component:
