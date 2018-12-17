@@ -302,8 +302,14 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     TC = numel(transducer_paths);
     if ~TC
-        % if not transducers are defined, generate fake ones, one for each digitizer channel:
-        TC = data.channels_count;
+        
+        if size(tr_map,1)
+            % transducers count by mapping if available
+            TC = size(tr_map,1);
+        else
+            % if not transducers are defined, generate fake ones, one for each digitizer channel:
+            TC = data.channels_count;
+        end
     end
         
     % load tranducer correction files
