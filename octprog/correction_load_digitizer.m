@@ -87,8 +87,8 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
     table_cfg = struct();
     table_cfg.quant_names = {'tbc','u_tbc'};
     table_cfg.default = {0,0}; % no correction by default
-    dig.jitter = correction_parse_section(cor_root, dinf, minf, 'timebase correction', table_cfg, 1, rep_id, group_id);
-    dig.jitter.qwtb = qwtb_gen_naming('adc_freq','','',{'tbc'},{'u_tbc'},{''});
+    dig.timbase = correction_parse_section(cor_root, dinf, minf, 'timebase correction', table_cfg, 1, rep_id, group_id);
+    dig.timbase.qwtb = qwtb_gen_naming('adc_freq','','',{'tbc'},{'u_tbc'},{''});
     
     % --- try to load crosstalk
     % ###TODO: todo
