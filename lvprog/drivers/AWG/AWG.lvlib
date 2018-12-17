@@ -32,6 +32,7 @@
 		<Item Name="Agilent 3352X Series.lvlib" Type="Library" URL="../Agilent 3352X Series/Agilent 3352X Series.lvlib"/>
 		<Item Name="Agilent 3352X Series.lvproj" Type="Document" URL="../Agilent 3352X Series/Agilent 3352X Series.lvproj"/>
 	</Item>
+	<Item Name="Tektronix AFG 3000 Series.lvlib" Type="Library" URL="../AFG3000/Tektronix AFG 3000 Series.lvlib"/>
 	<Item Name="AWG Session.ctl" Type="VI" URL="../AWG Session.ctl"/>
 	<Item Name="AWG Type.ctl" Type="VI" URL="../AWG Type.ctl"/>
 	<Item Name="AWG Initialize.vi" Type="VI" URL="../AWG Initialize.vi"/>
