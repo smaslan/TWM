@@ -5,9 +5,9 @@ function alginfo = alg_info() %<<<1
 
     alginfo.id = 'TWM-WFFT';
     alginfo.name = 'Windowed FFT for harmonic analysis.';
-    alginfo.desc = 'Algorithm for single tone harmonic analysis using windowed FFT. The algorithm performs windowed FFT of the signal, applies TWM corrections and extracts FFT bin with selected frequency. It also calculates rms value estimate, however rms will be usable only for coherent sampling. The main purpose of the algorithm is interchannel phase shift and voltage ratio analysis. That will work even for non-coherent sampling, when non-rectangular window is used. ';
+    alginfo.desc = 'Algorithm for single or multitone harmonic analysis using windowed FFT. The algorithm performs windowed FFT of the signal, applies TWM corrections and extracts FFT bin(s) with selected frequencies. It also calculates rms value estimate, however rms will be usable only for coherent sampling. The main purpose of the algorithm is interchannel phase shift and voltage ratio analysis. That will work even for non-coherent sampling, when non-rectangular window is used. ';
     alginfo.citation = '';
-    alginfo.remarks = 'Note the harmonics spacing in the spectrum must be higher, then width of the selected window! E.g. the wide ''flattop_248D'' needs at least 25 FFT bins spacing.';
+    alginfo.remarks = 'Note the harmonics spacing in the spectrum must be higher, then width of the selected window! E.g. the wide ''flattop_248D'' needs at least some 25 FFT bins spacing.';
     alginfo.license = 'MIT';
     
     
@@ -62,6 +62,14 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).desc = 'Nominal frequency [Hz]';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 0;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
+    % relative harmonic frequencies (f_nom.*h_num)
+    alginfo.inputs(pid).name = 'h_num';
+    alginfo.inputs(pid).desc = 'Relative harmonic frequencies';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     
@@ -425,11 +433,11 @@ function alginfo = alg_info() %<<<1
     pid = 1;
     % outputs
     alginfo.outputs(pid).name = 'A';
-    alginfo.outputs(pid).desc = 'Amplitude';
+    alginfo.outputs(pid).desc = 'Amplitude(s)';
     pid = pid + 1;    
     
     alginfo.outputs(pid).name = 'ph';
-    alginfo.outputs(pid).desc = 'Phase angle';
+    alginfo.outputs(pid).desc = 'Phase angle(s)';
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'rms';
@@ -441,15 +449,15 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'f';
-    alginfo.outputs(pid).desc = 'Selected DFT bin frequency';
+    alginfo.outputs(pid).desc = 'Selected DFT bin frequencies';
     pid = pid + 1;    
     
     alginfo.outputs(pid).name = 'spec_f';
-    alginfo.outputs(pid).desc = 'Spectrum frequency';
+    alginfo.outputs(pid).desc = 'Full spectrum frequency';
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'spec_A';
-    alginfo.outputs(pid).desc = 'Spectrum voltage channel';
+    alginfo.outputs(pid).desc = 'Full spectrum amplitudes';
     pid = pid + 1;
             
     alginfo.providesGUF = 1;

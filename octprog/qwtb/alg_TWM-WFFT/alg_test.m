@@ -15,11 +15,15 @@ function alg_test(calcset) %<<<1
     %  note: if the value is 1 and all quantities passed, the test is done successfully
     %val.fast_mode = 0; % ###note: note implemented
     % maximum number of test repetitions per test setup:
-    val.max_count = 300;
+    val.max_count = 500;
+    % minimum number of test repetitions per test setup (this has priority over timeout):
+    val.min_count = 100;
+    % test run total timeout (max allowed time for all 'max_count' iteration) [s]:
+    val.timeout = 30*60;
     % print debug lines:
     val.dbg_print = 1;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_mcm5.mat'];
+    val_path = [fileparts(mfilename('fullpath')) filesep 'wfft_val_guf1.mat'];
     
     
     % --- test execution setup ---
@@ -28,7 +32,7 @@ function alg_test(calcset) %<<<1
     %  'testrun' - run test runs within the test setup parallel (good for 'mcm' validation)
     %  'mcm' - run Monte Carlo iterations in parallel (good only for small cores count) 
     %par_level = {'testrun','testsetup'};
-    par_level = 'testrun';
+    par_level = 'testsetup';
     if is_full_val <= 0
         par_level = 'mcm'; % override for single test    
     end
@@ -145,7 +149,7 @@ function alg_test(calcset) %<<<1
     
         % -- test setup combinations:      
         % randomize corrections uncertainty:
-        com.rand_unc = [0 1];
+        com.rand_unc = [0];
         %com.rand_unc = [1];
         % differential sensors:
         com.is_diff = [0 1];
@@ -159,7 +163,7 @@ function alg_test(calcset) %<<<1
         simcom = {struct()};
         
         simcom{1}.rand_unc = 0;
-        simcom{1}.is_diff = 1;
+        simcom{1}.is_diff = 0;
     end
         
     
@@ -205,8 +209,9 @@ function alg_test(calcset) %<<<1
             bits_min = 16;
             bits_max = 28; 
             
-            
-            din.window.v = 'flattop_248D';   
+            % select processing window:
+            din.window.v = 'flattop_144D';
+               
             
             % samples count to synthesize:
             %N = 13528;
@@ -228,7 +233,8 @@ function alg_test(calcset) %<<<1
             f0 = round(N/din.fs.v*f0)/N*din.fs.v;
             
             % store nominal frequency parameter:
-            din.f_nom.v = f0;        
+            din.f_nom.v = f0;
+                    
             
             % ADC aperture [s]:
             din.adc_aper.v = logrand(1e-9,10e-6);
@@ -257,7 +263,7 @@ function alg_test(calcset) %<<<1
             fs_rat = din.fs.v/f0;
             
             % harmonic components to generate:
-            f_harm = [1:round(linrand(1,5))];   
+            f_harm = [1:round(linrand(2,5))];   
             f_harm = f_harm(f0*f_harm < nylim*din.fs.v); % lim by nyquist
             n_harm = numel(f_harm);    
                 
@@ -283,6 +289,7 @@ function alg_test(calcset) %<<<1
             end
             
             
+            % generate some timestamp:
             din.time_stamp.v = rand;
                 
             
@@ -317,6 +324,9 @@ function alg_test(calcset) %<<<1
                 chns{id}.Zx = 10;
             end
             %chns{id+1} = chns{id}; % fake secondary channel
+            
+            % put all harmonics to analysed list:
+            din.h_num.v = f_harm;
         
                 
             if true
@@ -422,12 +432,12 @@ function alg_test(calcset) %<<<1
         fprintf('Processing test setups...\n');
 
         % -- processing start:
-        res = runmulticore(mc_setup.method,@proc_pwrtdi_test,par,mc_setup.cores,mc_setup.share_fld,2,mc_setup);
+        res = runmulticore(mc_setup.method,@proc_wfft_test,par,mc_setup.cores,mc_setup.share_fld,2,mc_setup);
                
         % store results:
         save(val_path,'-v7','res','simcom','vr');
         
-        qwtb('TWM-PWRTDI','addpath');
+        qwtb('TWM-WFFT','addpath');
         
         % print results:
         valid_report(res,vr);
@@ -473,17 +483,25 @@ function alg_test(calcset) %<<<1
         
         
         % --- plot results:
-            
+        
+        A_ref = chns{1}.A(1:end-1).';
+        ph_ref = chns{id}.ph(1:end-1).';
+        H = numel(A_ref);
+        
+        f_names  = cellfun(@sprintf,repmat({'f%d'},[1,H]),num2cell(round(f_harm)),'UniformOutput',false);
+        A_names  = cellfun(@sprintf,repmat({'A%d'},[1,H]),num2cell(round(f_harm)),'UniformOutput',false);
+        ph_names = cellfun(@sprintf,repmat({'ph%d'},[1,H]),num2cell(round(f_harm)),'UniformOutput',false);
+                                    
         % make list of quantities to display:
-        ref_list =  [f0,       A0,       0,         simout.rms, chns{1}.dc];
-        dut_list =  [dout.f.v, dout.A.v, dout.ph.v, dout.rms.v, dout.dc.v];
-        unc_list =  [dout.f.u, dout.A.u, dout.ph.u, dout.rms.u, dout.dc.u];
-        name_list = {'f',      'A',      'ph',      'rms',      'dc'};
+        ref_list =  [f0*f_harm,  A_ref,      ph_ref,      simout.rms, chns{1}.dc];
+        dut_list =  [dout.f.v.', dout.A.v.', dout.ph.v.', dout.rms.v, dout.dc.v];
+        unc_list =  [dout.f.u.', dout.A.u.', dout.ph.u.', dout.rms.u, dout.dc.u];
+        name_list = [f_names,    A_names,    ph_names,    {'rms',      'dc'}];
             
         % plot table of results:
-        fprintf('\n-----+-------------+----------------------------+-------------+----------+----------+-----------\n');
-        fprintf('     |     REF     |        CALC +- UNC         |   ABS DEV   |  DEV [%%] |  UNC [%%] | %%-OF-UNC\n');
-        fprintf('-----+-------------+----------------------------+-------------+----------+----------+-----------\n');
+        fprintf('\n-----+--------------+------------------------------+--------------+----------+----------+-----------\n');
+        fprintf('     |      REF     |         CALC +- UNC          |    ABS DEV   |  DEV [%%] |  UNC [%%] | %%-OF-UNC\n');
+        fprintf('-----+--------------+------------------------------+--------------+----------+----------+-----------\n');
         for k = 1:numel(ref_list)
             
             ref = ref_list(k);
@@ -508,10 +526,10 @@ function alg_test(calcset) %<<<1
                 puc = NaN;
             end
             
-            fprintf('%-4s | %11s | %11s +- %-11s | %11s | %+8.4f | %8.4f | %+3.0f\n',name,rv,sv,su,dv,100*dev/ref,abs(unc/dut)*100,puc);
+            fprintf('%-4s | %12s | %12s +- %-12s | %12s | %+8.4f | %8.4f | %+3.0f\n',name,rv,sv,su,dv,100*dev/ref,abs(unc/dut)*100,puc);
             
         end
-        fprintf('-----+-------------+----------------------------+-------------+----------+----------+-----------\n');
+        fprintf('-----+--------------+------------------------------+--------------+----------+----------+-----------\n');
     
     end
       
