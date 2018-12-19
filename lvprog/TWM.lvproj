@@ -995,7 +995,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">4</Property>
-				<Property Name="Bld_version.patch" Type="Int">2</Property>
+				<Property Name="Bld_version.patch" Type="Int">3</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1012,7 +1012,7 @@
 				<Property Name="Destination[4].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{3D0AF602-8F2C-498B-90D2-7803A2C5A425}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{2092494F-4885-41BF-B6D1-2EB9DDB6DE4B}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1052,7 +1052,8 @@
 
 V1.3.2 - most of the bugs fixed
 V1.4.0 - FFT analyser added
-V1.4.1 - minor fixes for server oparation</Property>
+V1.4.1 - minor fixes for server oparation
+V1.4.3 - implemented AWG Tek AFG3000 series for 3458A clocking </Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM</Property>
