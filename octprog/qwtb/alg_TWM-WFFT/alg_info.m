@@ -61,7 +61,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).name = 'f_nom';
     alginfo.inputs(pid).desc = 'Nominal frequency [Hz]';
     alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 0;
+    alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     

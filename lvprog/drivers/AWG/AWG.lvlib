@@ -39,4 +39,5 @@
 	<Item Name="AWG Close.vi" Type="VI" URL="../AWG Close.vi"/>
 	<Item Name="AWG Start Pulses.vi" Type="VI" URL="../AWG Start Pulses.vi"/>
 	<Item Name="AWG Stop Pulses.vi" Type="VI" URL="../AWG Stop Pulses.vi"/>
+	<Item Name="AWG Set and Arm.vi" Type="VI" URL="../AWG Set and Arm.vi"/>
 </Library>

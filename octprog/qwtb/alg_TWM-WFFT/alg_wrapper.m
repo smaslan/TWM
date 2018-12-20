@@ -39,6 +39,7 @@ function dataout = alg_wrapper(datain, calcset)
     
     
     % ------------------------------------------------------------------------------------------     
+    % algorithm start
     % ------------------------------------------------------------------------------------------
     
     if ~isfield(datain,'f_nom')
@@ -47,14 +48,16 @@ function dataout = alg_wrapper(datain, calcset)
         % call PSFE:
         din = struct();
         din.fs.v = fs;        
+        cset = calcset;
         cset.verbose = 0;
         cset.unc = 'none';
+        cset.checkinputs = 0;  
         din.y.v = datain.y.v;                
         dout = qwtb('PSFE',din,cset);
         datain.f_nom.v = dout.f.v;
         
         if calcset.verbose
-            fprintf('Searching for nominal frequency by PSFE ... f = %.6g\n', f_nom);
+            fprintf('Searching for nominal frequency by PSFE ... f = %.6g\n', datain.f_nom.v);
         end      
     end
     
@@ -158,8 +161,6 @@ function dataout = alg_wrapper(datain, calcset)
     p_qu = (NENBNW)^0.5*q_noise./A*(2/N)^0.5;
     u_A = (u_A.^2 + A_qu.^2).^0.5;
     u_ph = (u_ph.^2 + p_qu.^2).^0.5;
-    
-    
         
     
     if cfg.y_is_diff
@@ -212,8 +213,8 @@ function dataout = alg_wrapper(datain, calcset)
         q_noise = lsb/12^0.5;
         A_qu = (NENBNW)^0.5*q_noise*(2/N)^0.5;
         p_qu = (NENBNW)^0.5*q_noise./A_lo*(2/N)^0.5;
-        u_A_lo = (u_A_lo.^2 + A_qu.^2).^0.5;
-        u_ph_lo = (u_ph_lo.^2 + p_qu.^2).^0.5;
+        %u_A_lo = (u_A_lo.^2 + A_qu.^2).^0.5;
+        %u_ph_lo = (u_ph_lo.^2 + p_qu.^2).^0.5;
         
         
         % high-side:            
@@ -406,17 +407,23 @@ function dataout = alg_wrapper(datain, calcset)
         [f0,fid(h)] = min(abs(datain.f_nom.v(h) - fh));
     end
     
+    % get rms estimate from identified significant components:
+    rms = (A(1)^2 + sum(0.5*A(h_list).^2))^0.5;
+    % estimate of rms uncertainty as a worst case:
+    u_rms = ((A(1)+u_A(1))^2 + sum(0.5*(A(h_list) + u_A(h_list)).^2))^0.5 - rms;    
+    
+    
     % return extracted DFT bin(s):
     k_unc = loc2covg(calcset.loc,50);
     dataout.f.v = fh(fid);
     dataout.A.v = A(fid);
     dataout.ph.v = ph(fid);
-    dataout.rms.v = (A(1)^2 + sum(0.5*A(h_list).^2))^0.5;
+    dataout.rms.v = rms;
     dataout.dc.v = A(1);              
     dataout.f.u = 0*dataout.f.v;
     dataout.A.u = u_A(fid)*k_unc;
     dataout.ph.u = u_ph(fid)*k_unc;
-    dataout.rms.u = 0;
+    dataout.rms.u = u_rms*k_unc;
     dataout.dc.u = u_A(1)*k_unc;
     
     % return spectrum:

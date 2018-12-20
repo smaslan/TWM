@@ -85,15 +85,15 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
     [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(meas_root, res_id, alg_id, cfg, var_list);
     %[results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(meas_root, res_id, alg_id, cfg);
     
-    size(results)
-    size(avg)
+%     size(results)
+%     size(avg)
       
   
     res = results{1};
     % counts: [phases/channels, variables]
     R = numel(results);
     C = numel(res);
-    V = numel(res{1})
+    V = numel(res{1});
     E = [numel(res) numel(res{1})];
     if cfg.group_mode
         E = fliplr(E);
