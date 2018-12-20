@@ -167,8 +167,8 @@ function dataout = alg_wrapper(datain, calcset)
     
     if strcmpi(calcset.unc,'guf')
         % estimate some uncertainty:
-        % ###todo: should be replaced by something more sophisticated, but 0.9%*PST seems to be the worst case 
-        dataout.Pst.u = 0.009*calcset.loc*1.05*dataout.Pst.v;
+        % ###todo: should be replaced by something more sophisticated, but 2.0%*PST seems to be the worst case 
+        dataout.Pst.u = 0.020*calcset.loc*1.05*dataout.Pst.v;
     else
         dataout.Pst.u = 0;
     end
