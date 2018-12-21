@@ -19,11 +19,11 @@ function alg_test(calcset) %<<<1
     % minimum number of test repetitions per test setup (this has priority over timeout):
     val.min_count = 100;
     % test run total timeout (max allowed time for all 'max_count' iteration) [s]:
-    val.timeout = 30*60;
+    val.timeout = 60*60;
     % print debug lines:
     val.dbg_print = 1;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'wfft_val_guf1.mat'];
+    val_path = [fileparts(mfilename('fullpath')) filesep 'wfft_val_dif.mat'];
     
     
     % --- test execution setup ---
@@ -149,10 +149,10 @@ function alg_test(calcset) %<<<1
     
         % -- test setup combinations:      
         % randomize corrections uncertainty:
-        com.rand_unc = [0];
+        com.rand_unc = [0 1];
         %com.rand_unc = [1];
         % differential sensors:
-        com.is_diff = [0 1];
+        com.is_diff = [1];
         %com.is_diff = [0];
     
         % generate all test setup combinations:
@@ -163,7 +163,7 @@ function alg_test(calcset) %<<<1
         simcom = {struct()};
         
         simcom{1}.rand_unc = 0;
-        simcom{1}.is_diff = 0;
+        simcom{1}.is_diff = 1;
     end
         
     
@@ -198,9 +198,6 @@ function alg_test(calcset) %<<<1
             %  note: maximum allowed f_component/fs ratio
             nylim = 0.4;
             
-            % enable AC coupling:
-            din.ac_coupling.v = (rand > 0.5);
-            
             % aperture correction state:
             din.adc_aper_corr.v = 1;
             din.lo_adc_aper_corr = din.adc_aper_corr;
@@ -234,14 +231,13 @@ function alg_test(calcset) %<<<1
             
             % store nominal frequency parameter:
             din.f_nom.v = f0;
-                    
             
             % ADC aperture [s]:
             din.adc_aper.v = logrand(1e-9,10e-6);
                 
             % ADC jitter [s]:
-            din.adc_jitt.v = logrand(1e-9,100e-9);
-            din.lo_adc_jitt.v = din.adc_jitt.v;
+            din.adc_jitter.v = logrand(1e-9,100e-9);
+            din.lo_adc_jitter.v = din.adc_jitter.v;
           
                 
             % nominal range:
@@ -301,7 +297,6 @@ function alg_test(calcset) %<<<1
             chns{id}.name = 'y';
             tr_type = {'shunt','rvd'};
             tr_type = tr_type{1 + (rand > 0.5)};
-            tr_type = 'shunt';
             chns{id}.type = tr_type;
             % harmonic amplitudes:
             A0 = logrand(0.1,1)*A_max;
@@ -321,7 +316,11 @@ function alg_test(calcset) %<<<1
             chns{id}.adc_std_noise = adc_noise;
             % differential mode: loop impedance:
             if simcom{c}.is_diff
-                chns{id}.Zx = 10;
+                if strcmpi(tr_type,'shunt')
+                    chns{id}.Zx = max(0.2/A_rng,0.1); % shunt loop resistance
+                else
+                    chns{id}.Zx = 10; % RVD loop resistance
+                end
             end
             %chns{id+1} = chns{id}; % fake secondary channel
             
@@ -448,11 +447,33 @@ function alg_test(calcset) %<<<1
         if is_full_val < 0
             % load setup from previous validation report:
             
-            res = load(val_path,'res');
-            par = res.res{-is_full_val}.par;
+            
+            % try to reload last result from temp:
+            tmp_res_path = [fileparts(mfilename('fullpath')) filesep 'lastres_temp.mat'];
+            try
+                tmp = load(tmp_res_path,'tmp','val_path','is_full_val');                
+                res = tmp.tmp{1};
+                if ~strcmp(tmp.val_path,val_path) || tmp.is_full_val ~= is_full_val
+                    error('not the same results set!');
+                end
+                fprintf('Loading result #%d from temp...\n',-is_full_val);
+            catch
+                % failed, we will reload it from full set (slow):
+                fprintf('Loading result #%d from full results set (wait)...\n',-is_full_val);                
+                res = load(val_path,'res');
+                res = res.res{-is_full_val};                 
+            end
+            par = res.par;
+            
+            % save the selected result to temp to speedup future reloading:
+            tmp = {res};
+            save(tmp_res_path,'tmp','val_path','is_full_val');
+                        
+            %res = load(val_path,'res');            
             din = par.din;
+            calcset = par.calcset;
             cfg = par.cfg;
-            %calcset = par.calcset;
+            val = par.val;
             rand_unc = par.rand_unc;
             
         end
@@ -465,7 +486,9 @@ function alg_test(calcset) %<<<1
             fprintf('f0 periods = %0.2f\n',(cfg.N/din.fs.v)*f0);
             fprintf('fs/f0 ratio = %0.2f\n',din.fs.v/f0);
             fprintf('Harmonics = %s\n',sprintf('%.3g ',sort([cfg.chn{1}.fx/f0])));
-            fprintf('AC coupling = %.0f\n',din.ac_coupling.v);
+            fprintf('Transducer type = %s\n',cfg.chn{1}.type);
+            
+            %cfg.chn{1}.Zx = 0.1;
         end
         
         % --- generate the signal:        
@@ -484,8 +507,11 @@ function alg_test(calcset) %<<<1
         
         % --- plot results:
         
-        A_ref = chns{1}.A(1:end-1).';
-        ph_ref = chns{id}.ph(1:end-1).';
+        fx = cfg.chn{1}.fx(1:end-1).'; % discard interharmonic
+        f_harm = fx/fx(1);
+        A_ref = cfg.chn{1}.A(1:end-1).';
+        ph_ref = cfg.chn{1}.ph(1:end-1).';
+        dc_ref = cfg.chn{1}.dc; 
         H = numel(A_ref);
         
         f_names  = cellfun(@sprintf,repmat({'f%d'},[1,H]),num2cell(round(f_harm)),'UniformOutput',false);
@@ -493,7 +519,7 @@ function alg_test(calcset) %<<<1
         ph_names = cellfun(@sprintf,repmat({'ph%d'},[1,H]),num2cell(round(f_harm)),'UniformOutput',false);
                                     
         % make list of quantities to display:
-        ref_list =  [f0*f_harm,  A_ref,      ph_ref,      simout.rms, chns{1}.dc];
+        ref_list =  [fx,         A_ref,      ph_ref,      simout.rms, dc_ref];
         dut_list =  [dout.f.v.', dout.A.v.', dout.ph.v.', dout.rms.v, dout.dc.v];
         unc_list =  [dout.f.u.', dout.A.u.', dout.ph.u.', dout.rms.u, dout.dc.u];
         name_list = [f_names,    A_names,    ph_names,    {'rms',      'dc'}];

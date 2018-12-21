@@ -1,4 +1,4 @@
-function [] = valid_report(res,vr,pass_loc)
+function [] = valid_report(res,vr,pass_loc,do_plot)
 
     fprintf('-----------------------------\n');
     fprintf(' Algorithm validation report \n');
@@ -16,6 +16,10 @@ function [] = valid_report(res,vr,pass_loc)
         pass_loc = 0.681;
     end
     
+    if ~exist('do_plot','var')
+        do_plot = 0;
+    end
+    
     % total test setups:
     tot = numel(res);
     
@@ -24,12 +28,12 @@ function [] = valid_report(res,vr,pass_loc)
     
     % desired level of confidence:
     loc = res{1}.par.calcset.loc;
-    
+        
     % get expected count of runs per test setup:
     N = res{1}.par.val.max_count;
-    if isfield(res{1}.par.val,'min_count')
-        N = res{1}.par.val.min_count;
-    end
+%     if isfield(res{1}.par.val,'min_count')
+%         N = res{1}.par.val.min_count;
+%     end
     
     % very crude estimate of the pass condition:
     %   We have N repeated measurements, so the set is limited and we cannot state the test passed easily
@@ -61,24 +65,44 @@ function [] = valid_report(res,vr,pass_loc)
         rc = res(va:va+R-1);        
         %rv = vectorize_structs_elements(rc);
         %pass = rv.pass; % original pass rate
+        
+        % parameters count:
+        P = size(rc{1}.punc,2);
                 
-        punc = [];
+        punc = zeros(R,P);
         h_list = [];
         for k = 1:R
             punc(k,:) = mean(abs(rc{k}.punc) < 1,1);
-            h_list(end+1:end+size(rc{k}.punc,1),:) = rc{k}.punc;
-        end                                  
+            %h_list(end+1:end+size(rc{k}.punc,1),:) = rc{k}.punc;
+        end
         
         p_id = 1;
-        pass = [];
+        pass = zeros(R,P);
         for k = 1:R
-            pass(k) = mean(abs(rc{k}.punc(:,p_id)) < 1);
+            pass(k,:) = mean(abs(rc{k}.punc) < 1,1);
         end        
-        figure
-        plot(pass)
-        [v,id] = min(pass)
-        figure
-        plot(rc{id}.punc(:,p_id))
+        
+        % get worst runs per parameters:
+        [v,min_ids] = min(pass,[],1);                
+        
+        if do_plot
+        
+            figure
+            for p = 1:P
+                subplot(1,P,p);
+                plot(pass(:,p));
+                title(rc{1}.name_list{p});
+            end
+            
+            figure
+            for p = 1:P
+                subplot(1,P,p);
+                plot(rc{min_ids(p)}.punc(:,p))
+                title(sprintf('%s[%d]',rc{1}.name_list{p},min_ids(p) + (va-1)));
+            end
+            
+        end        
+        
 
 %         figure
 %         hist(h_list(:,4),50,1);
@@ -102,15 +126,20 @@ function [] = valid_report(res,vr,pass_loc)
         head_len = max(cellfun(@length,head));
         head_fmt = sprintf('%%-%ds',head_len);
         
+        
         % print results:
         qu_names = sprintf('%-6s ',rc{1}.name_list{:});
         qu_puncs = sprintf('%6.2f ',punc);
         qu_cuncs = sprintf('%6.2f ',cunc);
-        fprintf(['  ' head_fmt ' | %s| TOT\n  ' head_fmt ' | %s| %6.2f\n  ' head_fmt ' | %s| %6.2f <= average pass rates\n'],head{1},qu_names,head{2},qu_puncs,min(punc),head{2},qu_cuncs,min(cunc));
-        for p = P+1:numel(head)
+        fprintf(['  ' head_fmt ' | %s| TOT\n  ' head_fmt ' | %s| %6.2f\n  ' head_fmt ' | %s| %6.2f <= average pass rates\n'],head{1},qu_names,head{2},qu_puncs,min(punc),head{3},qu_cuncs,min(cunc));
+        for p = 4:numel(head)
             fprintf(['  ' head_fmt '\n'],head{p});
         end
         fprintf('\n');
+        
+        disp(' - worst test runs for each parameter:');
+        disp(min_ids(:)' + (va-1));
+        fprintf('\n\n');
         
         
            

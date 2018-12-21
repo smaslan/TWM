@@ -204,7 +204,7 @@ function dataout = alg_wrapper(datain, calcset)
     
         % compensate phase by timestamp:
         ph_lo = ph_lo - fh.*(datain.time_stamp.v + datain.time_shift_lo.v)*2*pi;
-        u_ph = (u_ph.^2 + (fh.*datain.time_stamp.u*2*pi).^2 + (fh.*datain.time_shift_lo.u*2*pi).^2).^0.5;
+        u_ph_lo = (u_ph_lo.^2 + (fh.*datain.time_stamp.u*2*pi).^2 + (fh.*datain.time_shift_lo.u*2*pi).^2).^0.5;
         
         % add quantisation noise estimate:
         %   note: from Rado's book "Sampling with 3458A", page 208, formula 4.68):
@@ -213,8 +213,15 @@ function dataout = alg_wrapper(datain, calcset)
         q_noise = lsb/12^0.5;
         A_qu = (NENBNW)^0.5*q_noise*(2/N)^0.5;
         p_qu = (NENBNW)^0.5*q_noise./A_lo*(2/N)^0.5;
-        %u_A_lo = (u_A_lo.^2 + A_qu.^2).^0.5;
-        %u_ph_lo = (u_ph_lo.^2 + p_qu.^2).^0.5;
+        u_A_lo = (u_A_lo.^2 + A_qu.^2).^0.5;
+        u_ph_lo = (u_ph_lo.^2 + p_qu.^2).^0.5;
+        
+        
+%         figure
+%         loglog(fh,A)
+%         hold on;
+%         loglog(fh,A_lo,'r')
+%         hold off;
         
         
         % high-side:            
@@ -238,8 +245,8 @@ function dataout = alg_wrapper(datain, calcset)
         u_ph = u_trp;
         ph(1) = 0;
         
-%         figure
-%         loglog(fh,A)
+%          figure
+%          loglog(fh,A)
         
     
     else
@@ -305,6 +312,7 @@ function dataout = alg_wrapper(datain, calcset)
         
     end
     
+    
     % estimate RMS of the signal from identified components:
     %  note: we cannot use all DFT bins, because in non-rect window the sidebands are altered differently by correction
     %        so as a result the energy of whole signal does not match!
@@ -315,7 +323,8 @@ function dataout = alg_wrapper(datain, calcset)
     Ax_noise = interp1(fh(Ax ~= 0),Ax(Ax ~= 0),fh,'nearest','extrap');
     
     % RMS noise estimate:
-    rms_noise = sum(0.5*Ax_noise.^2)^0.5/w_rms*w_gain;
+    %  ###note: some safety multiplier added...
+    rms_noise = sum(0.5*Ax_noise.^2)^0.5/w_rms*w_gain*1.3;
     
     if cfg.y_is_diff
         % -- differential mode:
@@ -324,7 +333,7 @@ function dataout = alg_wrapper(datain, calcset)
         %        Then we proceed as for single-ended mode.
         
         % high-low weight:
-        whl = A_hi(mid)/(A_hi(mid) - A_lo(mid));
+        %whl = A_hi(mid)/(A_hi(mid) - A_lo(mid));
         
         % get ADC SFDR ratios for dominant component:
         adc_sfdr    = correction_interp_table(tab.adc_sfdr, abs(A_hi(mid)), fh(mid), 'f',1, i_mode);
@@ -343,7 +352,7 @@ function dataout = alg_wrapper(datain, calcset)
         sfdr = adc_sfdr + tr_sfdr;  
         
         % effective jitter:
-        jitter = ((datain.adc_jitter.v*whl)^2 + (datain.lo_adc_jitter.v*(1-whl))^2)^0.5;
+        jitter = (datain.adc_jitter.v^2 + datain.lo_adc_jitter.v^2)^0.5;
         
     else
         % -- single-ended mode:
@@ -406,7 +415,7 @@ function dataout = alg_wrapper(datain, calcset)
     for h = 1:numel(datain.f_nom.v)    
         [f0,fid(h)] = min(abs(datain.f_nom.v(h) - fh));
     end
-    
+        
     % get rms estimate from identified significant components:
     rms = (A(1)^2 + sum(0.5*A(h_list).^2))^0.5;
     % estimate of rms uncertainty as a worst case:

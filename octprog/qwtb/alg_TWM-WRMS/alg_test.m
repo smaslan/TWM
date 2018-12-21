@@ -305,7 +305,11 @@ function alg_test(calcset) %<<<1
             chns{id}.adc_std_noise = adc_noise;
             % differential mode: loop impedance:
             if simcom{c}.is_diff
-                chns{id}.Zx = 10;
+                if strcmpi(tr_type,'shunt')
+                    chns{id}.Zx = max(0.2/A_rng,0.1); % shunt loop resistance
+                else
+                    chns{id}.Zx = 10; % RVD loop resistance
+                end
             end
             %chns{id+1} = chns{id}; % fake secondary channel
         

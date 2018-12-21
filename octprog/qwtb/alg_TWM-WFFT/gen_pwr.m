@@ -172,7 +172,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
         
         % include DC?
         cfg.chn{c}.rms_ac = rms;
-        if ~din.ac_coupling.v
+        if ~isfield(din,'ac_coupling') || ~din.ac_coupling.v
             rms = (rms^2 + chn.dc^2)^0.5;       
         end                
         cfg.chn{c}.rms = rms;
@@ -317,7 +317,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
         Q_tmp = 0.5*sum((cfg.chn{1}.A.*cfg.chn{2}.A.*sin(cfg.chn{2}.ph - cfg.chn{1}.ph)));
         simout.Q = (simout.S^2 - simout.P^2)^0.5*sign(Q_tmp); % ###note: the sign() thingy estimates actual polarity of Q.
                                                               %          It won't work properly for highly distorted waveforms and for PF near 0.
-        if ~din.ac_coupling.v
+        if ~isfield(din,'ac_coupling') || ~din.ac_coupling.v
             simout.P = simout.P + (cfg.chn{1}.dc*cfg.chn{2}.dc);
             simout.S = cfg.chn{1}.rms.*cfg.chn{2}.rms;
         end        
