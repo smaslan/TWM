@@ -9,7 +9,7 @@ function alg_test(calcset) %<<<1
 
     
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = 0;
+    is_full_val = -18035;
     
     % minimum number of repetitions per test setup:
     %  note: if the value is 1 and all quantities passed, the test is done successfully
@@ -52,7 +52,7 @@ function alg_test(calcset) %<<<1
         end        
     else
         % linux:
-        par_mc_folder = 'mc_rubbish';        
+        par_mc_folder = 'mc_rubbish_m';        
     end
     
         
@@ -119,7 +119,7 @@ function alg_test(calcset) %<<<1
     calcset.verbose = (is_full_val <= 0);
     calcset.unc = 'guf'; % uncertainty mode
     calcset.loc = 0.95;
-    calcset.dbg_plots = 0;
+    calcset.dbg_plots = 1;
     % MonteCarlo (for 'mcm' uncertainty mode) setup:
     calcset.mcm.repeats = 1000; % Monte Carlo cycles
     %calcset.mcm.max_jobs = 200; % limit jobs count
@@ -317,7 +317,7 @@ function alg_test(calcset) %<<<1
             % differential mode: loop impedance:
             if simcom{c}.is_diff
                 if strcmpi(tr_type,'shunt')
-                    chns{id}.Zx = max(0.2/A_rng,0.1); % shunt loop resistance
+                    chns{id}.Zx = max(0.2/A_rng,0.05); % shunt loop resistance
                 else
                     chns{id}.Zx = 10; % RVD loop resistance
                 end
@@ -476,6 +476,32 @@ function alg_test(calcset) %<<<1
             val = par.val;
             rand_unc = par.rand_unc;
             
+            
+            %din.time_shift_lo.v = 0;
+            %din.time_shift_lo.u = 0;
+            
+            %din.tr_gain.u = 0*din.tr_gain.u;
+            %din.tr_phi.u = 0*din.tr_phi.u;
+            
+            %din.adc_gain.u = 0*din.adc_gain.u;
+            %din.lo_adc_gain.u = 0*din.lo_adc_gain.u;
+            %din.adc_phi.u = 0*din.adc_phi.u;
+            %din.lo_adc_phi.u = 0*din.lo_adc_phi.u;
+            
+%             din.adc_jitter.v = 0;
+%             din.lo_adc_jitter.v = 0;
+%             cfg.chn{1}.adc_std_noise = 0;
+            
+            %din.window.v = 'hanning';
+            
+            %cfg.chn{1}.type = 'rvd';
+            
+            %din.adc_sfdr.v = 180;
+            %din.lo_adc_sfdr.v = 180;
+            
+            %cfg.chn{1}.sfdr = 1e-9;
+            %cfg.chn{1}.Zx = 0.05;
+            %cfg.chn{1}.adc_std_noise = 1e-6;
         end
         
         if is_full_val <= 0

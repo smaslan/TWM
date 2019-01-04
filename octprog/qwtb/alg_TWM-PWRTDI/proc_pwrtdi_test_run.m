@@ -35,11 +35,8 @@ function [res] = proc_pwrtdi_test_run(par)
     
         disp(err);
     
-        % failed:
-        is_pass = 0;
-        
         % no %-unc:
-        punc_list = [];
+        punc = [];
         
         % default items:
         simout = struct();

@@ -222,6 +222,11 @@ function dataout = alg_wrapper(datain, calcset)
 %         hold on;
 %         loglog(fh,A_lo,'r')
 %         hold off;
+
+        %[f0,fid] = min(abs(datain.f_nom.v(1) - fh));
+        %u_adc_phx = (u_ph(fid)^2 + u_ph_lo(fid)^2)^0.5;     
+%         datain.f_nom.v(1)*datain.time_shift_lo.u*2*pi
+%         datain.f_nom.v(1)*datain.time_stamp.u*2*pi
         
         
         % high-side:            
@@ -244,6 +249,14 @@ function dataout = alg_wrapper(datain, calcset)
         ph   = trp;
         u_ph = u_trp;
         ph(1) = 0;
+        
+        %u_ph(fid)
+        
+        
+        %ap = correction_interp_table(tab.tr_phi, rms_ref, fh, 'f',1, i_mode);
+        %(u_adc_phx^2 + ap.u_phi(fid)^2)^0.5
+        
+        
         
 %          figure
 %          loglog(fh,A)

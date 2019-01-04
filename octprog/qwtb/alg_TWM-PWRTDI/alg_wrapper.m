@@ -485,7 +485,7 @@ function dataout = alg_wrapper(datain, calcset)
     I_max = -1;
     
     % stop harmonics search when lower than ? of dominant:
-    h_ratio = max(5e-6,w_slob);
+    h_ratio = max(10e-6,w_slob);
     
     % minimum processed harmonics even if they are small:
     %h_min = 5; 
@@ -497,20 +497,29 @@ function dataout = alg_wrapper(datain, calcset)
     h_max_proc = min(h_max,10);
     
     % not processed DFT bins:
-    msk = [idu:N-3];
+    msk = [w_size:N-3];
     
     % identify harmonic/interharmonic components:
+    is_u = 1;
     h_list = [];
     for h = 1:h_max
         
         % look for highest harmonic:
-        [v,id] = max(Uh(msk));        
+        if is_u
+            [v,id] = max(Uh(msk));
+        else
+            [v,id] = max(Ih(msk));
+        end        
         hid = msk(id);
         
         % detect if we are done:
-        if U_max >= 0 && Uh(hid) < U_max*h_ratio && Ih(hid) < I_max*h_ratio
+        if U_max >= 0 && (Uh(hid) < U_max*h_ratio && Ih(hid) < I_max*h_ratio)
             % we can stop search, no relevant harmonics there
-            break;
+            if is_u
+                is_u = 0;
+            else
+                break
+            end
         end
         U_max = max(U_max,Uh(hid)); 
         I_max = max(I_max,Ih(hid));
@@ -525,8 +534,7 @@ function dataout = alg_wrapper(datain, calcset)
         msk = setdiff(msk,h_bins);       
     end
     H = numel(h_list);
-    H = min(H,h_max_proc);
-              
+    H = min(H,h_max_proc);        
     
     % build list of relevant harmonics:
     fx = fh(h_list);
@@ -540,10 +548,10 @@ function dataout = alg_wrapper(datain, calcset)
     Ux_lsb = top_bin_unc(vcl{1}.lsb,h_list);
     Ix_lsb = top_bin_unc(vcl{2}.lsb,h_list);
 
-   
     
     if isfield(calcset,'dbg_plots') && calcset.dbg_plots
         figure;
+        subplot(2,1,1);
         loglog(fh,Uh)
         hold on;
         loglog(fh(msk),Uh(msk),'r')
@@ -552,6 +560,16 @@ function dataout = alg_wrapper(datain, calcset)
         title('Spectrum analysis');
         xlabel('f [Hz]');
         ylabel('U [V]');
+        legend('full','no harmonics');
+        
+        subplot(2,1,2);
+        loglog(fh,Ih)
+        hold on;
+        loglog(fh(msk),Ih(msk),'r')
+        loglog(fx,Ix,'ko')       
+        hold off;
+        xlabel('f [Hz]');
+        ylabel('I [A]');
         legend('full','no harmonics');
     end
     
@@ -719,6 +737,12 @@ function dataout = alg_wrapper(datain, calcset)
             
         % corrected signal samples count:
         M = numel(vcl{1}.y);
+        
+        % noise copy:
+        %  ###note: it was disabled from the estimation, because it can be calculated directly
+        U_noise_st = 0*U_noise;
+        I_noise_st = 0*I_noise;
+         
                 
         % process all harmonics
         u_P_st = [];
@@ -734,10 +758,10 @@ function dataout = alg_wrapper(datain, calcset)
             fs_rat = fs/fx(h);
         
             % get U single-tone wrms uncertainty components:
-            [dPx,dSx,dUx] = wrms_unc_st(lut_st, Ux(h),Ux(h), U_noise,U_noise, Ux_bits(h),Ux_bits(h), f0_per,fs_rat);
+            [dPx,dSx,dUx] = wrms_unc_st(lut_st, Ux(h),Ux(h), U_noise_st,U_noise_st, Ux_bits(h),Ux_bits(h), f0_per,fs_rat);
             
             % get P,S,I single-tone wrms uncertainty components:
-            [dPx,dSx,dIx] = wrms_unc_st(lut_st, Ux(h),Ix(h), U_noise,I_noise, Ux_bits(h),Ix_bits(h), f0_per,fs_rat);
+            [dPx,dSx,dIx] = wrms_unc_st(lut_st, Ux(h),Ix(h), U_noise_st,I_noise_st, Ux_bits(h),Ix_bits(h), f0_per,fs_rat);
             
             % minimum uncertainty:
             %  ###todo: temporary, remove 
@@ -756,6 +780,23 @@ function dataout = alg_wrapper(datain, calcset)
         u_P_st = sum(u_P_st.^2).^0.5;
         u_U_st = sum((u_U_st.*Ux(1:H)).^2).^0.5/sum((Ux(1:H).^2))^0.5;
         u_I_st = sum((u_I_st.*Ix(1:H)).^2).^0.5/sum((Ix(1:H).^2))^0.5;
+        
+%         u_P_noise = 0;
+%         u_U_noise = 1.5*((U_rms.^2 + U_noise.^2)^0.5 - U_rms)/3^0.5;
+%         u_I_noise = 1.5*((I_rms.^2 + I_noise.^2)^0.5 - I_rms)/3^0.5;
+        
+        % Normalized Equivalent Noise BaNdWidth (Rado's book "Sampling with 3458A", page 196, formula 4.36):
+        NENBNW = 2.0044; # blackmanharris() which is used in the WRMS!
+        
+        % estimate noise caused uncertainty:
+        %   note: from Rado's book "Sampling with 3458A", page 209, section 4.10.2):
+        %         Verified by Monte Carlo simulation (by Stanislav Maslan)
+        %   note: the factor 1.2 was found empirically from Monte Carlo of WRMS algorithm
+        u_U_noise  = (NENBNW)^0.5*U_noise*(2/N)^0.5/1.2;
+        u_I_noise  = (NENBNW)^0.5*I_noise*(2/N)^0.5/1.2;       
+        u_P_noise = ((u_U_noise*I_rms)^2 + (u_I_noise*U_rms)^2)^0.5;
+
+        
         
         
         
@@ -891,9 +932,9 @@ function dataout = alg_wrapper(datain, calcset)
                   
         
         % addup uncertainties from the algorithm itself (worst case estimates):
-        u_U = (u_U.^2 + u_U_sfdr^2 + u_U_st.^2 + u_U_sp.^2).^0.5;
-        u_I = (u_I.^2 + u_I_sfdr^2 + u_I_st.^2 + u_I_sp.^2).^0.5;
-        u_P = (u_P.^2 + u_P_sfdr^2 + u_P_st.^2 + u_P_sp.^2).^0.5;
+        u_U = (u_U.^2 + u_U_sfdr^2 + u_U_st.^2 + u_U_sp.^2 + u_U_noise.^2).^0.5;
+        u_I = (u_I.^2 + u_I_sfdr^2 + u_I_st.^2 + u_I_sp.^2 + u_I_noise.^2).^0.5;
+        u_P = (u_P.^2 + u_P_sfdr^2 + u_P_st.^2 + u_P_sp.^2 + u_P_noise.^2).^0.5;
 %         u_U = (u_U + u_U_sfdr + u_U_st + u_U_sp);
 %         u_I = (u_I + u_I_sfdr + u_I_st + u_I_sp);        
 %         u_P = (u_P + u_P_sfdr + u_P_st + u_P_sp);
