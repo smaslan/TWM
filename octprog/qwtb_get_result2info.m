@@ -1,8 +1,11 @@
 function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
+% This loads the result data and formats it to INFO style.
+% ###TODO: better doc
 
     % return averages:
     res_id = 0;
 
+    % load results:
     [res, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(meas_root, res_id, alg_id, cfg, var_list);
     
     % repetitions count:
@@ -65,6 +68,6 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
     % store header:
     inf = infosetnumber(inf,'phases/channels count',numel(chn_name));    
     inf = infosettextmatrix(inf,'list of phases/channels',chn_name);
-    inf = infosettextmatrix(inf,'list of quantities',qu_name); 
+    inf = infosettextmatrix(inf,'list of quantities',qu_name);
     
 end
