@@ -7,12 +7,36 @@ function [res] = proc_pwrtdi_test(par)
     % create test run jobs:
     jobs = repmat({par},[par.val.max_count,1]);
     
-    % execute the jobs:
-    runres = runmulticore(mc_setup.method, @proc_pwrtdi_test_run, jobs, mc_setup.cores, mc_setup.share_fld, 2, mc_setup);
-       
+    % --- execute the jobs:
+    if strcmpi(mc_setup.method,'for')
+        % sequential test runs
+        
+        % ref timer for timeout:
+        tic_id = tic();
+        
+        runres = {};
+        for r = 1:par.val.max_count            
+            try
+                runres{end+1,1} = proc_pwrtdi_test_run(jobs{r});
+            end
+            if numel(runres) >= par.val.min_count && toc(tic_id) > par.val.timeout
+                % timeout occured - leave
+                if isempty(runres)
+                    runres{1,1}.punc = [];
+                end
+                break;
+            end
+                                        
+        end
+    else
+        % paralleled test runs - use standard method
+        %  note: risk of occasional fuckup when some job fails
+        runres = runmulticore(mc_setup.method, @proc_pwrtdi_test_run, jobs, mc_setup.cores, mc_setup.share_fld, 2, mc_setup);
+    end
+           
     % merge the results:
     punc = [];
-    for k = 1:par.val.max_count
+    for k = 1:numel(runres)
         punc_t = runres{k}.punc;
         if ~isempty(punc_t)
             punc(end+1,:) = punc_t;

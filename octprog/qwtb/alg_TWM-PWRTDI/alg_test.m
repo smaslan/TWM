@@ -9,7 +9,7 @@ function alg_test(calcset) %<<<1
 
     
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = 0;
+    is_full_val = 10000;
     %is_full_val = 3000;
     %is_full_val = -1417;
     %is_full_val = -1914;
@@ -18,11 +18,15 @@ function alg_test(calcset) %<<<1
     %  note: if the value is 1 and all quantities passed, the test is done successfully
     %val.fast_mode = 0; % ###note: note implemented
     % maximum number of test repetitions per test setup:
-    val.max_count = 300;
+    val.max_count = 500;
+    % minimum number of test repetitions per test setup (this has priority over timeout):
+    val.min_count = 100;
+    % test run total timeout (max allowed time for all 'max_count' iteration) [s]:
+    val.timeout = 2*60*60;
     % print debug lines:
-    val.dbg_print = 1;
+    val.dbg_print = 0;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_mcm7.mat'];
+    val_path = [fileparts(mfilename('fullpath')) filesep 'pwrtdi_val_guf11.mat'];
     
     
     % --- test execution setup ---
@@ -31,7 +35,7 @@ function alg_test(calcset) %<<<1
     %  'testrun' - run test runs within the test setup parallel (good for 'mcm' validation)
     %  'mcm' - run Monte Carlo iterations in parallel (good only for small cores count) 
     %par_level = {'testrun','testsetup'};
-    par_level = 'testrun';
+    par_level = 'testsetup';
     if is_full_val <= 0
         par_level = 'mcm'; % override for single test    
     end
@@ -148,11 +152,11 @@ function alg_test(calcset) %<<<1
     
         % -- test setup combinations:      
         % randomize corrections uncertainty:
-        com.rand_unc = [0];
+        com.rand_unc = [0 1];
         %com.rand_unc = [1];
         % differential sensors:
         %com.is_diff = [0 1];
-        com.is_diff = [0];
+        com.is_diff = [0 1];
     
         % generate all test setup combinations:
         [vr,com] = var_init(com);
@@ -162,7 +166,7 @@ function alg_test(calcset) %<<<1
         simcom = {struct()};
         
         simcom{1}.rand_unc = 0;
-        simcom{1}.is_diff = 1;
+        simcom{1}.is_diff = 0;
     end
         
     
@@ -222,7 +226,7 @@ function alg_test(calcset) %<<<1
             % min max allowed fundamental frequency:
             %  note: given by uncertainty estimator range
             f0_max = din.fs.v/10;
-            f0_min = 20/(N/din.fs.v);
+            f0_min = 25/(N/din.fs.v);
                 
             % fundamental frequency [Hz]:
             %f0 = 124;
@@ -232,10 +236,10 @@ function alg_test(calcset) %<<<1
             din.adc_aper.v = logrand(1e-9,10e-6);
                 
             % ADC jitter [s]:
-            din.u_adc_jitt.v = logrand(1e-9,100e-9);
-            din.u_lo_adc_jitt.v = din.u_adc_jitt.v;
-            din.i_adc_jitt.v = din.u_adc_jitt.v;         
-            din.i_lo_adc_jitt.v = din.i_adc_jitt.v;
+            din.u_adc_jitter.v = logrand(1e-9,100e-9);
+            din.u_lo_adc_jitter.v = din.u_adc_jitter.v;
+            din.i_adc_jitter.v = din.u_adc_jitter.v;         
+            din.i_lo_adc_jitter.v = din.i_adc_jitter.v;
                 
             % nominal voltage range:
             U_rng = logrand(10,70);
@@ -267,7 +271,7 @@ function alg_test(calcset) %<<<1
             % DFT frequency step:
             fft_step = din.fs.v/N;
             % analyser window width (HFT144D: 9bins):
-            w_fw = 9*fft_step;        
+            w_fw = 9*fft_step*1.25; ###note: the extension factor is because WRMS is reducing data due to freq-time-freq filtering         
             % retry until found:
             min_fih = 1;
             for k = 1:100
@@ -559,6 +563,8 @@ function alg_test(calcset) %<<<1
 %             din.i_adc_bits.v = 24;
 
             %cfg.chn{1}.adc_std_noise
+            
+            %cfg.chn{1}.A(end) = 0;
             
 %             din.u_adc_gain.v = repmat(din.u_adc_gain.v(1),size(din.u_adc_gain.v));
 %             din.u_tr_gain.v = repmat(din.u_tr_gain.v(1),size(din.u_tr_gain.v));

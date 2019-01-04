@@ -36,7 +36,7 @@ function [res] = proc_wfft_test(par)
        
     % merge the results:
     punc = [];
-    for k = 1:par.val.max_count
+    for k = 1:numel(runres)
         punc_t = runres{k}.punc;
         if ~isempty(punc_t)
             punc(end+1,:) = punc_t;

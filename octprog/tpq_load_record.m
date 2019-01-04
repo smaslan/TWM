@@ -54,7 +54,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
 %
 %
 % This is part of the TWM - TracePQM WattMeter (https://github.com/smaslan/TWM).
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2019, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
     
@@ -221,6 +221,8 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
            
         
         if strcmpi(data_format,'mat-v4')      
+            % -- standard matlab format:
+            
             % load sample binary data
             if isOctave()
               smpl = load('-v4',sample_data_file,data_var_name);
@@ -234,12 +236,26 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
             y = bsxfun(@times,getfield(smpl,data_var_name).',sample_gains(ids(r),:));
             % apply offset
             y = bsxfun(@plus,y,sample_offsets(ids(r),:));
-                  
-            % store it into output array:
-            %  note: selecting the samples range as user requested
-            data.y(:,1 + (r-1)*data.channels_count:r*data.channels_count) = y(data_ofs:data_end,:);    
-
+                          
+        elseif strcmpi(data_format,'tpqa')
+            % -- TPQA tool record format:
+            
+            % load raw sample data 
+            y = tpqa_loader(sample_data_file);
+            
+            % apply gain and offset (scaling)
+            y = bsxfun(@times,y,sample_gains(ids(r),:));
+            y = bsxfun(@plus,y,sample_offsets(ids(r),:));
+        
+        else
+            
+            error(sprintf('TWM measurement session loader error: Unknown sample data format ''%s''!',data_format));
+            
         end
+        
+        % store sampel data into output array:
+        %  note: selecting the samples range as user requested
+        data.y(:,1 + (r-1)*data.channels_count:r*data.channels_count) = y(data_ofs:data_end,:);
     
     end       
     
