@@ -237,7 +237,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
             % apply offset
             y = bsxfun(@plus,y,sample_offsets(ids(r),:));
                           
-        elseif strcmpi(data_format,'tpqa')
+        elseif strcmpi(data_format,'tpqa-txt')
             % -- TPQA tool record format:
             
             % load raw sample data 
