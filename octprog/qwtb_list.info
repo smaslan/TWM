@@ -18,6 +18,7 @@ type:: qwtb list
 	TWM-TEST
 	TWM-PWRTEST
         TWM-WFFT
+        TWM-InpZ
         TWM-VecRat
 #endmatrix:: list of supported algorithms
 
@@ -46,6 +47,18 @@ type:: qwtb list
 //
 //                  example: f; si; 1e-6; 0.0001
 //
+
+#startsection:: TWM-InpZ
+        %       name;     fmt;abs;rel
+        #startmatrix:: number formats
+                f;        si; 1e-9; 1e-7
+                Uref;     si; 1e-9; 1e-7
+                Cp;       si; 1e-15; 1e-5
+                Gp;       si; 1e-15; 1e-5
+                Rp;       si; 1e-9; 1e-5
+        #endmatrix:: number formats
+#endsection:: TWM-InpZ
+
 
 #startsection:: TWM-WRMS
         %       name;     fmt;abs;rel
