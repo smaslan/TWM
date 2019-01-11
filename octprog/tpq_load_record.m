@@ -115,7 +115,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     % get sample data format descriptor
     data_format = infogettext(inf, 'sample data format');
     
-    if ~strcmpi(data_format,'mat-v4')
+    if ~any(strcmpi(data_format,{'mat-v4','tpqa-txt'}))
         error(sprintf('Format \"%s\" not supported!',data_format));
     end
     
