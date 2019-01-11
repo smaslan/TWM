@@ -9,7 +9,7 @@ function alg_test(calcset) %<<<1
 
     
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = -18035;
+    is_full_val = 5000;
     
     % minimum number of repetitions per test setup:
     %  note: if the value is 1 and all quantities passed, the test is done successfully
@@ -19,11 +19,12 @@ function alg_test(calcset) %<<<1
     % minimum number of test repetitions per test setup (this has priority over timeout):
     val.min_count = 100;
     % test run total timeout (max allowed time for all 'max_count' iteration) [s]:
-    val.timeout = 60*60;
+    val.timeout = 2*60*60;
     % print debug lines:
     val.dbg_print = 1;
     % resutls path:
-    val_path = [fileparts(mfilename('fullpath')) filesep 'wfft_val_dif.mat'];
+    %val_path = [fileparts(mfilename('fullpath')) filesep 'wfft_val_guf4.mat'];
+    val_path = ['~/data/twm/alg_TWM-WFFT' filesep 'wfft_val_guf4.mat'];
     
     
     % --- test execution setup ---
@@ -52,7 +53,7 @@ function alg_test(calcset) %<<<1
         end        
     else
         % linux:
-        par_mc_folder = 'mc_rubbish_m';        
+        par_mc_folder = 'mc_rubbish';        
     end
     
         
@@ -152,8 +153,10 @@ function alg_test(calcset) %<<<1
         com.rand_unc = [0 1];
         %com.rand_unc = [1];
         % differential sensors:
-        com.is_diff = [1];
+        com.is_diff = [0 1];
         %com.is_diff = [0];
+        % transducer:
+        com.is_shunt = [0 1];
     
         % generate all test setup combinations:
         [vr,com] = var_init(com);
@@ -164,6 +167,7 @@ function alg_test(calcset) %<<<1
         
         simcom{1}.rand_unc = 0;
         simcom{1}.is_diff = 1;
+        simcom{1}.is_shunt = -1;
     end
         
     
@@ -295,8 +299,12 @@ function alg_test(calcset) %<<<1
             id = id + 1;
             % channel parameters:
             chns{id}.name = 'y';
-            tr_type = {'shunt','rvd'};
-            tr_type = tr_type{1 + (rand > 0.5)};
+            tr_type = {'rvd','shunt'};
+            if simcom{c}.is_shunt < 0
+                tr_type = tr_type{1 + (rand > 0.5)};
+            else
+                tr_type = tr_type{1 + simcom{c}.is_shunt};
+            end
             chns{id}.type = tr_type;
             % harmonic amplitudes:
             A0 = logrand(0.1,1)*A_max;
