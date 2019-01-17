@@ -1,5 +1,8 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="13008000">
+	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;</Property>
+	<Property Name="NI.LV.All.SourceOnly" Type="Bool">false</Property>
+	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
 		<Property Name="NI.SortType" Type="Int">3</Property>
 		<Property Name="server.app.propertiesEnabled" Type="Bool">true</Property>
@@ -22,6 +25,7 @@
 				<Item Name="ADC Get Capabilities.vi" Type="VI" URL="../adc/Utilities/ADC Get Capabilities.vi"/>
 				<Item Name="ADC Reset Idle Timer.vi" Type="VI" URL="../adc/ADC Reset Idle Timer.vi"/>
 				<Item Name="ADC Update and Check Idle Timer.vi" Type="VI" URL="../adc/ADC Update and Check Idle Timer.vi"/>
+				<Item Name="ADC GUI Disable types.vi" Type="VI" URL="../adc/Utilities/ADC GUI Disable types.vi"/>
 			</Item>
 			<Item Name="ADC Session.ctl" Type="VI" URL="../adc/ADC Session.ctl"/>
 			<Item Name="ADC Type.ctl" Type="VI" URL="../adc/ADC Type.ctl"/>
