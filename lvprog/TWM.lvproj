@@ -728,6 +728,11 @@
 		<Item Name="doc" Type="Folder" URL="../../doc">
 			<Property Name="NI.DISK" Type="Bool">true</Property>
 		</Item>
+		<Item Name="build" Type="Folder">
+			<Item Name="Set Conditional Symbols.vi" Type="VI" URL="../build/Set Conditional Symbols.vi"/>
+			<Item Name="Pre-Build Action - visa,niscope.vi" Type="VI" URL="../build/Pre-Build Action - visa,niscope.vi"/>
+			<Item Name="Pre-Build Action - visa.vi" Type="VI" URL="../build/Pre-Build Action - visa.vi"/>
+		</Item>
 		<Item Name="main.vi" Type="VI" URL="../main.vi"/>
 		<Item Name="par_test.vi" Type="VI" URL="../par_test.vi"/>
 		<Item Name="info_test.vi" Type="VI" URL="../info_test.vi"/>
@@ -983,40 +988,41 @@
 			</Item>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
-			<Item Name="TWM" Type="EXE">
+			<Item Name="TWM - visa,niscope" Type="EXE">
 				<Property Name="App_copyErrors" Type="Bool">true</Property>
 				<Property Name="App_INI_aliasGUID" Type="Str">{89B6655C-307D-46E0-B66B-590EEDBEBBBE}</Property>
 				<Property Name="App_INI_GUID" Type="Str">{3FC40814-77EF-41BB-9528-322802B01604}</Property>
 				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
 				<Property Name="Bld_buildCacheID" Type="Str">{66A1928A-1BA5-40AC-BAF2-1120B8E1382E}</Property>
-				<Property Name="Bld_buildSpecName" Type="Str">TWM</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
 				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
 				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
-				<Property Name="Bld_localDestDir" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/TWM-[VersionNumber]-visa,niscope/NI_AB_PROJECTNAME</Property>
 				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - visa,niscope.vi</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">4</Property>
 				<Property Name="Bld_version.patch" Type="Int">4</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
-				<Property Name="Destination[0].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME/TWM.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/TWM-[VersionNumber]-visa,niscope/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="Destination[0].type" Type="Str">App</Property>
 				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
-				<Property Name="Destination[1].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/TWM-[VersionNumber]-visa,niscope/NI_AB_PROJECTNAME</Property>
 				<Property Name="Destination[2].destName" Type="Str">octprog</Property>
-				<Property Name="Destination[2].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME/octprog</Property>
+				<Property Name="Destination[2].path" Type="Path">../builds/TWM-[VersionNumber]-visa,niscope/NI_AB_PROJECTNAME/octprog</Property>
 				<Property Name="Destination[2].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="Destination[3].destName" Type="Str">doc</Property>
-				<Property Name="Destination[3].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME/doc</Property>
+				<Property Name="Destination[3].path" Type="Path">../builds/TWM-[VersionNumber]-visa,niscope/NI_AB_PROJECTNAME/doc</Property>
 				<Property Name="Destination[3].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="Destination[4].destName" Type="Str">data</Property>
-				<Property Name="Destination[4].path" Type="Path">../builds/TWM-[VersionNumber]/NI_AB_PROJECTNAME/data</Property>
+				<Property Name="Destination[4].path" Type="Path">../builds/TWM-[VersionNumber]-visa,niscope/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{1F931FC2-4E32-4F0E-A6DB-FF41F6B1CD13}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{4E4BEA92-1617-4212-A9FA-D0118E1CC055}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1059,10 +1065,93 @@ V1.4.0 - FFT analyser added
 V1.4.1 - minor fixes for server oparation
 V1.4.3 - implemented AWG Tek AFG3000 series for 3458A clocking 
 V1.4.4 - DMM fixed relays saved, few more improvements</Property>
-				<Property Name="TgtF_internalName" Type="Str">TWM</Property>
+				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2019</Property>
-				<Property Name="TgtF_productName" Type="Str">TWM</Property>
+				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{19518978-F8E5-4558-9786-71904496379A}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">TWM.exe</Property>
+			</Item>
+			<Item Name="TWM - visa" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{9B2CA7FA-FE95-45B7-A106-6491F44CA491}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{C1744958-9B06-4909-824A-009EEA52FFEB}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{C4B426E3-129E-425D-AFE7-765817772A4D}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">TWM - visa</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - visa.vi</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Bld_version.minor" Type="Int">4</Property>
+				<Property Name="Bld_version.patch" Type="Int">4</Property>
+				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/TWM-[VersionNumber]-VISA/NI_AB_PROJECTNAME/TWM.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/TWM-[VersionNumber]-VISA/NI_AB_PROJECTNAME</Property>
+				<Property Name="Destination[2].destName" Type="Str">octprog</Property>
+				<Property Name="Destination[2].path" Type="Path">../builds/TWM-[VersionNumber]-VISA/NI_AB_PROJECTNAME/octprog</Property>
+				<Property Name="Destination[2].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[3].destName" Type="Str">doc</Property>
+				<Property Name="Destination[3].path" Type="Path">../builds/TWM-[VersionNumber]-VISA/NI_AB_PROJECTNAME/doc</Property>
+				<Property Name="Destination[3].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[4].destName" Type="Str">data</Property>
+				<Property Name="Destination[4].path" Type="Path">../builds/TWM-[VersionNumber]-VISA/NI_AB_PROJECTNAME/data</Property>
+				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="DestinationCount" Type="Int">5</Property>
+				<Property Name="Source[0].itemID" Type="Str">{9C9129EA-F3CE-4577-838F-708D0E22327A}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="Source[2].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[2].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[2].destinationIndex" Type="Int">2</Property>
+				<Property Name="Source[2].itemID" Type="Ref">/My Computer/octprog</Property>
+				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[2].type" Type="Str">Container</Property>
+				<Property Name="Source[3].itemID" Type="Ref">/My Computer/config.ini</Property>
+				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[4].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
+				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[5].itemID" Type="Ref">/My Computer/octave/golpi/lv_proc.dll</Property>
+				<Property Name="Source[5].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[6].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[6].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[6].destinationIndex" Type="Int">3</Property>
+				<Property Name="Source[6].itemID" Type="Ref">/My Computer/doc</Property>
+				<Property Name="Source[6].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[6].type" Type="Str">Container</Property>
+				<Property Name="Source[7].itemID" Type="Ref">/My Computer/LICENSE.txt</Property>
+				<Property Name="Source[7].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[8].itemID" Type="Ref">/My Computer/readme.txt</Property>
+				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[9].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[9].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[9].destinationIndex" Type="Int">4</Property>
+				<Property Name="Source[9].itemID" Type="Ref">/My Computer/data</Property>
+				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[9].type" Type="Str">Container</Property>
+				<Property Name="SourceCount" Type="Int">10</Property>
+				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
+
+V1.3.2 - most of the bugs fixed
+V1.4.0 - FFT analyser added
+V1.4.1 - minor fixes for server oparation
+V1.4.3 - implemented AWG Tek AFG3000 series for 3458A clocking 
+V1.4.4 - DMM fixed relays saved, few more improvements</Property>
+				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2019</Property>
+				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{AEEC5EC9-3A7F-49CB-BB07-729F6120ABF4}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM.exe</Property>
 			</Item>
 			<Item Name="HP3548A TWM drivers" Type="DLL">
