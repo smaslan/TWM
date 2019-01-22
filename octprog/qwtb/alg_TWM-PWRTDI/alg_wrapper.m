@@ -786,7 +786,7 @@ function dataout = alg_wrapper(datain, calcset)
 %         u_I_noise = 1.5*((I_rms.^2 + I_noise.^2)^0.5 - I_rms)/3^0.5;
         
         % Normalized Equivalent Noise BaNdWidth (Rado's book "Sampling with 3458A", page 196, formula 4.36):
-        NENBNW = 2.0044; # blackmanharris() which is used in the WRMS!
+        NENBNW = 2.0044; % # blackmanharris() which is used in the WRMS!
         
         % estimate noise caused uncertainty:
         %   note: from Rado's book "Sampling with 3458A", page 209, section 4.10.2):
