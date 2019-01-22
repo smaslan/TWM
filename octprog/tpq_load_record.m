@@ -335,7 +335,12 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
       
         % build absolute transducer correction path
         if has_transducers
+            
             t_file = [data.meas_folder filesep() transducer_paths{t}];
+            if ~exist(t_file,'file')
+                % possibly absolute path?
+                t_file = transducer_paths{t};
+            end             
         else
             t_file = '';
         end        
