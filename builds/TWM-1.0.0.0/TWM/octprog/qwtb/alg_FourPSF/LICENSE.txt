@@ -1,5 +1,0 @@
-UNKWNOWN LICENSE
-
-Copyright (c) 2001-2004 by Istvan Kollar and Janos Markus
-Written by Zoltán Tamás Bilau, modified by Janos Markus
-Modified 2016 Rado Lapuh

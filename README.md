@@ -29,6 +29,10 @@ Current version includes following algorithms:
 - TWM-PWRTDI: Four quadrant power meter by time-domain integration method for non-coherent sampling.
 - TWM-HCRMS: Half-cycle RMS calculator for PQ event detection according IEC 61000-3-40 for non-coherent sampling.
 - TWM-InDiSwell: PQ event detection according IEC 61000-3-40 for non-coherent sampling.
+- TWM-WRMS: RMS level calculation by time-domain integration method for non-coherent sampling.
+- TWM-WFFT: Windowed FFT for single or multiharmonic estimation.
+- TWM-InpZ: Estimator of digitizer input impedance (no uncertainty).
+
 
 Details on the algorithms can be found in the [draft document A2.4.4 - Algorithms Description](https://github.com/smaslan/TWM/blob/master/doc/A244%20Algorithms%20description.pdf).
 
@@ -57,13 +61,13 @@ Important changes and news:
 - 2017-12-08: Matlab support.
 - 2018-03-16: Improved GUI, few algorithms added.
 - 2018-08-23: Improved GUI, 8 of 10 algorithms included (not validated yet!).
+- 2019-01-24: Improved GUI, 10 of 10 algorithms included (not all validated yet!).
 
 
 ## Download
 
-Here you can download build only:
+Builds are available in separate Git: [smaslan/TWM-builds](https://github.com/smaslan/TWM-builds)
 
-[Current build, V1.3.0.0, 2018.08.23 (ZIP file)](./builds/TWM.zip)
 
 ## License
 The TWM is distributed under [MIT license](./LICENSE.txt). Note the algorithms in the QWTB toolbox may have different licenses. 
