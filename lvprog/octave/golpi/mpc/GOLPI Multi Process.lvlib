@@ -7,6 +7,7 @@
 	<Item Name="Private" Type="Folder">
 		<Property Name="NI.LibItem.Scope" Type="Int">2</Property>
 		<Item Name="golpi_mpc_start_octave_low_level.vi" Type="VI" URL="../golpi_mpc_start_octave_low_level.vi"/>
+		<Item Name="golpi_mpc_load_packages.vi" Type="VI" URL="../golpi_mpc_load_packages.vi"/>
 	</Item>
 	<Item Name="Actions" Type="Folder">
 		<Item Name="golpi_mpc_close_octave.vi" Type="VI" URL="../golpi_mpc_close_octave.vi"/>

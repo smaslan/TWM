@@ -267,6 +267,8 @@
 						<Item Name="GOLPI Initialize.vi" Type="VI" URL="../octave/golpi/mpc/GUI/GOLPI Initialize.vi"/>
 						<Item Name="GOLPI Rebuild Start and Stop Commands.vi" Type="VI" URL="../octave/golpi/mpc/GUI/GOLPI Rebuild Start and Stop Commands.vi"/>
 						<Item Name="GOLPI Config Panel.vi" Type="VI" URL="../octave/golpi/mpc/GOLPI Config Panel.vi"/>
+						<Item Name="GOLPI Package Assistant Panel.vi" Type="VI" URL="../octave/golpi/mpc/GUI/GOLPI Package Assistant Panel.vi"/>
+						<Item Name="GOLPI Package Assistant Actions" Type="VI" URL="../octave/golpi/mpc/GUI/GOLPI Package Assistant Actions"/>
 					</Item>
 					<Item Name="GOLPI Multi Process.lvlib" Type="Library" URL="../octave/golpi/mpc/GOLPI Multi Process.lvlib"/>
 					<Item Name="golpi_mpc_demo.vi" Type="VI" URL="../octave/golpi/mpc/golpi_mpc_demo.vi"/>
@@ -437,6 +439,7 @@
 				<Item Name="COPYING" Type="Document" URL="../octave/golpi/COPYING"/>
 				<Item Name="COPYING.LESSER" Type="Document" URL="../octave/golpi/COPYING.LESSER"/>
 				<Item Name="lv_proc.dll" Type="Document" URL="../lv_proc.dll"/>
+				<Item Name="golpi-1.2.1.tar.gz" Type="Document" URL="../../../GOLPI/golpi_z_github/GOLPI-master/builds/GOLPI 0.7.0.1/golpi-1.2.1.tar.gz"/>
 			</Item>
 		</Item>
 		<Item Name="varilib" Type="Folder">
@@ -1005,6 +1008,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">5</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1021,12 +1025,14 @@
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{F9B6722F-C247-4898-9D42-F7019D6B3B61}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{8BF3A34A-CF10-440B-AE69-203F96A7B26F}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
 				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
 				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="Source[10].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
+				<Property Name="Source[10].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[2].Container.applyDestination" Type="Bool">true</Property>
 				<Property Name="Source[2].Container.applyInclusion" Type="Bool">true</Property>
 				<Property Name="Source[2].destinationIndex" Type="Int">2</Property>
@@ -1055,7 +1061,7 @@
 				<Property Name="Source[9].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[9].type" Type="Str">Container</Property>
-				<Property Name="SourceCount" Type="Int">10</Property>
+				<Property Name="SourceCount" Type="Int">11</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
 
@@ -1088,6 +1094,7 @@ V1.5.0 - conditional compile of selected drivers included</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">5</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1104,12 +1111,14 @@ V1.5.0 - conditional compile of selected drivers included</Property>
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{F9B6722F-C247-4898-9D42-F7019D6B3B61}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{8BF3A34A-CF10-440B-AE69-203F96A7B26F}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
 				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
 				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="Source[10].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
+				<Property Name="Source[10].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[2].Container.applyDestination" Type="Bool">true</Property>
 				<Property Name="Source[2].Container.applyInclusion" Type="Bool">true</Property>
 				<Property Name="Source[2].destinationIndex" Type="Int">2</Property>
@@ -1138,7 +1147,7 @@ V1.5.0 - conditional compile of selected drivers included</Property>
 				<Property Name="Source[9].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[9].type" Type="Str">Container</Property>
-				<Property Name="SourceCount" Type="Int">10</Property>
+				<Property Name="SourceCount" Type="Int">11</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
 
