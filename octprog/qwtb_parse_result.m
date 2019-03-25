@@ -28,6 +28,7 @@
 %%                  val - quantity's value
 %%                  unc - quantity's uncertainty (empty array [] if not available)
 %%                  is_phase - quantity is phase angle
+%%                  is_amplitude - quantity is amplitude
 %%                  is_graph - quantity is graph
 %%                  graph_x - independent quantity name if 'is_graph'
 %%                  num_format - prefered number format for displaying
@@ -81,6 +82,13 @@ function [chn_list,list] = qwtb_parse_result(result_path, cfg, var_list)
     phases = infogettextmatrix(alg_cfg, 'is phase');
   catch
     phases = {};
+  end
+  
+  % get list of amplitude variables
+  try 
+    amplitudes = infogettextmatrix(alg_cfg, 'is amplitude');
+  catch
+    amplitudes = {};
   end
   
   % try to get number formats of the quantities {name, format, min abs unc., min rel unc}
@@ -163,6 +171,14 @@ function [chn_list,list] = qwtb_parse_result(result_path, cfg, var_list)
         pid = [];
       end
       myvar.is_phase = numel(pid) > 0;
+      
+      % check if the variable is amplitude
+      if numel(amplitudes)
+        pid = find(strcmp(amplitudes(:), myvar.name),1);
+      else
+        pid = [];
+      end
+      myvar.is_amplitude = numel(pid) > 0;
       
       
       % store variable's phase/channel tag

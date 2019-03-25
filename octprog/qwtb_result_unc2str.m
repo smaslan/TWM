@@ -30,6 +30,9 @@ function [full_str,val_str,unc_str,unit_str] = qwtb_result_unc2str(value,index,c
   if ~isfield(cfg,'phi_mode')
     cfg.phi_mode = 0;
   end
+  if ~isfield(cfg,'amp_mode')
+    cfg.amp_mode = 1.0;
+  end
   
   % load value and its uncertainty from the result item
   val = value.val(index);
@@ -52,6 +55,12 @@ function [full_str,val_str,unc_str,unit_str] = qwtb_result_unc2str(value,index,c
        val = val/pi*180.0;
        unc = unc/pi*180.0;
     end
+  end
+  
+  % select amplitude display mode
+  if value.is_amplitude
+    val = val*cfg.amp_mode;
+    unc = unc*cfg.amp_mode;
   end
             
   if strcmpi(value.num_format,'si')

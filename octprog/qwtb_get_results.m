@@ -79,6 +79,10 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
         % default phase display mode
         cfg.phi_mode = 0;
     end
+    if ~isfield(cfg,'amp_mode')
+        % default amplitude scaling
+        cfg.amp_mode = 1.0;
+    end
             
     
     % --- load and process results
