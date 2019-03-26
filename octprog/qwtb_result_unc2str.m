@@ -33,6 +33,7 @@ function [full_str,val_str,unc_str,unit_str] = qwtb_result_unc2str(value,index,c
   if ~isfield(cfg,'amp_mode')
     cfg.amp_mode = 1.0;
   end
+  cfg.digit_spacing = 1;
   
   % load value and its uncertainty from the result item
   val = value.val(index);
@@ -58,7 +59,7 @@ function [full_str,val_str,unc_str,unit_str] = qwtb_result_unc2str(value,index,c
   end
   
   % select amplitude display mode
-  if value.is_amplitude
+  if isfield(value,'is_amplitude') && value.is_amplitude
     val = val*cfg.amp_mode;
     unc = unc*cfg.amp_mode;
   end
