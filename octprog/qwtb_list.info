@@ -11,6 +11,7 @@ type:: qwtb list
         TWM-MODTDPS
         TWM-THDWFFT
 	TWM-PWRTDI
+        TWM-PWRFFT
         TWM-Flicker
         TWM-HCRMS
         TWM-InDiSwell
@@ -238,6 +239,39 @@ type:: qwtb list
                 spec_U;spec_I
         #endmatrix:: spectrum
 #endsection:: TWM-PWRTDI
+
+#startsection:: TWM-PWRFFT
+        #startmatrix:: number formats
+                U;       si; 1e-9; 1e-7
+                I;       si; 1e-9; 1e-7
+                P;       si; 1e-9; 1e-7
+                S;       si; 1e-9; 1e-7
+                Q;       si; 1e-9; 1e-7
+                PF;      f;  1e-6; 1e-7
+                phi_ef;  f;  1e-6; 1e-7
+                Udc;     si; 1e-9; 1e-7
+                Idc;     si; 1e-9; 1e-7
+                Pdc;     si; 1e-9; 1e-7
+                spec_f;  si; 1e-6; 1e-7
+                spec_U;  si; 1e-8; 1e-7
+                spec_I;  si; 1e-8; 1e-7
+                spec_S;  si; 1e-8; 1e-7
+        #endmatrix:: number formats
+        #startmatrix:: is phase
+                phi_ef
+        #endmatrix:: is phase
+        #startmatrix:: is amplitude
+                spec_U;spec_I
+        #endmatrix:: is amplitude
+        #startmatrix:: graphs
+                spec_f; spec_U
+                spec_f; spec_I
+                spec_f; spec_S
+        #endmatrix:: graphs
+        #startmatrix:: spectrum
+                spec_U;spec_I
+        #endmatrix:: spectrum
+#endsection:: TWM-PWRFFT
 
 #startsection:: TWM-TEST
         #startmatrix:: number formats

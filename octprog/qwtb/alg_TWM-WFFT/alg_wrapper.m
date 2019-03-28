@@ -424,10 +424,13 @@ function dataout = alg_wrapper(datain, calcset)
                    
     % get nearest frequency DFT bin(s) from spectrum: 
     fx = datain.f_nom.v;
-    fid = [];
-    for h = 1:numel(datain.f_nom.v)    
-        [f0,fid(h)] = min(abs(datain.f_nom.v(h) - fh));
-    end
+    % note: slow version - replaced by interp1()
+    %fid = [];
+    %for h = 1:numel(datain.f_nom.v)    
+    %    [f0,fid(h)] = min(abs(datain.f_nom.v(h) - fh));
+    %end
+    fid = interp1(fh,[1:numel(fh)]',fx,'nearest');        
+        
         
     % get rms estimate from identified significant components:
     rms = (A(1)^2 + sum(0.5*A(h_list).^2))^0.5;
