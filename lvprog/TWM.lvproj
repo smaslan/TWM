@@ -259,6 +259,7 @@
 				<Item Name="Info Insert Row to 2D Int64 Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D Int64 Array.vi"/>
 				<Item Name="Info Insert Row to 2D String Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D String Array.vi"/>
 				<Item Name="Info Insert Row to 1D TimeStamps Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 1D TimeStamps Array.vi"/>
+				<Item Name="Info Replace Matrix.vi" Type="VI" URL="../octave/info/Info Replace Matrix.vi"/>
 				<Item Name="Info Insert Row to 1D String Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 1D String Array.vi"/>
 			</Item>
 			<Item Name="golpi" Type="Folder">
@@ -584,6 +585,8 @@
 			<Item Name="Merge Error Ex.vi" Type="VI" URL="../other/Merge Error Ex.vi"/>
 			<Item Name="About Dialog.vi" Type="VI" URL="../other/About Dialog.vi"/>
 			<Item Name="graph_redef_bounds.vi" Type="VI" URL="../other/graph_redef_bounds.vi"/>
+			<Item Name="copytext_raw.vi" Type="VI" URL="../other/copyarray.llb/copytext_raw.vi"/>
+			<Item Name="copytext.vi" Type="VI" URL="../other/copyarray.llb/copytext.vi"/>
 		</Item>
 		<Item Name="ini" Type="Folder">
 			<Item Name="ini_auto" Type="Folder">
@@ -990,6 +993,10 @@
 			<Item Name="Advapi32.dll" Type="Document" URL="Advapi32.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
+			<Item Name="Simulate Keyboard.vi" Type="VI" URL="../other/copyarray.llb/Simulate Keyboard.vi"/>
+			<Item Name="user32.dll" Type="Document" URL="user32.dll">
+				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
+			</Item>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM - visa,niscope" Type="EXE">
@@ -1095,7 +1102,7 @@ V1.5.0 - conditional compile of selected drivers included</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">5</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1112,14 +1119,12 @@ V1.5.0 - conditional compile of selected drivers included</Property>
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{8BF3A34A-CF10-440B-AE69-203F96A7B26F}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{0AE28138-A8E7-4B7E-B86A-995F09726B05}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
 				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
 				<Property Name="Source[1].type" Type="Str">VI</Property>
-				<Property Name="Source[10].itemID" Type="Ref"></Property>
-				<Property Name="Source[10].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[2].Container.applyDestination" Type="Bool">true</Property>
 				<Property Name="Source[2].Container.applyInclusion" Type="Bool">true</Property>
 				<Property Name="Source[2].destinationIndex" Type="Int">2</Property>
@@ -1148,7 +1153,7 @@ V1.5.0 - conditional compile of selected drivers included</Property>
 				<Property Name="Source[9].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[9].type" Type="Str">Container</Property>
-				<Property Name="SourceCount" Type="Int">11</Property>
+				<Property Name="SourceCount" Type="Int">10</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
 
@@ -1158,7 +1163,8 @@ V1.4.1 - minor fixes for server oparation
 V1.4.3 - implemented AWG Tek AFG3000 series for 3458A clocking 
 V1.4.4 - DMM fixed relays saved, few more improvements
 V1.4.4 - DMM fixed relays saved, few more improvements
-V1.5.0 - conditional compile of selected drivers included</Property>
+V1.5.0 - conditional compile of selected drivers included
+V1.5.2 - improved GUI</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2019</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>

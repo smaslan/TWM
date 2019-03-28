@@ -86,12 +86,21 @@ end
 % this mess should insert spacing every three digits
 % todo: optimize?
 function [str_seg] = unc2str_segment(str)
+    N = numel(str);
     fid = find(str == '.');
     if numel(fid)
     
         % indices to insert spaces 
-        N = numel(str);
         fid = unique(sort([[1] [fid-3:-3:1] [fid+4:3:N] N+1]));
+    
+    elseif N > 3
+        
+        % indices to insert spaces         
+        fid = unique(sort([[1] [N-2:-3:1] N+1])); 
+    
+    end
+    
+    if numel(fid) 
                 
         str_seg = [];
         for f = 1:numel(fid)-1
@@ -101,5 +110,7 @@ function [str_seg] = unc2str_segment(str)
             str_seg = str_seg(1:end-1);
         end
          
+    else
+        str_seg = str;
     end
 end

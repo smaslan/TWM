@@ -1,4 +1,4 @@
-function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id, alg_id, cfg, var_list)
+function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, res_id, alg_id, cfg, var_list)
 % TracePQM: Get result from measurement folder. This function will read one
 % or more results, perform averaging if requested and formats the values
 % to the CSV table string that will be returned. 
@@ -41,10 +41,12 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
 %     desc - CSV table data with descriptions of 'txt' table rows
 %     var_names - CSV table data with names of the quantities of 'txt' table 
 %     chn_index - channel/phase index for each row of 'txt' table
+%     num - matrix corresponding to txt matrix with numeric data
+%           invalids are returned as NaNs
 %
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2019, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
 
@@ -108,8 +110,12 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
   
   
 
+    % numeric output
+    num = [];
+    % text matrix output
     csv = {};
     row = 1;
+    
         
     % write header of the result table
     if are_scalar
@@ -117,8 +123,11 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
         
         csv{row,2} = 'avg';
         csv{row,3} = 'ua';
+        num(row,2) = NaN;
+        num(row,3) = NaN;
         for r = 1:R
             csv{row,r+3} = sprintf('#%d',r);
+            num(row,r+3) = NaN;
         end
   
     end
@@ -163,9 +172,11 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
             % write variable row headers
             col = 1;
             csv{row,col} = var_name;
+            num(row,col) = NaN;
             desc{end+1} = full_var_desc;
             if cfg.unc_mode == 2
                 csv{row+1,col} = var_unc;
+                num(row+1,col) = NaN;
                 desc{end+1} = full_unc_desc;
                 % store variable name and phase/channel index
                 var_names{end+1} = ref.name;
@@ -182,17 +193,22 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
                     [vc,vv,vu,vs] = qwtb_result_unc2str(avg{p}{v},[],cfg);        
                     if cfg.unc_mode == 0
                         csv{row,col} = [vv vs];
+                        num(row,col) = avg{p}{v}.val;
                     elseif cfg.unc_mode == 1
                         csv{row,col} = vc;
+                        num(row,col) = NaN;
                     else
                         csv{row+0,col} = [vv vs];
                         csv{row+1,col} = [vu vs];
+                        num(row+0,col) = avg{p}{v}.val;
+                        num(row+1,col) = avg{p}{v}.unc;
                     end
                     col = col + 1;
                     
                     % write unc. A
                     [vc,vv,vu,vs] = qwtb_result_unc2str(unca{p}{v},[],cfg);        
                     csv{row,col} = [vv vs];
+                    num(row,col) = unca{p}{v}.val;
                     col = col + 1;
                     
                     % write readings
@@ -201,11 +217,15 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
                         [vc,vv,vu,vs] = qwtb_result_unc2str(results{r}{p}{v},[],cfg);        
                         if cfg.unc_mode == 0
                             csv{row,col} = [vv vs];
+                            num(row,col) = results{r}{p}{v}.val;
                         elseif cfg.unc_mode == 1
                             csv{row,col} = vc;
+                            num(row,col) = NaN;
                         else
                             csv{row+0,col} = [vv vs];
                             csv{row+1,col} = [vu vs];
+                            num(row+0,col) = results{r}{p}{v}.val;
+                            num(row+1,col) = results{r}{p}{v}.unc;
                         end
                         col = col + 1;
                       
@@ -214,6 +234,7 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
                 else
                   % empty variable or big variable that cannot be displayed
                   csv{row,col} = 'only graph';
+                  num(row,col) = NaN;
                   col = col + 1;           
                 
                 end
@@ -224,6 +245,7 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
                 if ref.is_big
                     % variable too big - write just info, that it is too big
                     csv{row,col} = 'only graph';
+                    num(row,col) = NaN;
                     col = col + 1;
                   
                 else
@@ -232,6 +254,7 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
                     if ref.dims > 1
                         % 2D variable - not supported yet
                         csv{row,col} = '2D not allowed';
+                        num(row,col) = NaN;
                         col = col + 1;
                     else
                         % scalar or 1D: write full value
@@ -247,15 +270,20 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
                         for k = 1:prod(data.size)
                         
                             csv{1,k + 1} = sprintf('item %d',k);
+                            num(1,k + 1) = NaN;
                             
                             [vc,vv,vu,vs] = qwtb_result_unc2str(data,k,cfg);        
                             if cfg.unc_mode == 0
                                 csv{row,col} = [vv vs];
+                                num(row,col) = data.val;
                             elseif cfg.unc_mode == 1
                                 csv{row,col} = vc;
+                                num(row,col) = NaN;
                             else
                                 csv{row+0,col} = [vv vs];
                                 csv{row+1,col} = [vu vs];
+                                num(row+0,col) = data.val;
+                                num(row+1,col) = data.unc;
                             end
                             col = col + 1;                 
                          
@@ -277,6 +305,16 @@ function [txt, desc, var_names, chn_index] = qwtb_get_results(meas_root, res_id,
       
     end
     
+    % fill in rest of the numeric output by NaNs
+    %  ###todo: optimize 
+    for r = 1:size(csv,1)
+        for c = 1:size(csv,2)
+            if isempty(csv{r,c})
+                num(r,c) = NaN;
+            end
+        end
+    end
+        
     % --- convert results table to CSV data ---
     txt = char(catcellcsv(csv));
     
