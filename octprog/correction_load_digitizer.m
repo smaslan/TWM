@@ -19,7 +19,7 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
 %   
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2019, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 % 
 
@@ -54,10 +54,33 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         
         % load list of the digitizer's channel names from the correction file:
         chn_names = infogettextmatrix(dinf, 'channel identifiers');
+
+        % check channel names consistency:
+        if numel(chn_names) < meas.channels_count
+            error('Digitizer correction loader: Digitize has more channels than correction file! This correction file cannot be used for this measurement.');
+        end
         
         % check if the correction file matches to the measurement header instruments:
-        if ~all(strcmpi(chn_names,meas.channel_names))
+        if meas.channels_count == 1
+            % ONLY ONE CHANNEL - try to find the channel in correction file:
+            
+            cid = find(strcmpi(chn_names,meas.channel_names));
+            if isempty(cid)
+                error('Digitizer correction loader: Instrument''s channel name not found in the correction file! This correction file cannot be used for this measurement.');
+            end
+            
+            % channel index to search
+            chn_ids = cid(1);
+        
+        elseif ~all(strcmpi(chn_names(1:meas.channels_count),meas.channel_names(1:meas.channels_count)))
+            % MORE CHANNELS - used channel must match in order the correction channels: 
             error('Digitizer correction loader: Instrument''s channel names in the correction file and measurement header do not match! This correction file cannot be used for this measurement.');
+        else
+            % MODE CHANNELS - names matching apparently:
+            
+            % used channel indices in order:
+            chn_ids = [1:meas.channels_count];
+            
         end
             
         % load channel correction paths:
@@ -72,6 +95,10 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         
         % generate blank correction file info-string:
         dinf = '';
+        
+        % used channel indices in order:
+        chn_ids = [1:meas.channels_count];
+            
     end
         
     % --- try to load interchannel timeshifts
@@ -115,7 +142,7 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
         if ~use_default
         
             % build path to channel's correction file
-            channel_path = [cor_root filesep() chn_paths{c}];
+            channel_path = [cor_root filesep() chn_paths{chn_ids(c)}];
             
             % channel correction root folder
             chn_root = fileparts(channel_path);
@@ -129,7 +156,7 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
             % check the file format mark
             ctype = infogettext(cinf, 'type');
             if ~strcmpi(ctype,'channel')
-                error(sprintf('Digitizer correction loader: channel correction ''%s'' has invalid type!',chn_paths{c}));    
+                error(sprintf('Digitizer correction loader: channel correction ''%s'' has invalid type!',chn_paths{chn_ids(c)}));    
             end
             
             % check the channel identifier match (optional feature, leave empty or remove to ignore):
@@ -139,8 +166,8 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
             try
                 chn_name = infogettext(cinf, 'channel identifier');
             end
-            if ~isempty(chn_name) && ~strcmpi(chn_name,chn_names{c})
-                error(sprintf('Digitizer correction loader: Channel correction for channel ''%s'' has different channel name identifier (''%s'')!',chn_names{c},chn_name));
+            if ~isempty(chn_name) && ~strcmpi(chn_name,chn_names{chn_ids(c)})
+                error(sprintf('Digitizer correction loader: Channel correction for channel ''%s'' has different channel name identifier (''%s'')!',chn_names{chn_ids(c)},chn_name));
             end
             
             % load channel correction file name (title)
