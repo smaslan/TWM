@@ -31,6 +31,7 @@
 	<Item Name="niScope Virtual Channel Coupling.ctl" Type="VI" URL="../niScope Virtual Channel Coupling.ctl"/>
 	<Item Name="niScope Virtual Channel Input Z.ctl" Type="VI" URL="../niScope Virtual Channel Input Z.ctl"/>
 	<Item Name="niScope Virtual Channel Mode.ctl" Type="VI" URL="../niScope Virtual Channel Mode.ctl"/>
+	<Item Name="niScope Reference Clock.ctl" Type="VI" URL="../niScope Reference Clock.ctl"/>
 	<Item Name="niScope Initialize Virtual Channels.vi" Type="VI" URL="../niScope Initialize Virtual Channels.vi"/>
 	<Item Name="niScope Close Virtual Channels.vi" Type="VI" URL="../niScope Close Virtual Channels.vi"/>
 	<Item Name="niScope Setup Virtual Channels.vi" Type="VI" URL="../niScope Setup Virtual Channels.vi"/>

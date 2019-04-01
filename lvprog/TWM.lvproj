@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="13008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">false</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -557,6 +557,11 @@
 				<Item Name="Corr Digitizer to Meas Header.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer to Meas Header.vi"/>
 				<Item Name="Corr Digitizer to Meas Folder.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer to Meas Folder.vi"/>
 				<Item Name="Corr CSV Editor.vi" Type="VI" URL="../measure/Corrections/Corr CSV Editor.vi"/>
+				<Item Name="Corr Digitizer INFO parameter.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer INFO parameter.ctl"/>
+				<Item Name="Corr Digitizer INFO item.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer INFO item.ctl"/>
+				<Item Name="Corr Digitizer INFO.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer INFO.ctl"/>
+				<Item Name="Corr Digitizer Edit Panel.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Edit Panel.vi"/>
+				<Item Name="Corr Digitizer Load INFO.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Load INFO.vi"/>
 				<Item Name="Corr Transducer INFO Item.ctl" Type="VI" URL="../measure/Corrections/Corr Transducer INFO Item.ctl"/>
 				<Item Name="Corr Transducer INFO Record.ctl" Type="VI" URL="../measure/Corrections/Corr Transducer INFO Record.ctl"/>
 				<Item Name="Corr Transducers Edit Panel.vi" Type="VI" URL="../measure/Corrections/Corr Transducers Edit Panel.vi"/>
@@ -752,6 +757,7 @@
 		<Item Name="config.ini" Type="Document" URL="../config.ini"/>
 		<Item Name="LICENSE.txt" Type="Document" URL="../../LICENSE.txt"/>
 		<Item Name="readme.txt" Type="Document" URL="../../readme.txt"/>
+		<Item Name="Corr Digitizer Parameter Selector.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer Parameter Selector.ctl"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
