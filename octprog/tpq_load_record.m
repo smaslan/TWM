@@ -1,4 +1,4 @@
-function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_lim)
+function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_lim,cfg)
 % TracePQM: Loads record(s) from given path to memory.
 %
 % Usage:
@@ -7,6 +7,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
 %   data = tpq_load_record(header, group_id, repetition_id)
 %   data = tpq_load_record(header, group_id, repetition_id, data_ofs)
 %   data = tpq_load_record(header, group_id, repetition_id, data_ofs, data_lim)
+%   data = tpq_load_record(header, group_id, repetition_id, data_ofs, data_lim, cfg)
 %
 % Inputs:
 %   header - absolute path to the measurement header file (info-strings)
@@ -24,6 +25,10 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
 %              'data_ofs' samples. Default is 0 (start from first sample).
 %   data_lim - optional, non-zero value to limit maximum loaded samples count
 %              to 'data_lim'. Default is 0 (load all).
+%   cfg.time_stamp_mode - time-stamp preprocessing:
+%                         1  - enabled
+%                         0  - disabled (override them to zero)
+%                         -1 - override them to relative to first record
 %               
 % 
 % Outputs:
@@ -57,6 +62,11 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
 % (c) 2018-2019, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
+    
+    if nargin < 6
+        % default config:
+        cfg.time_stamp_mode = 1;
+    end
     
     if nargin < 5
         % default sample data limit: all data:
@@ -163,7 +173,14 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     % get ADC bit resolution:
     data.bitres = infogetnumber(ginf, 'bit resolution');
-        
+    
+    % preprocess timestamps:
+    if isfield(cfg,'time_stamp_mode') && cfg.time_stamp_mode == 0
+        relative_timestamps = 0*relative_timestamps;
+    elseif isfield(cfg,'time_stamp_mode') && cfg.time_stamp_mode < 0
+        relative_timestamps = bsxfun(@minus,relative_timestamps,relative_timestamps(1,:));
+    end
+         
     
     if data.is_temperature
         % relative timestamps for each record in the average group

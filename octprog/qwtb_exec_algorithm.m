@@ -159,6 +159,23 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         sdata_lim = 0;
     end
     
+    % time stamping mode (optional) {'enabled' - normal operation,'disabled' - ignore them,'relative' - make sequence timestamps relative to first record}:
+    try
+        ts_mode = infogettext(qinf,'time stamp mode');
+    catch
+        % by default enable timestamp processing:
+        ts_mode = 'enable';
+    end
+    if strcmpi(ts_mode,'enable')
+        ts_mode = 1;
+    elseif strcmpi(ts_mode,'disable')
+        ts_mode = 0;
+    elseif strcmpi(ts_mode,'relative')
+        ts_mode = -1;
+    else
+        error(sprintf('QWTB Executer: Time stamp mode ''%s'' unknown!',ts_mode));
+    end
+    
     
     % get list of QWTB algorithm parameter names 
     parameter_names = infogettextmatrix(qinf, 'list of parameter names');
@@ -248,7 +265,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     end
     
     % load last measurement group
-    data = tpq_load_record(meas_file,group_id,avg_id,sdata_ofs,sdata_lim);
+    data = tpq_load_record(meas_file,group_id,avg_id,sdata_ofs,sdata_lim,struct('time_stamp_mode',ts_mode));
     
     % get unique phase indexes from the channels list
     phases = unique(data.corr.phase_idx);

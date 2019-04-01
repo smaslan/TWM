@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="13008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">false</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -533,6 +533,7 @@
 				<Item Name="Meas Process Mode.ctl" Type="VI" URL="../measure/processing/Meas Process Mode.ctl"/>
 				<Item Name="Meas Process Raw Config.ctl" Type="VI" URL="../measure/processing/Meas Process Raw Config.ctl"/>
 				<Item Name="Meas Process Raw Result Mode.ctl" Type="VI" URL="../measure/processing/Meas Process Raw Result Mode.ctl"/>
+				<Item Name="Meas Process Time Stamp Mode.ctl" Type="VI" URL="../measure/processing/Meas Process Time Stamp Mode.ctl"/>
 				<Item Name="Meas Process Record.vi" Type="VI" URL="../measure/processing/Meas Process Record.vi"/>
 				<Item Name="Meas Process Config Panel.vi" Type="VI" URL="../measure/processing/Meas Process Config Panel.vi"/>
 			</Item>
