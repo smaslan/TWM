@@ -556,6 +556,7 @@
 				<Item Name="Corr Digitizer Check.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Check.vi"/>
 				<Item Name="Corr Digitizer to Meas Header.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer to Meas Header.vi"/>
 				<Item Name="Corr Digitizer to Meas Folder.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer to Meas Folder.vi"/>
+				<Item Name="Corr CSV Template.ctl" Type="VI" URL="../measure/Corrections/Corr CSV Template.ctl"/>
 				<Item Name="Corr CSV Editor.vi" Type="VI" URL="../measure/Corrections/Corr CSV Editor.vi"/>
 				<Item Name="Corr Digitizer INFO parameter.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer INFO parameter.ctl"/>
 				<Item Name="Corr Digitizer INFO item.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer INFO item.ctl"/>
@@ -607,7 +608,9 @@
 			<Item Name="String Array Replace Local Decimal Separators 1D.vi" Type="VI" URL="../other/String Array Replace Local Decimal Separators 1D.vi"/>
 			<Item Name="String Array Replace Local Decimal Separators 2D.vi" Type="VI" URL="../other/String Array Replace Local Decimal Separators 2D.vi"/>
 			<Item Name="Table Copy To Clipboard.vi" Type="VI" URL="../other/Table Copy To Clipboard.vi"/>
+			<Item Name="Table Trim Whites.vi" Type="VI" URL="../other/Table Trim Whites.vi"/>
 			<Item Name="Table Paste Clipboard.vi" Type="VI" URL="../other/Table Paste Clipboard.vi"/>
+			<Item Name="rowcol2xlscell.vi" Type="VI" URL="../other/rowcol2xlscell.vi"/>
 		</Item>
 		<Item Name="ini" Type="Folder">
 			<Item Name="ini_auto" Type="Folder">
