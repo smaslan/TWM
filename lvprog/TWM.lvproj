@@ -560,8 +560,11 @@
 				<Item Name="Corr Digitizer INFO parameter.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer INFO parameter.ctl"/>
 				<Item Name="Corr Digitizer INFO item.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer INFO item.ctl"/>
 				<Item Name="Corr Digitizer INFO.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer INFO.ctl"/>
+				<Item Name="Corr Digitizer Parameter Selector.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer Parameter Selector.ctl"/>
+				<Item Name="Corr Digitizer Type.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer Type.ctl"/>
 				<Item Name="Corr Digitizer Edit Panel.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Edit Panel.vi"/>
 				<Item Name="Corr Digitizer Load INFO.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Load INFO.vi"/>
+				<Item Name="Corr Digitizer Save INFO.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Save INFO.vi"/>
 				<Item Name="Corr Transducer INFO Item.ctl" Type="VI" URL="../measure/Corrections/Corr Transducer INFO Item.ctl"/>
 				<Item Name="Corr Transducer INFO Record.ctl" Type="VI" URL="../measure/Corrections/Corr Transducer INFO Record.ctl"/>
 				<Item Name="Corr Transducers Edit Panel.vi" Type="VI" URL="../measure/Corrections/Corr Transducers Edit Panel.vi"/>
@@ -577,9 +580,9 @@
 				<Item Name="Assist Sampling Setup Calculate Coherent.vi" Type="VI" URL="../measure/Assist/Assist Sampling Setup Calculate Coherent.vi"/>
 				<Item Name="Assist Sampling Measure Freq Panel.vi" Type="VI" URL="../measure/Assist/Assist Sampling Measure Freq Panel.vi"/>
 			</Item>
+			<Item Name="Meas Sequence Configuration.ctl" Type="VI" URL="../measure/Meas Sequence Configuration.ctl"/>
 			<Item Name="Meas Session.ctl" Type="VI" URL="../measure/Meas Session.ctl"/>
 			<Item Name="Meas Sampling Configuration.ctl" Type="VI" URL="../measure/Meas Sampling Configuration.ctl"/>
-			<Item Name="Meas Sequence Configuration.ctl" Type="VI" URL="../measure/Meas Sequence Configuration.ctl"/>
 			<Item Name="Meas Sequence Item.ctl" Type="VI" URL="../measure/Meas Sequence Item.ctl"/>
 			<Item Name="Meas Sampling Rate Mode.ctl" Type="VI" URL="../measure/Meas Sampling Rate Mode.ctl"/>
 			<Item Name="Meas Range Mode.ctl" Type="VI" URL="../measure/Meas Range Mode.ctl"/>
@@ -599,6 +602,12 @@
 			<Item Name="Merge Error Ex.vi" Type="VI" URL="../other/Merge Error Ex.vi"/>
 			<Item Name="About Dialog.vi" Type="VI" URL="../other/About Dialog.vi"/>
 			<Item Name="graph_redef_bounds.vi" Type="VI" URL="../other/graph_redef_bounds.vi"/>
+			<Item Name="String Is Numeric.vi" Type="VI" URL="../other/String Is Numeric.vi"/>
+			<Item Name="String Matrix Is Numeric.vi" Type="VI" URL="../other/String Matrix Is Numeric.vi"/>
+			<Item Name="String Array Replace Local Decimal Separators 1D.vi" Type="VI" URL="../other/String Array Replace Local Decimal Separators 1D.vi"/>
+			<Item Name="String Array Replace Local Decimal Separators 2D.vi" Type="VI" URL="../other/String Array Replace Local Decimal Separators 2D.vi"/>
+			<Item Name="Table Copy To Clipboard.vi" Type="VI" URL="../other/Table Copy To Clipboard.vi"/>
+			<Item Name="Table Paste Clipboard.vi" Type="VI" URL="../other/Table Paste Clipboard.vi"/>
 		</Item>
 		<Item Name="ini" Type="Folder">
 			<Item Name="ini_auto" Type="Folder">
@@ -757,7 +766,6 @@
 		<Item Name="config.ini" Type="Document" URL="../config.ini"/>
 		<Item Name="LICENSE.txt" Type="Document" URL="../../LICENSE.txt"/>
 		<Item Name="readme.txt" Type="Document" URL="../../readme.txt"/>
-		<Item Name="Corr Digitizer Parameter Selector.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer Parameter Selector.ctl"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
