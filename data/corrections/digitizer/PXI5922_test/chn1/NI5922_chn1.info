@@ -1,0 +1,79 @@
+% type of the correction
+type:: channel
+
+% correction name string
+name:: NI5922 test correction
+
+% device/channel identification as it appears in the digitizer identification
+% note: leave empty or remove if this correction should be independent of the instrument/channel
+channel identifier::
+
+
+% nominal gain correction of the channel
+#startsection:: nominal gain
+
+  % scalar real value
+  #startmatrix:: value
+    1.000000
+  #endmatrix:: value
+  #startmatrix:: uncertainty
+    0.000025
+  #endmatrix:: uncertainty
+
+#endsection:: nominal gain
+
+% gain transfer
+#startsection:: gain transfer
+
+  % scalar real value
+  #startmatrix:: value
+    csv\tfer_gain_50k.csv
+    csv\tfer_gain_500k.csv
+    csv\tfer_gain_1M.csv
+    csv\tfer_gain_10M.csv
+  #endmatrix:: value
+
+  // --- List of parameters on which the correction values depends: ---
+ 	// primary parameter (remove if not used):
+ 	#startsection:: primary parameter
+              
+    // name of the HW parameter:
+    //  note: it must be exact name of the parameter that appears in measurement header
+    name:: sampling rate [Sa/s]
+                                    
+    // is this parameter interpolable?
+    //  note: set to 0 or remove if not interpolable
+    interpolable:: 0
+                    
+    // list of supported values of a primary parameter on which the correction depends:
+    //  eg.: range of the digitizer
+    #startmatrix:: value
+      50000
+      500000
+      1000000
+      10000000
+    #endmatrix:: value
+                
+  #endsection:: primary parameter
+
+#endsection:: gain transfer
+
+% input admittance
+#startsection:: input admittance
+
+  % CSV table with the 1D dependence on frequency
+  #startmatrix:: value
+    csv\Y_inp.csv
+  #endmatrix:: value
+  
+#endsection:: input admittance
+
+% SFDR value
+#startsection:: sfdr
+
+  % CSV table with the 1D dependence on frequency
+  #startmatrix:: value
+    csv\SFDR_5V.csv
+  #endmatrix:: value
+  
+#endsection:: sfdr
