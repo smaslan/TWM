@@ -14,7 +14,7 @@ nominal ratio uncertainty:: 0.000011
 // path to the CSV file with frequency and level dependence of the transducer coefficient
 // note: leave empty or remove if not used (loader will assume freq./level independent value) 
 amplitude transfer path:: csv\tfer_gain.csv
-phase transfer path::
+phase transfer path:: csv\phi.csv
 
 // --- For loading corrections only ---
 // Following parameters are used for the optional loading corrections of the transducers.
@@ -32,7 +32,10 @@ output terminals series impedance path:: csv\Zca.csv
 
 // frequency dependence of series impedance of transducer’s low-side terminal:
 //   1D CSV table, y-axis: frequency, quantities order: Rs, Ls, u(Rs), u(Ls)
-output terminals series impedance path (low-side):: csv\Zcal.csv  
+output terminals series impedance path (low-side):: csv\Zcal.csv
+
+output terminals mutual inductance:: csv\Zcam.csv 
+  
 
 // effective impedance of the output cable between transducer and digitizer input
 // note: leave empty or remove if not used

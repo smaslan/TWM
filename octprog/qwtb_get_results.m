@@ -201,7 +201,11 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                         csv{row+0,col} = [vv vs];
                         csv{row+1,col} = [vu vs];
                         num(row+0,col) = avg{p}{v}.val;
-                        num(row+1,col) = avg{p}{v}.unc;
+                        if ~isempty(avg{p}{v}.unc)
+                            num(row+1,col) = avg{p}{v}.unc;
+                        else
+                            num(row+1,col) = NaN;
+                        end
                     end
                     col = col + 1;
                     
@@ -225,7 +229,11 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                             csv{row+0,col} = [vv vs];
                             csv{row+1,col} = [vu vs];
                             num(row+0,col) = results{r}{p}{v}.val;
-                            num(row+1,col) = results{r}{p}{v}.unc;
+                            if ~isempty(results{r}{p}{v}.unc)
+                                num(row+1,col) = results{r}{p}{v}.unc;
+                            else
+                                num(row+1,col) = NaN;
+                            end
                         end
                         col = col + 1;
                       
@@ -283,7 +291,11 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                                 csv{row+0,col} = [vv vs];
                                 csv{row+1,col} = [vu vs];
                                 num(row+0,col) = data.val(k);
-                                num(row+1,col) = data.unc(k);
+                                if ~isempty(data.unc)
+                                    num(row+1,col) = data.unc(k);
+                                else
+                                    num(row+1,col) = NaN;
+                                end
                             end
                             col = col + 1;                 
                          
