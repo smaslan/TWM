@@ -1,0 +1,61 @@
+% correction type
+type:: digitizer
+
+% description of the digitizer corrections setup
+name:: NI5922, F55D5B, 1m cables
+
+% names of the channels as they appear in the digitizer identification
+#startmatrix:: channel identifiers
+  NI PXI-5922, sn. F22D5B, channel 0
+  NI PXI-5922, sn. F22D5B, channel 1  
+#endmatrix:: channel identifiers
+
+% links to the channel corrections of particular channels
+#startmatrix:: channel correction paths
+  chn1\NI5922_chn1.info
+  chn2\NI5922_chn2.info
+#endmatrix:: channel correction paths
+
+
+% timeshift between the channels [s]
+% note the first is always zero
+#startsection:: interchannel timeshift
+
+  % row vector of values, one for each channel
+  #startmatrix:: value
+    0.0;8.7172E-11
+    0.0;1.2425E-10
+    0.0;1.13469E-10
+    0.0;8.92564e-11
+  #endmatrix:: value 
+  #startmatrix:: uncertainty
+    1e-11;1e-11
+    1e-11;1e-11
+    1e-11;1e-11
+    1e-11;1e-11    
+  #endmatrix:: uncertainty 
+
+  // --- List of parameters on which the correction values depends: ---
+  // primary parameter (remove if not used):
+  #startsection:: primary parameter
+              
+    // name of the HW parameter:
+    //  note: it must be exact name of the parameter that appears in measurement header
+    name:: sampling rate [Sa/s]
+                                    
+    // is this parameter interpolable?
+    //  note: set to 0 or remove if not interpolable
+    interpolable:: 0
+                    
+    // list of supported values of a primary parameter on which the correction depends:
+    //  eg.: range of the digitizer
+    #startmatrix:: value
+      50000
+      500000
+      1000000
+      10000000
+    #endmatrix:: value
+                
+  #endsection:: primary parameter
+
+#endsection:: interchannel timeshift

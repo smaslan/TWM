@@ -288,6 +288,8 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
                     ref_val = ref.val;
                     if isfield(ref,'unc')
                         ref_unc = ref.unc; % ###TODO implement uncertainty
+                    else
+                        ref_unc = 0*ref_val;
                     end
                     
                     % for each channel:
@@ -295,6 +297,9 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
                         % subtract reference phase
                         dut = results{r}{did(d)}{v};
                         dut.val = dut.val - ref_val;
+                        if isfield(dut,'unc')
+                            dut.unc = (dut.unc.^2 + ref_unc.^2).^0.5;
+                        end
                         results{r}{did(d)}{v} = dut;
                     end
                 end

@@ -1,12 +1,6 @@
 Bugs:
-
-Digitizers panel:
- - hide selector of DMM idn - confusing
+ - check transducers for diplicate tags
+ - plot viewer ignores amplitude display mode?
+ - corrections relative path search not correct!
 
 Doc:
-
-Algorithms:
- - TWM-MODTDPS and TWM-FPNLSF: possibly wrong SFDR limits in unc. estimator?
- - TWM-THDWFFT: - add timebase correcion for the returned fruencies
-                - also maybe replace local copies of WFFT and PSFE by QWTB calls?
-

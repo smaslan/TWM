@@ -130,7 +130,7 @@ type:: qwtb list
 
 #startsection:: TWM-PSFE
         #startmatrix:: number formats
-                f;  si; 1e-12; 1e-6
+                f;  si; 1e-12; 1e-8
                 A;  si; 1e-12; 1e-7
                 phi; f; 1e-12; 1e-7
         #endmatrix:: number formats
@@ -144,7 +144,7 @@ type:: qwtb list
 
 #startsection:: TWM-FPNLSF
         #startmatrix:: number formats
-                f;  si; 1e-12; 1e-6
+                f;  si; 1e-12; 1e-8
                 A;  si; 1e-12; 1e-7
                 phi; f; 1e-12; 1e-7
         #endmatrix:: number formats

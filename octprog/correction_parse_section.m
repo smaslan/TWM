@@ -56,6 +56,17 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
   % get this correction's section from correction file header 
   try
     cinf = infogetsection(inf, correction_name);
+    
+    % optional disabling of correction
+    dis = 0;
+    try
+        dis = infogetnumber(cinf,'disabled');
+    end
+    if dis
+        error('correction disabled - fake error to break this try-catch');
+    end
+
+    
   catch
     % section not found, but it may be optional correction
     

@@ -238,12 +238,12 @@ function dataout = alg_wrapper(datain, calcset)
         u_Y_lo  = u_A_lo;
         u_ph_lo = u_ph_lo;
         % estimate digitizer input rms level:
-        dA = (Y - Y_lo);
+        dA = abs(Y - Y_lo);
         rms_ref = sum(0.5*dA.^2).^0.5*w_gain/w_rms;            
         % calculate transducer tfer:
         fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
         [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo, 'rms',rms_ref);
-        trg(1)= trg(1)*sign(dA(1)); % restore sign
+        trg(1)= trg(1)*(1 - 2*(abs(trp(1)) > 0.1*pi)); % restore sign
         A   = trg;
         u_A = u_trg;
         ph   = trp;
@@ -435,7 +435,7 @@ function dataout = alg_wrapper(datain, calcset)
     % get rms estimate from identified significant components:
     rms = (A(1)^2 + sum(0.5*A(h_list).^2))^0.5;
     % estimate of rms uncertainty as a worst case:
-    u_rms = ((A(1)+u_A(1))^2 + sum(0.5*(A(h_list) + u_A(h_list)).^2))^0.5 - rms;    
+    u_rms = ((A(1)+u_A(1))^2 + sum(0.5*(A(h_list) + u_A(h_list)).^2))^0.5 - rms; 
     
     
     % return extracted DFT bin(s):

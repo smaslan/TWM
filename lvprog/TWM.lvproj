@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="13008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">false</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -533,6 +533,7 @@
 				<Item Name="Meas Process Mode.ctl" Type="VI" URL="../measure/processing/Meas Process Mode.ctl"/>
 				<Item Name="Meas Process Raw Config.ctl" Type="VI" URL="../measure/processing/Meas Process Raw Config.ctl"/>
 				<Item Name="Meas Process Raw Result Mode.ctl" Type="VI" URL="../measure/processing/Meas Process Raw Result Mode.ctl"/>
+				<Item Name="Meas Process Time Stamp Mode.ctl" Type="VI" URL="../measure/processing/Meas Process Time Stamp Mode.ctl"/>
 				<Item Name="Meas Process Record.vi" Type="VI" URL="../measure/processing/Meas Process Record.vi"/>
 				<Item Name="Meas Process Config Panel.vi" Type="VI" URL="../measure/processing/Meas Process Config Panel.vi"/>
 			</Item>
@@ -555,7 +556,17 @@
 				<Item Name="Corr Digitizer Check.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Check.vi"/>
 				<Item Name="Corr Digitizer to Meas Header.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer to Meas Header.vi"/>
 				<Item Name="Corr Digitizer to Meas Folder.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer to Meas Folder.vi"/>
+				<Item Name="Corr CSV Template.ctl" Type="VI" URL="../measure/Corrections/Corr CSV Template.ctl"/>
 				<Item Name="Corr CSV Editor.vi" Type="VI" URL="../measure/Corrections/Corr CSV Editor.vi"/>
+				<Item Name="Corr Digitizer INFO parameter.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer INFO parameter.ctl"/>
+				<Item Name="Corr Digitizer INFO item.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer INFO item.ctl"/>
+				<Item Name="Corr Digitizer INFO.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer INFO.ctl"/>
+				<Item Name="Corr Digitizer Parameter Selector.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer Parameter Selector.ctl"/>
+				<Item Name="Corr Digitizer Type.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer Type.ctl"/>
+				<Item Name="Corr Digitizer Edit Panel.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Edit Panel.vi"/>
+				<Item Name="Corr Digitizer Load INFO.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Load INFO.vi"/>
+				<Item Name="Corr Digitizer Save INFO.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Save INFO.vi"/>
+				<Item Name="Corr Digitizer Save INFO raw.vi" Type="VI" URL="../measure/Corrections/Corr Digitizer Save INFO raw.vi"/>
 				<Item Name="Corr Transducer INFO Item.ctl" Type="VI" URL="../measure/Corrections/Corr Transducer INFO Item.ctl"/>
 				<Item Name="Corr Transducer INFO Record.ctl" Type="VI" URL="../measure/Corrections/Corr Transducer INFO Record.ctl"/>
 				<Item Name="Corr Transducers Edit Panel.vi" Type="VI" URL="../measure/Corrections/Corr Transducers Edit Panel.vi"/>
@@ -571,9 +582,9 @@
 				<Item Name="Assist Sampling Setup Calculate Coherent.vi" Type="VI" URL="../measure/Assist/Assist Sampling Setup Calculate Coherent.vi"/>
 				<Item Name="Assist Sampling Measure Freq Panel.vi" Type="VI" URL="../measure/Assist/Assist Sampling Measure Freq Panel.vi"/>
 			</Item>
+			<Item Name="Meas Sequence Configuration.ctl" Type="VI" URL="../measure/Meas Sequence Configuration.ctl"/>
 			<Item Name="Meas Session.ctl" Type="VI" URL="../measure/Meas Session.ctl"/>
 			<Item Name="Meas Sampling Configuration.ctl" Type="VI" URL="../measure/Meas Sampling Configuration.ctl"/>
-			<Item Name="Meas Sequence Configuration.ctl" Type="VI" URL="../measure/Meas Sequence Configuration.ctl"/>
 			<Item Name="Meas Sequence Item.ctl" Type="VI" URL="../measure/Meas Sequence Item.ctl"/>
 			<Item Name="Meas Sampling Rate Mode.ctl" Type="VI" URL="../measure/Meas Sampling Rate Mode.ctl"/>
 			<Item Name="Meas Range Mode.ctl" Type="VI" URL="../measure/Meas Range Mode.ctl"/>
@@ -593,6 +604,15 @@
 			<Item Name="Merge Error Ex.vi" Type="VI" URL="../other/Merge Error Ex.vi"/>
 			<Item Name="About Dialog.vi" Type="VI" URL="../other/About Dialog.vi"/>
 			<Item Name="graph_redef_bounds.vi" Type="VI" URL="../other/graph_redef_bounds.vi"/>
+			<Item Name="String Is Numeric.vi" Type="VI" URL="../other/String Is Numeric.vi"/>
+			<Item Name="String Matrix Is Numeric.vi" Type="VI" URL="../other/String Matrix Is Numeric.vi"/>
+			<Item Name="String Array Replace Local Decimal Separators 1D.vi" Type="VI" URL="../other/String Array Replace Local Decimal Separators 1D.vi"/>
+			<Item Name="String Array Replace Local Decimal Separators 2D.vi" Type="VI" URL="../other/String Array Replace Local Decimal Separators 2D.vi"/>
+			<Item Name="Table Copy To Clipboard.vi" Type="VI" URL="../other/Table Copy To Clipboard.vi"/>
+			<Item Name="Table Trim Whites.vi" Type="VI" URL="../other/Table Trim Whites.vi"/>
+			<Item Name="Table Paste Clipboard.vi" Type="VI" URL="../other/Table Paste Clipboard.vi"/>
+			<Item Name="rowcol2xlscell.vi" Type="VI" URL="../other/rowcol2xlscell.vi"/>
+			<Item Name="Text Viewer.vi" Type="VI" URL="../other/Text Viewer.vi"/>
 		</Item>
 		<Item Name="ini" Type="Folder">
 			<Item Name="ini_auto" Type="Folder">
@@ -663,6 +683,37 @@
 							<Item Name="HP3458A_chn2.info" Type="Document" URL="../../data/corrections/digitizer/HP3458A_session/chn2/HP3458A_chn2.info"/>
 						</Item>
 						<Item Name="HP3458A_2x.info" Type="Document" URL="../../data/corrections/digitizer/HP3458A_session/HP3458A_2x.info"/>
+						<Item Name="read_me.txt" Type="Document" URL="../../data/corrections/digitizer/HP3458A_session/read_me.txt"/>
+					</Item>
+					<Item Name="PXI5922_test" Type="Folder">
+						<Item Name="chn1" Type="Folder">
+							<Item Name="csv" Type="Folder">
+								<Item Name="SFDR_5V.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn1/csv/SFDR_5V.csv"/>
+								<Item Name="tfer_gain_10M.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn1/csv/tfer_gain_10M.csv"/>
+								<Item Name="tfer_gain_1M.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn1/csv/tfer_gain_1M.csv"/>
+								<Item Name="tfer_gain_500k.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn1/csv/tfer_gain_500k.csv"/>
+								<Item Name="tfer_gain_50k.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn1/csv/tfer_gain_50k.csv"/>
+								<Item Name="Y_inp.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn1/csv/Y_inp.csv"/>
+							</Item>
+							<Item Name="NI5922_chn1.info" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn1/NI5922_chn1.info"/>
+						</Item>
+						<Item Name="chn2" Type="Folder">
+							<Item Name="csv" Type="Folder">
+								<Item Name="SFDR_5V.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn2/csv/SFDR_5V.csv"/>
+								<Item Name="tfer_gain_10M.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn2/csv/tfer_gain_10M.csv"/>
+								<Item Name="tfer_gain_1M.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn2/csv/tfer_gain_1M.csv"/>
+								<Item Name="tfer_gain_500k.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn2/csv/tfer_gain_500k.csv"/>
+								<Item Name="tfer_gain_50k.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn2/csv/tfer_gain_50k.csv"/>
+								<Item Name="tfer_phi_10M.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn2/csv/tfer_phi_10M.csv"/>
+								<Item Name="tfer_phi_1M.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn2/csv/tfer_phi_1M.csv"/>
+								<Item Name="tfer_phi_500k.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn2/csv/tfer_phi_500k.csv"/>
+								<Item Name="tfer_phi_50k.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn2/csv/tfer_phi_50k.csv"/>
+								<Item Name="Y_inp.csv" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn2/csv/Y_inp.csv"/>
+							</Item>
+							<Item Name="NI5922_chn2.info" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/chn2/NI5922_chn2.info"/>
+						</Item>
+						<Item Name="NI5922_2x.info" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/NI5922_2x.info"/>
+						<Item Name="read_me.txt" Type="Document" URL="../../data/corrections/digitizer/PXI5922_test/read_me.txt"/>
 					</Item>
 				</Item>
 				<Item Name="transducers" Type="Folder">
@@ -674,6 +725,14 @@
 					</Item>
 					<Item Name="shunt_1A313" Type="Folder">
 						<Item Name="shunt_1A313.info" Type="Document" URL="../../data/corrections/transducers/shunt_1A313/shunt_1A313.info"/>
+					</Item>
+					<Item Name="shunt_100mA113" Type="Folder">
+						<Item Name="csv" Type="Folder">
+							<Item Name="tfer_gain.csv" Type="Document" URL="../../data/corrections/transducers/shunt_100mA113/csv/tfer_gain.csv"/>
+							<Item Name="Zca.csv" Type="Document" URL="../../data/corrections/transducers/shunt_100mA113/csv/Zca.csv"/>
+							<Item Name="Zcal.csv" Type="Document" URL="../../data/corrections/transducers/shunt_100mA113/csv/Zcal.csv"/>
+						</Item>
+						<Item Name="shunt_100mA113.info" Type="Document" URL="../../data/corrections/transducers/shunt_100mA113/shunt_100mA113.info"/>
 					</Item>
 					<Item Name="SP0401-4V" Type="Folder">
 						<Item Name="csv" Type="Folder">
@@ -1017,7 +1076,7 @@
 				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - visa,niscope.vi</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">5</Property>
+				<Property Name="Bld_version.minor" Type="Int">6</Property>
 				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/TWM.exe</Property>
@@ -1035,13 +1094,13 @@
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{8BF3A34A-CF10-440B-AE69-203F96A7B26F}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{A6FCFF65-775E-4F4A-904B-A4528556A92B}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
 				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
 				<Property Name="Source[1].type" Type="Str">VI</Property>
-				<Property Name="Source[10].itemID" Type="Ref"></Property>
+				<Property Name="Source[10].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
 				<Property Name="Source[10].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[2].Container.applyDestination" Type="Bool">true</Property>
 				<Property Name="Source[2].Container.applyInclusion" Type="Bool">true</Property>
@@ -1080,7 +1139,9 @@ V1.4.0 - FFT analyser added
 V1.4.1 - minor fixes for server oparation
 V1.4.3 - implemented AWG Tek AFG3000 series for 3458A clocking 
 V1.4.4 - DMM fixed relays saved, few more improvements
-V1.5.0 - conditional compile of selected drivers included</Property>
+V1.5.0 - conditional compile of selected drivers included
+V1.6.0 - improved GUI (mainly corrections)
+V1.6.1 - minor fixes in corrections editor, fixed dsdll</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2019</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
@@ -1103,8 +1164,8 @@ V1.5.0 - conditional compile of selected drivers included</Property>
 				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - visa.vi</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">5</Property>
-				<Property Name="Bld_version.patch" Type="Int">2</Property>
+				<Property Name="Bld_version.minor" Type="Int">6</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1121,12 +1182,14 @@ V1.5.0 - conditional compile of selected drivers included</Property>
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{0AE28138-A8E7-4B7E-B86A-995F09726B05}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{A6FCFF65-775E-4F4A-904B-A4528556A92B}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
 				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
 				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="Source[10].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
+				<Property Name="Source[10].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[2].Container.applyDestination" Type="Bool">true</Property>
 				<Property Name="Source[2].Container.applyInclusion" Type="Bool">true</Property>
 				<Property Name="Source[2].destinationIndex" Type="Int">2</Property>
@@ -1155,7 +1218,7 @@ V1.5.0 - conditional compile of selected drivers included</Property>
 				<Property Name="Source[9].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[9].type" Type="Str">Container</Property>
-				<Property Name="SourceCount" Type="Int">10</Property>
+				<Property Name="SourceCount" Type="Int">11</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
 
@@ -1166,7 +1229,8 @@ V1.4.3 - implemented AWG Tek AFG3000 series for 3458A clocking
 V1.4.4 - DMM fixed relays saved, few more improvements
 V1.4.4 - DMM fixed relays saved, few more improvements
 V1.5.0 - conditional compile of selected drivers included
-V1.5.2 - improved GUI</Property>
+V1.6.0 - improved GUI (mainly corrections)
+V1.6.1 - minor fixes in corrections editor, fixed dsdll</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2019</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>
