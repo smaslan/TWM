@@ -1077,6 +1077,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">6</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1093,7 +1094,7 @@
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{2199F30E-84C0-438B-B507-AE7C03166393}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{A6FCFF65-775E-4F4A-904B-A4528556A92B}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1139,7 +1140,8 @@ V1.4.1 - minor fixes for server oparation
 V1.4.3 - implemented AWG Tek AFG3000 series for 3458A clocking 
 V1.4.4 - DMM fixed relays saved, few more improvements
 V1.5.0 - conditional compile of selected drivers included
-V1.6.0 - improved GUI (mainly corrections)</Property>
+V1.6.0 - improved GUI (mainly corrections)
+V1.6.1 - minor fixes in corrections editor, fixed dsdll</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2019</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
@@ -1163,6 +1165,7 @@ V1.6.0 - improved GUI (mainly corrections)</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">6</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1179,7 +1182,7 @@ V1.6.0 - improved GUI (mainly corrections)</Property>
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{2199F30E-84C0-438B-B507-AE7C03166393}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{A6FCFF65-775E-4F4A-904B-A4528556A92B}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1226,7 +1229,8 @@ V1.4.3 - implemented AWG Tek AFG3000 series for 3458A clocking
 V1.4.4 - DMM fixed relays saved, few more improvements
 V1.4.4 - DMM fixed relays saved, few more improvements
 V1.5.0 - conditional compile of selected drivers included
-V1.6.0 - improved GUI (mainly corrections)</Property>
+V1.6.0 - improved GUI (mainly corrections)
+V1.6.1 - minor fixes in corrections editor, fixed dsdll</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2019</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>

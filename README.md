@@ -63,7 +63,8 @@ Important changes and news:
 - 2018-03-16: Improved GUI, few algorithms added.
 - 2018-08-23: Improved GUI, 8 of 10 algorithms included (not validated yet!).
 - 2019-01-24: Improved GUI, 10 of 10 algorithms included (not all validated yet!).
-- 2019-04-04: Improved GUI, 12 algorithms included (not all validated yet!). Improved GUI.
+- 2019-04-04: Improved GUI, 12 algorithms included (not all validated yet!).
+- 2019-04-15: Improved GUI, minor fixes. 
 
 
 ## Download

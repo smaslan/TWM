@@ -23,7 +23,7 @@ name:: Two HP3458A dmms test
 
   % row vector of values, one for each channel
   #startmatrix:: value
-    0.00;-7.01445E-07
+    0.00;1.37244E-06
   #endmatrix:: value 
   #startmatrix:: uncertainty
     0.00;0.00
