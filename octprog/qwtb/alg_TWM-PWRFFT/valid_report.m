@@ -66,7 +66,7 @@ function [] = valid_report(res,vr,pass_loc)
         h_list = [];
         for k = 1:R
             punc(k,:) = mean(abs(rc{k}.punc) < 1,1);
-            h_list(end+1:end+size(rc{k}.punc,1),:) = rc{k}.punc;
+            %h_list(end+1:end+size(rc{k}.punc,1),:) = rc{k}.punc;
         end                                  
         
         p_id = 1;
