@@ -2,5 +2,6 @@ Bugs:
  - check transducers for diplicate tags
  - plot viewer ignores amplitude display mode?
  - corrections relative path search not correct!
+ - export to XLS different than in result viewer
 
 Doc:

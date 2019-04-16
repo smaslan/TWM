@@ -27,6 +27,12 @@
 				<Item Name="ADC Update and Check Idle Timer.vi" Type="VI" URL="../adc/ADC Update and Check Idle Timer.vi"/>
 				<Item Name="ADC GUI Disable types.vi" Type="VI" URL="../adc/Utilities/ADC GUI Disable types.vi"/>
 			</Item>
+			<Item Name="Multiplexer" Type="Folder">
+				<Item Name="MPX Type.ctl" Type="VI" URL="../adc/Multiplexer/MPX Type.ctl"/>
+				<Item Name="MPX Panel.vi" Type="VI" URL="../adc/Multiplexer/MPX Panel.vi"/>
+				<Item Name="MPX Check Sequence.vi" Type="VI" URL="../adc/Multiplexer/MPX Check Sequence.vi"/>
+				<Item Name="MPX Fill Sequence Selectors.vi" Type="VI" URL="../adc/Multiplexer/MPX Fill Sequence Selectors.vi"/>
+			</Item>
 			<Item Name="ADC Session.ctl" Type="VI" URL="../adc/ADC Session.ctl"/>
 			<Item Name="ADC Type.ctl" Type="VI" URL="../adc/ADC Type.ctl"/>
 			<Item Name="ADC Trig Mode Source.ctl" Type="VI" URL="../adc/ADC Trig Mode Source.ctl"/>
@@ -136,6 +142,12 @@
 				<Item Name="SimAdc Initialize Virtual Channels.vi" Type="VI" URL="../drivers/simulated_adc/SimAdc Initialize Virtual Channels.vi"/>
 				<Item Name="SimAdc Clear Channels.ctl" Type="VI" URL="../drivers/simulated_adc/SimAdc Clear Channels.ctl"/>
 				<Item Name="SimAdc Fetch Samples.vi" Type="VI" URL="../drivers/simulated_adc/SimAdc Fetch Samples.vi"/>
+			</Item>
+			<Item Name="Multiplexers" Type="Folder">
+				<Item Name="GCOMM Signal.ctl" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Signal.ctl"/>
+				<Item Name="GCOMM Logic State.ctl" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Logic State.ctl"/>
+				<Item Name="GCOMM Virtual Channel.ctl" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Virtual Channel.ctl"/>
+				<Item Name="GCOMM Check Channels" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Check Channels"/>
 			</Item>
 			<Item Name="niScope Virtual Digitizer.lvlib" Type="Library" URL="../drivers/niScope/niScope Virtual Digitizer.lvlib"/>
 			<Item Name="AWG.lvlib" Type="Library" URL="../drivers/AWG/AWG.lvlib"/>
