@@ -59,7 +59,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
 %
 %
 % This is part of the TWM - TracePQM WattMeter (https://github.com/smaslan/TWM).
-% (c) 2018-2019, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2017-2019, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
     
@@ -140,6 +140,13 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     % get names of the digitizer channels
     data.channel_names = infogettextmatrix(inf, 'channel descriptors');
+    
+    % was it time-multiplexing?
+    try
+        data.is_multiplex = infogetnumber(inf, 'multiplexer enabled');
+    catch
+        data.is_multiplex = 0;
+    end
       
     
     % ====== GROUP SECTION ======
@@ -174,6 +181,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     % get ADC bit resolution:
     data.bitres = infogetnumber(ginf, 'bit resolution');
     
+    
     % preprocess timestamps:
     if isfield(cfg,'time_stamp_mode') && cfg.time_stamp_mode == 0
         relative_timestamps = 0*relative_timestamps;
@@ -201,13 +209,46 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     else
         ids = [1:data.repetitions_count];
     end
-      
-    if repetition_id && any(sample_counts(ids) ~= sample_counts(ids(1)))
-        error('Sample counts in one of the loaded records does not match!');
+    
+    
+    if data.is_multiplex
+        % time multiplexing mode - load segmentation information:              
+        
+        % get offset of each cycle start in sample data
+        %  rows: records, columns: mpx. cycles 
+        mpx_offsets = infogetmatrix(ginf, 'multiplexer cycle offsets');
+        
+        % get relative time stamp of each cycle start in sample data
+        %  rows: records, columns: mpx. cycles 
+        mpx_timestamps = infogetmatrix(ginf, 'multiplexer cycle relative timestamps [s]');
+        
+        % multiplexer cycles count
+        mpx_cycles = size(mpx_offsets,2);
+        
+        % check we have enough data for all sequence cycles
+        if any((mpx_offsets(ids,end) + data.sample_count) > sample_counts(ids))
+            error('TWM data loader: Some of the records is shorter than it should be to contain all multiplexing cycles! Possibly problem of TWM tool when saving data. May be caused by insufficient memory of the digitizer.')
+        end       
+        
+    else
+        % NORMAL MODE (no multiplex):
+        
+        if repetition_id && any(sample_counts(ids) ~= sample_counts(ids(1)))
+            error('Sample counts in one of the loaded records does not match!');
+        end
+    
+        % override samples count by actual samples count in the selected record
+        data.sample_count = sample_counts(ids(1));
+        
+        % one fake multiplexing cycle
+        mpx_cycles = 1;
+        
     end
     
-    % override samples count by actual samples count in the selected record
-    data.sample_count = sample_counts(ids(1));
+    % extract only the relevant timestamps (repetition cycles, channel) 
+    relative_timestamps = relative_timestamps(ids,:);
+          
+    
     
     % limit sample data count by user initial offset:
     if (data.sample_count - data_ofs) < 1
@@ -225,9 +266,11 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
      
      
     % allocate sample data array
-    data.y = zeros(data.sample_count, data.channels_count*numel(ids));
+    data.y = zeros(data.sample_count, data.channels_count*mpx_cycles*numel(ids));
   
-    % ====== FETCH SAMPLE DATA ====== 
+    % ====== FETCH SAMPLE DATA ======
+    % data column index
+    dc = 1; 
     for r = 1:numel(ids)
     
         % sample data file path
@@ -248,6 +291,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
             end
             
             % --- scale the binary data
+            %  y: rows - samples, columns - channels
             % ###note the bsxfun() is needed because Matlab introduced auto broadcasting in 2016b!
             % apply gain
             y = bsxfun(@times,getfield(smpl,data_var_name).',sample_gains(ids(r),:));
@@ -270,28 +314,47 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
             
         end
         
-        % store sampel data into output array:
-        %  note: selecting the samples range as user requested
-        data.y(:,1 + (r-1)*data.channels_count:r*data.channels_count) = y(data_ofs:data_end,:);
+        if data.is_multiplex
+            % MULTIPLEXING MODE - reshape sample data:
+            %   order: [chn1-mpx1-rec1, chn2-mpx1-rec1, chn1-mpx2-rec1, chn2-mpx2-rec1, chn1-mpx1-rec2, chn2-mpx1-rec2, ...]                 
+            
+            for m = 1:mpx_cycles
+                
+                % store sample data into output array:
+                %  note: selecting the samples range as user requested
+                data.y(:,dc:(dc + data.channels_count - 1)) = y((data_ofs + mpx_offsets(r,m)):(data_end + mpx_offsets(r,m)),:);
+                dc = dc + data.channels_count;
+                
+            end
+            
+        else
+            % NORMAL MODE - just extract eventual user segment: 
+        
+            % store sample data into output array:
+            %  note: selecting the samples range as user requested
+            data.y(:,dc:(dc + data.channels_count - 1)) = y(data_ofs:data_end,:);
+            dc = dc + data.channels_count;
+            
+        end
     
-    end       
+    end
+    
+    % expand timestamps for the newly created channels for the multiplex mode:
+    relative_timestamps = repmat(relative_timestamps,[1 mpx_cycles]);        
+    relative_timestamps = bsxfun(@plus, relative_timestamps, kron(mpx_timestamps,ones(1,mpx_cycles)));
+    
+    % multiply number of channels by multiplexing cycles:
+    data.channels_count = data.channels_count*mpx_cycles;      
+            
+    % fix relative timestamps by the first sample offset based on eventual user segmentation:
+    data.timestamp = relative_timestamps + (data_ofs - 1)*data.Ts;
     
     % return sampling period
     data.Ts = mean(time_incerements(ids));
-    
-    % fix relative timestamps by the first sample offset:
-    relative_timestamps = relative_timestamps + (data_ofs - 1)*data.Ts;
-    
-    % return relataive timestamps as 2D matrix (repetition cycles, channel) 
-    data.timestamp = relative_timestamps(ids,:);
-    
+        
     % return apertures as 1D matrix (repetition cycles, 1):
     data.apertures = apertures(ids);
     
-    
-    
-    % return time vector (###note: I think it is useless, just eats memory...)
-    %data.t(:,1) = [0:data.sample_count-1]*data.Ts;
       
     
     % ====== CORRECTIONS SECTION ======
@@ -321,14 +384,14 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     has_transducers = ~~numel(transducer_paths);
         
     % load transducer to digitizer mapping matrix:
-    tr_map = infogetmatrix(cinf, 'transducer to digitizer channels mapping');
+    tr_map = infogetmatrix(cinf, 'transducer to digitizer channels mapping');      
     
     if numel(transducer_paths) && numel(transducer_paths) ~= size(tr_map,1)
         error('TWM measurement loader: Transducers count does not match number of rows in the ''transducer to digitizer channels mapping'' matrix!');
     end
     if isempty(tr_map)
         tr_map = [1:data.channels_count]';
-    end
+    end  
     
     % remove unassigned channels from the mapping list:
     tr_map(tr_map == 0) = NaN;    
@@ -344,6 +407,18 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
             TC = data.channels_count;
         end
     end
+    
+    % load transducer to multiplexing cycle mapping:
+    try
+        mpx_map = infogetmatrix(cinf, 'transducer to multiplexing cycle mapping');
+    catch
+        % create default if not available
+        mpx_map = ones(TC,1);        
+    end
+    if size(mpx_map,1) ~= TC
+        error('TWM loader: Multiplexer mapping matrix size does not match transducers count!');
+    end
+    
         
     % load tranducer correction files
     tr_chn_all = [];
@@ -369,6 +444,14 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
         tr_chn = tr_map(t,:);
         tr_chn = tr_chn(~isnan(tr_chn));
         
+        % check valid range of the digitizer channels:
+        if any(tr_chn == 0)
+            error(sprintf('TWM measurement loader: Some of the assigned digitizer indexes for channel #%d is out of range of available digitizer channels in matrix ''transducer to digitizer channels mapping''!',t));
+        end
+        
+        % select multiplexing cycle:
+        tr_chn = tr_chn + (mpx_map(t) - 1)*mpx_cycles; 
+                
         % check valid range of the digitizer channels:
         if any(tr_chn > data.channels_count) || any(tr_chn == 0)
             error(sprintf('TWM measurement loader: Some of the assigned digitizer indexes for channel #%d is out of range of available digitizer channels in matrix ''transducer to digitizer channels mapping''!',t));
