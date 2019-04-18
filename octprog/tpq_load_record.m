@@ -242,6 +242,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
         
         % one fake multiplexing cycle
         mpx_cycles = 1;
+        mpx_timestamps = zeros(data.repetitions_count,1);
         
     end
     
@@ -322,7 +323,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
                 
                 % store sample data into output array:
                 %  note: selecting the samples range as user requested
-                data.y(:,dc:(dc + data.channels_count - 1)) = y((data_ofs + mpx_offsets(r,m)):(data_end + mpx_offsets(r,m)),:);
+                data.y(:,dc:(dc + data.channels_count - 1)) = y((data_ofs + mpx_offsets(ids(r),m)):(data_end + mpx_offsets(ids(r),m)),:);
                 dc = dc + data.channels_count;
                 
             end
@@ -339,18 +340,18 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     end
     
+    % return sampling period
+    data.Ts = mean(time_incerements(ids));   
+    
     % expand timestamps for the newly created channels for the multiplex mode:
-    relative_timestamps = repmat(relative_timestamps,[1 mpx_cycles]);        
-    relative_timestamps = bsxfun(@plus, relative_timestamps, kron(mpx_timestamps,ones(1,mpx_cycles)));
+    relative_timestamps = repmat(relative_timestamps,[1 mpx_cycles]);   
+    relative_timestamps = bsxfun(@plus, relative_timestamps, kron(mpx_timestamps(ids,:),ones(1,data.channels_count)));
     
     % multiply number of channels by multiplexing cycles:
     data.channels_count = data.channels_count*mpx_cycles;      
             
     % fix relative timestamps by the first sample offset based on eventual user segmentation:
     data.timestamp = relative_timestamps + (data_ofs - 1)*data.Ts;
-    
-    % return sampling period
-    data.Ts = mean(time_incerements(ids));
         
     % return apertures as 1D matrix (repetition cycles, 1):
     data.apertures = apertures(ids);
@@ -411,6 +412,9 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     % load transducer to multiplexing cycle mapping:
     try
         mpx_map = infogetmatrix(cinf, 'transducer to multiplexing cycle mapping');
+        if isempty(mpx_map)
+            mpx_map = ones(TC,1);
+        end
     catch
         % create default if not available
         mpx_map = ones(TC,1);        

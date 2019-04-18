@@ -832,6 +832,7 @@
 		<Item Name="config.ini" Type="Document" URL="../config.ini"/>
 		<Item Name="LICENSE.txt" Type="Document" URL="../../LICENSE.txt"/>
 		<Item Name="readme.txt" Type="Document" URL="../../readme.txt"/>
+		<Item Name="3458A Multiplexing Config.ctl" Type="VI" URL="../drivers/DMM/3458A Multiplexing Config.ctl"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
