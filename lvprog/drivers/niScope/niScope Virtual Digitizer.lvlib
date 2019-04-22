@@ -20,6 +20,7 @@
 		<Item Name="niScope Capabilities.ctl" Type="VI" URL="../niScope Capabilities.ctl"/>
 		<Item Name="niScope Get Capabilities.vi" Type="VI" URL="../Utilities/niScope Get Capabilities.vi"/>
 		<Item Name="niScope SelfCal Virtual Channels.vi" Type="VI" URL="../Utilities/niScope SelfCal Virtual Channels.vi"/>
+		<Item Name="niScope Set PFI.vi" Type="VI" URL="../niScope Set PFI.vi"/>
 	</Item>
 	<Item Name="niScope Digitizing Process Options.ctl" Type="VI" URL="../niScope Digitizing Process Options.ctl"/>
 	<Item Name="niScope Data Packet.ctl" Type="VI" URL="../niScope Data Packet.ctl"/>
