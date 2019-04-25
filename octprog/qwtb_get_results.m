@@ -190,19 +190,19 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                 if numel(avg{p}{v}.val)
                 
                     % write average
-                    [vc,vv,vu,vs] = qwtb_result_unc2str(avg{p}{v},[],cfg);        
+                    [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(avg{p}{v},[],cfg);        
                     if cfg.unc_mode == 0
                         csv{row,col} = [vv vs];
-                        num(row,col) = avg{p}{v}.val;
+                        num(row,col) = numv;
                     elseif cfg.unc_mode == 1
                         csv{row,col} = vc;
-                        num(row,col) = NaN;
+                        num(row,col) = numu;
                     else
                         csv{row+0,col} = [vv vs];
                         csv{row+1,col} = [vu vs];
-                        num(row+0,col) = avg{p}{v}.val;
+                        num(row+0,col) = numv;
                         if ~isempty(avg{p}{v}.unc)
-                            num(row+1,col) = avg{p}{v}.unc;
+                            num(row+1,col) = numu;
                         else
                             num(row+1,col) = NaN;
                         end
@@ -210,27 +210,27 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                     col = col + 1;
                     
                     % write unc. A
-                    [vc,vv,vu,vs] = qwtb_result_unc2str(unca{p}{v},[],cfg);        
+                    [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(unca{p}{v},[],cfg);        
                     csv{row,col} = [vv vs];
-                    num(row,col) = unca{p}{v}.val;
+                    num(row,col) = numv;
                     col = col + 1;
                     
                     % write readings
                     for r = 1:R
                     
-                        [vc,vv,vu,vs] = qwtb_result_unc2str(results{r}{p}{v},[],cfg);        
+                        [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(results{r}{p}{v},[],cfg);        
                         if cfg.unc_mode == 0
                             csv{row,col} = [vv vs];
-                            num(row,col) = results{r}{p}{v}.val;
+                            num(row,col) = numv;
                         elseif cfg.unc_mode == 1
                             csv{row,col} = vc;
                             num(row,col) = NaN;
                         else
                             csv{row+0,col} = [vv vs];
                             csv{row+1,col} = [vu vs];
-                            num(row+0,col) = results{r}{p}{v}.val;
+                            num(row+0,col) = numv;
                             if ~isempty(results{r}{p}{v}.unc)
-                                num(row+1,col) = results{r}{p}{v}.unc;
+                                num(row+1,col) = numu;
                             else
                                 num(row+1,col) = NaN;
                             end
@@ -280,19 +280,19 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                             csv{1,k + 1} = sprintf('item %d',k);
                             num(1,k + 1) = NaN;
                             
-                            [vc,vv,vu,vs] = qwtb_result_unc2str(data,k,cfg);        
+                            [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(data,k,cfg);        
                             if cfg.unc_mode == 0
                                 csv{row,col} = [vv vs];
-                                num(row,col) = data.val(k);
+                                num(row,col) = numv;
                             elseif cfg.unc_mode == 1
                                 csv{row,col} = vc;
                                 num(row,col) = NaN;
                             else
                                 csv{row+0,col} = [vv vs];
                                 csv{row+1,col} = [vu vs];
-                                num(row+0,col) = data.val(k);
+                                num(row+0,col) = numv;
                                 if ~isempty(data.unc)
-                                    num(row+1,col) = data.unc(k);
+                                    num(row+1,col) = numu;
                                 else
                                     num(row+1,col) = NaN;
                                 end
@@ -318,7 +318,7 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
     end
     
     % fill in rest of the numeric output by NaNs
-    %  ###todo: optimize 
+    %  ###todo: optimize maybe? 
     for r = 1:size(csv,1)
         for c = 1:size(csv,2)
             if isempty(csv{r,c})

@@ -12,7 +12,7 @@
 %%     
 %% -----------------------------------------------------------------------------
 
-function [full_str,val_str,unc_str,unit_str] = qwtb_result_unc2str(value,index,cfg)
+function [full_str,val_str,unc_str,unit_str, val,unc] = qwtb_result_unc2str(value,index,cfg)
 
   % load low limits of the uncertainty 
   cfg.min_unc_abs = value.min_unc_abs;

@@ -27,6 +27,20 @@
 				<Item Name="ADC Update and Check Idle Timer.vi" Type="VI" URL="../adc/ADC Update and Check Idle Timer.vi"/>
 				<Item Name="ADC GUI Disable types.vi" Type="VI" URL="../adc/Utilities/ADC GUI Disable types.vi"/>
 			</Item>
+			<Item Name="Multiplexer" Type="Folder">
+				<Item Name="MPX Type.ctl" Type="VI" URL="../adc/Multiplexer/MPX Type.ctl"/>
+				<Item Name="MPX Session.ctl" Type="VI" URL="../adc/Multiplexer/MPX Session.ctl"/>
+				<Item Name="MPX Record Segment Info.ctl" Type="VI" URL="../adc/Multiplexer/MPX Record Segment Info.ctl"/>
+				<Item Name="MPX Sequence Item.ctl" Type="VI" URL="../adc/Multiplexer/MPX Sequence Item.ctl"/>
+				<Item Name="MPX Post Process Sequence.vi" Type="VI" URL="../adc/Multiplexer/MPX Post Process Sequence.vi"/>
+				<Item Name="MPX Panel.vi" Type="VI" URL="../adc/Multiplexer/MPX Panel.vi"/>
+				<Item Name="MPX Check Sequence.vi" Type="VI" URL="../adc/Multiplexer/MPX Check Sequence.vi"/>
+				<Item Name="MPX Fill Sequence Selectors.vi" Type="VI" URL="../adc/Multiplexer/MPX Fill Sequence Selectors.vi"/>
+				<Item Name="MPX Open.vi" Type="VI" URL="../adc/Multiplexer/MPX Open.vi"/>
+				<Item Name="MPX Get Path Names.vi" Type="VI" URL="../adc/Multiplexer/MPX Get Path Names.vi"/>
+				<Item Name="MPX Set Path.vi" Type="VI" URL="../adc/Multiplexer/MPX Set Path.vi"/>
+				<Item Name="MPX Close.vi" Type="VI" URL="../adc/Multiplexer/MPX Close.vi"/>
+			</Item>
 			<Item Name="ADC Session.ctl" Type="VI" URL="../adc/ADC Session.ctl"/>
 			<Item Name="ADC Type.ctl" Type="VI" URL="../adc/ADC Type.ctl"/>
 			<Item Name="ADC Trig Mode Source.ctl" Type="VI" URL="../adc/ADC Trig Mode Source.ctl"/>
@@ -136,6 +150,19 @@
 				<Item Name="SimAdc Initialize Virtual Channels.vi" Type="VI" URL="../drivers/simulated_adc/SimAdc Initialize Virtual Channels.vi"/>
 				<Item Name="SimAdc Clear Channels.ctl" Type="VI" URL="../drivers/simulated_adc/SimAdc Clear Channels.ctl"/>
 				<Item Name="SimAdc Fetch Samples.vi" Type="VI" URL="../drivers/simulated_adc/SimAdc Fetch Samples.vi"/>
+			</Item>
+			<Item Name="Multiplexers" Type="Folder">
+				<Item Name="Generic COM port" Type="Folder">
+					<Item Name="GCOMM Signal.ctl" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Signal.ctl"/>
+					<Item Name="GCOMM Logic State.ctl" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Logic State.ctl"/>
+					<Item Name="GCOMM Virtual Channel.ctl" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Virtual Channel.ctl"/>
+					<Item Name="GCOMM Session.ctl" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Session.ctl"/>
+					<Item Name="GCOMM Open.vi" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Open.vi"/>
+					<Item Name="GCOMM Set Path.vi" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Set Path.vi"/>
+					<Item Name="GCOMM Close.vi" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Close.vi"/>
+					<Item Name="GCOMM Check Channels" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Check Channels"/>
+				</Item>
+				<Item Name="Generic niScope PFI" Type="Folder"/>
 			</Item>
 			<Item Name="niScope Virtual Digitizer.lvlib" Type="Library" URL="../drivers/niScope/niScope Virtual Digitizer.lvlib"/>
 			<Item Name="AWG.lvlib" Type="Library" URL="../drivers/AWG/AWG.lvlib"/>
@@ -1041,6 +1068,7 @@
 				<Item Name="niScope Actual Record Length.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/Configure/Horizontal/niScope Actual Record Length.vi"/>
 				<Item Name="niScope self cal option.ctl" Type="VI" URL="/&lt;instrlib&gt;/niScope/Controls/niScope self cal option.ctl"/>
 				<Item Name="niScope Cal Self Calibrate.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/Calibrate/niScope Cal Self Calibrate.vi"/>
+				<Item Name="niScope Disable.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/Utility/niScope Disable.vi"/>
 			</Item>
 			<Item Name="niScope_32.dll" Type="Document" URL="niScope_32.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
