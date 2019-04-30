@@ -92,6 +92,14 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     
+    % reference channel
+    alginfo.inputs(pid).name = 'ref_channel';
+    alginfo.inputs(pid).desc = 'Reference channel (''u'' or ''i'') used to find fundamental component (default: ''u'')';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
     
     % --- flags:
     % note: presence of these parameters signalizes caller capabilities of the algoirthm
