@@ -475,10 +475,15 @@ function dataout = alg_wrapper(datain, calcset)
     u_ph = (vcl{1}.u_ph.^2 + vcl{2}.u_ph.^2).^0.5;
     N = numel(Uh);
 
-    
-    % find dominant voltage component (assuming voltage harmonic is always there, current may not depending on the load):
-    [v,idu] = max(Uh(2:end));
-    idu = idu + 1;
+    % decide reference channel (default 'u')
+    ref_is_u = 1;
+    if isfield(datain,'ref_channel') && strcmpi(datain.ref_channel.v,'u')
+        ref_is_u = 1;
+    elseif isfield(datain,'ref_channel') && (strcmpi(datain.ref_channel.v,'i') || ~isreal(datain.ref_channel.v)) % #todo: remove workaround for bad identification of 'i' as complex number!
+        ref_is_u = 0;
+    elseif isfield(datain,'ref_channel')
+        error('Parameter ''ref_channel'' has invalid value! Only ''u'' or ''i'' are allowed.');
+    end
         
     % no peak harmonics defined yet:
     U_max = -1;
@@ -500,7 +505,7 @@ function dataout = alg_wrapper(datain, calcset)
     msk = [w_size:N-3];
     
     % identify harmonic/interharmonic components:
-    is_u = 1;
+    is_u = ref_is_u;
     h_list = [];
     for h = 1:h_max
         
@@ -515,8 +520,8 @@ function dataout = alg_wrapper(datain, calcset)
         % detect if we are done:
         if U_max >= 0 && (Uh(hid) < U_max*h_ratio && Ih(hid) < I_max*h_ratio)
             % we can stop search, no relevant harmonics there
-            if is_u
-                is_u = 0;
+            if ref_is_u == is_u
+                is_u = 1 - is_u; % switch search to second channel
             else
                 break
             end
@@ -687,7 +692,7 @@ function dataout = alg_wrapper(datain, calcset)
         % -- estimate SFDR uncertainty:
         
         % estimate uncertainty due to the spurs:
-        u_U_sfdr = ((sum(0.5*vcl{1}.spur.^2) + U_rms^2)^0.5 - U_rms)/3^0.5;    
+        u_U_sfdr = ((sum(0.5*vcl{1}.spur.^2) + U_rms^2)^0.5 - U_rms)/3^0.5;   
         u_I_sfdr = ((sum(0.5*vcl{2}.spur.^2) + I_rms^2)^0.5 - I_rms)/3^0.5;    
         u_P_sfdr = sum(0.5*vcl{1}.spur.*vcl{2}.spur)/3^0.5;
         
@@ -793,7 +798,7 @@ function dataout = alg_wrapper(datain, calcset)
         %         Verified by Monte Carlo simulation (by Stanislav Maslan)
         %   note: the factor 1.2 was found empirically from Monte Carlo of WRMS algorithm
         u_U_noise  = (NENBNW)^0.5*U_noise*(2/N)^0.5/1.2;
-        u_I_noise  = (NENBNW)^0.5*I_noise*(2/N)^0.5/1.2;       
+        u_I_noise  = (NENBNW)^0.5*I_noise*(2/N)^0.5/1.2;      
         u_P_noise = ((u_U_noise*I_rms)^2 + (u_I_noise*U_rms)^2)^0.5;
 
         
@@ -838,9 +843,9 @@ function dataout = alg_wrapper(datain, calcset)
         for h = 2:H
         
             if Ux(h) > spur_min_rat*Ux(1) || Ix(h) > spur_min_rat*Ix(1)            
-                
+
                 % relative spur position:
-                f_spur = (fx(h) - fx(1))/fft_step;
+                f_spur = abs(fx(h) - fx(1))/fft_step    
                 
                 % get U single-tone wrms uncertainty components:
                 [dPx,dUx,dIx] = wrms_unc_spur(lut_sp, Ux(1),Ix(1), f_spur,Ux(h),Ix(h), f0_per,fs_rat);

@@ -22,6 +22,7 @@
 %%                           1 - 0 - 2*pi [rad]
 %%                           2 - +-180 [deg]
 %%                           3 - 0-360 [deg]
+%%           cfg.amp_mode - scaling factor for amplitude quantities
 %%           cfg.phi_ref_chn - reference channel ID for phase difference calculation
 %%
 %%     plot_cfg - structure of plot setup:
@@ -50,6 +51,10 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
   if ~isfield(cfg,'phi_mode')
     % default phase display mode
     cfg.phi_mode = 0;
+  end
+  if ~isfield(cfg,'amp_mode')
+    % default amplitude scaling factor
+    cfg.amp_mode = 1.0;
   end
    
     
@@ -116,6 +121,12 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
           y_data = y_data/pi*180.0;  
         end
       end
+      
+      % phase display mode
+      % select amplitude display mode
+      if isfield(y_var,'is_amplitude') && y_var.is_amplitude
+        y_data = y_data*cfg.amp_mode;
+      end
             
       % store phase/channel label for legend
       leg_text{end + 1} = y_var.tag;
@@ -164,6 +175,12 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
         if cfg.phi_mode >= 2
           y_data = y_data/pi*180.0;  
         end
+      end
+      
+      % phase display mode
+      % select amplitude display mode
+      if isfield(y_var,'is_amplitude') && y_var.is_amplitude
+        y_data = y_data*cfg.amp_mode;
       end
       
       if y_var.is_graph
