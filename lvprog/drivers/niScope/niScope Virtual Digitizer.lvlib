@@ -8,11 +8,12 @@
 		<Item Name="test_niScope.vi" Type="VI" URL="../Example/test_niScope.vi"/>
 	</Item>
 	<Item Name="private" Type="Folder">
-		<Property Name="NI.LibItem.Scope" Type="Int">2</Property>
+		<Property Name="NI.LibItem.Scope" Type="Int">1</Property>
 		<Item Name="niScope Physical Cards.ctl" Type="VI" URL="../private/niScope Physical Cards.ctl"/>
 		<Item Name="niScope Abort Digitizing on Virtual Channels.vi" Type="VI" URL="../private/niScope Abort Digitizing on Virtual Channels.vi"/>
 		<Item Name="niScope Digitizing Process.vi" Type="VI" URL="../private/niScope Digitizing Process.vi"/>
 		<Item Name="niScope Get Physical Cards.vi" Type="VI" URL="../private/niScope Get Physical Cards.vi"/>
+		<Item Name="niScope Store Back Physical Card Sessions.vi" Type="VI" URL="../private/niScope Store Back Physical Card Sessions.vi"/>
 		<Item Name="niScope Get Virtual Channels Status.vi" Type="VI" URL="../private/niScope Get Virtual Channels Status.vi"/>
 		<Item Name="niScope Set External Clock.vi" Type="VI" URL="../private/niScope Set External Clock.vi"/>
 	</Item>

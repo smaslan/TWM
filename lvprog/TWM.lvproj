@@ -23,6 +23,7 @@
 				<Item Name="ADC Get Current Setup.vi" Type="VI" URL="../adc/Utilities/ADC Get Current Setup.vi"/>
 				<Item Name="ADC Selfcal Virtual Channels.vi" Type="VI" URL="../adc/Utilities/ADC Selfcal Virtual Channels.vi"/>
 				<Item Name="ADC Get Capabilities.vi" Type="VI" URL="../adc/Utilities/ADC Get Capabilities.vi"/>
+				<Item Name="ADC Get Valid Defaults.vi" Type="VI" URL="../adc/Utilities/ADC Get Valid Defaults.vi"/>
 				<Item Name="ADC Reset Idle Timer.vi" Type="VI" URL="../adc/ADC Reset Idle Timer.vi"/>
 				<Item Name="ADC Update and Check Idle Timer.vi" Type="VI" URL="../adc/ADC Update and Check Idle Timer.vi"/>
 				<Item Name="ADC GUI Disable types.vi" Type="VI" URL="../adc/Utilities/ADC GUI Disable types.vi"/>
@@ -162,7 +163,10 @@
 					<Item Name="GCOMM Close.vi" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Close.vi"/>
 					<Item Name="GCOMM Check Channels" Type="VI" URL="../drivers/Multiplexers/Generic COM/GCOMM Check Channels"/>
 				</Item>
-				<Item Name="Generic niScope PFI" Type="Folder"/>
+				<Item Name="Generic niScope PFI" Type="Folder">
+					<Item Name="niScope Mux Open.vi" Type="VI" URL="../drivers/Multiplexers/Generic niScope/niScope Mux Open.vi"/>
+					<Item Name="niScope Mux Set Path.vi" Type="VI" URL="../drivers/Multiplexers/Generic niScope/niScope Mux Set Path.vi"/>
+				</Item>
 			</Item>
 			<Item Name="niScope Virtual Digitizer.lvlib" Type="Library" URL="../drivers/niScope/niScope Virtual Digitizer.lvlib"/>
 			<Item Name="AWG.lvlib" Type="Library" URL="../drivers/AWG/AWG.lvlib"/>
@@ -837,6 +841,7 @@
 		<Item Name="config.ini" Type="Document" URL="../config.ini"/>
 		<Item Name="LICENSE.txt" Type="Document" URL="../../LICENSE.txt"/>
 		<Item Name="readme.txt" Type="Document" URL="../../readme.txt"/>
+		<Item Name="niScope test.vi" Type="VI" URL="../niScope test.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
