@@ -454,6 +454,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
         end
         
         % select multiplexing cycle:
+        %  ###note: combining ADC channels with multiplexer channel to get multiplexed channel id in the record
         tr_chn = tr_chn + (mpx_map(t) - 1)*mpx_cycles; 
                 
         % check valid range of the digitizer channels:
