@@ -1,0 +1,3 @@
+Low side impedance of dummy RVD;;;;
+f;Rp;Cp;u(Rp);u(Cp)
+;1;1e-15;0.0;0.0

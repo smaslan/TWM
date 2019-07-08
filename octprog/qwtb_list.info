@@ -20,6 +20,7 @@ type:: qwtb list
         TWM-WFFT
         TWM-InpZ
         TWM-VecRat
+        TWM-RATWFFT
 #endmatrix:: list of supported algorithms
 
 
@@ -48,6 +49,33 @@ type:: qwtb list
 //
 //                  example: f; si; 1e-6; 0.0001
 //
+
+#startsection:: TWM-RATWFFT
+        %       name;     fmt;abs;rel
+        #startmatrix:: number formats
+                f;        si; 1e-9; 1e-8
+                U;        si; 1e-9; 1e-7
+                I;        si; 1e-9; 1e-7
+                r;        f;  1e-9; 1e-8
+                dph;      f;  1e-9; 1e-7
+                spec_f;   si; 1e-9; 1e-7
+                spec_U;   si; 1e-9; 1e-7
+                spec_I;   si; 1e-9; 1e-7
+        #endmatrix:: number formats
+        #startmatrix:: is phase
+                dph
+        #endmatrix:: is phase
+        #startmatrix:: is amplitude
+                U;I;spec_U;spec_I
+        #endmatrix:: is amplitude
+        #startmatrix:: graphs
+		spec_f; spec_U
+		spec_f; spec_I
+        #endmatrix:: graphs
+        #startmatrix:: spectrum
+                spec_U;spec_I
+        #endmatrix:: spectrum
+#endsection:: TWM-RATWFFT
 
 #startsection:: TWM-InpZ
         %       name;     fmt;abs;rel

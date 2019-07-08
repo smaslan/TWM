@@ -8,7 +8,7 @@
 		<Item Name="test_niScope.vi" Type="VI" URL="../Example/test_niScope.vi"/>
 	</Item>
 	<Item Name="private" Type="Folder">
-		<Property Name="NI.LibItem.Scope" Type="Int">1</Property>
+		<Property Name="NI.LibItem.Scope" Type="Int">2</Property>
 		<Item Name="niScope Physical Cards.ctl" Type="VI" URL="../private/niScope Physical Cards.ctl"/>
 		<Item Name="niScope Abort Digitizing on Virtual Channels.vi" Type="VI" URL="../private/niScope Abort Digitizing on Virtual Channels.vi"/>
 		<Item Name="niScope Digitizing Process.vi" Type="VI" URL="../private/niScope Digitizing Process.vi"/>
