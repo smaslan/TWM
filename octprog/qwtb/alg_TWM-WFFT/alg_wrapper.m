@@ -333,7 +333,11 @@ function dataout = alg_wrapper(datain, calcset)
     rms = (A(1)^2 + sum(0.5*A(h_list).^2))^0.5;
       
     % expand noise to full bw:
-    Ax_noise = interp1(fh(Ax ~= 0),Ax(Ax ~= 0),fh,'nearest','extrap');
+    if numel(fh(Ax ~= 0)) > 1
+        Ax_noise = interp1(fh(Ax ~= 0),Ax(Ax ~= 0),fh,'nearest','extrap');
+    else
+        Ax_noise = 0;
+    end
     
     % RMS noise estimate:
     %  ###note: some safety multiplier added...
