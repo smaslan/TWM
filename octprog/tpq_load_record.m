@@ -101,7 +101,6 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
         % select last available group if not speficified explicitly
         group_id = data.groups_count;
     end
-    
     if group_id > data.groups_count
         error(sprintf('Measurement group #%d is out of range of available groups in the header!',group_id));
     end
@@ -109,16 +108,23 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     % fetch header section with desired group
     ginf = infogetsection(inf, sprintf('measurement group %d', group_id));
       
-    % get available averages count in the group
+    % get available records count in the group
     data.repetitions_count = infogetnumber(ginf, 'repetitions count');
     
+    % get sub-records count (averaging within main record)
+    try
+        data.subrec_count = infogetnumber(ginf, 'sub-records count');
+    catch
+        data.subrec_count = 1;
+    end
+        
     if repetition_id < 0
         % select last record in the average group
         repetition_id = data.repetitions_count;
     end
     
     if repetition_id > data.repetitions_count
-        error(sprintf('Average cycle #%d is out of range of available records in the header!',repetition_id));
+        error(sprintf('Desired record #%d is out of range of available records in the header!',repetition_id));
     end
     
     
@@ -143,10 +149,18 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     % was it time-multiplexing?
     try
+        % multiplexing is enabled:
         data.is_multiplex = infogetnumber(inf, 'multiplexer enabled');
+        % multiplexer sequence cycles count:
+        data.multiplex_cycles = infogetnumber(inf, 'multiplexer sequence cycles');        
     catch
+        % no multiplex:
         data.is_multiplex = 0;
+        % assume one multiplex cycle for nonmultiplex mode:
+        data.multiplex_cycles = 1;
     end
+    
+    
       
     
     % ====== GROUP SECTION ======
@@ -210,23 +224,25 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
         ids = [1:data.repetitions_count];
     end
     
+    % subrecords exist?
+    has_subrec = data.is_multiplex || data.subrec_count > 1;
     
-    if data.is_multiplex
-        % time multiplexing mode - load segmentation information:              
+    if has_subrec
+        % sub-records mode - load segmentation information:              
         
         % get offset of each cycle start in sample data
         %  rows: records, columns: mpx. cycles 
-        mpx_offsets = infogetmatrix(ginf, 'multiplexer cycle offsets');
+        subrec_offsets = infogetmatrix(ginf, 'sub-record sample offsets');
         
         % get relative time stamp of each cycle start in sample data
         %  rows: records, columns: mpx. cycles 
-        mpx_timestamps = infogetmatrix(ginf, 'multiplexer cycle relative timestamps [s]');
+        subrec_timestamps = infogetmatrix(ginf, 'sub-record relative timestamps [s]');
         
         % multiplexer cycles count
-        mpx_cycles = size(mpx_offsets,2);
+        subrec_cycles = size(subrec_offsets,2);
         
         % check we have enough data for all sequence cycles
-        if any((mpx_offsets(ids,end) + data.sample_count) > sample_counts(ids))
+        if any((subrec_offsets(ids,end) + data.sample_count) > sample_counts(ids))
             error('TWM data loader: Some of the records is shorter than it should be to contain all multiplexing cycles! Possibly problem of TWM tool when saving data. May be caused by insufficient memory of the digitizer.')
         end       
         
@@ -241,8 +257,8 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
         data.sample_count = sample_counts(ids(1));
         
         % one fake multiplexing cycle
-        mpx_cycles = 1;
-        mpx_timestamps = zeros(data.repetitions_count,1);
+        subrec_cycles = 1;
+        subrec_timestamps = zeros(data.repetitions_count,1);
         
     end
     
@@ -267,10 +283,12 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
      
      
     % allocate sample data array
-    data.y = zeros(data.sample_count, data.channels_count*mpx_cycles*numel(ids));
+    data.y = zeros(data.sample_count, data.channels_count*data.multiplex_cycles, data.subrec_count*numel(ids));
   
+
     % ====== FETCH SAMPLE DATA ======
-    % data column index
+
+    % --- for each record (repetition):
     dc = 1; 
     for r = 1:numel(ids)
     
@@ -310,31 +328,27 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
             y = bsxfun(@plus,y,sample_offsets(ids(r),:));
         
         else
-            
-            error(sprintf('TWM measurement session loader error: Unknown sample data format ''%s''!',data_format));
-            
+            error(sprintf('TWM measurement session loader error: Unknown sample data format ''%s''!',data_format));            
         end
         
-        if data.is_multiplex
-            % MULTIPLEXING MODE - reshape sample data:
-            %   order: [chn1-mpx1-rec1, chn2-mpx1-rec1, chn1-mpx2-rec1, chn2-mpx2-rec1, chn1-mpx1-rec2, chn2-mpx1-rec2, ...]                 
+        if has_subrec
+            % SUB-RECORDS MODE - reshape sample data and extract user segments (sample, channel, record):                           
             
-            for m = 1:mpx_cycles
-                
-                % store sample data into output array:
-                %  note: selecting the samples range as user requested
-                data.y(:,dc:(dc + data.channels_count - 1)) = y((data_ofs + mpx_offsets(ids(r),m)):(data_end + mpx_offsets(ids(r),m)),:);
-                dc = dc + data.channels_count;
-                
+            sr = 1;
+            for n = 1:data.subrec_count                
+                for m = 1:data.multiplex_cycles                    
+                    data.y(:, 1+(m-1)*data.channels_count:m*data.channels_count, dc) = y((data_ofs + subrec_offsets(ids(r),sr)):(data_end + subrec_offsets(ids(r),sr)), 1+(m-1)*data.channels_count:m*data.channels_count);
+                    sr = sr + 1;
+                end
+                dc = dc + 1;
             end
             
         else
-            % NORMAL MODE - just extract eventual user segment: 
+            % NORMAL MODE - just extract user defined segment: 
         
             % store sample data into output array:
             %  note: selecting the samples range as user requested
-            data.y(:,dc:(dc + data.channels_count - 1)) = y(data_ofs:data_end,:);
-            dc = dc + data.channels_count;
+            data.y(:,:,r) = y(data_ofs:data_end,:);
             
         end
     
@@ -344,17 +358,25 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     data.Ts = mean(time_incerements(ids));   
     
     % expand timestamps for the newly created channels for the multiplex mode:
-    relative_timestamps = repmat(relative_timestamps,[1 mpx_cycles]);   
-    relative_timestamps = bsxfun(@plus, relative_timestamps, kron(mpx_timestamps(ids,:),ones(1,data.channels_count)));
-    
-    % multiply number of channels by multiplexing cycles:
-    data.channels_count = data.channels_count*mpx_cycles;      
+    relative_timestamps = kron(relative_timestamps,ones([data.subrec_count data.multiplex_cycles]));    
+    subres_timestamps = reshape(kron(subrec_timestamps(ids,:),ones([1 data.channels_count])).',[data.channels_count*data.multiplex_cycles data.subrec_count*numel(ids)]).';    
+    relative_timestamps = bsxfun(@plus, relative_timestamps, subres_timestamps);
+            
+    % multiply number of channels by multiplexing cycles:        
+    data.channels_count = data.channels_count*data.multiplex_cycles;
             
     % fix relative timestamps by the first sample offset based on eventual user segmentation:
     data.timestamp = relative_timestamps + (data_ofs - 1)*data.Ts;
         
-    % return apertures as 1D matrix (repetition cycles, 1):
-    data.apertures = apertures(ids);
+    % return apertures as 1D matrix (records, 1):
+    data.apertures = kron(apertures(ids),ones([data.subrec_count 1]));
+    
+    % expand ranges by multiplexed channels:
+    data.ranges = kron(data.ranges, ones([1 data.multiplex_cycles]));
+    
+    % replicate source files for each sub-record:
+    data.record_filenames = repmat(data.record_filenames,[data.subrec_count 1]);
+    data.record_filenames = data.record_filenames(:);
     
       
     
@@ -454,8 +476,8 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
         end
         
         % select multiplexing cycle:
-        %  ###note: combining ADC channels with multiplexer channel to get multiplexed channel id in the record
-        tr_chn = tr_chn + (mpx_map(t) - 1)*mpx_cycles; 
+        %  ###note: combining ADC channels with multiplexer channel to get multiplexed channel id in the record matrix
+        tr_chn = tr_chn + (mpx_map(t) - 1)*data.multiplex_cycles; 
                 
         % check valid range of the digitizer channels:
         if any(tr_chn > data.channels_count) || any(tr_chn == 0)

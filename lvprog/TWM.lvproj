@@ -498,6 +498,7 @@
 			<Item Name="sequence" Type="Folder">
 				<Item Name="Meas Generate Sequence.vi" Type="VI" URL="../measure/sequence/Meas Generate Sequence.vi"/>
 				<Item Name="Meas Check Sequence Files.vi" Type="VI" URL="../measure/sequence/Meas Check Sequence Files.vi"/>
+				<Item Name="Meas Sequence Item.ctl" Type="VI" URL="../measure/Meas Sequence Item.ctl"/>
 			</Item>
 			<Item Name="files" Type="Folder">
 				<Item Name="Meas Samples Stream.ctl" Type="VI" URL="../measure/files/Meas Samples Stream.ctl"/>
@@ -616,7 +617,6 @@
 			<Item Name="Meas Sequence Configuration.ctl" Type="VI" URL="../measure/Meas Sequence Configuration.ctl"/>
 			<Item Name="Meas Session.ctl" Type="VI" URL="../measure/Meas Session.ctl"/>
 			<Item Name="Meas Sampling Configuration.ctl" Type="VI" URL="../measure/Meas Sampling Configuration.ctl"/>
-			<Item Name="Meas Sequence Item.ctl" Type="VI" URL="../measure/Meas Sequence Item.ctl"/>
 			<Item Name="Meas Sampling Rate Mode.ctl" Type="VI" URL="../measure/Meas Sampling Rate Mode.ctl"/>
 			<Item Name="Meas Range Mode.ctl" Type="VI" URL="../measure/Meas Range Mode.ctl"/>
 			<Item Name="Meas Config Panel.vi" Type="VI" URL="../measure/Meas Config Panel.vi"/>

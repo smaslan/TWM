@@ -52,13 +52,32 @@ if isfield(datain, 'fft_padding')
 end
 
 % Call algorithm ---------------------------  %<<<1
-[f, amp, ph, w] = ampphspectrum(datain.y.v, fs, 0, 0, win, winparam, padding);
 
-% Format output data:  --------------------------- %<<<1
-dataout.f.v = f(:)';
-dataout.A.v = amp(:)';
-dataout.ph.v = ph(:)';
-dataout.w.v = w(:)'; % window coeficients
+if size(datain.y.v,1) > 1 && size(datain.y.v,2) > 1
+    % multi records mode (y is matrix, one column per record)
+    
+    for r = 1:size(datain.y.v,2)
+        [f, amp(:,r), ph(:,r), w] = ampphspectrum(datain.y.v(:,r), fs, 0, 0, win, winparam, padding);
+    end
+    
+    % Format output data:  --------------------------- %<<<1
+    dataout.f.v = f(:);
+    dataout.A.v = amp;
+    dataout.ph.v = ph;
+    dataout.w.v = w(:); % window coeficients    
+
+else
+    % single record mode (y is vector)
+
+    [f, amp, ph, w] = ampphspectrum(datain.y.v, fs, 0, 0, win, winparam, padding);
+    
+    % Format output data:  --------------------------- %<<<1
+    dataout.f.v = f(:)';
+    dataout.A.v = amp(:)';
+    dataout.ph.v = ph(:)';
+    dataout.w.v = w(:)'; % window coeficients
+    
+end
 
 end % function
 

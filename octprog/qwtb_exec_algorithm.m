@@ -265,8 +265,12 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     end
     
     % load last measurement group
-    data = tpq_load_record(meas_file,group_id,avg_id,sdata_ofs,sdata_lim,struct('time_stamp_mode',ts_mode));
+    data = tpq_load_record(meas_file, group_id, avg_id, sdata_ofs,sdata_lim, struct('time_stamp_mode',ts_mode));
     
+    if proc_all && data.subrec_count
+        error('QWTB algorithm executer: Selected multiple records processing at once and also multiple sub-records available! That''s a bit too much... Select one or another.');
+    end
+        
     % get unique phase indexes from the channels list
     phases = unique(data.corr.phase_idx);
     
@@ -286,7 +290,8 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     % --- set some specific parameters to the input quantities (common for entire digitizer): 
     
     % store apertures (one for each repetition cycle):
-    inputs.adc_aper.v = data.apertures;
+    %  ###todo: aperture should be passed one by one for each sub-record 
+    inputs.adc_aper.v = mean(data.apertures);
     
     % store bit resolution:
     inputs.adc_bits.v = data.bitres;
@@ -299,21 +304,17 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     
     % load inter-channel time shifts: 
     its = data.corr.dig.time_shifts.its;
-    its = bsxfun(@minus,its,its(:,1)); % make it relative to 1. channel
+    its = bsxfun(@minus,its,its(:,1)); % make it relative to 1. channel      
     
     % combine the timestamp and time shift correction to get absolute record start shifts:
     tm_stamp   = bsxfun(@plus,tm_stamp,its);
     u_tm_stamp = repmat(data.corr.dig.time_shifts.u_its,[size(tm_stamp,1) 1]); % uncertainty   
     % ####todo: in future here should be override of time-shift calibration data by self-calibration
     
-    
-    
+      
     
     % --- prepare result files:
-    
-    % get file name of the record that is currently loaded (only fist one if multiple loaded)
-    result_name = data.record_filenames{1};
-    
+       
     % build result folder path
     result_folder = 'RESULTS';
       
@@ -322,347 +323,384 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         mkdir(meas_root, result_folder);
     end
     
-    % build result file path base (no extension)
-    result_rel_path = [result_folder filesep() alg_id '-' result_name];
-    result_path = [meas_root result_rel_path];
-    
-    % try to remove eventual existing results
-    if exist([result_path '.mat'],'file') delete([result_path '.mat']); end
-    if exist([result_path '.info'],'file') delete([result_path '.info']); end
-      
-    % insert copy of QWTB parameters to the result
-    rinf = qinf_txt;
-    
     
     % --- execute algorithms:
+    
+    % sub-record offsets in wave data:
+    subrec_list = [1:size(data.y,3)];
+    
+    % decide 
+    if has_multi
+        % do all sub-records at once
+        subrec_list_count = 1;
+    else
+        % do sub-records one by one
+        subrec_list_count = numel(subrec_list);        
+    end
   
-    if ~is_single_inp
-        % dual input channel algorithm: we must have always paired 'u' and 'i' for each phase
+    % -- for each sub-record:
+    for s = 1:subrec_list_count
+    
+        % get file name of the record that is currently loaded (only fist one if multiple loaded)
+        result_name = data.record_filenames{1};         
+    
+        % select sub-record(s) to process:
+        if subrec_list_count > 1 
+            % process sub-records one by one:
+            subrec_ids = subrec_list(s);
+            
+            % add sub-record tag
+            result_name_sub = sprintf('%s-S%03d',result_name,s);
+            
+        else            
+            % process all sub-records at once:
+            subrec_ids = subrec_list;
+            result_name_sub = result_name;
+                        
+        end
         
-        % store list of phases to the results file ('L1','L2',...)
-        list = {};
-        for p = 1:numel(phases)
-            list{p} = sprintf('L%d',phases(p));
-        end     
-        rinf = infosettextmatrix(rinf, 'list', list);    
-        infosave(rinf, result_path);
+        % build result file path base (no extension)
+        result_rel_path = [result_folder filesep() alg_id '-' result_name_sub];
+        result_path = [meas_root result_rel_path];
+        result_path_rem = [result_folder filesep() alg_id '-' result_name];
         
-        tags = {};
+        % try to remove eventual existing results
+        if exist([result_path_rem '.mat'],'file') delete([result_path_rem '.mat']); end
+        if exist([result_path_rem '.info'],'file') delete([result_path_rem '.info']); end
+        if exist([result_path '.mat'],'file') delete([result_path '.mat']); end
+        if exist([result_path '.info'],'file') delete([result_path '.info']); end
+          
+        % insert copy of QWTB parameters to the result
+        rinf = qinf_txt;
         
-        % --- for each unique phase:
-        for p = 1:numel(phases)
+        
+  
+        if ~is_single_inp
+            % dual input channel algorithm: we must have always paired 'u' and 'i' for each phase
             
-            % phase index:
-            pid = phases(p);
+            % store list of phases to the results file ('L1','L2',...)
+            list = {};
+            for p = 1:numel(phases)
+                list{p} = sprintf('L%d',phases(p));
+            end     
+            rinf = infosettextmatrix(rinf, 'list', list);    
+            infosave(rinf, result_path);
             
-            % copy user parameters to the QWTB inputs
-            di = inputs;
+            tags = {};
             
-            % phase-channel names:
-            pchn_list = {'u','i'};
-            
-            % for each phase channel (u/i):
-            for k = 1:numel(pchn_list)
-            
-                % phase channel name:
-                pchn_pfx = pchn_list{k};
+            % --- for each unique phase:
+            for p = 1:numel(phases)
                 
-                % try to find associated transducer:
-                is_shunt = []; % crippled for Matlab < 2016b
-                for t = 1:numel(data.corr.tran)
-                    is_shunt(t,1) = strcmpi(data.corr.tran{t}.type,'shunt');
-                end
-                cid = find(data.corr.phase_idx(:) == pid & ~xor(is_shunt,strcmpi(pchn_pfx,'i')));
+                % phase index:
+                pid = phases(p);
                 
-                % check validity:
-                if isempty(cid)
-                    error(sprintf('QWTB algorithm executer: Missing ''%s'' channel of phase #%d!',pchn_pfx,phases(p)));
-                elseif numel(cid) > 1
-                    error(sprintf('QWTB algorithm executer: Multiple transducers found for ''%s'' channel of phase #%d!',pchn_pfx,phases(p)));
-                end
-                % ok, we have found transducer...
+                % copy user parameters to the QWTB inputs
+                di = inputs;
                 
-                % add phase-channel name to list:
-                tags{end+1} = [pchn_pfx int2str(cid)];
+                % phase-channel names:
+                pchn_list = {'u','i'};
                 
-                % transducer:
-                tran = data.corr.tran{cid};
+                % for each phase channel (u/i):
+                for k = 1:numel(pchn_list)
                 
-                % store transducer type:
-                if strcmpi(tran.type,'divider')
-                    tran_type_str = 'rvd';
-                else
-                    tran_type_str = 'shunt';
-                end
-                di = setfield(di,[pchn_pfx '_tr_type'],struct('v',tran_type_str));
-                
-                if pchn_pfx == 'u'
-                    % -- voltage channel:
-                    % store measurement time-stamps (one per record, but only for first phase-channel):
-                    di.time_stamp.v =   tm_stamp(:,tran.channels(1));
-                    di.time_stamp.u = u_tm_stamp(:,tran.channels(1));
+                    % phase channel name:
+                    pchn_pfx = pchn_list{k};
                     
-                    % remember voltage transducer digitizer main channel (or high-side channel):
-                    u_tran_id = tran.channels(1);
+                    % try to find associated transducer:
+                    is_shunt = []; % crippled for Matlab < 2016b
+                    for t = 1:numel(data.corr.tran)
+                        is_shunt(t,1) = strcmpi(data.corr.tran{t}.type,'shunt');
+                    end
+                    cid = find(data.corr.phase_idx(:) == pid & ~xor(is_shunt,strcmpi(pchn_pfx,'i')));
                     
-                else
-                    % -- current channel:                    
-                    i_tran_id = tran.channels(1);
+                    % check validity:
+                    if isempty(cid)
+                        error(sprintf('QWTB algorithm executer: Missing ''%s'' channel of phase #%d!',pchn_pfx,phases(p)));
+                    elseif numel(cid) > 1
+                        error(sprintf('QWTB algorithm executer: Multiple transducers found for ''%s'' channel of phase #%d!',pchn_pfx,phases(p)));
+                    end
+                    % ok, we have found transducer...
                     
-                    % store u/i channel timeshift:
-                    di.time_shift.v =  diff(tm_stamp(:,[i_tran_id u_tran_id]),[],2);
-                    di.time_shift.u = sum(u_tm_stamp(:,[i_tran_id u_tran_id]).^2,2).^0.5; % uncertainty
+                    % add phase-channel name to list:
+                    tags{end+1} = [pchn_pfx int2str(cid)];
                     
+                    % transducer:
+                    tran = data.corr.tran{cid};
+                    
+                    % store transducer type:
+                    if strcmpi(tran.type,'divider')
+                        tran_type_str = 'rvd';
+                    else
+                        tran_type_str = 'shunt';
+                    end
+                    di = setfield(di,[pchn_pfx '_tr_type'],struct('v',tran_type_str));
+                    
+                    if pchn_pfx == 'u'
+                        % -- voltage channel:
+                        % store measurement time-stamps (one per record, but only for first phase-channel):
+                        di.time_stamp.v =   tm_stamp(subrec_ids, tran.channels(1));
+                        di.time_stamp.u = u_tm_stamp(subrec_ids, tran.channels(1));
+                        
+                        % remember voltage transducer digitizer main channel (or high-side channel):
+                        u_tran_id = tran.channels(1);
+                        
+                    else
+                        % -- current channel:                    
+                        i_tran_id = tran.channels(1);
+                        
+                        % store u/i channel timeshift:
+                        di.time_shift.v =  diff(tm_stamp(subrec_ids, [i_tran_id u_tran_id]),[],2);
+                        di.time_shift.u = sum(u_tm_stamp(subrec_ids, [i_tran_id u_tran_id]).^2,2).^0.5; % uncertainty
+                        
+                    end
+                    
+                    % for differential mode store low-side channel timeshift:
+                    if tran.is_diff
+                        ts.v =  diff(tm_stamp(subrec_ids, tran.channels),[],2);
+                        ts.u = sum(u_tm_stamp(subrec_ids, tran.channels).^2,2).^0.5; % uncertainty
+                        di = setfield(di, [pchn_pfx '_time_shift_lo'], ts);
+                    end
+                    
+                    
+                    % generate assigned channel prefixes:
+                    if tran.is_diff
+                        % differential connection:
+                        dig_pfx = {pchn_pfx;[pchn_pfx '_lo']};            
+                    else
+                        % single-ended connection:
+                        dig_pfx = {pchn_pfx};            
+                    end 
+                                 
+                    % for each digitizer channel assigned to the transducer:
+                    for c = 1:numel(tran.channels)
+                    
+                        % channel name:
+                        pfx = dig_pfx{c};
+                        
+                        % store range value:
+                        di = setfield(di, [pfx '_adc_nrng'], struct('v',data.ranges(c)));                
+                    
+                        % store waveform data:
+                        % note stores all available repetitions, one column per repetition:
+                        di = setfield(di, pfx, struct('v',reshape(data.y(:, tran.channels(c), subrec_ids), [size(data.y,1) numel(subrec_ids)])));
+                        
+                        % store channel corrections:
+                        di = qwtb_alg_insert_corrs(di, data.corr.dig.chn{tran.channels(c)}, pfx);
+                    
+                    end
+                    
+                    % store transducer corrections:
+                    di = qwtb_alg_insert_corrs(di,tran,pchn_pfx);
+                
                 end
                 
-                % for differential mode store low-side channel timeshift:
-                if tran.is_diff
-                    ts.v =  diff(tm_stamp(:,tran.channels),[],2);
-                    ts.u = sum(u_tm_stamp(:,tran.channels).^2,2).^0.5; % uncertainty
-                    di = setfield(di, [pchn_pfx '_time_shift_lo'], ts);
+                % store global digitizer corrections:
+                di = qwtb_alg_insert_corrs(di,data.corr.dig,'');
+                
+                %fieldnames(di)
+                
+                if ~strcmpi(calcset.unc,'none')
+                    % generates fake uncertainty vectors complementary to the data:
+                    di = qwtb_add_unc(di,alginfo.inputs); % ###TODO: remove when QWTB can ignore missing uncertainty
+                end            
+                           
+                % execute algorithm
+                dout = qwtb(alg_id,di,calcset);
+                
+                % discard uncertainties if unc. disabled:
+                if strcmpi(unc_mode,'none')
+                    dout = qwtb_rem_unc(dout);    
                 end
                 
+                % store current channel phase setup info (index; U, I tag)
+                phase_info.index = data.corr.phase_idx(p);
+                phase_info.tags = tags;
+                phase_info.section = list{p};
                 
+                % store results to the result file
+                qwtb_store_results(result_path, dout, alginfo, phase_info);
+              
+            end % for each phase
+              
+        else  
+            % --- SINGLE INPUT ALGORITHM ---
+            
+            % store list of channels to results file         
+            rinf = infosettextmatrix(rinf, 'list', channels);
+            infosave(rinf, result_path);
+            
+            % --- for each available transducer:
+            for p = 1:numel(data.corr.tran)
+            
+                % get transducer:
+                tran = data.corr.tran{p};
+                        
                 % generate assigned channel prefixes:
                 if tran.is_diff
                     % differential connection:
-                    dig_pfx = {pchn_pfx;[pchn_pfx '_lo']};            
+                    dig_pfx = {'';'lo'};            
                 else
                     % single-ended connection:
-                    dig_pfx = {pchn_pfx};            
-                end 
-                             
+                    dig_pfx = {''};            
+                end         
+            
+                % copy user parameters to the QWTB input quantities:
+                di = inputs;
+                
+                % store transducer type:
+                if strcmpi(tran.type,'divider')
+                    di.tr_type.v = 'rvd';
+                else
+                    di.tr_type.v = 'shunt';
+                end
+                           
+                % store measurement time-stamps (one per record):
+                di.time_stamp.v =   tm_stamp(subrec_ids, tran.channels(1));
+                di.time_stamp.u = u_tm_stamp(subrec_ids, tran.channels(1));
+                
+                % for differential mode store low-side channel timeshift:
+                if tran.is_diff
+                    di.time_shift_lo.v =  diff(tm_stamp(subrec_ids, tran.channels),[],2);
+                    di.time_shift_lo.u = sum(u_tm_stamp(subrec_ids, tran.channels).^2,2).^0.5; % uncertainty
+                    % ###note: summing high+low side unc. which is maybe not correct?
+                end
+              
+                
                 % for each digitizer channel assigned to the transducer:
                 for c = 1:numel(tran.channels)
                 
-                    % channel name:
+                    % waveform data quantity name:
                     pfx = dig_pfx{c};
+                    d_pfx = 'y';
+                    if ~isempty(pfx)                    
+                        d_pfx = [d_pfx '_' pfx];
+                        pfx = [pfx '_'];                
+                    end
                     
                     % store range value:
-                    di = setfield(di, [pfx '_adc_nrng'], struct('v',data.ranges(c)));                
-                
+                    di = setfield(di,[pfx 'adc_nrng'],struct('v',data.ranges(c)));                
+                   
                     % store waveform data:
                     % note stores all available repetitions, one column per repetition:
-                    di = setfield(di, pfx, struct('v', data.y(:, tran.channels(c):data.channels_count:end)));
+                    di = setfield(di, d_pfx, struct('v', reshape(data.y(:, tran.channels(c), subrec_ids), [size(data.y,1) numel(subrec_ids)])));               
                     
                     % store channel corrections:
-                    di = qwtb_alg_insert_corrs(di, data.corr.dig.chn{tran.channels(c)}, pfx);
+                    di = qwtb_alg_insert_corrs(di, data.corr.dig.chn{tran.channels(c)}, dig_pfx{c});
                 
                 end
                 
                 % store transducer corrections:
-                di = qwtb_alg_insert_corrs(di,tran,pchn_pfx);
-            
-            end
-            
-            % store global digitizer corrections:
-            di = qwtb_alg_insert_corrs(di,data.corr.dig,'');
-            
-            %fieldnames(di)
-            
-            if ~strcmpi(calcset.unc,'none')
-                % generates fake uncertainty vectors complementary to the data:
-                di = qwtb_add_unc(di,alginfo.inputs); % ###TODO: remove when QWTB can ignore missing uncertainty
-            end            
-                       
-            % execute algorithm
-            dout = qwtb(alg_id,di,calcset);
-            
-            % discard uncertainties if unc. disabled:
-            if strcmpi(unc_mode,'none')
-                dout = qwtb_rem_unc(dout);    
-            end
-            
-            % store current channel phase setup info (index; U, I tag)
-            phase_info.index = data.corr.phase_idx(p);
-            phase_info.tags = tags;
-            phase_info.section = list{p};
-            
-            % store results to the result file
-            qwtb_store_results(result_path, dout, alginfo, phase_info);
-          
-        end
-          
-    else  
-        % --- SINGLE INPUT ALGORITHM ---
-        
-        % store list of channels to results file         
-        rinf = infosettextmatrix(rinf, 'list', channels);
-        infosave(rinf, result_path);
-        
-        % --- for each available transducer:
-        for p = 1:numel(data.corr.tran)
-        
-            % get transducer:
-            tran = data.corr.tran{p};
-                    
-            % generate assigned channel prefixes:
-            if tran.is_diff
-                % differential connection:
-                dig_pfx = {'';'lo'};            
-            else
-                % single-ended connection:
-                dig_pfx = {''};            
-            end         
-        
-            % copy user parameters to the QWTB input quantities:
-            di = inputs;
-            
-            % store transducer type:
-            if strcmpi(tran.type,'divider')
-                di.tr_type.v = 'rvd';
-            else
-                di.tr_type.v = 'shunt';
-            end
-                       
-            % store measurement time-stamps (one per record):
-            di.time_stamp.v =   tm_stamp(:,tran.channels(1));
-            di.time_stamp.u = u_tm_stamp(:,tran.channels(1));
-            
-            %###TODO: add interchannel timeshifts like for u/i input algorithms!
-            % note: already is working, I think..
-            
-            % for differential mode store low-side channel timeshift:
-            if tran.is_diff
-                di.time_shift_lo.v =  diff(tm_stamp(:,tran.channels),[],2);
-                di.time_shift_lo.u = sum(u_tm_stamp(:,tran.channels).^2,2).^0.5; % uncertainty
-                % ###note: summing high+low side unc. which is maybe not correct?
-            end
-          
-            
-            % for each digitizer channel assigned to the transducer:
-            for c = 1:numel(tran.channels)
-            
-                % waveform data quantity name:
-                pfx = dig_pfx{c};
-                d_pfx = 'y';
-                if ~isempty(pfx)                    
-                    d_pfx = [d_pfx '_' pfx];
-                    pfx = [pfx '_'];                
+                di = qwtb_alg_insert_corrs(di,tran,'');
+                
+                % store global digitizer corrections:
+                di = qwtb_alg_insert_corrs(di,data.corr.dig,'');     
+                
+                if ~strcmpi(calcset.unc,'none')
+                    % generates fake uncertainty vectors complementary to the data:
+                    di = qwtb_add_unc(di,alginfo.inputs); % ###TODO: remove when QWTB can ignore missing uncertainty
                 end
                 
-                % store range value:
-                di = setfield(di,[pfx 'adc_nrng'],struct('v',data.ranges(c)));                
-            
-                % store waveform data:
-                % note stores all available repetitions, one column per repetition:
-                di = setfield(di, d_pfx, struct('v', data.y(:, tran.channels(c):data.channels_count:end)));
+                % execute algorithm
+                dout = qwtb(alg_id,di,calcset);
                 
-                % store channel corrections:
-                di = qwtb_alg_insert_corrs(di,data.corr.dig.chn{tran.channels(c)},dig_pfx{c});
+                % discard uncertainties if unc. disabled:
+                if strcmpi(unc_mode,'none')
+                    dout = qwtb_rem_unc(dout);    
+                end
+                
+                % store current channel phase setup info (index; U, I tag)
+                phase_info.index = data.corr.phase_idx(p);
+                phase_info.tags = channels(p);
+                phase_info.section = channels{p};
+                
+                % store results to the result file
+                qwtb_store_results(result_path, dout, alginfo, phase_info);
             
-            end
-            
-            % store transducer corrections:
-            di = qwtb_alg_insert_corrs(di,tran,'');
-            
-            % store global digitizer corrections:
-            di = qwtb_alg_insert_corrs(di,data.corr.dig,'');
-            
-            %fieldnames(di)         
-            
-            if ~strcmpi(calcset.unc,'none')
-                % generates fake uncertainty vectors complementary to the data:
-                di = qwtb_add_unc(di,alginfo.inputs); % ###TODO: remove when QWTB can ignore missing uncertainty
-            end
-            
-            % execute algorithm
-            dout = qwtb(alg_id,di,calcset);
-            
-            % discard uncertainties if unc. disabled:
-            if strcmpi(unc_mode,'none')
-                dout = qwtb_rem_unc(dout);    
-            end
-            
-            % store current channel phase setup info (index; U, I tag)
-            phase_info.index = data.corr.phase_idx(p);
-            phase_info.tags = channels(p);
-            phase_info.section = channels{p};
-            
-            % store results to the result file
-            qwtb_store_results(result_path, dout, alginfo, phase_info);
+            end % for each phase (transducer)
+          
+        end % if ~is_single_inp (algorithms inputs mode)
         
+        
+        
+        % --- build results list
+    
+        % full file path to the results header
+        results_header = [meas_root 'results.info'];
+        
+        rinf = '';
+        try 
+            % try to load the results header
+            rinf = infoload(results_header);
+            
+            % try to get algorithms list
+            algs = infogettextmatrix(rinf, 'algorithms');
+          
+        catch
+            % no algorithms yet
+            algs = {};
+          
         end
       
-    end
-  
-  
-    % --- build results header
-    
-    % full file path to the results header
-    results_header = [meas_root 'results.info'];
-    
-    rinf = '';
-    try 
-        % try to load the results header
-        rinf = infoload(results_header);
+        % load lists of available results for each algorithm
+        algs_hist = {};
+        for a = 1:numel(algs)
+            algs_hist{a,1} = infogettextmatrix(rinf, algs{a});   
+        end
         
-        % try to get algorithms list
-        algs = infogettextmatrix(rinf, 'algorithms');
-      
-    catch
-        % no algorithms yet
-        algs = {};
-      
-    end
-  
-    % load lists of available results for each algorithm
-    algs_hist = {};
-    for a = 1:numel(algs)
-        algs_hist{a,1} = infogettextmatrix(rinf, algs{a});   
-    end
+        % check if this algorithm is already listed?
+        aid = strcmpi(algs, alg_id);
+        if any(aid)
+            % yaha - find its index in the list    
+            aid = find(aid, 1);
+        else
+            % nope - add new into the list
+            algs{end+1,1} = alg_id;
+            algs_hist{end+1,1} = {};
+            aid = numel(algs);      
+        end
+        
+        % get list of results for this algorithm 
+        alg_res_list = algs_hist{aid};
+        
+        % try to find if there is already this result (previous call of the QWTB with the same algorithm)
+        rid = strcmpi(alg_res_list, result_rel_path);
+        if any(rid)
+            % found - overwrite
+            rid = find(rid,1);
+            alg_res_list{rid,1} = result_rel_path;
+        else
+            % not found - add
+            alg_res_list{end+1,1} = result_rel_path;
+            rid = numel(alg_res_list);
+        end
+        
+        % sort results
+        alg_res_list = sort(alg_res_list);  
+        rid = find(strcmpi(alg_res_list,result_rel_path),1);
+        
+        % store back the results list for this algorithm
+        algs_hist{aid} = alg_res_list;
+          
+        
+        rinf = '';
+        
+        % store last calculated algorithm id
+        rinf = infosettext(rinf, 'last algorithm', alg_id);
+        rinf = infosetnumber(rinf, 'last result id', rid);
+        
+        % store updated list of algorithms
+        rinf = infosettextmatrix(rinf, 'algorithms', algs);
+          
+        % store lists of results for each algorithm
+        for a = 1:numel(algs)
+            rinf = infosettextmatrix(rinf, algs{a}, algs_hist{a});    
+        end
+        
+        % write updated results header back to the file 
+        infosave(rinf, results_header, 1, 1);
+        
     
-    % check if this algorithm is already listed?
-    aid = strcmpi(algs, alg_id);
-    if any(aid)
-        % yaha - find its index in the list    
-        aid = find(aid, 1);
-    else
-        % nope - add new into the list
-        algs{end+1,1} = alg_id;
-        algs_hist{end+1,1} = {};
-        aid = numel(algs);      
-    end
-    
-    % get list of results for this algorithm 
-    alg_res_list = algs_hist{aid};
-    
-    % try to find if there is already this result (previous call of the QWTB with the same algorithm)
-    rid = strcmpi(alg_res_list, result_rel_path);
-    if any(rid)
-        % found - overwrite
-        rid = find(rid,1);
-        alg_res_list{rid,1} = result_rel_path;
-    else
-        % not found - add
-        alg_res_list{end+1,1} = result_rel_path;
-        rid = numel(alg_res_list);
-    end
-    
-    % sort results
-    alg_res_list = sort(alg_res_list);  
-    rid = find(strcmpi(alg_res_list,result_rel_path),1);
-    
-    % store back the results list for this algorithm
-    algs_hist{aid} = alg_res_list;
-      
-    
-    rinf = '';
-    
-    % store last calculated algorithm id
-    rinf = infosettext(rinf, 'last algorithm', alg_id);
-    rinf = infosetnumber(rinf, 'last result id', rid);
-    
-    % store updated list of algorithms
-    rinf = infosettextmatrix(rinf, 'algorithms', algs);
-      
-    % store lists of results for each algorithm
-    for a = 1:numel(algs)
-        rinf = infosettextmatrix(rinf, algs{a}, algs_hist{a});    
-    end
-    
-    % write updated results header back to the file 
-    infosave(rinf, results_header, 1, 1);  
+    end % sub-records loop
   
 end
 

@@ -26,21 +26,23 @@ function dataout = alg_wrapper(datain, calcset)
 %         % Input data 'y' is differential: if it is not allowed, put error message here
 %         error('Differential input data ''y'' not allowed!');     
 %     end
-    
-    if cfg.is_multi
-        % Input data 'y' contains more than one record: if it is not allowed, put error message here
-        error('Multiple input records in ''y'' not allowed!'); 
-    end
+%     
+%     if cfg.is_multi
+%         % Input data 'y' contains more than one record: if it is not allowed, put error message here
+%         error('Multiple input records in ''y'' not allowed!'); 
+%     end
     
     
     % Rebuild TWM style correction tables:
     % This is not necessary, but the TWM style tables are more comfortable to use then raw correction matrices
     tab = qwtb_restore_correction_tables(datain,cfg);
-    
-    
+        
     % ------------------------------------------------------------------------------------------     
     % algorithm start
     % ------------------------------------------------------------------------------------------
+    
+    % multiple records data?
+    is_multi = sum(size(datain.y.v)>1) > 1;
     
     if ~isfield(datain,'f_nom')
         % -- we aint got no nominal frequency, so try to search it by PSFE:
@@ -52,7 +54,12 @@ function dataout = alg_wrapper(datain, calcset)
         cset.verbose = 0;
         cset.unc = 'none';
         cset.checkinputs = 0;  
-        din.y.v = datain.y.v;                
+        if is_multi
+            % select one of the input records only:
+            din.y.v = datain.y.v(:,1);
+        else
+            din.y.v = datain.y.v;
+        end                
         dout = qwtb('PSFE',din,cset);
         datain.f_nom.v = dout.f.v;
         
@@ -90,8 +97,12 @@ function dataout = alg_wrapper(datain, calcset)
     din.y.v = datain.y.v;                
     dout = qwtb('SP-WFFT',din,cset);
     fh    = dout.f.v(:); % freq. vector of the DFT bins
-    A     = dout.A.v(:); % amplitude vector of the DFT bins
-    ph    = dout.ph.v(:); % phase vector of the DFT bins
+    A     = dout.A.v; % amplitude vector of the DFT bins
+    ph    = dout.ph.v; % phase vector of the DFT bins
+    if ~is_multi   
+        A     = A(:); % amplitude vector of the DFT bins
+        ph    = ph(:); % phase vector of the DFT bins
+    end
     w     = dout.w.v; % window coefficients
     
     % Normalized Equivalent Noise BaNdWidth (Rado's book "Sampling with 3458A", page 196, formula 4.36):
@@ -116,11 +127,19 @@ function dataout = alg_wrapper(datain, calcset)
     % ###note: do not change, this works best for frequency characteristics
     i_mode = 'pchip';
     
+    % compensate phase by timestamp:
+    ph   = ph - fh*datain.time_stamp.v*2*pi; % ph   = ph - fh.*datain.time_stamp.v*2*pi;
+    u_ph = fh.*mean(datain.time_stamp.u)*2*pi;
+    
+    % average records:
+    A  = mean(A,2);
+    ph = mean(ph,2);
+        
     % fix ADC offset:
     A(1)   = A(1) - datain.adc_offset.v; % remove DC offset from spectrum
     u_A    = 0*A;
     u_A(1) = datain.adc_offset.u;
-        
+            
     % get gain/phase correction for the freq. components (high-side ADC):
     ag = correction_interp_table(tab.adc_gain, abs(A), fh, 'f',1, i_mode);
     ap = correction_interp_table(tab.adc_phi,  abs(A), fh, 'f',1, i_mode);
@@ -144,10 +163,7 @@ function dataout = alg_wrapper(datain, calcset)
     u_A = (u_A.^2 + (A.*ag.u_gain).^2).^0.5;
     ph   = ph + ap.phi;
     u_ph = ap.u_phi;
-
-    % compensate phase by timestamp:
-    ph   = ph - fh.*datain.time_stamp.v*2*pi;
-    u_ph = (u_ph.^2 + (fh.*datain.time_stamp.u*2*pi).^2).^0.5;
+        
     
     % store temporary high-side:
     A_hi = A;
@@ -169,14 +185,25 @@ function dataout = alg_wrapper(datain, calcset)
         % get low-side spectrum
         din.y.v = datain.y_lo.v;                
         dout = qwtb('SP-WFFT',din,cset);
-        A_lo  = dout.A.v(:); % amplitude vector of the DFT bins
-        ph_lo = dout.ph.v(:); % phase vector of the DFT bin
+        A_lo  = dout.A.v; % amplitude vector of the DFT bins
+        ph_lo = dout.ph.v; % phase vector of the DFT bin
+        if ~is_multi   
+            A_lo  = A_lo(:); % amplitude vector of the DFT bins
+            ph_lo = ph_lo(:); % phase vector of the DFT bins
+        end
+        
+        % compensate phase by timestamp:
+        ph_lo = ph_lo - fh*(datain.time_stamp.v + datain.time_shift_lo.v)*2*pi;        
+        u_ph_lo = ((fh.*mean(datain.time_stamp.u)*2*pi).^2 + (fh.*mean(datain.time_shift_lo.u)*2*pi).^2).^0.5;
+        
+        % average records:
+        A_lo  = mean(A_lo,2);
+        ph_lo = mean(ph_lo,2);
     
         % fix ADC offset:
         A_lo(1)   = A_lo(1) - datain.lo_adc_offset.v; % remove DC offset from working spectrum
         u_A_lo    = 0*A_lo;
         u_A_lo(1) = datain.lo_adc_offset.u;
-        
             
         % get gain/phase correction for the freq. components (low-side ADC):
         ag = correction_interp_table(tab.lo_adc_gain, abs(A_lo), fh, 'f',1, i_mode);
@@ -200,11 +227,7 @@ function dataout = alg_wrapper(datain, calcset)
         A_lo   = A_lo.*ag.gain;
         u_A_lo = (u_A_lo.^2 + (A_lo.*ag.u_gain).^2).^0.5;
         ph_lo   = ph_lo + ap.phi;
-        u_ph_lo = ap.u_phi;
-    
-        % compensate phase by timestamp:
-        ph_lo = ph_lo - fh.*(datain.time_stamp.v + datain.time_shift_lo.v)*2*pi;
-        u_ph_lo = (u_ph_lo.^2 + (fh.*datain.time_stamp.u*2*pi).^2 + (fh.*datain.time_shift_lo.u*2*pi).^2).^0.5;
+        u_ph_lo = ap.u_phi;                
         
         % add quantisation noise estimate:
         %   note: from Rado's book "Sampling with 3458A", page 208, formula 4.68):
