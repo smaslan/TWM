@@ -284,7 +284,6 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
      
     % allocate sample data array
     data.y = zeros(data.sample_count, data.channels_count*data.multiplex_cycles, data.subrec_count*numel(ids));
-  
 
     % ====== FETCH SAMPLE DATA ======
 
@@ -332,12 +331,12 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
         end
         
         if has_subrec
-            % SUB-RECORDS MODE - reshape sample data and extract user segments (sample, channel, record):                           
+            % SUB-RECORDS MODE - reshape sample data and extract user segments (sample, channel, record):                         
             
             sr = 1;
             for n = 1:data.subrec_count                
                 for m = 1:data.multiplex_cycles                    
-                    data.y(:, 1+(m-1)*data.channels_count:m*data.channels_count, dc) = y((data_ofs + subrec_offsets(ids(r),sr)):(data_end + subrec_offsets(ids(r),sr)), 1+(m-1)*data.channels_count:m*data.channels_count);
+                    data.y(:, 1+(m-1)*data.channels_count:m*data.channels_count, dc) = y((data_ofs + subrec_offsets(ids(r),sr)):(data_end + subrec_offsets(ids(r),sr)),:);
                     sr = sr + 1;
                 end
                 dc = dc + 1;
@@ -363,7 +362,8 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     relative_timestamps = bsxfun(@plus, relative_timestamps, subres_timestamps);
             
     % multiply number of channels by multiplexing cycles:        
-    data.channels_count = data.channels_count*data.multiplex_cycles;
+    data.adc_channels_count = data.channels_count;
+    data.channels_count = data.channels_count*data.multiplex_cycles;    
             
     % fix relative timestamps by the first sample offset based on eventual user segmentation:
     data.timestamp = relative_timestamps + (data_ofs - 1)*data.Ts;
@@ -477,7 +477,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
         
         % select multiplexing cycle:
         %  ###note: combining ADC channels with multiplexer channel to get multiplexed channel id in the record matrix
-        tr_chn = tr_chn + (mpx_map(t) - 1)*data.multiplex_cycles; 
+        tr_chn = tr_chn + (mpx_map(t) - 1)*data.adc_channels_count;
                 
         % check valid range of the digitizer channels:
         if any(tr_chn > data.channels_count) || any(tr_chn == 0)

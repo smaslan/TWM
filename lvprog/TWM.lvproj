@@ -752,6 +752,9 @@
 						<Item Name="dummy.info" Type="Document" URL="../../data/corrections/transducers/dummy.cs/dummy.info"/>
 					</Item>
 					<Item Name="dummy.vd" Type="Folder">
+						<Item Name="csv" Type="Folder">
+							<Item Name="Z_low.csv" Type="Document" URL="../../data/corrections/transducers/dummy.vd/csv/Z_low.csv"/>
+						</Item>
 						<Item Name="dummy.info" Type="Document" URL="../../data/corrections/transducers/dummy.vd/dummy.info"/>
 					</Item>
 					<Item Name="shunt_1A313" Type="Folder">
@@ -1126,7 +1129,7 @@
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{C98E8DC5-762F-4C2F-A9BA-2BF8B25FA3A3}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{52909776-A729-4EA3-B9FF-10847623128A}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>

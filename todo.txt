@@ -2,6 +2,9 @@ Bugs:
  - plot viewer ignores amplitude display mode?
  - export to XLS different than in result viewer
 
+Dunnows:
+ - possibly wrong timestamp processing for two input algorithms (was fixed for TWM-WFFT), need to change correction from U channel to I channel, so maybe the same for PWRFFT and PWRTDI! The sign was ok, but when subrecords are processed, it must be fixed.
+
 Todo:
  - temperature logging for multiplexing mode not implemented!
 
