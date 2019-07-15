@@ -355,7 +355,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     % return sampling period
     data.Ts = mean(time_incerements(ids));   
-    
+        
     % expand timestamps for the newly created channels for the multiplex mode:
     relative_timestamps = kron(relative_timestamps,ones([data.subrec_count data.multiplex_cycles]));    
     subres_timestamps = reshape(kron(subrec_timestamps(ids,:),ones([1 data.channels_count])).',[data.channels_count*data.multiplex_cycles data.subrec_count*numel(ids)]).';    

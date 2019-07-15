@@ -132,8 +132,11 @@ function dataout = alg_wrapper(datain, calcset)
     u_ph = fh.*mean(datain.time_stamp.u)*2*pi;
     
     % average records:
-    A  = mean(A,2);
-    ph = mean(ph,2);
+    U = mean(A.*exp(j*ph),2);
+    A = abs(U);
+    ph = angle(U);
+    %A  = mean(A,2);
+    %ph = mean(ph,2);
         
     % fix ADC offset:
     A(1)   = A(1) - datain.adc_offset.v; % remove DC offset from spectrum
@@ -197,8 +200,11 @@ function dataout = alg_wrapper(datain, calcset)
         u_ph_lo = ((fh.*mean(datain.time_stamp.u)*2*pi).^2 + (fh.*mean(datain.time_shift_lo.u)*2*pi).^2).^0.5;
         
         % average records:
-        A_lo  = mean(A_lo,2);
-        ph_lo = mean(ph_lo,2);
+        U = mean(A_lo.*exp(j*ph_lo),2);
+        A_lo = abs(U);
+        ph_lo = angle(U);        
+        %A_lo  = mean(A_lo,2);
+        %ph_lo = mean(ph_lo,2);
     
         % fix ADC offset:
         A_lo(1)   = A_lo(1) - datain.lo_adc_offset.v; % remove DC offset from working spectrum
