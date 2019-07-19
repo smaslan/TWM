@@ -1112,7 +1112,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">6</Property>
-				<Property Name="Bld_version.patch" Type="Int">2</Property>
+				<Property Name="Bld_version.patch" Type="Int">3</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1129,7 +1129,7 @@
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{52909776-A729-4EA3-B9FF-10847623128A}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{10646E31-7D20-4284-8762-C472D4F0C017}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1177,7 +1177,8 @@ V1.4.4 - DMM fixed relays saved, few more improvements
 V1.5.0 - conditional compile of selected drivers included
 V1.6.0 - improved GUI (mainly corrections)
 V1.6.1 - minor fixes in corrections editor, fixed dsdll
-V1.6.2 - time multiplex support (not tested!)</Property>
+V1.6.2 - time multiplex support (not tested!)
+V1.6.3 - minor fixes in time multiplex</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2019</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
