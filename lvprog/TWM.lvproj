@@ -510,6 +510,7 @@
 				<Item Name="Meas Write Record Header File.vi" Type="VI" URL="../measure/files/Meas Write Record Header File.vi"/>
 				<Item Name="Meas Write Correction Data.vi" Type="VI" URL="../measure/files/Meas Write Correction Data.vi"/>
 				<Item Name="Meas Get Record Section.vi" Type="VI" URL="../measure/files/Meas Get Record Section.vi"/>
+				<Item Name="Meas Get Session.vi" Type="VI" URL="../measure/files/Meas Get Session.vi"/>
 				<Item Name="Meas Generate File Name.vi" Type="VI" URL="../measure/files/Meas Generate File Name.vi"/>
 			</Item>
 			<Item Name="processing" Type="Folder">
@@ -526,6 +527,9 @@
 						<Item Name="Meas Proc QWTB Set Result Table Sizes.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Set Result Table Sizes.vi"/>
 						<Item Name="Meas Proc QWTB Fix Result Table Selection.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Fix Result Table Selection.vi"/>
 						<Item Name="Meas Proc QWTB Multicore Panel.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Multicore Panel.vi"/>
+						<Item Name="Meas Proc QWTB Export Result.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Export Result.vi"/>
+						<Item Name="Meas Proc QWTB Export Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Export Mode.ctl"/>
+						<Item Name="MEas Proc QWTB Export Sheet Name Mode.ctl" Type="VI" URL="../measure/processing/QWTB/MEas Proc QWTB Export Sheet Name Mode.ctl"/>
 					</Item>
 					<Item Name="Batch" Type="Folder">
 						<Item Name="Meas Batch Proc QWTB Panel.vi" Type="VI" URL="../measure/processing/QWTB/Batch/Meas Batch Proc QWTB Panel.vi"/>

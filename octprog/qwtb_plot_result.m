@@ -122,7 +122,6 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
         end
       end
       
-      % phase display mode
       % select amplitude display mode
       if isfield(y_var,'is_amplitude') && y_var.is_amplitude
         y_data = y_data*cfg.amp_mode;
@@ -177,7 +176,6 @@ function [] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, var_name,
         end
       end
       
-      % phase display mode
       % select amplitude display mode
       if isfield(y_var,'is_amplitude') && y_var.is_amplitude
         y_data = y_data*cfg.amp_mode;
