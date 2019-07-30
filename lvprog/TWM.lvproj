@@ -530,6 +530,7 @@
 						<Item Name="Meas Proc QWTB Export Result.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Export Result.vi"/>
 						<Item Name="Meas Proc QWTB Export Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Export Mode.ctl"/>
 						<Item Name="MEas Proc QWTB Export Sheet Name Mode.ctl" Type="VI" URL="../measure/processing/QWTB/MEas Proc QWTB Export Sheet Name Mode.ctl"/>
+						<Item Name="Meas Proc QWTB Export Sheet Pos.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Export Sheet Pos.ctl"/>
 					</Item>
 					<Item Name="Batch" Type="Folder">
 						<Item Name="Meas Batch Proc QWTB Panel.vi" Type="VI" URL="../measure/processing/QWTB/Batch/Meas Batch Proc QWTB Panel.vi"/>
@@ -841,6 +842,66 @@
 			<Item Name="Set Conditional Symbols.vi" Type="VI" URL="../build/Set Conditional Symbols.vi"/>
 			<Item Name="Pre-Build Action - visa,niscope.vi" Type="VI" URL="../build/Pre-Build Action - visa,niscope.vi"/>
 			<Item Name="Pre-Build Action - visa.vi" Type="VI" URL="../build/Pre-Build Action - visa.vi"/>
+		</Item>
+		<Item Name="Excel" Type="Folder">
+			<Item Name="AX Excel.lvlibp" Type="LVLibp" URL="../Excel/AX Excel.lvlibp">
+				<Item Name="advanced" Type="Folder">
+					<Item Name="axex_is_workbook_opened.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/advanced/axex_is_workbook_opened.vi"/>
+					<Item Name="axex_get_list_of_workbooks.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/advanced/axex_get_list_of_workbooks.vi"/>
+					<Item Name="axex_get_sheet_ref.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/advanced/axex_get_sheet_ref.vi"/>
+					<Item Name="axex_get_workbook.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/advanced/axex_get_workbook.vi"/>
+				</Item>
+				<Item Name="other" Type="Folder">
+					<Item Name="axex_cell_xy_to_name.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/other/axex_cell_xy_to_name.vi"/>
+				</Item>
+				<Item Name="file" Type="Folder">
+					<Item Name="axex_open_file.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_open_file.vi"/>
+					<Item Name="axex_close_file.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_close_file.vi"/>
+					<Item Name="axex_close_file_office16.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_close_file_office16.vi"/>
+					<Item Name="axex_save_file.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_save_file.vi"/>
+					<Item Name="axex_save_file_office16.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_save_file_office16.vi"/>
+				</Item>
+				<Item Name="sheet" Type="Folder">
+					<Item Name="axex_get_sheet_names.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_get_sheet_names.vi"/>
+					<Item Name="axex_get_sheet_range.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_get_sheet_range.vi"/>
+					<Item Name="axex_select_sheet.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_select_sheet.vi"/>
+					<Item Name="axex_sheet_exist.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_sheet_exist.vi"/>
+					<Item Name="axex_create_sheet.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_create_sheet.vi"/>
+					<Item Name="axex_copy_sheet.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_copy_sheet.vi"/>
+					<Item Name="axex_delete_sheet.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_delete_sheet.vi"/>
+					<Item Name="axex_rename_sheet.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_rename_sheet.vi"/>
+				</Item>
+				<Item Name="data" Type="Folder">
+					<Item Name="axex_read.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_read.vi"/>
+					<Item Name="axex_write.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_write.vi"/>
+				</Item>
+				<Item Name="types" Type="Folder">
+					<Item Name="axex_instance.ctl" Type="VI" URL="../Excel/AX Excel.lvlibp/axex_instance.ctl"/>
+					<Item Name="axex_window_state.ctl" Type="VI" URL="../Excel/AX Excel.lvlibp/axex_window_state.ctl"/>
+					<Item Name="axex_cell_xy.ctl" Type="VI" URL="../Excel/AX Excel.lvlibp/axex_cell_xy.ctl"/>
+				</Item>
+				<Item Name="private" Type="Folder">
+					<Item Name="axex_read_cell.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_read_cell.vi"/>
+					<Item Name="axex_read_cells.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_read_cells.vi"/>
+					<Item Name="axex_read_cells_vector.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_read_cells_vector.vi"/>
+					<Item Name="axex_write_cell.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_write_cell.vi"/>
+					<Item Name="axex_write_cells.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_write_cells.vi"/>
+					<Item Name="axex_write_cells_vector.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_write_cells_vector.vi"/>
+					<Item Name="axex_get_list_of_workbooks_proc.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/advanced/axex_get_list_of_workbooks_proc.vi"/>
+				</Item>
+				<Item Name="axex_vi_tree.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/axex_vi_tree.vi"/>
+				<Item Name="axex_test.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/axex_test.vi"/>
+				<Item Name="NI_FileType.lvlib" Type="Library" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/lvfile.llb/NI_FileType.lvlib"/>
+				<Item Name="NI_PackedLibraryUtility.lvlib" Type="Library" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/LVLibp/NI_PackedLibraryUtility.lvlib"/>
+				<Item Name="Clear Errors.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Clear Errors.vi"/>
+				<Item Name="Error Cluster From Error Code.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Error Cluster From Error Code.vi"/>
+				<Item Name="Check if File or Folder Exists.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/Check if File or Folder Exists.vi"/>
+				<Item Name="Search and Replace Pattern.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Search and Replace Pattern.vi"/>
+				<Item Name="Generate Temporary File Path.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/Generate Temporary File Path.vi"/>
+				<Item Name="ex_CorrectErrorChain.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/express/express shared/ex_CorrectErrorChain.vi"/>
+				<Item Name="subFile Dialog.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/express/express input/FileDialogBlock.llb/subFile Dialog.vi"/>
+			</Item>
+			<Item Name="read_me.txt" Type="Document" URL="../Excel/read_me.txt"/>
 		</Item>
 		<Item Name="main.vi" Type="VI" URL="../main.vi"/>
 		<Item Name="par_test.vi" Type="VI" URL="../par_test.vi"/>
