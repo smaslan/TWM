@@ -168,6 +168,23 @@
 					<Item Name="niScope Mux Set Path.vi" Type="VI" URL="../drivers/Multiplexers/Generic niScope/niScope Mux Set Path.vi"/>
 				</Item>
 			</Item>
+			<Item Name="Agilent DSO 90000" Type="Folder">
+				<Item Name="Virtual Digitizer" Type="Folder">
+					<Item Name="KeDSO session.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO session.ctl"/>
+					<Item Name="KeDSO Virtual Channel.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Virtual Channel.ctl"/>
+					<Item Name="KeDSO Trigger Source.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Trigger Source.ctl"/>
+					<Item Name="KeDSO Trigger Setup.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Trigger Setup.ctl"/>
+					<Item Name="KeDSO Record Aux Data.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Record Aux Data.ctl"/>
+					<Item Name="KeDSO Record Sample Data.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Record Sample Data.ctl"/>
+					<Item Name="KeDSO Initialize Virtual Channels.vi" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Initialize Virtual Channels.vi"/>
+					<Item Name="KeDSO Setup Virtual Channels.vi" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Setup Virtual Channels.vi"/>
+					<Item Name="KeDSO Initiate Digitizing Process.vi" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Initiate Digitizing Process.vi"/>
+					<Item Name="KeDSO Try Fetch Data.vi" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Try Fetch Data.vi"/>
+					<Item Name="KeDSO Abort Digitizing Process.vi" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Abort Digitizing Process.vi"/>
+					<Item Name="KeDSO Close Virtual Channels.vi" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Close Virtual Channels.vi"/>
+				</Item>
+				<Item Name="Agilent 90000 Series.lvlib" Type="Library" URL="../drivers/Agilent DSO 90000/Agilent 90000 Series.lvlib"/>
+			</Item>
 			<Item Name="niScope Virtual Digitizer.lvlib" Type="Library" URL="../drivers/niScope/niScope Virtual Digitizer.lvlib"/>
 			<Item Name="AWG.lvlib" Type="Library" URL="../drivers/AWG/AWG.lvlib"/>
 			<Item Name="Counter.lvlib" Type="Library" URL="../drivers/Counter/Counter.lvlib"/>
@@ -1076,6 +1093,18 @@
 				<Item Name="LVRowAndColumnTypeDef.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVRowAndColumnTypeDef.ctl"/>
 				<Item Name="usereventprio.ctl" Type="VI" URL="/&lt;vilib&gt;/event_ctls.llb/usereventprio.ctl"/>
 				<Item Name="LVRowAndColumnUnsignedTypeDef.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVRowAndColumnUnsignedTypeDef.ctl"/>
+				<Item Name="Binary to Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DWDT.llb/Binary to Digital.vi"/>
+				<Item Name="DWDT Binary U32 to Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DWDTOps.llb/DWDT Binary U32 to Digital.vi"/>
+				<Item Name="DTbl Binary U32 to Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DTblOps.llb/DTbl Binary U32 to Digital.vi"/>
+				<Item Name="Compress Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DWDT.llb/Compress Digital.vi"/>
+				<Item Name="DTbl Compress Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DTblOps.llb/DTbl Compress Digital.vi"/>
+				<Item Name="DWDT Compress Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DWDTOps.llb/DWDT Compress Digital.vi"/>
+				<Item Name="DWDT Binary U16 to Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DWDTOps.llb/DWDT Binary U16 to Digital.vi"/>
+				<Item Name="DTbl Binary U16 to Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DTblOps.llb/DTbl Binary U16 to Digital.vi"/>
+				<Item Name="DWDT Binary U8 to Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DWDTOps.llb/DWDT Binary U8 to Digital.vi"/>
+				<Item Name="DTbl Binary U8 to Digital.vi" Type="VI" URL="/&lt;vilib&gt;/Waveform/DTblOps.llb/DTbl Binary U8 to Digital.vi"/>
+				<Item Name="TDMSAddBlankElem1d.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/tdmsutil.llb/TDMSAddBlankElem1d.vi"/>
+				<Item Name="ClearError.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/tdmsutil.llb/ClearError.vi"/>
 			</Item>
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niScope Initialize.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/niScope Initialize.vi"/>
@@ -1177,7 +1206,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">6</Property>
-				<Property Name="Bld_version.patch" Type="Int">3</Property>
+				<Property Name="Bld_version.patch" Type="Int">5</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1194,7 +1223,7 @@
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{10646E31-7D20-4284-8762-C472D4F0C017}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{1EFE0761-11A7-423C-ABE5-5DC07C156C3E}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1243,7 +1272,10 @@ V1.5.0 - conditional compile of selected drivers included
 V1.6.0 - improved GUI (mainly corrections)
 V1.6.1 - minor fixes in corrections editor, fixed dsdll
 V1.6.2 - time multiplex support (not tested!)
-V1.6.3 - minor fixes in time multiplex</Property>
+V1.6.3 - minor fixes in time multiplex
+V1.6.4 - basic implementation of Keysight DSO
+V1.6.5 - fixed timeout problem for 3458A in sub-records mode
+</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2019</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
