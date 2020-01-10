@@ -216,6 +216,26 @@
 				<Item Name="cDAQ Kill Digitizing Process.vi" Type="VI" URL="../drivers/cdaq/cDAQ Kill Digitizing Process.vi"/>
 				<Item Name="cDAQ Get Digitizing Process Status.vi" Type="VI" URL="../drivers/cdaq/cDAQ Get Digitizing Process Status.vi"/>
 			</Item>
+			<Item Name="Fluke 8588A" Type="Folder">
+				<Item Name="Top Level" Type="Folder">
+					<Item Name="F8588A Initialize Digitizing Mode.vi" Type="VI" URL="../drivers/Fluke 8588A/top level/F8588A Initialize Digitizing Mode.vi"/>
+					<Item Name="F8588A Configure Sampling.vi" Type="VI" URL="../drivers/Fluke 8588A/top level/F8588A Configure Sampling.vi"/>
+					<Item Name="F8588A Soft Close.vi" Type="VI" URL="../drivers/Fluke 8588A/top level/F8588A Soft Close.vi"/>
+					<Item Name="F8588A Digitizing Process.vi" Type="VI" URL="../drivers/Fluke 8588A/top level/F8588A Digitizing Process.vi"/>
+					<Item Name="F8588A Read Stream.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Read Stream.vi"/>
+					<Item Name="F8588A Async Start Digitizing Process.vi" Type="VI" URL="../drivers/Fluke 8588A/top level/F8588A Async Start Digitizing Process.vi"/>
+					<Item Name="F8588A Test.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Test.vi"/>
+					<Item Name="F8588A Test2.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Test2.vi"/>
+				</Item>
+				<Item Name="F8588A Low Pass Filter.ctl" Type="VI" URL="../drivers/Fluke 8588A/F8588A Low Pass Filter.ctl"/>
+				<Item Name="F8588A Phase Lock.ctl" Type="VI" URL="../drivers/Fluke 8588A/F8588A Phase Lock.ctl"/>
+				<Item Name="F8588A Coupling.ctl" Type="VI" URL="../drivers/Fluke 8588A/F8588A Coupling.ctl"/>
+				<Item Name="F8588A Initialize.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Initialize.vi"/>
+				<Item Name="F8588A Close.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Close.vi"/>
+				<Item Name="F8588A Default Instrument Setup.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Default Instrument Setup.vi"/>
+				<Item Name="F8588A Error Query.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Error Query.vi"/>
+				<Item Name="F8588A Reset.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Reset.vi"/>
+			</Item>
 			<Item Name="niScope Virtual Digitizer.lvlib" Type="Library" URL="../drivers/niScope/niScope Virtual Digitizer.lvlib"/>
 			<Item Name="AWG.lvlib" Type="Library" URL="../drivers/AWG/AWG.lvlib"/>
 			<Item Name="Counter.lvlib" Type="Library" URL="../drivers/Counter/Counter.lvlib"/>
@@ -542,6 +562,7 @@
 				<Item Name="GUI FFT panel 2x.vi" Type="VI" URL="../measure/GUI/GUI FFT panel 2x.vi"/>
 				<Item Name="GUI FFT Show.vi" Type="VI" URL="../measure/GUI/GUI FFT Show.vi"/>
 				<Item Name="GUI FFT Update.vi" Type="VI" URL="../measure/GUI/GUI FFT Update.vi"/>
+				<Item Name="GUI Show Not Available Attribute Message.vi" Type="VI" URL="../measure/GUI/GUI Show Not Available Attribute Message.vi"/>
 			</Item>
 			<Item Name="sequence" Type="Folder">
 				<Item Name="Meas Generate Sequence.vi" Type="VI" URL="../measure/sequence/Meas Generate Sequence.vi"/>
@@ -1437,7 +1458,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">6</Property>
-				<Property Name="Bld_version.patch" Type="Int">7</Property>
+				<Property Name="Bld_version.patch" Type="Int">8</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1454,7 +1475,7 @@
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{781374BB-ED90-46E0-92B5-C8E20208A588}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{48A2B0F3-C2F0-46A9-8137-16C24E54FDD6}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1507,9 +1528,10 @@ V1.6.3 - minor fixes in time multiplex
 V1.6.4 - basic implementation of Keysight DSO
 V1.6.5 - fixed timeout problem for 3458A in sub-records mode
 V1.6.6 - support for cDAQ ADC
-V1.6.7 - cDAQ data scaling fixed</Property>
+V1.6.7 - cDAQ data scaling fixed
+V1.6.8 - partial support for Fluke 8588A</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2019</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2020</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{D8F2E1E1-802E-4B60-9D7C-5E18E07A06CA}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM.exe</Property>
