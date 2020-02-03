@@ -32,6 +32,20 @@
 		<Item Name="Agilent 3352X Series.lvlib" Type="Library" URL="../Agilent 3352X Series/Agilent 3352X Series.lvlib"/>
 		<Item Name="Agilent 3352X Series.lvproj" Type="Document" URL="../Agilent 3352X Series/Agilent 3352X Series.lvproj"/>
 	</Item>
+	<Item Name="CMI Clock Divider v2" Type="Folder">
+		<Item Name="CMI ckd2 Session.ctl" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Session.ctl"/>
+		<Item Name="CMI ckd2 Source Mode.ctl" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Source Mode.ctl"/>
+		<Item Name="CMI ckd2 Open.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Open.vi"/>
+		<Item Name="CMI ckd2 Close.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Close.vi"/>
+		<Item Name="CMI ckd2 Read Error.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Read Error.vi"/>
+		<Item Name="CMI ckd2 Set Clock Source.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Set Clock Source.vi"/>
+		<Item Name="CMI ckd2 Get Clock Source.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Get Clock Source.vi"/>
+		<Item Name="CMI ckd2 Get Reference Clock Rate.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Get Reference Clock Rate.vi"/>
+		<Item Name="CMI ckd2 Set Divider Factor.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Set Divider Factor.vi"/>
+		<Item Name="CMI ckd2 Set Divider Rate.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Set Divider Rate.vi"/>
+		<Item Name="CMI ckd2 Write and Read.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Write and Read.vi"/>
+		<Item Name="CMI ckd2 Panel.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Panel.vi"/>
+	</Item>
 	<Item Name="Tektronix AFG 3000 Series.lvlib" Type="Library" URL="../AFG3000/Tektronix AFG 3000 Series.lvlib"/>
 	<Item Name="AWG Session.ctl" Type="VI" URL="../AWG Session.ctl"/>
 	<Item Name="AWG Type.ctl" Type="VI" URL="../AWG Type.ctl"/>
@@ -40,4 +54,6 @@
 	<Item Name="AWG Start Pulses.vi" Type="VI" URL="../AWG Start Pulses.vi"/>
 	<Item Name="AWG Stop Pulses.vi" Type="VI" URL="../AWG Stop Pulses.vi"/>
 	<Item Name="AWG Set and Arm.vi" Type="VI" URL="../AWG Set and Arm.vi"/>
+	<Item Name="AWG Config Panel.vi" Type="VI" URL="../AWG Config Panel.vi"/>
+	<Item Name="AWG Get Capabilities.vi" Type="VI" URL="../AWG Get Capabilities.vi"/>
 </Library>
