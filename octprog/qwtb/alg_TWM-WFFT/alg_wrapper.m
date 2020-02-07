@@ -134,6 +134,7 @@ function dataout = alg_wrapper(datain, calcset)
     % average records:
     U = mean(A.*exp(j*ph),2);
     A = abs(U);
+    A(1) = real(U(1)); % fix DC polarity
     ph = angle(U);
     %A  = mean(A,2);
     %ph = mean(ph,2);
@@ -202,6 +203,7 @@ function dataout = alg_wrapper(datain, calcset)
         % average records:
         U = mean(A_lo.*exp(j*ph_lo),2);
         A_lo = abs(U);
+        A_lo(1) = real(U_lo(1)); % fix DC polarity
         ph_lo = angle(U);        
         %A_lo  = mean(A_lo,2);
         %ph_lo = mean(ph_lo,2);
