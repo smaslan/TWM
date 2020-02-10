@@ -448,6 +448,14 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'DC offset';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'dc_hi';
+    alginfo.outputs(pid).desc = 'ADC DC offset (high side)';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'dc_lo';
+    alginfo.outputs(pid).desc = 'ADC DC offset (low side)';
+    pid = pid + 1;
+    
     alginfo.outputs(pid).name = 'f';
     alginfo.outputs(pid).desc = 'Selected DFT bin frequencies';
     pid = pid + 1;    

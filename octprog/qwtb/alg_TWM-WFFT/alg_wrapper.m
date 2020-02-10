@@ -181,7 +181,7 @@ function dataout = alg_wrapper(datain, calcset)
     p_qu = (NENBNW)^0.5*q_noise./A*(2/N)^0.5;
     u_A = (u_A.^2 + A_qu.^2).^0.5;
     u_ph = (u_ph.^2 + p_qu.^2).^0.5;
-        
+           
     
     if cfg.y_is_diff
         % --- differential mode ---:
@@ -203,7 +203,7 @@ function dataout = alg_wrapper(datain, calcset)
         % average records:
         U = mean(A_lo.*exp(j*ph_lo),2);
         A_lo = abs(U);
-        A_lo(1) = real(U_lo(1)); % fix DC polarity
+        A_lo(1) = real(U(1)); % fix DC polarity
         ph_lo = angle(U);        
         %A_lo  = mean(A_lo,2);
         %ph_lo = mean(ph_lo,2);
@@ -247,6 +247,11 @@ function dataout = alg_wrapper(datain, calcset)
         u_A_lo = (u_A_lo.^2 + A_qu.^2).^0.5;
         u_ph_lo = (u_ph_lo.^2 + p_qu.^2).^0.5;
         
+        % store ADC input DC components (auxiliary output for differential mode only)        
+        Udc_hi.v = A(1);
+        Udc_hi.u = u_A(1);
+        Udc_lo.v = A_lo(1);
+        Udc_lo.u = u_A_lo(1);
         
 %         figure
 %         loglog(fh,A)
@@ -258,6 +263,8 @@ function dataout = alg_wrapper(datain, calcset)
         %u_adc_phx = (u_ph(fid)^2 + u_ph_lo(fid)^2)^0.5;     
 %         datain.f_nom.v(1)*datain.time_shift_lo.u*2*pi
 %         datain.f_nom.v(1)*datain.time_stamp.u*2*pi
+        
+                
         
         
         % high-side:            
@@ -485,6 +492,12 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.ph.u = u_ph(fid)*k_unc;
     dataout.rms.u = u_rms*k_unc;
     dataout.dc.u = u_A(1)*k_unc;
+    
+    % return auxiliary ADC DC levels for differential mode
+    if cfg.y_is_diff
+        dataout.dc_hi = Udc_hi;
+        dataout.dc_lo = Udc_lo;
+    end
     
     % return spectrum:
     dataout.spec_f.v = fh;
