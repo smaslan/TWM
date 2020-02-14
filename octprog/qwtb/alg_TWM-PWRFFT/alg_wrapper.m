@@ -256,8 +256,20 @@ function dataout = alg_wrapper(datain, calcset)
     PF = P/S;
     u_PF  = max(abs(v_PF - PF))/k_in;
     
-        
-        
+    
+    % --- energy estimation
+    
+    % total measurement time [s]
+    %  ###todo: add adc timebase correction?
+    time = 1/fs*numel(datain.u.v);
+    
+    % active energy [Wh]    
+    EP   = P*time*3600;
+    u_EP = u_P*EP;    
+    % reactive energy [Wh]    
+    EQ = Q*time*3600;
+    u_EQ = u_Q*EQ;
+            
     
     % --- return quantities to QWTB:
     
@@ -286,7 +298,11 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.Idc.u = u_dc_i*ke;
     dataout.Pdc.v = P0;
     dataout.Pdc.u = u_P0*ke;
-    
+    % energies:
+    dataout.EP.v = EP;
+    dataout.EP.u = u_EP*ke;
+    dataout.EQ.v = EQ;
+    dataout.EQ.u = u_EQ*ke;
     % return spectra of the corrected waveforms:    
     dataout.spec_U.v = vcl{1}.Y(:); % amplitude vector of the DFT bins    
     dataout.spec_I.v = vcl{2}.Y(:); % amplitude vector of the DFT bins

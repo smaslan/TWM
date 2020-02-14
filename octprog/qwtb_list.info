@@ -280,6 +280,8 @@ type:: qwtb list
                 Udc;     si; 1e-9; 1e-7
                 Idc;     si; 1e-9; 1e-7
                 Pdc;     si; 1e-9; 1e-7
+                EP;      si; 1e-9; 1e-7
+                EQ;      si; 1e-9; 1e-7
                 spec_f;  si; 1e-6; 1e-7
                 spec_U;  si; 1e-8; 1e-7
                 spec_I;  si; 1e-8; 1e-7

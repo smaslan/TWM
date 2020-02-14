@@ -522,6 +522,14 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'DC power component';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'EP';
+    alginfo.outputs(pid).desc = 'Active energy [Wh]';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'EQ';
+    alginfo.outputs(pid).desc = 'Reactive energy [VARh]';
+    pid = pid + 1;
+    
     alginfo.outputs(pid).name = 'spec_f';
     alginfo.outputs(pid).desc = 'Spectrum frequency';
     pid = pid + 1;

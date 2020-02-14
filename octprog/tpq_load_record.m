@@ -59,7 +59,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
 %
 %
 % This is part of the TWM - TracePQM WattMeter (https://github.com/smaslan/TWM).
-% (c) 2017-2019, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2017-2020, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
     
@@ -426,7 +426,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
             % transducers count by mapping if available
             TC = size(tr_map,1);
         else
-            % if not transducers are defined, generate fake ones, one for each digitizer channel:
+            % if no transducers are defined, generate fake ones, one for each digitizer channel:
             TC = data.channels_count;
         end
     end
@@ -497,7 +497,8 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     % check for duplicate digitizer channels in the mapping: 
     if numel(unique(tr_chn_all)) ~= numel(tr_chn_all)
-        error(sprintf('TWM measurement loader: It seems there are duplicate digitizer channel indexes in the matrix ''transducer to digitizer channels mapping''!'));    
+        % ###note: changed to warning because se we can now use the same ADC channel for multiple phases, e.g. 1 voltage and 2 different current channels making 2 phases 
+        disp(sprintf('TWM measurement loader warning: It seems there are duplicate digitizer channel indexes in the matrix ''transducer to digitizer channels mapping''.'));    
     end
     
   
