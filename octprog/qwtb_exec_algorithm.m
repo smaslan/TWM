@@ -22,9 +22,10 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
 %         cfg.mc_procno - number of parallel instances to run ('multicore' or 'multistation')
 %         cfg.mc_tmpdir - 'multistation' mode jobs sharing folder
 %         cfg.mc_user_fun - user function to be executed after 'multistation' starts servers
+%         cfg.parallel - set to non-zero when executed in parallel instances!
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2020, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
     
@@ -104,6 +105,10 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     if ~isfield(cfg,'mc_tmpdir')
         cfg.mc_tmpdir = '';
     end
+    if ~isfield(cfg,'parallel')
+        cfg.parallel = 0; % no parallel execution mode by default
+    end
+    
     
     % override uncertainty setup from file:
     if exist('calc_unc','var') && ~isempty(calc_unc)
@@ -320,7 +325,9 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
       
     % try make result folder
     if ~exist([meas_root result_folder],'file') 
-        mkdir(meas_root, result_folder);
+        try
+            mkdir(meas_root, result_folder);
+        end
     end
     
     
@@ -364,11 +371,28 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         result_path = [meas_root result_rel_path];
         result_path_rem = [result_folder filesep() alg_id '-' result_name];
         
+        % try to gain exclusive access for parallel execution mode
+        %  note: we need to ensure only one parallel instance can work with result files 
+        if cfg.parallel            
+            [ok, mutex_path] = qwtb_exclusive_lock(meas_root, 'mutex_results', 3.0);
+            if ~ok
+                error('QWTB algorithm executer: Cannot gain exclusive access to results!');
+            end
+        end
+        
         % try to remove eventual existing results
         if exist([result_path_rem '.mat'],'file') delete([result_path_rem '.mat']); end
         if exist([result_path_rem '.info'],'file') delete([result_path_rem '.info']); end
         if exist([result_path '.mat'],'file') delete([result_path '.mat']); end
         if exist([result_path '.info'],'file') delete([result_path '.info']); end
+        
+        % ###todo: here we should remove just deleted result record from results.info just in case we
+        %          are recalculating existing result
+        
+        % release exclusive access for parallel exection mode
+        if cfg.parallel            
+            qwtb_exclusive_release(mutex_path);
+        end  
           
         % insert copy of QWTB parameters to the result
         rinf = qinf_txt;
@@ -620,10 +644,20 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
           
         end % if ~is_single_inp (algorithms inputs mode)
         
-        
+               
+                      
         
         % --- build results list
-    
+        
+        % try to gain exclusive access for parallel execution mode
+        %  note: we need to ensure only one parallel instance can work with 'results.info' 
+        if cfg.parallel            
+            [ok, mutex_path] = qwtb_exclusive_lock(meas_root, 'mutex_results_info', 3.0);
+            if ~ok
+                error('QWTB algorithm executer: Cannot gain exclusive access to ''results.info''!');
+            end
+        end
+           
         % full file path to the results header
         results_header = [meas_root 'results.info'];
         
@@ -699,6 +733,10 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         % write updated results header back to the file 
         infosave(rinf, results_header, 1, 1);
         
+        % release exclusive access for parallel exection mode
+        if cfg.parallel            
+            qwtb_exclusive_release(mutex_path);
+        end        
     
     end % sub-records loop
   

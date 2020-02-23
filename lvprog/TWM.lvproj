@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="13008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;w_daqmx,1;</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;w_daqmx,0;</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">false</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -632,6 +632,9 @@
 					<Item Name="Meas Proc QWTB Generate Algorithm Info Section.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Generate Algorithm Info Section.vi"/>
 					<Item Name="Meas Proc QWTB Write Algorithm Processing Header.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Write Algorithm Processing Header.vi"/>
 					<Item Name="Meas Proc QWTB Multicore Start Servers.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Multicore Start Servers.vi"/>
+					<Item Name="Meas Proc QWTB Parallel Initialize.vi" Type="VI" URL="../measure/processing/Meas Proc QWTB Parallel Initialize.vi"/>
+					<Item Name="Meas Proc QWTB Parallel Check Results.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Parallel Check Results.vi"/>
+					<Item Name="Meas Proc QWTB Exec Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Exec Mode.ctl"/>
 					<Item Name="Meas Proc QWTB Spectrum Data.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Spectrum Data.ctl"/>
 					<Item Name="Meas Proc QWTB Load Result Spectra.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Load Result Spectra.vi"/>
 				</Item>
@@ -972,6 +975,11 @@
 				<Item Name="subFile Dialog.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/express/express input/FileDialogBlock.llb/subFile Dialog.vi"/>
 			</Item>
 			<Item Name="read_me.txt" Type="Document" URL="../Excel/read_me.txt"/>
+		</Item>
+		<Item Name="test" Type="Folder">
+			<Item Name="qwtb.info" Type="Document" URL="../../octprog/test/qwtb.info"/>
+			<Item Name="record_0001.txt" Type="Document" URL="../../octprog/test/record_0001.txt"/>
+			<Item Name="session.info" Type="Document" URL="../../octprog/test/session.info"/>
 		</Item>
 		<Item Name="main.vi" Type="VI" URL="../main.vi"/>
 		<Item Name="par_test.vi" Type="VI" URL="../par_test.vi"/>
@@ -1649,7 +1657,7 @@ V1.6.9 - support for CMI clock div, Fluke 8588, minor changes in GUI</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">6</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME/TWM.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1666,7 +1674,7 @@ V1.6.9 - support for CMI clock div, Fluke 8588, minor changes in GUI</Property>
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{49B74813-6E37-4492-90B5-47A90008042F}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{DC5E83AF-AE50-4976-B6DA-FF2858852E69}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1716,7 +1724,7 @@ V1.5.0 - conditional compile of selected drivers included
 V1.6.0 - improved GUI (mainly corrections)
 V1.6.1 - minor fixes in corrections editor, fixed dsdll</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2019</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2020</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{AEEC5EC9-3A7F-49CB-BB07-729F6120ABF4}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM.exe</Property>
