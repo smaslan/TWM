@@ -45,6 +45,9 @@ function [jobs_list,done] = qwtb_exec_checkjobs(jobs_list)
             end            
             % no error
             
+            % remove result file
+            unlink(job_file);
+            
             % return index of job just identified as done
             done = done + 1;
             

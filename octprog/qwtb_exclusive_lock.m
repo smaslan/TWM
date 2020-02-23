@@ -22,7 +22,7 @@ function [ok, mutex_path] = qwtb_exclusive_lock(folder, tag, timeout)
     
     % try to move mutex to final destination
     tid = tic();
-    t0  = toc();
+    t0  = toc(tid);
     while (toc(tid) - t0) < timeout
         [err] = rename(mutex_temp, mutex_path);
         if ~err

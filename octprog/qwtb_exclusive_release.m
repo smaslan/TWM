@@ -5,7 +5,7 @@ function [] = qwtb_exclusive_release(mutex_file)
 
     % check validity of mutex file
     [fld,name,ext] = fileparts(mutex_file);
-    if ~strcmp(mutex_file,'.lock')
+    if ~strcmp(ext,'.lock')
         error('File mutex: possibly incorrect file path passed in the function!');
     end 
     

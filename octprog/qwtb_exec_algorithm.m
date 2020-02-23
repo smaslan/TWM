@@ -650,9 +650,9 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         % --- build results list
         
         % try to gain exclusive access for parallel execution mode
-        %  note: we need to ensure only one parallel instance can work with 'results.info' 
-        if cfg.parallel            
-            [ok, mutex_path] = qwtb_exclusive_lock(meas_root, 'mutex_results_info', 3.0);
+        %  note: we need to ensure only one parallel instance can work with 'results.info'
+        if cfg.parallel                     
+            [ok, mutex_path] = qwtb_exclusive_lock(meas_root, 'mutex_results_info', 5.0);
             if ~ok
                 error('QWTB algorithm executer: Cannot gain exclusive access to ''results.info''!');
             end

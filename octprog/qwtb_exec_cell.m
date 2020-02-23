@@ -17,7 +17,7 @@ function [res] = qwtb_exec_cell(par)
     try
         
         % parallel processing mode
-        par.parallel = 1;
+        par.cfg.parallel = 1;
         % try to execute algorithm
         qwtb_exec_algorithm(par.meas_file, par.calc_unc, par.is_last_avg, par.avg_id, par.group_id, par.verbose, par.cfg);
         % no error
