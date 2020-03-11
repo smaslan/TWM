@@ -6,5 +6,6 @@ Dunnows:
 
 Todo:
  - temperature logging for multiplexing mode not implemented!
+ - QWTB panel should show output quantities
 
 Doc:

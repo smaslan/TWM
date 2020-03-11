@@ -1,5 +1,6 @@
 /temp
 /lvprog/TWM.aliases
+/lvprog/TWM.lvlps
 /octprog/qwtb/alg_TWM-PWRTDI/*.mat
 /octprog/qwtb/alg_TWM-THDWFFT/*.mat
 /octprog/qwtb/alg_TWM-MODTDPS/*.mat
