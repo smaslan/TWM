@@ -588,6 +588,9 @@
 						<Item Name="Meas Proc QWTB Plot Scale Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Plot Scale Mode.ctl"/>
 						<Item Name="Meas Proc QWTB Plot Legend.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Plot Legend.ctl"/>
 						<Item Name="Meas Proc QWTB Plot Config.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Plot Config.ctl"/>
+						<Item Name="Meas Proc QWTB Export Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Export Mode.ctl"/>
+						<Item Name="MEas Proc QWTB Export Sheet Name Mode.ctl" Type="VI" URL="../measure/processing/QWTB/MEas Proc QWTB Export Sheet Name Mode.ctl"/>
+						<Item Name="Meas Proc QWTB Export Sheet Pos.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Export Sheet Pos.ctl"/>
 						<Item Name="Meas Proc QWTB Update Result Table Variable Info.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Update Result Table Variable Info.vi"/>
 						<Item Name="Meas Proc QWTB Result Plot Panel.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Result Plot Panel.vi"/>
 						<Item Name="Meas Proc QWTB String to Table Writter.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB String to Table Writter.vi"/>
@@ -597,9 +600,6 @@
 						<Item Name="Meas Proc QWTB Fix Result Table Selection.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Fix Result Table Selection.vi"/>
 						<Item Name="Meas Proc QWTB Multicore Panel.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Multicore Panel.vi"/>
 						<Item Name="Meas Proc QWTB Export Result.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Export Result.vi"/>
-						<Item Name="Meas Proc QWTB Export Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Export Mode.ctl"/>
-						<Item Name="MEas Proc QWTB Export Sheet Name Mode.ctl" Type="VI" URL="../measure/processing/QWTB/MEas Proc QWTB Export Sheet Name Mode.ctl"/>
-						<Item Name="Meas Proc QWTB Export Sheet Pos.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Export Sheet Pos.ctl"/>
 					</Item>
 					<Item Name="Batch" Type="Folder">
 						<Item Name="Meas Batch Proc QWTB Panel.vi" Type="VI" URL="../measure/processing/QWTB/Batch/Meas Batch Proc QWTB Panel.vi"/>
