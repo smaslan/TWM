@@ -1,0 +1,1 @@
+Set "Hidden" attribute to files/folders that should be leave out from a build.

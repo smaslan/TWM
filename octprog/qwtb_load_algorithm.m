@@ -1,7 +1,7 @@
 %% -----------------------------------------------------------------------------
 %% QWTB TracePQM: Returns info for selected algorithm.
 %% -----------------------------------------------------------------------------
-function [alginfo,ptab,input_params,is_multi_inp,is_diff,has_ui,unc_guf,unc_mcm,output_params] = qwtb_load_algorithm(alg_id)
+function [alginfo,ptab,input_params_desc,is_multi_inp,is_diff,has_ui,unc_guf,unc_mcm,output_params,input_params] = qwtb_load_algorithm(alg_id)
   
   % fetch information struct of the QWTB algorithm
   alginfo = qwtb(alg_id,'info');
@@ -56,7 +56,10 @@ function [alginfo,ptab,input_params,is_multi_inp,is_diff,has_ui,unc_guf,unc_mcm,
   unc_mcm = alginfo.providesMCM;
   
   % return description of the parameters
-  input_params = catcellcsv({inps.desc});
+  input_params_desc = catcellcsv({inps.desc});
+  
+  % return description of the parameters
+  input_params = catcellcsv({inps.name});
   
   % return description matrix of the output parameters
   output_params = catcellcsv(cat(1,{alginfo.outputs.name},{alginfo.outputs.desc}).');
