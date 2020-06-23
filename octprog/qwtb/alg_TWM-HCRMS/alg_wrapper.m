@@ -98,6 +98,9 @@ function dataout = alg_wrapper(datain, calcset)
     w = w(:);
     dc = mean(w.*y)/mean(w);
     
+    % get approxiamte amplitude:    
+    amp_mean = sum(y.^2).^0.5/N^0.5*2^0.5;
+    
     % remove DC temporarily from the signal:
     y = y - dc;   
        
@@ -163,8 +166,14 @@ function dataout = alg_wrapper(datain, calcset)
         % tran. type defined:       
         
         % calculate transducer transfer + loading effect:
-        An = ones(size(fh)); 
+        %  ###todo: here we are trying to calculate just transfer of the transducer, but when it is rms dependent, it will be needed
+        %           to somehow get rid of that dependence because it is correction applied for whole range of amplitudes
+        An = zeros(size(fh));
+        An(1) = dc; 
+        An(fid) = amp_mean;
         [gain,phi,u_gain,u_phi] = correction_transducer_loading(tab,datain.tr_type.v,fh,[], An,An*0,An*0,An*0);
+        gain = gain./An;
+        u_gain = u_gain./An;        
         
         % get transducer tfer (independent of rms):
         trg = correction_interp_table(tab.tr_gain, [], fh);
