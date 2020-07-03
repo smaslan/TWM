@@ -276,7 +276,9 @@ type:: qwtb list
                 S;       si; 1e-9; 1e-7
                 Q;       si; 1e-9; 1e-7
                 PF;      f;  1e-6; 1e-7
-                phi_ef;  f;  1e-6; 1e-7
+                phi_ef;  f;  1e-7; 1e-7
+                phiH1;   f;  1e-7; 1e-7
+                phiH1_f; f;  1e-8; 1e-8
                 Udc;     si; 1e-9; 1e-7
                 Idc;     si; 1e-9; 1e-7
                 Pdc;     si; 1e-9; 1e-7
@@ -289,6 +291,7 @@ type:: qwtb list
         #endmatrix:: number formats
         #startmatrix:: is phase
                 phi_ef
+                phiH1
         #endmatrix:: is phase
         #startmatrix:: is amplitude
                 spec_U;spec_I

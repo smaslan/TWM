@@ -182,9 +182,11 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     % record data gain for each record in the average group
     sample_gains = infogetmatrix(ginf, 'record sample data gains [V]');
+    data.sample_gains = sample_gains;
     
     % record data offsets for each record in the average group
     sample_offsets = infogetmatrix(ginf, 'record sample data offsets [V]');
+    data.sample_offsets = sample_offsets;
     
     % relative timestamps for each record in the average group
     relative_timestamps = infogetmatrix(ginf, 'record relative timestamps [s]');
@@ -510,7 +512,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     digitizer_path = infogettext(cinf, 'digitizer corrections path');
         
     % load digitizer corrections:
-    corr.dig = correction_load_digitizer(digitizer_path, inf, data, 1, group_id);    
+    corr.dig = correction_load_digitizer(digitizer_path, inf, data, 1, group_id);
     
     % return corrections
     data.corr = corr;

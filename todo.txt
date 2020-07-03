@@ -1,11 +1,13 @@
 Bugs:
- - deletion of old record files may offer to delete all drives when TWM run with currupted config.ini!
 
 Dunnows:
  - possibly wrong timestamp processing for two input algorithms (was fixed for TWM-WFFT), need to change correction from U channel to I channel, so maybe the same for PWRFFT and PWRTDI! The sign was ok, but when subrecords are processed, it must be fixed.
 
 Todo:
  - temperature logging for multiplexing mode not implemented!
- - QWTB panel should show output quantities
+ - Octave/Matlab loads all '\octprog' subfolders, so it always uses \octprog\qwtb instead of the path given in config panel. This should be fixed.
+ - Warnings from transdcucers panel shows as errors in main panel?
+ - sometimes changed digitizer channels count does not reflect in tranducers panel
+
 
 Doc:

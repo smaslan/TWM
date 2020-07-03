@@ -264,18 +264,23 @@ function dataout = alg_wrapper(datain, calcset)
     time = 1/fs*numel(datain.u.v);
     
     % active energy [Wh]    
-    EP   = P*time*3600;
+    EP   = P*time/3600;
     u_EP = u_P*EP;    
     % reactive energy [Wh]    
-    EQ = Q*time*3600;
+    EQ = Q*time/3600;
     u_EQ = u_Q*EQ;
-            
     
+    % extract fundamental phase shift
+    [v,f0id] = max(Ih);
+    ph1 = ph(f0id);
+    u_ph1 = u_ph(f0id);
+    ph1_f = fh(f0id);
+   
     % --- return quantities to QWTB:
     
     % calc. coverage factor:
     ke = loc2covg(calcset.loc,50);
-    
+        
     % power parameters:
     dataout.U.v = U;
     dataout.U.u = u_U*ke;
@@ -291,6 +296,9 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.PF.u = u_PF*ke;
     dataout.phi_ef.v = atan2(Q,P);
     dataout.phi_ef.u = max(abs([atan2(Q+u_Q,P+u_P) atan2(Q-u_Q,P+u_P) atan2(Q-u_Q,P-u_P) atan2(Q-u_Q,P-u_P)]-atan2(Q,P)))*ke;
+    dataout.phiH1.v = ph1;
+    dataout.phiH1.u = u_ph1*ke;
+    dataout.phiH1_f.v = ph1_f;
     % DC components:
     dataout.Udc.v = dc_u;
     dataout.Udc.u = u_dc_u*ke;
@@ -308,6 +316,10 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.spec_I.v = vcl{2}.Y(:); % amplitude vector of the DFT bins
     dataout.spec_S.v = dataout.spec_U.v.*dataout.spec_I.v;
     dataout.spec_f.v = fh(:);
+    
+    
+    
+    
     
     if isfield(calcset,'dbg_plots') && calcset.dbg_plots
         figure;

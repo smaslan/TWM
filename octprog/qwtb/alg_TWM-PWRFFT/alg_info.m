@@ -510,6 +510,14 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Effective phase shift acos(PF) [rad]';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'phiH1';
+    alginfo.outputs(pid).desc = 'Fundamental harmonic components phase shift [rad]';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'phiH1_f';
+    alginfo.outputs(pid).desc = 'Frequency of selected fundamental harmonic component [Hz]';
+    pid = pid + 1;
+    
     alginfo.outputs(pid).name = 'Udc';
     alginfo.outputs(pid).desc = 'DC voltage component';
     pid = pid + 1;
