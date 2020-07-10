@@ -13,11 +13,11 @@ REM --- Cores count ---
 SET /a CORE_N=%3
 
 REM --- GNU Octave path ---
-SET OCT_FLD=%1
-SET OCT_NAME=%2
+SET OCT_FLD=%~1
+SET OCT_NAME=%~2
 
 REM --- Job share folder ---
-SET SHARE_PATH=%4
+SET SHARE_PATH=%~4
 
 REM --- Options ---
 SET OPT=/BELOWNORMAL /B
