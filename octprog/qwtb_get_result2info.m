@@ -8,7 +8,7 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
     % load results:
     [res, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(meas_root, res_id, alg_id, cfg, var_list);
     
-    % repetitions count:
+    % readings count:
     R = numel(res);
     % channels/phases count:       
     C = numel(res{1});
@@ -44,15 +44,16 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
             
             vinf = '';
             if ~qu.is_big && ~isempty(qu.val)
-                % quantity loaded and numeric
-                
+                % quantity loaded and numeric                
                 uc = (qu.unc.^2 + (2*ua.val).^2).^0.5;                         
                 vinf = infosetmatrix(vinf,'value',qu.val);  
                 vinf = infosetmatrix(vinf,'uncertainty',uc);
+                vinf = infosetmatrix(vinf,'ua',ua.val);
             else
                 % unknonw or too long:           
                 vinf = infosetmatrix(vinf,'value',NaN);  
-                vinf = infosetmatrix(vinf,'uncertainty',NaN);            
+                vinf = infosetmatrix(vinf,'uncertainty',NaN);
+                vinf = infosetmatrix(vinf,'ua',NaN);            
             end
             
             % store quantity section:
@@ -69,5 +70,6 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
     inf = infosetnumber(inf,'phases/channels count',numel(chn_name));    
     inf = infosettextmatrix(inf,'list of phases/channels',chn_name);
     inf = infosettextmatrix(inf,'list of quantities',qu_name);
+    inf = infosettextmatrix(inf,'readings',R);
     
 end
