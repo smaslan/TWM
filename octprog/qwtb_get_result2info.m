@@ -70,6 +70,6 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
     inf = infosetnumber(inf,'phases/channels count',numel(chn_name));    
     inf = infosettextmatrix(inf,'list of phases/channels',chn_name);
     inf = infosettextmatrix(inf,'list of quantities',qu_name);
-    inf = infosettextmatrix(inf,'readings',R);
+    inf = infosetnumber(inf,'readings',R);
     
 end
