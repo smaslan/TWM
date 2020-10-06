@@ -60,7 +60,7 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
         dout = qwtb('PSFE',din,cset);
         fest = dout.f.v;        
     elseif isfield(datain,'fest') && ischar(datain.fest.v)
-        error(sprintf('MFSF error: initial estimate mode ''%s'' not recognised!',datain.fest.v));        
+        error(sprintf('QWTB: MFSF wrapper: initial estimate mode ''%s'' not recognised!',datain.fest.v));        
     else
         % standard mode (user estimate or default auto method of MFSF (peak FFT bin)):
         fest = datain.fest.v;
@@ -69,7 +69,7 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
     if ~isfield(datain,'CFT')
         % ###note: this is default value from MFSF. It is assigned here so it can
         %          be used later in the wrapper even if user did not assigned it 
-        datain.CFT.v = 1e-14;
+        datain.CFT.v = 3.5e-11;
     end
 
     % Call algorithm ---------------------------  %<<<1
@@ -235,7 +235,7 @@ function dataout = alg_wrapper(datain, calcset) %<<<1
         noise_rms = (noise_rms^2 - h_rms^2 - ih_rms^2)^0.5;
         if ~isreal(noise_rms)
             if calcset.verbose
-                disp('QWTB: MFSF wrapper: estimate of signal for uncertainty calcualtion is too low, truncating it to zero.');
+                disp('QWTB: MFSF wrapper: estimate of signal noise for uncertainty calculation is too low, truncating it to zero.');
             end
             % the noise is too low for some reason...
             noise_rms = 0;
