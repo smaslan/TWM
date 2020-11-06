@@ -201,6 +201,7 @@
 					<Item Name="cdaq_dds_test.vi" Type="VI" URL="../drivers/cdaq/low_level_old/cdaq_dds_test.vi"/>
 				</Item>
 				<Item Name="cDAQ Session.ctl" Type="VI" URL="../drivers/cdaq/cDAQ Session.ctl"/>
+				<Item Name="cDAQ Master Clock Mode.ctl" Type="VI" URL="../drivers/cdaq/cDAQ Master Clock Mode.ctl"/>
 				<Item Name="cDAQ Virtual Channel.ctl" Type="VI" URL="../drivers/cdaq/cDAQ Virtual Channel.ctl"/>
 				<Item Name="cDAQ Record Sample Data.ctl" Type="VI" URL="../drivers/cdaq/cDAQ Record Sample Data.ctl"/>
 				<Item Name="cDAQ Record Aux Data.ctl" Type="VI" URL="../drivers/cdaq/cDAQ Record Aux Data.ctl"/>
@@ -212,6 +213,7 @@
 				<Item Name="cDAQ Abort Digitize.vi" Type="VI" URL="../drivers/cdaq/cDAQ Abort Digitize.vi"/>
 				<Item Name="cDAQ Wait Digitize.vi" Type="VI" URL="../drivers/cdaq/cDAQ Wait Digitize.vi"/>
 				<Item Name="cDAQ Kill Digitizing Process.vi" Type="VI" URL="../drivers/cdaq/cDAQ Kill Digitizing Process.vi"/>
+				<Item Name="cDAQ Get Info.vi" Type="VI" URL="../drivers/cdaq/cDAQ Get Info.vi"/>
 				<Item Name="cDAQ Get Digitizing Process Status.vi" Type="VI" URL="../drivers/cdaq/cDAQ Get Digitizing Process Status.vi"/>
 			</Item>
 			<Item Name="Fluke 8588A" Type="Folder">
@@ -1472,7 +1474,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1490,7 +1492,7 @@
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{DB948586-2B79-46E6-9B9F-CCA5BA2B7C82}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{B53FD108-91F0-4548-AFA2-34ADC15D4E0E}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1540,7 +1542,8 @@ V1.6.6 - support for cDAQ ADC
 V1.6.7 - cDAQ data scaling fixed
 V1.6.8 - partial support for Fluke 8588A
 V1.6.9 - support for CMI clock div, minor changes in GUI
-V1.7.1 - minor fixes</Property>
+V1.7.1 - minor fixes
+V1.7.2 - adc ranges settable via server</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2020</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
@@ -1566,7 +1569,7 @@ V1.7.1 - minor fixes</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-niscope/TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1584,7 +1587,7 @@ V1.7.1 - minor fixes</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{DB948586-2B79-46E6-9B9F-CCA5BA2B7C82}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{B53FD108-91F0-4548-AFA2-34ADC15D4E0E}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1632,7 +1635,8 @@ V1.6.4 - basic implementation of Keysight DSO
 V1.6.5 - fixed timeout problem for 3458A in sub-records mode
 V1.6.6 - support for cDAQ ADC
 V1.6.9 - support for CMI clock div, Fluke 8588, minor changes in GUI
-V1.7.1 - minor fixes</Property>
+V1.7.1 - minor fixes
+V1.7.2 - adc ranges settable via server</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2020</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
@@ -1658,7 +1662,7 @@ V1.7.1 - minor fixes</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/TWM-visa.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1676,7 +1680,7 @@ V1.7.1 - minor fixes</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{DB948586-2B79-46E6-9B9F-CCA5BA2B7C82}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{B53FD108-91F0-4548-AFA2-34ADC15D4E0E}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1720,7 +1724,8 @@ V1.5.0 - conditional compile of selected drivers included
 V1.6.0 - improved GUI (mainly corrections)
 V1.6.1 - minor fixes in corrections editor, fixed dsdll
 V1.7.0 - parallel QWTB processing
-V1.7.1 - minor fixes</Property>
+V1.7.1 - minor fixes
+V1.7.2 - ranges settable via server</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2020</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>
@@ -1739,7 +1744,7 @@ V1.7.1 - minor fixes</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{DB64396F-7FF5-45F4-8E08-882448D7416F}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">3</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM client.lvlibp</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM client/TWM client.lvlibp</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1748,7 +1753,7 @@ V1.7.1 - minor fixes</Property>
 				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/TWM client</Property>
 				<Property Name="DestinationCount" Type="Int">2</Property>
 				<Property Name="PackedLib_callersAdapt" Type="Bool">true</Property>
-				<Property Name="Source[0].itemID" Type="Str">{B74C9E01-C9C0-43BE-8510-B8EBC76A1D53}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{B53FD108-91F0-4548-AFA2-34ADC15D4E0E}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/server/TWM Client.lvlib</Property>
