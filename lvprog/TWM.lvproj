@@ -910,6 +910,8 @@
 			<Item Name="Server Generate Answer Event.vi" Type="VI" URL="../server/Server Generate Answer Event.vi"/>
 			<Item Name="Server Generate Command Event.vi" Type="VI" URL="../server/Server Generate Command Event.vi"/>
 			<Item Name="Server Parse Commands.vi" Type="VI" URL="../server/Server Parse Commands.vi"/>
+			<Item Name="Server Log Stuff.vi" Type="VI" URL="../server/Server Log Stuff.vi"/>
+			<Item Name="Server Log Panel.vi" Type="VI" URL="../server/Server Log Panel.vi"/>
 			<Item Name="Server Panel.vi" Type="VI" URL="../server/Server Panel.vi"/>
 		</Item>
 		<Item Name="doc" Type="Folder" URL="../../doc">
@@ -1492,7 +1494,7 @@
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{B53FD108-91F0-4548-AFA2-34ADC15D4E0E}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{421B8C2C-6E11-48BB-8F07-2653BB0A0743}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
