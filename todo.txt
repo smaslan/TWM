@@ -8,7 +8,5 @@ Todo:
  - Octave/Matlab loads all '\octprog' subfolders, so it always uses \octprog\qwtb instead of the path given in config panel. This should be fixed.
  - Warnings from transdcucers panel shows as errors in main panel?
  - sometimes changed digitizer channels count does not reflect in tranducers panel
- - do not show phase/channel index when only one phase/channel available
-
 
 Doc:

@@ -159,7 +159,11 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
             end
                        
             % build variable name
-            var_name = sprintf('%s[%s]', ref.name, ref.tag);
+            if C > 1
+                var_name = sprintf('%s[%s]', ref.name, ref.tag); % 'variable_name[phase_name/channel_name]'
+            else
+                var_name = sprintf('%s', ref.name); % 'variable_name' only for single channel/phase to make it readable 
+            end
             var_unc = sprintf('U(%s)', var_name);
             % build variable description
             full_var_desc = sprintf('%s of channel/phase %s%s',ref.desc,ref.tag,sstr);
