@@ -636,8 +636,8 @@
 					<Item Name="Meas Proc QWTB Parallel Check Results.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Parallel Check Results.vi"/>
 					<Item Name="Meas Proc QWTB Exec Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Exec Mode.ctl"/>
 					<Item Name="Meas Proc QWTB Spectrum Data.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Spectrum Data.ctl"/>
-					<Item Name="Meas Proc QWTB Load Result Spectra.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Load Result Spectra.vi"/>
 					<Item Name="Meas Proc QWTB Quantity Record.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Quantity Record.ctl"/>
+					<Item Name="Meas Proc QWTB Load Result Spectra.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Load Result Spectra.vi"/>
 				</Item>
 				<Item Name="Meas Process Config.ctl" Type="VI" URL="../measure/processing/Meas Process Config.ctl"/>
 				<Item Name="Meas Process Mode.ctl" Type="VI" URL="../measure/processing/Meas Process Mode.ctl"/>
