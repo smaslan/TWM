@@ -403,9 +403,10 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     % get transducer paths
     transducer_paths = infogettextmatrix(cinf, 'transducer paths');
     
-    if numel(corr.phase_idx) > data.channels_count || numel(transducer_paths) > data.channels_count
-        error('TWM measurement loader: Transducers count is higher than digitizer channels count!');
-    end
+    %###note: not needed - we just check later the channel indices are in valid range of available digitizer channels
+    %if numel(corr.phase_idx) > data.channels_count || numel(transducer_paths) > data.channels_count
+    %    error('TWM measurement loader: Transducers count is higher than digitizer channels count!');
+    %end
     has_transducers = ~~numel(transducer_paths);
         
     % load transducer to digitizer mapping matrix:

@@ -9,5 +9,4 @@ Todo:
  - Warnings from transdcucers panel shows as errors in main panel?
  - sometimes changed digitizer channels count does not reflect in tranducers panel
 
-
 Doc:

@@ -1,5 +1,5 @@
 function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
-% This loads the result data and formats it to INFO style.
+% This loads the result data and formats it into INFO style packet.
 % ###TODO: better doc
 
     % return averages:
@@ -71,5 +71,7 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
     inf = infosettextmatrix(inf,'list of phases/channels',chn_name);
     inf = infosettextmatrix(inf,'list of quantities',qu_name);
     inf = infosetnumber(inf,'readings',R);
+    % append measurement root folder path just in case TWM client wants to dig out some stuff directly
+    inf = infosettext(inf,'session folder',meas_root);
     
 end
