@@ -85,6 +85,9 @@ function [dig] = correction_load_digitizer(cor_path, minf, meas, rep_id, group_i
             
         % load channel correction paths:
         chn_paths = infogettextmatrix(dinf, 'channel correction paths');
+        % convert filepaths for linux or for windows if needed. dos notation ('\') is kept because of
+        % labview:
+        chn_paths = path_dos2unix(chn_paths);
         % check consistency:
         if numel(chn_paths) ~= numel(chn_names)
             error('Digitizer correction loader: Number of digitizer''s channels does not match.');

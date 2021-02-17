@@ -697,20 +697,22 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         alg_res_list = algs_hist{aid};
         
         % try to find if there is already this result (previous call of the QWTB with the same algorithm)
-        rid = strcmpi(alg_res_list, result_rel_path);
+        % first ensure the path is in dos notation ('\'). dos notation is kept because of labview:
+        result_rel_path_d = path_unix2dos(result_rel_path)
+        rid = strcmpi(alg_res_list, result_rel_path_d);
         if any(rid)
             % found - overwrite
             rid = find(rid,1);
-            alg_res_list{rid,1} = result_rel_path;
+            alg_res_list{rid,1} = result_rel_path_d;
         else
             % not found - add
-            alg_res_list{end+1,1} = result_rel_path;
+            alg_res_list{end+1,1} = result_rel_path_d;
             rid = numel(alg_res_list);
         end
         
         % sort results
         alg_res_list = sort(alg_res_list);  
-        rid = find(strcmpi(alg_res_list,result_rel_path),1);
+        rid = find(strcmpi(alg_res_list,result_rel_path_d),1);
         
         % store back the results list for this algorithm
         algs_hist{aid} = alg_res_list;

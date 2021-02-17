@@ -320,6 +320,9 @@ function [data] = correction_parse_section(root_path, inf, meas_inf, correction_
   catch
     % conversion failed, so clearly the values were CSV files (or some other rubbish)
     is_csv = 1;    
+    % convert filepaths for linux or for windows if needed. dos notation ('\') is kept because of
+    % labview:
+    values = path_dos2unix(values);
   end
   
 

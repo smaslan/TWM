@@ -229,6 +229,9 @@ function [file_name] = correction_load_transducer_get_file_key(inf,key)
     if isempty(file_name)
         error('File name empty!');
     end  
+    % convert filepaths for linux or for windows if needed. dos notation ('\') is kept because of
+    % labview:
+    file_name = path_dos2unix(file_name);
 end
 
  
