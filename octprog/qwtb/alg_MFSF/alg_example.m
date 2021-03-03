@@ -1,44 +1,54 @@
-%% Phase Sensitive Frequency Estimator
-% Example for algorithm PSFE.
+%% Multi-frequency sine fit
+% Example for algorithm MFSF.
 %
-% PSFE is an algorithm for estimating the frequency, amplitude, and phase of the
-% fundamental component in harmonically distorted waveforms. The algorithm
-% minimizes the phase difference between the sine model and the sampled waveform
-% by effectively minimizing the influence of the harmonic components. It uses a
-% three-parameter sine-fitting algorithm for all phase calculations. The
-% resulting estimates show up to two orders of magnitude smaller sensitivity to
-% harmonic distortions than the results of the four-parameter sine fitting
-% algorithm.
+% MFSF is an algorithm for estimating the frequency, amplitude, and phase of the fundamental and harmonic
+% components in a waveform. Amplitudes and phases of harmonic components are adjusted to find minimal
+% sum of squared differences between sampled signal and multi-harmonic model. When all sampled signal
+% harmonics are included in the model, the algorithm is efficient and produces no bias. It can even
+% handle aliased harmonics, if they are not aliased back exactly at frequencies where other harmonics
+% are already present. Further, it can also handle non harmonic components, when their frequency ratio
+% to the fundamental frequency is exactly known a-priori.';
 %
-% See also Lapuh, R., "Estimating the Fundamental Component of Harmonically
-% Distorted Signals From Noncoherently Sampled Data," Instrumentation and
-% Measurement, IEEE Transactions on , vol.64, no.6, pp.1419,1424, June 2015,
-% doi: 10.1109/TIM.2015.2401211, URL: http://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=7061456&isnumber=7104190'
+% See also:
+% J. Schoukens, R. Pintelon, and G. Vandersteen, "A sinewave fitting procedure for characterizing
+% data acquisition  channels in the presence of time base distortion and time jitter," IEEE Trans.
+% Instrum. Meas., Vol. 46, No. 4, Aug. 1997, 1005-1010
+% R. Lapuh, "Sampling % with 3458A", Left Right d.o.o., September 2018, ISBN 978-961-94476-0-4';
 
 %% Generate sample data
 % Two quantities are prepared: |Ts| and |y|, representing 1 second of sinus
-% waveform of nominal frequency 100 Hz, nominal amplitude 1 V and nominal phase
-% 1 rad, sampled with sampling time 0.1 ms.
+% waveform of nominal frequency 1 Hz, nominal amplitude 1 V and nominal phase
+% 0.1 rad, sampled with sampling time 0.1 ms, with three additional harmonics.
 DI = [];
-Anom = 1; fnom = 100; phnom = 1;
+Anom = [1 0.5 0.3 0.2];
+fnom = [1   2   3   4];
+phnom = [0.1 0.2 0.3 0.4];
+Onom = [1];
 DI.Ts.v = 1e-4;
 t = [0:DI.Ts.v:1-DI.Ts.v];
-DI.y.v = Anom*sin(2*pi*fnom*t + phnom);
+DI.y.v = Anom'.*sin(2.*pi.*fnom'.*t + phnom');
+DI.y.v = sum(DI.y.v, 1) + Onom;
+% tell algorithm which component to expect:
+DI.ExpComp.v = [1 2 3 4];
+% set estimate of main component frequency:
+DI.fest.v = 1.1;
 %%
 % Add noise:
 DI.y.v = DI.y.v + 1e-3.*randn(size(DI.y.v));
 
 %% Call algorithm
 % Use QWTB to apply algorithm |PSFE| to data |DI|.
-DO = qwtb('PSFE', DI);
+DO = qwtb('MFSF', DI);
 
 %% Display results
 % Results is the amplitude, frequency and phase of sampled waveform.
 f = DO.f.v
 A = DO.A.v
 ph = DO.ph.v
+O = DO.O.v
 %%
 % Errors of estimation in parts per milion:
-ferrppm = (DO.f.v - fnom)/fnom .* 1e6
-Aerrppm = (DO.A.v - Anom)/Anom .* 1e6
-pherrppm = (DO.ph.v - phnom)/phnom .* 1e6
+ferrppm = (DO.f.v - fnom)./fnom .* 1e6
+Aerrppm = (DO.A.v - Anom)./Anom .* 1e6
+pherrppm = (DO.ph.v - phnom)./phnom .* 1e6
+Oerrppm = (DO.O.v - Onom)./Onom .* 1e6

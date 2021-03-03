@@ -173,6 +173,9 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     % get record file names
     record_names = infogettextmatrix(ginf, 'record sample data files');
+    % convert filepaths for linux or for windows if needed. dos notation ('\') is kept because of
+    % labview:
+    record_names = path_dos2unix(record_names);
     
     % sample counts for each record in the average group
     sample_counts = infogetmatrix(ginf, 'record samples counts');
@@ -402,6 +405,9 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     % get transducer paths
     transducer_paths = infogettextmatrix(cinf, 'transducer paths');
+    % convert filepaths for linux or for windows if needed. dos notation ('\') is kept because of
+    % labview:
+    transducer_paths = path_dos2unix(transducer_paths);
     
     %###note: not needed - we just check later the channel indices are in valid range of available digitizer channels
     %if numel(corr.phase_idx) > data.channels_count || numel(transducer_paths) > data.channels_count
@@ -511,6 +517,9 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     
     % get digitizer corrections path:
     digitizer_path = infogettext(cinf, 'digitizer corrections path');
+    % convert filepaths for linux or for windows if needed. dos notation ('\') is kept because of
+    % labview:
+    digitizer_path = path_dos2unix(digitizer_path);
         
     % load digitizer corrections:
     corr.dig = correction_load_digitizer(digitizer_path, inf, data, 1, group_id);
