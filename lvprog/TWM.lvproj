@@ -1476,7 +1476,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">2</Property>
+				<Property Name="Bld_version.patch" Type="Int">3</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1494,7 +1494,7 @@
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{421B8C2C-6E11-48BB-8F07-2653BB0A0743}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{D061C331-8D0D-4D0F-A999-BD1B55AF040F}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1545,9 +1545,10 @@ V1.6.7 - cDAQ data scaling fixed
 V1.6.8 - partial support for Fluke 8588A
 V1.6.9 - support for CMI clock div, minor changes in GUI
 V1.7.1 - minor fixes
-V1.7.2 - adc ranges settable via server</Property>
+V1.7.2 - adc ranges settable via server
+V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2020</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2021</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{D8F2E1E1-802E-4B60-9D7C-5E18E07A06CA}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM.exe</Property>
@@ -1571,7 +1572,7 @@ V1.7.2 - adc ranges settable via server</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">2</Property>
+				<Property Name="Bld_version.patch" Type="Int">3</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-niscope/TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1589,7 +1590,7 @@ V1.7.2 - adc ranges settable via server</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{B53FD108-91F0-4548-AFA2-34ADC15D4E0E}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{D061C331-8D0D-4D0F-A999-BD1B55AF040F}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1638,9 +1639,10 @@ V1.6.5 - fixed timeout problem for 3458A in sub-records mode
 V1.6.6 - support for cDAQ ADC
 V1.6.9 - support for CMI clock div, Fluke 8588, minor changes in GUI
 V1.7.1 - minor fixes
-V1.7.2 - adc ranges settable via server</Property>
+V1.7.2 - adc ranges settable via server
+V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2020</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2021</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{19518978-F8E5-4558-9786-71904496379A}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM-visa-niScope.exe</Property>
@@ -1664,7 +1666,7 @@ V1.7.2 - adc ranges settable via server</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">2</Property>
+				<Property Name="Bld_version.patch" Type="Int">3</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/TWM-visa.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1682,7 +1684,7 @@ V1.7.2 - adc ranges settable via server</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{B53FD108-91F0-4548-AFA2-34ADC15D4E0E}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{D061C331-8D0D-4D0F-A999-BD1B55AF040F}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1727,9 +1729,10 @@ V1.6.0 - improved GUI (mainly corrections)
 V1.6.1 - minor fixes in corrections editor, fixed dsdll
 V1.7.0 - parallel QWTB processing
 V1.7.1 - minor fixes
-V1.7.2 - ranges settable via server</Property>
+V1.7.2 - ranges settable via server
+V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2020</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2021</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{AEEC5EC9-3A7F-49CB-BB07-729F6120ABF4}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM-visa.exe</Property>
