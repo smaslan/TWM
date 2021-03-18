@@ -395,7 +395,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     adc_spur = a0*10^(-adc_sfdr.sfdr/20);
     
     % combine spurs:
-    % ###note: using worst case scenario = sum, but probably should be sumsq().^0.5?
+    % ###note: using worst case scenario = sum, but probably should be sumsquare().^0.5?
     spur = tr_spur + adc_spur;
   
   
@@ -452,8 +452,8 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
  
     % --- Now finally evaluate THD for uncorrected harmonics --- 
     % calculate THD from randomized amplitudes U_org
-    k1_org = 100*sumsq(U_org(2:end,:),1).^0.5./U_org(1,:);
-    k2_org = 100*sumsq(U_org(2:end,:),1).^0.5./sumsq(U_org,1).^0.5;
+    k1_org = 100*sumsquare(U_org(2:end,:),1).^0.5./U_org(1,:);
+    k2_org = 100*sumsquare(U_org(2:end,:),1).^0.5./sumsquare(U_org,1).^0.5;
       
     % limit to positive values
     k1_org = max(k1_org,0);
@@ -472,10 +472,10 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     
     % --- Now finally evaluate THD for noise-corrected harmonics --- 
     % calculate THD from randomized amplitudes U_fix
-    k1_fix = 100*sumsq(U_fix(2:end,:),1).^0.5./U_fix(1,:);
-    k2_fix = 100*sumsq(U_fix(2:end,:),1).^0.5./sumsq(U_fix,1).^0.5;
-    k3_fix = 100*(0.5*sumsq(U_fix(2:end,:),1) + noise_rms^2).^0.5./(0.5*U_fix(1,:).^2).^0.5;
-    k4_fix = 100*(0.5*sumsq(U_fix(2:end,:),1) + noise_rms^2).^0.5./(0.5*sumsq(U_fix,1) + noise_rms^2).^0.5;
+    k1_fix = 100*sumsquare(U_fix(2:end,:),1).^0.5./U_fix(1,:);
+    k2_fix = 100*sumsquare(U_fix(2:end,:),1).^0.5./sumsquare(U_fix,1).^0.5;
+    k3_fix = 100*(0.5*sumsquare(U_fix(2:end,:),1) + noise_rms^2).^0.5./(0.5*U_fix(1,:).^2).^0.5;
+    k4_fix = 100*(0.5*sumsquare(U_fix(2:end,:),1) + noise_rms^2).^0.5./(0.5*sumsquare(U_fix,1) + noise_rms^2).^0.5;
     
     % limit to positive values
     k1_fix = max(k1_fix,0);
@@ -524,10 +524,10 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         %% for uncorrected THD values 
         k1_org_o = k1_org_m;
         k2_org_o = k2_org_m;
-        %k1_org_m = 100*sumsq(mean(U_org(2:end,:),2),1).^0.5./mean(U_org(1,:),2);
-        %k2_org_m = 100*sumsq(mean(U_org(2:end,:),2),1).^0.5./sumsq(mean(U_org,2),1).^0.5;
-        k1_org_m = 100*sumsq(U_org_m(2:end),1).^0.5./U_org_m(1);
-        k2_org_m = 100*sumsq(U_org_m(2:end),1).^0.5./sumsq(U_org_m,1).^0.5;
+        %k1_org_m = 100*sumsquare(mean(U_org(2:end,:),2),1).^0.5./mean(U_org(1,:),2);
+        %k2_org_m = 100*sumsquare(mean(U_org(2:end,:),2),1).^0.5./sumsquare(mean(U_org,2),1).^0.5;
+        k1_org_m = 100*sumsquare(U_org_m(2:end),1).^0.5./U_org_m(1);
+        k2_org_m = 100*sumsquare(U_org_m(2:end),1).^0.5./sumsquare(U_org_m,1).^0.5;
         k1_org_a = max(k1_org_a + (k1_org_m - k1_org_o),0);
         k1_org_b = k1_org_b + (k1_org_m - k1_org_o);
         k2_org_a = max(k2_org_a + (k2_org_m - k2_org_o),0);
@@ -538,14 +538,14 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         k2_fix_o = k2_fix_m;
         k3_fix_o = k3_fix_m;
         k4_fix_o = k4_fix_m;        
-%         k1_fix_m = 100*sumsq(mean(U_fix(2:end,:),2),1).^0.5./mean(U_fix(1,:),2);
-%         k2_fix_m = 100*sumsq(mean(U_fix(2:end,:),2),1).^0.5./sumsq(mean(U_fix,2),1).^0.5;
-%         k3_fix_m = 100*(0.5*sumsq(mean(U_fix(2:end,:),2),1) + noise_rms^2).^0.5./(0.5*mean(U_fix(1,:),2)^2).^0.5;
-%         k4_fix_m = 100*(0.5*sumsq(mean(U_fix(2:end,:),2),1) + noise_rms^2).^0.5./(0.5*sumsq(mean(U_fix,2),1) + noise_rms^2).^0.5;
-        k1_fix_m = 100*sumsq(U_fix_m(2:end),1).^0.5./U_fix_m(1);
-        k2_fix_m = 100*sumsq(U_fix_m(2:end),1).^0.5./sumsq(U_fix_m,1).^0.5;
-        k3_fix_m = 100*(0.5*sumsq(U_fix_m(2:end),1) + noise_rms^2).^0.5./(0.5*U_fix_m(1)^2).^0.5;
-        k4_fix_m = 100*(0.5*sumsq(U_fix_m(2:end),1) + noise_rms^2).^0.5./(0.5*sumsq(U_fix_m,1) + noise_rms^2).^0.5;
+%         k1_fix_m = 100*sumsquare(mean(U_fix(2:end,:),2),1).^0.5./mean(U_fix(1,:),2);
+%         k2_fix_m = 100*sumsquare(mean(U_fix(2:end,:),2),1).^0.5./sumsquare(mean(U_fix,2),1).^0.5;
+%         k3_fix_m = 100*(0.5*sumsquare(mean(U_fix(2:end,:),2),1) + noise_rms^2).^0.5./(0.5*mean(U_fix(1,:),2)^2).^0.5;
+%         k4_fix_m = 100*(0.5*sumsquare(mean(U_fix(2:end,:),2),1) + noise_rms^2).^0.5./(0.5*sumsquare(mean(U_fix,2),1) + noise_rms^2).^0.5;
+        k1_fix_m = 100*sumsquare(U_fix_m(2:end),1).^0.5./U_fix_m(1);
+        k2_fix_m = 100*sumsquare(U_fix_m(2:end),1).^0.5./sumsquare(U_fix_m,1).^0.5;
+        k3_fix_m = 100*(0.5*sumsquare(U_fix_m(2:end),1) + noise_rms^2).^0.5./(0.5*U_fix_m(1)^2).^0.5;
+        k4_fix_m = 100*(0.5*sumsquare(U_fix_m(2:end),1) + noise_rms^2).^0.5./(0.5*sumsquare(U_fix_m,1) + noise_rms^2).^0.5;
         k1_fix_a = max(k1_fix_a + (k1_fix_m - k1_fix_o),0);
         k1_fix_b = k1_fix_b + (k1_fix_m - k1_fix_o);
         k2_fix_a = max(k2_fix_a + (k2_fix_m - k2_fix_o),0);
@@ -561,26 +561,26 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         % 2) recalculate uncertainty for the worst possible combination of input voltage uncertainties
         
         %% for uncorrected THD values 
-        k1_org_m = 100*sumsq(U_org_m(2:end),1).^0.5./U_org_m(1);
-        k2_org_m = 100*sumsq(U_org_m(2:end),1).^0.5./sumsq(U_org_m,1).^0.5;
-        k1_org_a = 100*sumsq(U_org_a(2:end),1).^0.5./U_org_b(1);
-        k1_org_b = 100*sumsq(U_org_b(2:end),1).^0.5./U_org_a(1);
-        k2_org_a = 100*sumsq(U_org_a(2:end),1).^0.5./sumsq(U_org_b,1).^0.5;
-        k2_org_b = 100*sumsq(U_org_b(2:end),1).^0.5./sumsq(U_org_a,1).^0.5;
+        k1_org_m = 100*sumsquare(U_org_m(2:end),1).^0.5./U_org_m(1);
+        k2_org_m = 100*sumsquare(U_org_m(2:end),1).^0.5./sumsquare(U_org_m,1).^0.5;
+        k1_org_a = 100*sumsquare(U_org_a(2:end),1).^0.5./U_org_b(1);
+        k1_org_b = 100*sumsquare(U_org_b(2:end),1).^0.5./U_org_a(1);
+        k2_org_a = 100*sumsquare(U_org_a(2:end),1).^0.5./sumsquare(U_org_b,1).^0.5;
+        k2_org_b = 100*sumsquare(U_org_b(2:end),1).^0.5./sumsquare(U_org_a,1).^0.5;
         
         %% for uncorrected THD values 
-        k1_fix_m = 100*sumsq(U_fix_m(2:end),1).^0.5./U_fix_m(1);
-        k2_fix_m = 100*sumsq(U_fix_m(2:end),1).^0.5./sumsq(U_fix_m,1).^0.5;
-        k3_fix_m = 100*(0.5*sumsq(U_fix_m(2:end),1) + noise_rms^2).^0.5./(0.5*U_fix_m(1)^2).^0.5;
-        k4_fix_m = 100*(0.5*sumsq(U_fix_m(2:end),1) + noise_rms^2).^0.5./(0.5*sumsq(U_fix_m,1) + noise_rms^2).^0.5;
-        k1_fix_a = 100*sumsq(U_fix_a(2:end),1).^0.5./U_fix_b(1);
-        k1_fix_b = 100*sumsq(U_fix_b(2:end),1).^0.5./U_fix_a(1);
-        k2_fix_a = 100*sumsq(U_fix_a(2:end),1).^0.5./sumsq(U_fix_b,1).^0.5;
-        k2_fix_b = 100*sumsq(U_fix_b(2:end),1).^0.5./sumsq(U_fix_a,1).^0.5;        
-        k3_fix_a = 100*sumsq(U_fix_a(2:end),1).^0.5./(0.5*U_fix_b(1)^2).^0.5;
-        k3_fix_b = 100*sumsq(U_fix_b(2:end),1).^0.5./(0.5*U_fix_a(1)^2).^0.5;
-        k4_fix_a = 100*sumsq(U_fix_a(2:end),1).^0.5./(0.5*sumsq(U_fix_b,1) + noise_rms^2).^0.5;
-        k4_fix_b = 100*sumsq(U_fix_b(2:end),1).^0.5./(0.5*sumsq(U_fix_a,1) + noise_rms^2).^0.5;    
+        k1_fix_m = 100*sumsquare(U_fix_m(2:end),1).^0.5./U_fix_m(1);
+        k2_fix_m = 100*sumsquare(U_fix_m(2:end),1).^0.5./sumsquare(U_fix_m,1).^0.5;
+        k3_fix_m = 100*(0.5*sumsquare(U_fix_m(2:end),1) + noise_rms^2).^0.5./(0.5*U_fix_m(1)^2).^0.5;
+        k4_fix_m = 100*(0.5*sumsquare(U_fix_m(2:end),1) + noise_rms^2).^0.5./(0.5*sumsquare(U_fix_m,1) + noise_rms^2).^0.5;
+        k1_fix_a = 100*sumsquare(U_fix_a(2:end),1).^0.5./U_fix_b(1);
+        k1_fix_b = 100*sumsquare(U_fix_b(2:end),1).^0.5./U_fix_a(1);
+        k2_fix_a = 100*sumsquare(U_fix_a(2:end),1).^0.5./sumsquare(U_fix_b,1).^0.5;
+        k2_fix_b = 100*sumsquare(U_fix_b(2:end),1).^0.5./sumsquare(U_fix_a,1).^0.5;        
+        k3_fix_a = 100*sumsquare(U_fix_a(2:end),1).^0.5./(0.5*U_fix_b(1)^2).^0.5;
+        k3_fix_b = 100*sumsquare(U_fix_b(2:end),1).^0.5./(0.5*U_fix_a(1)^2).^0.5;
+        k4_fix_a = 100*sumsquare(U_fix_a(2:end),1).^0.5./(0.5*sumsquare(U_fix_b,1) + noise_rms^2).^0.5;
+        k4_fix_b = 100*sumsquare(U_fix_b(2:end),1).^0.5./(0.5*sumsquare(U_fix_a,1) + noise_rms^2).^0.5;    
        
     end
     
