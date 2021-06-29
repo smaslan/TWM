@@ -184,7 +184,6 @@
 				<Item Name="MAT Stream Writer Allign Streamed Data.vi" Type="VI" URL="../octave/mat/MAT Stream Writer Allign Streamed Data.vi"/>
 			</Item>
 			<Item Name="infolib" Type="Folder">
-				<Item Name="infolib.lvlibp" Type="LVLibp" URL="../octave/infolib.lvlibp"/>
 				<Item Name="Info Insert Row to 2D Reals Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D Reals Array.vi"/>
 				<Item Name="Info Insert Row to 2D Int64 Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D Int64 Array.vi"/>
 				<Item Name="Info Insert Row to 2D String Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D String Array.vi"/>
@@ -192,6 +191,7 @@
 				<Item Name="Info Insert Row to 1D String Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 1D String Array.vi"/>
 				<Item Name="Info Replace Scalar.vi" Type="VI" URL="../octave/info/Info Replace Scalar.vi"/>
 				<Item Name="Info Replace Matrix.vi" Type="VI" URL="../octave/info/Info Replace Matrix.vi"/>
+				<Item Name="infolib.lvlib" Type="Library" URL="../octave/infolib/infolib.lvlib"/>
 			</Item>
 			<Item Name="golpi" Type="Folder">
 				<Item Name="GOLPI Multi Process" Type="Folder">
@@ -592,8 +592,8 @@
 			<Item Name="Merge Builds.vi" Type="VI" URL="../build/Merge Builds.vi"/>
 		</Item>
 		<Item Name="Excel" Type="Folder">
-			<Item Name="AX Excel.lvlibp" Type="LVLibp" URL="../Excel/AX Excel.lvlibp"/>
 			<Item Name="read_me.txt" Type="Document" URL="../Excel/read_me.txt"/>
+			<Item Name="AX Excel.lvlib" Type="Library" URL="../Excel/AX Excel.lvlib"/>
 		</Item>
 		<Item Name="main.vi" Type="VI" URL="../main.vi"/>
 		<Item Name="par_test.vi" Type="VI" URL="../par_test.vi"/>
@@ -987,6 +987,7 @@
 				<Item Name="List Directory and LLBs.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/libraryn.llb/List Directory and LLBs.vi"/>
 				<Item Name="System Directory Type.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/sysdir.llb/System Directory Type.ctl"/>
 				<Item Name="Get System Directory.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/sysdir.llb/Get System Directory.vi"/>
+				<Item Name="LVDateTimeRec.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVDateTimeRec.ctl"/>
 			</Item>
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niScope Initialize.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/niScope Initialize.vi"/>
@@ -1081,12 +1082,9 @@
 			<Item Name="Get 2D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D EXT.vi"/>
 			<Item Name="Add Key Or Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Add Key Or Table.vi"/>
 			<Item Name="2D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D EXT.vi"/>
-			<Item Name="Get 2D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D I64.vi"/>
 			<Item Name="2D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D I64.vi"/>
 			<Item Name="Get 2D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D String.vi"/>
 			<Item Name="2D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D String.vi"/>
-			<Item Name="Get 1D Time Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D Time Stamp.vi"/>
-			<Item Name="1D Time Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D Time Stamp.vi"/>
 			<Item Name="Get 1D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D String.vi"/>
 			<Item Name="1D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D String.vi"/>
 			<Item Name="GOLPI reference Type Def.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/GOLPI reference Type Def.ctl"/>
@@ -1110,13 +1108,6 @@
 			<Item Name="EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/EXT.vi"/>
 			<Item Name="Insert Info Data.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Insert Info Data.vi"/>
 			<Item Name="Save Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Save Info.vi"/>
-			<Item Name="axex_cell_xy.ctl" Type="VI" URL="../Excel/AX Excel.lvlibp/axex_cell_xy.ctl"/>
-			<Item Name="axex_get_list_of_workbooks.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/advanced/axex_get_list_of_workbooks.vi"/>
-			<Item Name="axex_open_file.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_open_file.vi"/>
-			<Item Name="axex_create_sheet.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_create_sheet.vi"/>
-			<Item Name="axex_write.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_write.vi"/>
-			<Item Name="axex_write_cells.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_write_cells.vi"/>
-			<Item Name="axex_close_file_office16.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_close_file_office16.vi"/>
 			<Item Name="Get 1D Array Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get 1D Array Double.vi"/>
 			<Item Name="GetEXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetEXT.vi"/>
 			<Item Name="GetBoolean.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetBoolean.vi"/>
