@@ -205,11 +205,7 @@
 					<Item Name="GOLPI Multi Process.lvlib" Type="Library" URL="../octave/golpi/mpc/GOLPI Multi Process.lvlib"/>
 					<Item Name="golpi_mpc_demo.vi" Type="VI" URL="../octave/golpi/mpc/golpi_mpc_demo.vi"/>
 				</Item>
-				<Item Name="GOLPI Library.lvlibp" Type="LVLibp" URL="../octave/golpi/GOLPI Library.lvlibp"/>
-				<Item Name="COPYING" Type="Document" URL="../octave/golpi/COPYING"/>
-				<Item Name="COPYING.LESSER" Type="Document" URL="../octave/golpi/COPYING.LESSER"/>
-				<Item Name="lv_proc.dll" Type="Document" URL="../lv_proc.dll"/>
-				<Item Name="golpi-1.2.1.tar.gz" Type="Document" URL="../octave/golpi/golpi-1.2.1.tar.gz"/>
+				<Item Name="GOLPI library.lvlib" Type="Library" URL="../octave/golpi/GOLPI library.lvlib"/>
 			</Item>
 		</Item>
 		<Item Name="varilib" Type="Folder">
@@ -987,6 +983,10 @@
 				<Item Name="DAQmx Create Channel (AI-Acceleration-4 Wire DC Voltage).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Acceleration-4 Wire DC Voltage).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Acceleration-Charge).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Acceleration-Charge).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Charge).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Charge).vi"/>
+				<Item Name="Recursive File List.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/libraryn.llb/Recursive File List.vi"/>
+				<Item Name="List Directory and LLBs.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/libraryn.llb/List Directory and LLBs.vi"/>
+				<Item Name="System Directory Type.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/sysdir.llb/System Directory Type.ctl"/>
+				<Item Name="Get System Directory.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/sysdir.llb/Get System Directory.vi"/>
 			</Item>
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niScope Initialize.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/niScope Initialize.vi"/>
@@ -1092,16 +1092,9 @@
 			<Item Name="GOLPI reference Type Def.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/GOLPI reference Type Def.ctl"/>
 			<Item Name="Pipe Handle.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/LV Process source distribution/Pipe Handle.ctl"/>
 			<Item Name="Check Status.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Utility/Check Status.vi"/>
-			<Item Name="Read Full Output.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Pipes/Read Full Output.vi"/>
-			<Item Name="Read Output.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Pipes/Read Output.vi"/>
-			<Item Name="Write Command.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Pipes/Write Command.vi"/>
-			<Item Name="Read Output Till Keyword.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Pipes/Read Output Till Keyword.vi"/>
 			<Item Name="Get Variable.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Data/Get Variable.vi"/>
 			<Item Name="Get String.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get String.vi"/>
-			<Item Name="Start GNU Octave.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Start GNU Octave.vi"/>
 			<Item Name="Check Output For Octave Errors.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Utility/Check Output For Octave Errors.vi"/>
-			<Item Name="Set Bitstream Mode.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Utility/Set Bitstream Mode.vi"/>
-			<Item Name="Quit GNU Octave.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Quit GNU Octave.vi"/>
 			<Item Name="Get Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get Double.vi"/>
 			<Item Name="Get 2D Array Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get 2D Array Double.vi"/>
 			<Item Name="Load Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Load Info.vi"/>
@@ -1130,6 +1123,7 @@
 			<Item Name="1D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D EXT.vi"/>
 			<Item Name="dsdll_instance.ctl" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_instance.ctl"/>
 			<Item Name="dsdll_device_record.ctl" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_device_record.ctl"/>
+			<Item Name="LV Process library.lvlib" Type="Library" URL="../octave/golpi/LV Process library.lvlib"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM - full" Type="EXE">
@@ -1180,7 +1174,7 @@
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].itemID" Type="Ref">/My Computer/octave/golpi/lv_proc.dll</Property>
+				<Property Name="Source[4].itemID" Type="Ref"></Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[5].Container.applyDestination" Type="Bool">true</Property>
 				<Property Name="Source[5].Container.applyInclusion" Type="Bool">true</Property>
@@ -1198,7 +1192,7 @@
 				<Property Name="Source[8].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[8].type" Type="Str">Container</Property>
-				<Property Name="Source[9].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
+				<Property Name="Source[9].itemID" Type="Ref"></Property>
 				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="SourceCount" Type="Int">10</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
@@ -1277,7 +1271,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].itemID" Type="Ref">/My Computer/octave/golpi/lv_proc.dll</Property>
+				<Property Name="Source[4].itemID" Type="Ref"></Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[5].Container.applyDestination" Type="Bool">true</Property>
 				<Property Name="Source[5].Container.applyInclusion" Type="Bool">true</Property>
@@ -1295,7 +1289,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Source[8].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[8].type" Type="Str">Container</Property>
-				<Property Name="Source[9].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
+				<Property Name="Source[9].itemID" Type="Ref"></Property>
 				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="SourceCount" Type="Int">10</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
@@ -1372,7 +1366,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].itemID" Type="Ref">/My Computer/octave/golpi/lv_proc.dll</Property>
+				<Property Name="Source[4].itemID" Type="Ref"></Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[5].Container.applyDestination" Type="Bool">true</Property>
 				<Property Name="Source[5].Container.applyInclusion" Type="Bool">true</Property>
@@ -1390,7 +1384,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Source[8].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[8].type" Type="Str">Container</Property>
-				<Property Name="Source[9].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
+				<Property Name="Source[9].itemID" Type="Ref"></Property>
 				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="SourceCount" Type="Int">10</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
