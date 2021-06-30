@@ -1079,41 +1079,23 @@
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
 			<Item Name="Get Key Or Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Get Key Or Table.vi"/>
-			<Item Name="Get 2D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D EXT.vi"/>
 			<Item Name="Add Key Or Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Add Key Or Table.vi"/>
-			<Item Name="2D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D EXT.vi"/>
-			<Item Name="2D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D I64.vi"/>
-			<Item Name="Get 2D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D String.vi"/>
 			<Item Name="2D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D String.vi"/>
 			<Item Name="Get 1D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D String.vi"/>
 			<Item Name="1D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D String.vi"/>
-			<Item Name="GOLPI reference Type Def.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/GOLPI reference Type Def.ctl"/>
-			<Item Name="Pipe Handle.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/LV Process source distribution/Pipe Handle.ctl"/>
-			<Item Name="Check Status.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Utility/Check Status.vi"/>
-			<Item Name="Get Variable.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Data/Get Variable.vi"/>
-			<Item Name="Get String.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get String.vi"/>
-			<Item Name="Check Output For Octave Errors.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Utility/Check Output For Octave Errors.vi"/>
-			<Item Name="Get Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get Double.vi"/>
-			<Item Name="Get 2D Array Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get 2D Array Double.vi"/>
 			<Item Name="Load Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Load Info.vi"/>
 			<Item Name="GetI64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetI64.vi"/>
 			<Item Name="GetString.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetString.vi"/>
-			<Item Name="Get 1D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D I64.vi"/>
 			<Item Name="Get 1D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D EXT.vi"/>
 			<Item Name="Get Section.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Get Section.vi"/>
 			<Item Name="1D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D I64.vi"/>
 			<Item Name="String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/String.vi"/>
 			<Item Name="I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/I64.vi"/>
-			<Item Name="Boolean.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/Boolean.vi"/>
 			<Item Name="EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/EXT.vi"/>
 			<Item Name="Insert Info Data.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Insert Info Data.vi"/>
 			<Item Name="Save Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Save Info.vi"/>
-			<Item Name="Get 1D Array Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get 1D Array Double.vi"/>
-			<Item Name="GetEXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetEXT.vi"/>
 			<Item Name="GetBoolean.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetBoolean.vi"/>
 			<Item Name="1D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D EXT.vi"/>
-			<Item Name="dsdll_instance.ctl" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_instance.ctl"/>
-			<Item Name="dsdll_device_record.ctl" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_device_record.ctl"/>
 			<Item Name="LV Process library.lvlib" Type="Library" URL="../octave/golpi/LV Process library.lvlib"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
