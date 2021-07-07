@@ -1,0 +1,134 @@
+Cannot complete build because following VI loaded broken:
+
+D:\martin\TWM - github\lvprog\server\TWM client\TWM Client Cmd Get Result.vi
+
+Open the VI in LabVIEW and fix the listed errors. If the VI loads as expected but errors are still detected during the build, contact National Instruments technical support for assistance.
+
+Broken VIs:
+- TWM Client.lvlib:TWM Client Cmd Get Algorithm Info.vi:
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is not executable
+	SubVI is missing
+	SubVI is missing
+- TWM Client.lvlib:TWM Client Cmd Get Result.vi:
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is not executable
+	SubVI is missing
+	SubVI is missing
+- TWM Client.lvlib:TWM Client Cmd Get Status.vi:
+	SubVI is not executable
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+- TWM Client.lvlib:TWM Client Cmd Identify.vi:
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is not executable
+- TWM Client.lvlib:TWM Client Cmd Set Corrections.vi:
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is not executable
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+- TWM Client.lvlib:TWM Client Cmd Set Measurement.vi:
+	SubVI is not executable
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+- TWM Client.lvlib:TWM Client Recieve Packet.vi:
+	SubVI is missing
+- TWM Client.lvlib:TWM Client Wait ACK.vi:
+	SubVI is missing
+	SubVI is missing
+	SubVI is missing
+
+
+

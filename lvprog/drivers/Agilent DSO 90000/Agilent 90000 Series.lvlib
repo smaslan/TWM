@@ -6,7 +6,7 @@
 	<Property Name="NI.Lib.Icon" Type="Bin">)!#!!!!!!!)!"1!&amp;!!!-!%!!!@````]!!!!"!!%!!!)Z!!!*Q(C=\:1R=BMR$%7`-S\3KE\DU26Q"6W"6U$D![B6K3PA#LL#&gt;KFR!HOW44JVK:7X%*+RRY\5W$0RD%G$XPU!A&lt;=E2;H;6_F7JWPN`G*&lt;`.,^-D$7QT0\YV`?'&amp;ZU`'K(+P)6PULOB0_9@[H_:8Z&gt;&lt;*`_4``(^F^JR/SO"LVTEW[+&amp;%MM--?MPO[5[)G?[)G?[)E?[)%?[)%?[)(O[)\O[)\O[)ZO[):O[):O[):?(6XI1B=[KZ)54QIF3:-%34!I3I;%*_&amp;*?")?8J8Q*$Q*4]+4]"#CB#@B38A3HI3(;5JY%J[%*_&amp;*?%B6*&amp;E&gt;(:[%B`1+?!+?A#@A#8AIK9!H!!C+"9G$*'!I=!90!5`!%`$QK)!HY!FY!J[!"\=#HI!HY!FY!B[GV+J%U3Q&gt;(2\3S/&amp;R?"Q?B]@B)&lt;5=(I@(Y8&amp;Y("\+S?&amp;R?"Q)J[#4(!1ZEZQ!Z]8B=8DY*Y@(Y8&amp;Y("[("V@NE.@+,$2,2Y@(Y$&amp;Y$"[$R_!BB1Q?A]@A-8A-(N,+Y$&amp;Y$"[$R_#BF!Q?A]@A-5#-IJ38E=S9;!1:AM($8ZU7KVW+)L(K`&gt;-](V4V!61@,07"52]%^1;L.U[^)?K&amp;6C_A?G(5([T_%$7AOL![I4J12]9:G\!$NM?WW-!WW"J&lt;,60@/0"Y0'K?:UX4J-0BI0V_L_VWKT''.JO.VOOV6KP6X^PKDHZO.U`PJ:`@JOH(LT%?9ITP]RC0P#`[DLDXMP/^^$`=D@KCUZ.LHD8[$@VM231!!!!!</Property>
 	<Property Name="NI.Lib.SourceVersion" Type="Int">536903680</Property>
 	<Property Name="NI.Lib.Version" Type="Str">2.4.2.0</Property>
-	<Property Name="NI.LV.All.SourceOnly" Type="Bool">false</Property>
+	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.SortType" Type="Int">3</Property>
 	<Item Name="Public" Type="Folder">
 		<Property Name="NI.LibItem.Scope" Type="Int">1</Property>

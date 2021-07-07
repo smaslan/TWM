@@ -8,6 +8,7 @@
 	<Property Name="NI.Lib.Icon" Type="Bin">)!#!!!!!!!)!"1!&amp;!!!-!%!!!@````]!!!!"!!%!!!*/!!!*Q(C=\:3R&lt;6N"$):`'S\3;A.$B:O5,,S!6N!#-=$'!\T741#NQ"8E)F63Z+V!?Q..%%!,J*#`RU=&lt;1AKLM1%(]*UIX@P*)\^X&gt;TKJWB@J1I&gt;4\@&lt;6BF`CFX1VG+X(^0:LDK\)@F$\/`!ZKO=`D`&amp;8OB@B+-@2`(`K^`.=`Q3`8GW@`E```_U`U9CZ/RHUTEU[+V)MM=!=MXK\1[)H?K)H?K)H?K!(?K!(?K!(OK-\OK-\OK-\OK%&lt;OK%&lt;OK%&lt;?H6UI1N&gt;[+R+5DQJF#2.%C4"I#DZ3HA3HI1HY?&amp;2#5`#E`!E0!E0)5JY%J[%*_&amp;*?*CGB#@B38A3HI3(6%73V&gt;(B38B)LY!HY!FY!J[!BZ)+?!+!I&amp;C1/%A#BA*H-!BY!J[!B[%#HI!HY!FY!B\=#HA#HI!HY!FYG&amp;+L%E5T&gt;82Y3#/(R_&amp;R?"Q?BY@5=HA=(I@(Y8&amp;Y+#?(R_&amp;R)*S#4H)1Z%RS!JQ(B]@BY5=/D]0D]$A]$A_OWC'PF:FIJIY/D]&amp;D]"A]"I`"1QI:0!;0Q70Q'$SEF=&amp;D]"A]"I`"1SE:0!;0Q7/!'%5J,S/:-&gt;%)-A3$BU_&gt;&amp;KN&gt;CC+R[PX8H!_K_A#K$Z&lt;[Q+A0AHK$V2OHXB$V1KM85,UQ[B&gt;7PYA;5&amp;V9H6!&gt;K$X@/WT%NNA''\!VNM+7W'+;_M;"_`V?O^V/YTBKO^VKM^FI'!;NVWON6CMNFUMN&amp;IO8W_K30L?TYXPJ]?L&lt;\=0@(`=`LW_'\_0P0\_O`/OEXR(X8D&lt;@3R`B&lt;N3Z$E@80'PU"(H&lt;1XI!!!!!</Property>
 	<Property Name="NI.Lib.SourceVersion" Type="Int">536903680</Property>
 	<Property Name="NI.Lib.Version" Type="Str">1.2.2.0</Property>
+	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.SortType" Type="Int">3</Property>
 	<Item Name="Public" Type="Folder">
 		<Property Name="NI.LibItem.Scope" Type="Int">1</Property>

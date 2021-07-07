@@ -1,7 +1,7 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="20008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;w_daqmx,1;</Property>
-	<Property Name="NI.LV.All.SourceOnly" Type="Bool">false</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;w_daqmx,0;</Property>
+	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
 		<Property Name="NI.SortType" Type="Int">3</Property>
@@ -1078,24 +1078,15 @@
 			<Item Name="nilvaiu.dll" Type="Document" URL="nilvaiu.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="Get Key Or Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Get Key Or Table.vi"/>
 			<Item Name="Add Key Or Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Add Key Or Table.vi"/>
 			<Item Name="2D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D String.vi"/>
-			<Item Name="Get 1D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D String.vi"/>
 			<Item Name="1D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D String.vi"/>
 			<Item Name="Load Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Load Info.vi"/>
-			<Item Name="GetI64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetI64.vi"/>
-			<Item Name="GetString.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetString.vi"/>
-			<Item Name="Get 1D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D EXT.vi"/>
 			<Item Name="Get Section.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Get Section.vi"/>
-			<Item Name="1D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D I64.vi"/>
 			<Item Name="String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/String.vi"/>
 			<Item Name="I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/I64.vi"/>
-			<Item Name="EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/EXT.vi"/>
 			<Item Name="Insert Info Data.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Insert Info Data.vi"/>
 			<Item Name="Save Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Save Info.vi"/>
-			<Item Name="GetBoolean.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetBoolean.vi"/>
-			<Item Name="1D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D EXT.vi"/>
 			<Item Name="LV Process library.lvlib" Type="Library" URL="../octave/golpi/LV Process library.lvlib"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
