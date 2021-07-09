@@ -12,6 +12,8 @@
 		<Item Name="axex_is_workbook_opened.vi" Type="VI" URL="../axex_is_workbook_opened.vi"/>
 		<Item Name="axex_get_sheet_ref.vi" Type="VI" URL="../axex_get_sheet_ref.vi"/>
 		<Item Name="axex_get_workbook.vi" Type="VI" URL="../axex_get_workbook.vi"/>
+		<Item Name="axex_get_list_of_workbooks.vi" Type="VI" URL="../axex_get_list_of_workbooks.vi"/>
+		<Item Name="axex_get_list_of_workbooks_proc.vi" Type="VI" URL="../axex_get_list_of_workbooks_proc.vi"/>
 	</Item>
 	<Item Name="other" Type="Folder">
 		<Item Name="axex_cell_xy_to_name.vi" Type="VI" URL="../axex_cell_xy_to_name.vi"/>
