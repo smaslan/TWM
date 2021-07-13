@@ -1,7 +1,7 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
-<Project Type="Project" LVVersion="13008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;w_daqmx,1;</Property>
-	<Property Name="NI.LV.All.SourceOnly" Type="Bool">false</Property>
+<Project Type="Project" LVVersion="20008000">
+	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;w_daqmx,0;</Property>
+	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
 		<Property Name="NI.SortType" Type="Int">3</Property>
@@ -69,81 +69,9 @@
 		</Item>
 		<Item Name="drivers" Type="Folder">
 			<Item Name="dsdll" Type="Folder">
-				<Item Name="dsdll.lvlibp" Type="LVLibp" URL="../drivers/dsdll/dsdll.lvlibp">
-					<Item Name="private" Type="Folder">
-						<Item Name="dsdll_get_exe_path.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_get_exe_path.vi"/>
-						<Item Name="dsdll_check_instance.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_check_instance.vi"/>
-						<Item Name="dsdll_generate_error.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_generate_error.vi"/>
-						<Item Name="dsdll_enumerate_devices_querry_list.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_enumerate_devices_querry_list.vi"/>
-						<Item Name="dsdll_output_write_byte_array.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/output/dsdll_output_write_byte_array.vi"/>
-						<Item Name="dsdll_output_write_int16.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/output/dsdll_output_write_int16.vi"/>
-						<Item Name="dsdll_output_write_float32.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/output/dsdll_output_write_float32.vi"/>
-						<Item Name="dsdll_output_write_auto_float32.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/output/dsdll_output_write_auto_float32.vi"/>
-						<Item Name="dsdll_capture_wave_byte_array.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/capture/dsdll_capture_wave_byte_array.vi"/>
-						<Item Name="dsdll_capture_wave_variant.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/capture/dsdll_capture_wave_variant.vi"/>
-						<Item Name="dsdll_capture_wave_int16.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/capture/dsdll_capture_wave_int16.vi"/>
-						<Item Name="dsdll_capture_wave_float32.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/capture/dsdll_capture_wave_float32.vi"/>
-						<Item Name="dsdll_capture_wave_auto_float32.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/capture/dsdll_capture_wave_auto_float32.vi"/>
-					</Item>
-					<Item Name="capture" Type="Folder">
-						<Item Name="dsdll_capture_get_size.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/capture/dsdll_capture_get_size.vi"/>
-						<Item Name="dsdll_capture_wave.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/capture/dsdll_capture_wave.vi"/>
-						<Item Name="dsdll_capture_wave_abort.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/capture/dsdll_capture_wave_abort.vi"/>
-						<Item Name="dsdll_capture_wave_get_status.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/capture/dsdll_capture_wave_get_status.vi"/>
-					</Item>
-					<Item Name="output" Type="Folder">
-						<Item Name="dsdll_output_write.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/output/dsdll_output_write.vi"/>
-						<Item Name="dsdll_output_play.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/output/dsdll_output_play.vi"/>
-						<Item Name="dsdll_output_stop.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/output/dsdll_output_stop.vi"/>
-						<Item Name="dsdll_output_set_volume.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/output/dsdll_output_set_volume.vi"/>
-						<Item Name="dsdll_output_status.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/output/dsdll_output_status.vi"/>
-					</Item>
-					<Item Name="control" Type="Folder">
-						<Item Name="dsdll_initialize.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/control/dsdll_initialize.vi"/>
-						<Item Name="dsdll_get_dll_version_string.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/control/dsdll_get_dll_version_string.vi"/>
-						<Item Name="dsdll_enumerate_devices.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/control/dsdll_enumerate_devices.vi"/>
-						<Item Name="dsdll_open.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/control/dsdll_open.vi"/>
-						<Item Name="dsdll_close.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/control/dsdll_close.vi"/>
-						<Item Name="dsdll_config.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/control/dsdll_config.vi"/>
-						<Item Name="dsdll_status.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/control/dsdll_status.vi"/>
-					</Item>
-					<Item Name="demo" Type="Folder">
-						<Item Name="other" Type="Folder">
-							<Item Name="gen_coherent_sine.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/demos/other/gen_coherent_sine.vi"/>
-							<Item Name="Get App Version.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/demos/other/Get App Version.vi"/>
-							<Item Name="control_enabled_state.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/demos/other/control_enabled_state.vi"/>
-							<Item Name="randn_approximation.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/demos/other/randn_approximation.vi"/>
-							<Item Name="simple_FFT.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/demos/other/simple_FFT.vi"/>
-						</Item>
-						<Item Name="dsdll_basic_demo.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/demos/dsdll_basic_demo.vi"/>
-						<Item Name="dsdll_signal_demo.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/demos/dsdll_signal_demo.vi"/>
-						<Item Name="dsdll_stability_demo.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/demos/dsdll_stability_demo.vi"/>
-					</Item>
-					<Item Name="dsdll.dll" Type="Document" URL="../drivers/dsdll/dsdll.dll"/>
-					<Item Name="dsdll_instance.ctl" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_instance.ctl"/>
-					<Item Name="dsdll_device_record.ctl" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_device_record.ctl"/>
-					<Item Name="dsdll_format.ctl" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_format.ctl"/>
-					<Item Name="dsdll_sample_format.ctl" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/dsdll_sample_format.ctl"/>
-					<Item Name="dsdll_vi_tree.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/control/dsdll_vi_tree.vi"/>
-					<Item Name="COPYING" Type="Document" URL="../drivers/dsdll/COPYING"/>
-					<Item Name="COPYING.LESSER" Type="Document" URL="../drivers/dsdll/COPYING.LESSER"/>
-					<Item Name="NI_FileType.lvlib" Type="Library" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Utility/lvfile.llb/NI_FileType.lvlib"/>
-					<Item Name="NI_PackedLibraryUtility.lvlib" Type="Library" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Utility/LVLibp/NI_PackedLibraryUtility.lvlib"/>
-					<Item Name="Get File Extension.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/Get File Extension.vi"/>
-					<Item Name="FileVersionInformation.ctl" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Platform/fileVersionInfo.llb/FileVersionInformation.ctl"/>
-					<Item Name="FixedFileInfo_Struct.ctl" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Platform/fileVersionInfo.llb/FixedFileInfo_Struct.ctl"/>
-					<Item Name="MoveMemory.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Platform/fileVersionInfo.llb/MoveMemory.vi"/>
-					<Item Name="Clear Errors.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Clear Errors.vi"/>
-					<Item Name="Error Cluster From Error Code.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Error Cluster From Error Code.vi"/>
-					<Item Name="Check if File or Folder Exists.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/Check if File or Folder Exists.vi"/>
-					<Item Name="BuildErrorSource.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Platform/fileVersionInfo.llb/BuildErrorSource.vi"/>
-					<Item Name="GetFileVersionInfoSize.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Platform/fileVersionInfo.llb/GetFileVersionInfoSize.vi"/>
-					<Item Name="GetFileVersionInfo.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Platform/fileVersionInfo.llb/GetFileVersionInfo.vi"/>
-					<Item Name="VerQueryValue.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Platform/fileVersionInfo.llb/VerQueryValue.vi"/>
-					<Item Name="FileVersionInfo.vi" Type="VI" URL="../drivers/dsdll/dsdll.lvlibp/1abvi3w/vi.lib/Platform/fileVersionInfo.llb/FileVersionInfo.vi"/>
-				</Item>
 				<Item Name="DSDLL Virtual Digitizer.lvlib" Type="Library" URL="../drivers/dsdll/DSDLL Virtual Digitizer.lvlib"/>
 				<Item Name="dsdll.dll" Type="Document" URL="../dsdll.dll"/>
+				<Item Name="dsdll.lvlib" Type="Library" URL="../drivers/dsdll/dsdll/dsdll.lvlib"/>
 			</Item>
 			<Item Name="Simulated ADC" Type="Folder">
 				<Item Name="SimAdc Channel Cfg.ctl" Type="VI" URL="../drivers/simulated_adc/SimAdc Channel Cfg.ctl"/>
@@ -256,104 +184,6 @@
 				<Item Name="MAT Stream Writer Allign Streamed Data.vi" Type="VI" URL="../octave/mat/MAT Stream Writer Allign Streamed Data.vi"/>
 			</Item>
 			<Item Name="infolib" Type="Folder">
-				<Item Name="infolib.lvlibp" Type="LVLibp" URL="../octave/infolib.lvlibp">
-					<Item Name="Private" Type="Folder">
-						<Item Name="Add key polymorph parts" Type="Folder">
-							<Item Name="Boolean.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/Boolean.vi"/>
-							<Item Name="CXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/CXT.vi"/>
-							<Item Name="EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/EXT.vi"/>
-							<Item Name="I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/I64.vi"/>
-							<Item Name="String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/String.vi"/>
-							<Item Name="Time Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/Time Stamp.vi"/>
-							<Item Name="U64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/U64.vi"/>
-						</Item>
-						<Item Name="Add matrix polymorph parts" Type="Folder">
-							<Item Name="1D CXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D CXT.vi"/>
-							<Item Name="1D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D EXT.vi"/>
-							<Item Name="1D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D I64.vi"/>
-							<Item Name="1D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D String.vi"/>
-							<Item Name="1D Time Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D Time Stamp.vi"/>
-							<Item Name="1D U64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D U64.vi"/>
-							<Item Name="2D CXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D CXT.vi"/>
-							<Item Name="2D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D EXT.vi"/>
-							<Item Name="2D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D I64.vi"/>
-							<Item Name="2D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D String.vi"/>
-							<Item Name="2D Time Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D Time Stamp.vi"/>
-							<Item Name="2D U64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D U64.vi"/>
-						</Item>
-						<Item Name="Get key polymorph parts" Type="Folder">
-							<Item Name="GetBoolean.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetBoolean.vi"/>
-							<Item Name="GetCXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetCXT.vi"/>
-							<Item Name="GetEXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetEXT.vi"/>
-							<Item Name="GetI64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetI64.vi"/>
-							<Item Name="GetString.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetString.vi"/>
-							<Item Name="GetTime Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetTime Stamp.vi"/>
-							<Item Name="GetU64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get key polymorph parts/GetU64.vi"/>
-						</Item>
-						<Item Name="Get matrix polymorph parts" Type="Folder">
-							<Item Name="Get 1D CXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D CXT.vi"/>
-							<Item Name="Get 1D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D EXT.vi"/>
-							<Item Name="Get 1D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D I64.vi"/>
-							<Item Name="Get 1D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D String.vi"/>
-							<Item Name="Get 1D Time Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D Time Stamp.vi"/>
-							<Item Name="Get 1D U64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 1D U64.vi"/>
-							<Item Name="Get 2D CXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D CXT.vi"/>
-							<Item Name="Get 2D EXT.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D EXT.vi"/>
-							<Item Name="Get 2D I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D I64.vi"/>
-							<Item Name="Get 2D U64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D U64.vi"/>
-							<Item Name="Get 2D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D String.vi"/>
-							<Item Name="Get 2D Time Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Get matrix polymorph parts/Get 2D Time Stamp.vi"/>
-						</Item>
-						<Item Name="Testing" Type="Folder">
-							<Item Name="test library.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Testing/test library.vi"/>
-							<Item Name="test simple.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Testing/test simple.vi"/>
-						</Item>
-						<Item Name="Utilities" Type="Folder">
-							<Item Name="Add spaces.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Add spaces.vi"/>
-							<Item Name="Assure Newline at End.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Assure Newline at End.vi"/>
-							<Item Name="Convert String to Time Stamp.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Convert String to Time Stamp.vi"/>
-							<Item Name="Create 1D Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Create 1D Table.vi"/>
-							<Item Name="Create 2D Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Create 2D Table.vi"/>
-							<Item Name="Create key line.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Create key line.vi"/>
-							<Item Name="Create Sections Headings.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Create Sections Headings.vi"/>
-							<Item Name="Create Table Heading.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Create Table Heading.vi"/>
-							<Item Name="EOL.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/EOL.vi"/>
-							<Item Name="Exist Section.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Exist Section.vi"/>
-							<Item Name="Flatten to CSV Record.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Flatten to CSV Record.vi"/>
-							<Item Name="Get Key Line.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Get Key Line.vi"/>
-							<Item Name="Get Matrix String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Get Matrix String.vi"/>
-							<Item Name="Get Section Indentation Length.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Get Section Indentation Length.vi"/>
-							<Item Name="Indent Size.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Indent Size.vi"/>
-							<Item Name="Insert.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Insert.vi"/>
-							<Item Name="Parse CSV String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Parse CSV String.vi"/>
-							<Item Name="RegExpTranslate.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/RegExpTranslate.vi"/>
-							<Item Name="Remove all sections.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Remove all sections.vi"/>
-						</Item>
-					</Item>
-					<Item Name="Public" Type="Folder">
-						<Item Name="Add Key Or Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Add Key Or Table.vi"/>
-						<Item Name="Get Key Or Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Get Key Or Table.vi"/>
-						<Item Name="Get Section.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Get Section.vi"/>
-						<Item Name="Insert Info Data.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Insert Info Data.vi"/>
-						<Item Name="Load Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Load Info.vi"/>
-						<Item Name="Save Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Save Info.vi"/>
-					</Item>
-					<Item Name="Bit-array To Byte-array.vi" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/picture/pictutil.llb/Bit-array To Byte-array.vi"/>
-					<Item Name="Check if File or Folder Exists.vi" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/Check if File or Folder Exists.vi"/>
-					<Item Name="Check Path.vi" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/picture/jpeg.llb/Check Path.vi"/>
-					<Item Name="Clear Errors.vi" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Clear Errors.vi"/>
-					<Item Name="Create Mask By Alpha.vi" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/picture/picture.llb/Create Mask By Alpha.vi"/>
-					<Item Name="Directory of Top Level VI.vi" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/picture/jpeg.llb/Directory of Top Level VI.vi"/>
-					<Item Name="Error Cluster From Error Code.vi" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Error Cluster From Error Code.vi"/>
-					<Item Name="imagedata.ctl" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/picture/picture.llb/imagedata.ctl"/>
-					<Item Name="LVDateTimeRec.ctl" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/Utility/miscctls.llb/LVDateTimeRec.ctl"/>
-					<Item Name="NI_FileType.lvlib" Type="Library" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/Utility/lvfile.llb/NI_FileType.lvlib"/>
-					<Item Name="NI_PackedLibraryUtility.lvlib" Type="Library" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/Utility/LVLibp/NI_PackedLibraryUtility.lvlib"/>
-					<Item Name="Read PNG File.vi" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/picture/png.llb/Read PNG File.vi"/>
-					<Item Name="Space Constant.vi" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/dlg_ctls.llb/Space Constant.vi"/>
-					<Item Name="Trim Whitespace.vi" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Trim Whitespace.vi"/>
-					<Item Name="whitespace.ctl" Type="VI" URL="../octave/infolib.lvlibp/1abvi3w/vi.lib/Utility/error.llb/whitespace.ctl"/>
-				</Item>
 				<Item Name="Info Insert Row to 2D Reals Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D Reals Array.vi"/>
 				<Item Name="Info Insert Row to 2D Int64 Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D Int64 Array.vi"/>
 				<Item Name="Info Insert Row to 2D String Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D String Array.vi"/>
@@ -361,6 +191,7 @@
 				<Item Name="Info Insert Row to 1D String Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 1D String Array.vi"/>
 				<Item Name="Info Replace Scalar.vi" Type="VI" URL="../octave/info/Info Replace Scalar.vi"/>
 				<Item Name="Info Replace Matrix.vi" Type="VI" URL="../octave/info/Info Replace Matrix.vi"/>
+				<Item Name="infolib.lvlib" Type="Library" URL="../octave/infolib/infolib.lvlib"/>
 			</Item>
 			<Item Name="golpi" Type="Folder">
 				<Item Name="GOLPI Multi Process" Type="Folder">
@@ -374,173 +205,7 @@
 					<Item Name="GOLPI Multi Process.lvlib" Type="Library" URL="../octave/golpi/mpc/GOLPI Multi Process.lvlib"/>
 					<Item Name="golpi_mpc_demo.vi" Type="VI" URL="../octave/golpi/mpc/golpi_mpc_demo.vi"/>
 				</Item>
-				<Item Name="GOLPI Library.lvlibp" Type="LVLibp" URL="../octave/golpi/GOLPI Library.lvlibp">
-					<Item Name="Private" Type="Folder">
-						<Item Name="Bitstream" Type="Folder">
-							<Item Name="Bitstream Decode.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Bitstream/Bitstream Decode.vi"/>
-							<Item Name="Bitstream to Bytes.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Bitstream/Bitstream to Bytes.vi"/>
-						</Item>
-						<Item Name="Get Variable - auxiliary" Type="Folder">
-							<Item Name="Struct" Type="Folder">
-								<Item Name="Struct Fill Cluster By Items Record.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Struct/Struct Fill Cluster By Items Record.vi"/>
-								<Item Name="Struct Parse Binary.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Struct/Struct Parse Binary.vi"/>
-								<Item Name="Struct Parse Variable Type.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Struct/Struct Parse Variable Type.vi"/>
-							</Item>
-							<Item Name="Check and Get Sizes.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Check and Get Sizes.vi"/>
-							<Item Name="Get Matrix - bitstream.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Get Matrix - bitstream.vi"/>
-							<Item Name="Get Matrix - file.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Get Matrix - file.vi"/>
-							<Item Name="Get Matrix - stdout.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - auxiliary/Get Matrix - stdout.vi"/>
-						</Item>
-						<Item Name="Get Variable - polymorph parts" Type="Folder">
-							<Item Name="Get Struct.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get Struct.vi"/>
-							<Item Name="Get String.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get String.vi"/>
-							<Item Name="Get Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get Double.vi"/>
-							<Item Name="Get Double Complex.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get Double Complex.vi"/>
-							<Item Name="Get 1D Array String.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get 1D Array String.vi"/>
-							<Item Name="Get 1D Array Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get 1D Array Double.vi"/>
-							<Item Name="Get 1D Array Double Complex.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get 1D Array Double Complex.vi"/>
-							<Item Name="Get 2D Array Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get 2D Array Double.vi"/>
-							<Item Name="Get 2D Array Double Complex.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Get Variable - polymorph parts/Get 2D Array Double Complex.vi"/>
-						</Item>
-						<Item Name="matfilerw" Type="Folder">
-							<Item Name="MAT Determine Data Type.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/matfilerw/MAT Determine Data Type.vi"/>
-							<Item Name="MAT File Header.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/matfilerw/MAT File Header.vi"/>
-							<Item Name="MAT Read Matrix Header.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/matfilerw/MAT Read Matrix Header.vi"/>
-							<Item Name="MAT Read Matrix.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/matfilerw/MAT Read Matrix.vi"/>
-							<Item Name="MAT Save Matrix Header.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/matfilerw/MAT Save Matrix Header.vi"/>
-							<Item Name="MAT Save Matrix.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/matfilerw/MAT Save Matrix.vi"/>
-							<Item Name="MAT Save-Read Example.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/matfilerw/MAT Save-Read Example.vi"/>
-							<Item Name="MAT Type Representation.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/matfilerw/MAT Type Representation.ctl"/>
-						</Item>
-						<Item Name="Set Variable - auxiliary" Type="Folder">
-							<Item Name="Set Matrix - file.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - auxiliary/Set Matrix - file.vi"/>
-							<Item Name="Set Matrix - stdin.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - auxiliary/Set Matrix - stdin.vi"/>
-						</Item>
-						<Item Name="Set Variable - polymorph parts" Type="Folder">
-							<Item Name="Set String.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - polymorph parts/Set String.vi"/>
-							<Item Name="Set Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - polymorph parts/Set Double.vi"/>
-							<Item Name="Set Double Complex.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - polymorph parts/Set Double Complex.vi"/>
-							<Item Name="Set 1D Array String.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - polymorph parts/Set 1D Array String.vi"/>
-							<Item Name="Set 1D Array Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - polymorph parts/Set 1D Array Double.vi"/>
-							<Item Name="Set 1D Array Double Complex.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - polymorph parts/Set 1D Array Double Complex.vi"/>
-							<Item Name="Set 2D Array Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - polymorph parts/Set 2D Array Double.vi"/>
-							<Item Name="Set 2D Array Double Complex.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Set Variable - polymorph parts/Set 2D Array Double Complex.vi"/>
-						</Item>
-						<Item Name="testing" Type="Folder">
-							<Item Name="GOLPI full test - part structure.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI full test - part structure.vi"/>
-							<Item Name="GOLPI full test - part test vector complex.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI full test - part test vector complex.vi"/>
-							<Item Name="GOLPI full test - part test vector double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI full test - part test vector double.vi"/>
-							<Item Name="GOLPI full test.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI full test.vi"/>
-							<Item Name="GOLPI simple testing.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/GOLPI simple testing.vi"/>
-							<Item Name="Test golpi Package Installation.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/testing/Test golpi Package Installation.vi"/>
-						</Item>
-						<Item Name="Type Definitions" Type="Folder">
-							<Item Name="Bitstream Data Type.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Bitstream Data Type.ctl"/>
-							<Item Name="Bitstream Data.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Bitstream Data.ctl"/>
-							<Item Name="Custom Error Codes Enum Type Def.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Custom Error Codes Enum Type Def.vi"/>
-							<Item Name="Struct Data Types.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Struct Data Types.ctl"/>
-							<Item Name="Struct Item Record.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Struct Item Record.ctl"/>
-							<Item Name="Struct Item Types.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Type Definitions/Struct Item Types.ctl"/>
-						</Item>
-						<Item Name="Utilities" Type="Folder">
-							<Item Name="Burst String to Lines.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Burst String to Lines.vi"/>
-							<Item Name="Generate Custom Error.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Generate Custom Error.vi"/>
-							<Item Name="Is Scalar Vector Matrix.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Is Scalar Vector Matrix.vi"/>
-							<Item Name="String to Complex.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/String to Complex.vi"/>
-							<Item Name="String to Double.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/String to Double.vi"/>
-							<Item Name="ASCII numbers to String.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/ASCII numbers to String.vi"/>
-							<Item Name="Check and Generate Path to Octave Executable.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Check and Generate Path to Octave Executable.vi"/>
-							<Item Name="Is Variable Name Part of Struct.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Is Variable Name Part of Struct.vi"/>
-							<Item Name="Install Octave Package golpi.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Install Octave Package golpi.vi"/>
-							<Item Name="Check Matlab Mode Error.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Private/Utilities/Check Matlab Mode Error.vi"/>
-						</Item>
-					</Item>
-					<Item Name="Public" Type="Folder">
-						<Item Name="Data" Type="Folder">
-							<Item Name="Get Variable.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Data/Get Variable.vi"/>
-							<Item Name="Set Variable.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Data/Set Variable.vi"/>
-						</Item>
-						<Item Name="Examples" Type="Folder">
-							<Item Name="Demo - Transfer Modes.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Examples/Demo - Transfer Modes.vi"/>
-							<Item Name="Demo - GNU Octave Terminal.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Examples/Demo - GNU Octave Terminal.vi"/>
-							<Item Name="Demo - Simple Use.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Examples/Demo - Simple Use.vi"/>
-							<Item Name="Demo - Advanced Use.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Examples/Demo - Advanced Use.vi"/>
-						</Item>
-						<Item Name="Pipes" Type="Folder">
-							<Item Name="Write Command.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Pipes/Write Command.vi"/>
-							<Item Name="Read Output.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Pipes/Read Output.vi"/>
-							<Item Name="Read Full Output.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Pipes/Read Full Output.vi"/>
-							<Item Name="Read Output Till Settle.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Pipes/Read Output Till Settle.vi"/>
-							<Item Name="Read Output Till Keyword.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Pipes/Read Output Till Keyword.vi"/>
-						</Item>
-						<Item Name="Utility" Type="Folder">
-							<Item Name="Set Bitstream Mode.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Utility/Set Bitstream Mode.vi"/>
-							<Item Name="Set Struct Transfer Mode.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Utility/Set Struct Transfer Mode.vi"/>
-							<Item Name="Check Output For Octave Errors.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Utility/Check Output For Octave Errors.vi"/>
-							<Item Name="Check Status.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Utility/Check Status.vi"/>
-							<Item Name="Set Debug Mode.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Utility/Set Debug Mode.vi"/>
-						</Item>
-						<Item Name="GOLPI reference Type Def.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/GOLPI reference Type Def.ctl"/>
-						<Item Name="Start GNU Octave.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Start GNU Octave.vi"/>
-						<Item Name="Quit GNU Octave.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/Quit GNU Octave.vi"/>
-						<Item Name="VI Tree.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/Public/VI Tree.vi"/>
-					</Item>
-					<Item Name="Application Directory.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/file.llb/Application Directory.vi"/>
-					<Item Name="Bit-array To Byte-array.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/picture/pictutil.llb/Bit-array To Byte-array.vi"/>
-					<Item Name="BuildHelpPath.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/BuildHelpPath.vi"/>
-					<Item Name="Check if File or Folder Exists.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/Check if File or Folder Exists.vi"/>
-					<Item Name="Check Path.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/picture/jpeg.llb/Check Path.vi"/>
-					<Item Name="Check Special Tags.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Check Special Tags.vi"/>
-					<Item Name="Clear Errors.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Clear Errors.vi"/>
-					<Item Name="compatCalcOffset.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/_oldvers/_oldvers.llb/compatCalcOffset.vi"/>
-					<Item Name="compatFileDialog.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/_oldvers/_oldvers.llb/compatFileDialog.vi"/>
-					<Item Name="compatOpenFileOperation.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/_oldvers/_oldvers.llb/compatOpenFileOperation.vi"/>
-					<Item Name="Convert property node font to graphics font.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Convert property node font to graphics font.vi"/>
-					<Item Name="Create Mask By Alpha.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/picture/picture.llb/Create Mask By Alpha.vi"/>
-					<Item Name="Details Display Dialog.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Details Display Dialog.vi"/>
-					<Item Name="DialogType.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/DialogType.ctl"/>
-					<Item Name="DialogTypeEnum.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/DialogTypeEnum.ctl"/>
-					<Item Name="Directory of Top Level VI.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/picture/jpeg.llb/Directory of Top Level VI.vi"/>
-					<Item Name="Error Cluster From Error Code.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Error Cluster From Error Code.vi"/>
-					<Item Name="Error Code Database.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Error Code Database.vi"/>
-					<Item Name="ErrWarn.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/ErrWarn.ctl"/>
-					<Item Name="eventvkey.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/event_ctls.llb/eventvkey.ctl"/>
-					<Item Name="ex_CorrectErrorChain.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/express/express shared/ex_CorrectErrorChain.vi"/>
-					<Item Name="Find Tag.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Find Tag.vi"/>
-					<Item Name="Format Message String.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Format Message String.vi"/>
-					<Item Name="General Error Handler CORE.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/General Error Handler CORE.vi"/>
-					<Item Name="General Error Handler.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/General Error Handler.vi"/>
-					<Item Name="Get String Text Bounds.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Get String Text Bounds.vi"/>
-					<Item Name="Get Text Rect.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/picture/picture.llb/Get Text Rect.vi"/>
-					<Item Name="GetHelpDir.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/GetHelpDir.vi"/>
-					<Item Name="GetRTHostConnectedProp.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/GetRTHostConnectedProp.vi"/>
-					<Item Name="imagedata.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/picture/picture.llb/imagedata.ctl"/>
-					<Item Name="List Directory and LLBs.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/List Directory and LLBs.vi"/>
-					<Item Name="Longest Line Length in Pixels.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Longest Line Length in Pixels.vi"/>
-					<Item Name="LV Process library.lvlib" Type="Library" URL="../octave/golpi/GOLPI Library.lvlibp/LV Process source distribution/LV Process library.lvlib"/>
-					<Item Name="LVBoundsTypeDef.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/miscctls.llb/LVBoundsTypeDef.ctl"/>
-					<Item Name="NI_FileType.lvlib" Type="Library" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/lvfile.llb/NI_FileType.lvlib"/>
-					<Item Name="NI_PackedLibraryUtility.lvlib" Type="Library" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/LVLibp/NI_PackedLibraryUtility.lvlib"/>
-					<Item Name="Not Found Dialog.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Not Found Dialog.vi"/>
-					<Item Name="Open_Create_Replace File.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/_oldvers/_oldvers.llb/Open_Create_Replace File.vi"/>
-					<Item Name="Read PNG File.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/picture/png.llb/Read PNG File.vi"/>
-					<Item Name="Recursive File List.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/Recursive File List.vi"/>
-					<Item Name="Search and Replace Pattern.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Search and Replace Pattern.vi"/>
-					<Item Name="Set Bold Text.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Set Bold Text.vi"/>
-					<Item Name="Set String Value.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Set String Value.vi"/>
-					<Item Name="Simple Error Handler.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Simple Error Handler.vi"/>
-					<Item Name="Space Constant.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/dlg_ctls.llb/Space Constant.vi"/>
-					<Item Name="subFile Dialog.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/express/express input/FileDialogBlock.llb/subFile Dialog.vi"/>
-					<Item Name="TagReturnType.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/TagReturnType.ctl"/>
-					<Item Name="Three Button Dialog CORE.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Three Button Dialog CORE.vi"/>
-					<Item Name="Three Button Dialog.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Three Button Dialog.vi"/>
-					<Item Name="Trim Whitespace.vi" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Trim Whitespace.vi"/>
-					<Item Name="whitespace.ctl" Type="VI" URL="../octave/golpi/GOLPI Library.lvlibp/1abvi3w/vi.lib/Utility/error.llb/whitespace.ctl"/>
-				</Item>
-				<Item Name="COPYING" Type="Document" URL="../octave/golpi/COPYING"/>
-				<Item Name="COPYING.LESSER" Type="Document" URL="../octave/golpi/COPYING.LESSER"/>
-				<Item Name="lv_proc.dll" Type="Document" URL="../lv_proc.dll"/>
-				<Item Name="golpi-1.2.1.tar.gz" Type="Document" URL="../octave/golpi/golpi-1.2.1.tar.gz"/>
+				<Item Name="GOLPI library.lvlib" Type="Library" URL="../octave/golpi/GOLPI library.lvlib"/>
 			</Item>
 		</Item>
 		<Item Name="varilib" Type="Folder">
@@ -927,64 +592,8 @@
 			<Item Name="Merge Builds.vi" Type="VI" URL="../build/Merge Builds.vi"/>
 		</Item>
 		<Item Name="Excel" Type="Folder">
-			<Item Name="AX Excel.lvlibp" Type="LVLibp" URL="../Excel/AX Excel.lvlibp">
-				<Item Name="advanced" Type="Folder">
-					<Item Name="axex_is_workbook_opened.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/advanced/axex_is_workbook_opened.vi"/>
-					<Item Name="axex_get_list_of_workbooks.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/advanced/axex_get_list_of_workbooks.vi"/>
-					<Item Name="axex_get_sheet_ref.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/advanced/axex_get_sheet_ref.vi"/>
-					<Item Name="axex_get_workbook.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/advanced/axex_get_workbook.vi"/>
-				</Item>
-				<Item Name="other" Type="Folder">
-					<Item Name="axex_cell_xy_to_name.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/other/axex_cell_xy_to_name.vi"/>
-				</Item>
-				<Item Name="file" Type="Folder">
-					<Item Name="axex_open_file.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_open_file.vi"/>
-					<Item Name="axex_close_file.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_close_file.vi"/>
-					<Item Name="axex_close_file_office16.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_close_file_office16.vi"/>
-					<Item Name="axex_save_file.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_save_file.vi"/>
-					<Item Name="axex_save_file_office16.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/file/axex_save_file_office16.vi"/>
-				</Item>
-				<Item Name="sheet" Type="Folder">
-					<Item Name="axex_get_sheet_names.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_get_sheet_names.vi"/>
-					<Item Name="axex_get_sheet_range.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_get_sheet_range.vi"/>
-					<Item Name="axex_select_sheet.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_select_sheet.vi"/>
-					<Item Name="axex_sheet_exist.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_sheet_exist.vi"/>
-					<Item Name="axex_create_sheet.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_create_sheet.vi"/>
-					<Item Name="axex_copy_sheet.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_copy_sheet.vi"/>
-					<Item Name="axex_delete_sheet.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_delete_sheet.vi"/>
-					<Item Name="axex_rename_sheet.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/sheet/axex_rename_sheet.vi"/>
-				</Item>
-				<Item Name="data" Type="Folder">
-					<Item Name="axex_read.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_read.vi"/>
-					<Item Name="axex_write.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_write.vi"/>
-				</Item>
-				<Item Name="types" Type="Folder">
-					<Item Name="axex_instance.ctl" Type="VI" URL="../Excel/AX Excel.lvlibp/axex_instance.ctl"/>
-					<Item Name="axex_window_state.ctl" Type="VI" URL="../Excel/AX Excel.lvlibp/axex_window_state.ctl"/>
-					<Item Name="axex_cell_xy.ctl" Type="VI" URL="../Excel/AX Excel.lvlibp/axex_cell_xy.ctl"/>
-				</Item>
-				<Item Name="private" Type="Folder">
-					<Item Name="axex_read_cell.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_read_cell.vi"/>
-					<Item Name="axex_read_cells.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_read_cells.vi"/>
-					<Item Name="axex_read_cells_vector.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_read_cells_vector.vi"/>
-					<Item Name="axex_write_cell.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_write_cell.vi"/>
-					<Item Name="axex_write_cells.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_write_cells.vi"/>
-					<Item Name="axex_write_cells_vector.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/data/axex_write_cells_vector.vi"/>
-					<Item Name="axex_get_list_of_workbooks_proc.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/advanced/axex_get_list_of_workbooks_proc.vi"/>
-				</Item>
-				<Item Name="axex_vi_tree.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/axex_vi_tree.vi"/>
-				<Item Name="axex_test.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/axex_test.vi"/>
-				<Item Name="NI_FileType.lvlib" Type="Library" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/lvfile.llb/NI_FileType.lvlib"/>
-				<Item Name="NI_PackedLibraryUtility.lvlib" Type="Library" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/LVLibp/NI_PackedLibraryUtility.lvlib"/>
-				<Item Name="Clear Errors.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Clear Errors.vi"/>
-				<Item Name="Error Cluster From Error Code.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Error Cluster From Error Code.vi"/>
-				<Item Name="Check if File or Folder Exists.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/Check if File or Folder Exists.vi"/>
-				<Item Name="Search and Replace Pattern.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/error.llb/Search and Replace Pattern.vi"/>
-				<Item Name="Generate Temporary File Path.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/Utility/libraryn.llb/Generate Temporary File Path.vi"/>
-				<Item Name="ex_CorrectErrorChain.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/express/express shared/ex_CorrectErrorChain.vi"/>
-				<Item Name="subFile Dialog.vi" Type="VI" URL="../Excel/AX Excel.lvlibp/1abvi3w/vi.lib/express/express input/FileDialogBlock.llb/subFile Dialog.vi"/>
-			</Item>
 			<Item Name="read_me.txt" Type="Document" URL="../Excel/read_me.txt"/>
+			<Item Name="AX Excel.lvlib" Type="Library" URL="../Excel/AX Excel.lvlib"/>
 		</Item>
 		<Item Name="main.vi" Type="VI" URL="../main.vi"/>
 		<Item Name="par_test.vi" Type="VI" URL="../par_test.vi"/>
@@ -1022,7 +631,6 @@
 				<Item Name="DialogType.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/DialogType.ctl"/>
 				<Item Name="General Error Handler.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/General Error Handler.vi"/>
 				<Item Name="DialogTypeEnum.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/DialogTypeEnum.ctl"/>
-				<Item Name="General Error Handler CORE.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/General Error Handler CORE.vi"/>
 				<Item Name="Check Special Tags.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Check Special Tags.vi"/>
 				<Item Name="TagReturnType.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/TagReturnType.ctl"/>
 				<Item Name="Set String Value.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Set String Value.vi"/>
@@ -1114,12 +722,10 @@
 				<Item Name="Create Mask By Alpha.vi" Type="VI" URL="/&lt;vilib&gt;/picture/picture.llb/Create Mask By Alpha.vi"/>
 				<Item Name="Bit-array To Byte-array.vi" Type="VI" URL="/&lt;vilib&gt;/picture/pictutil.llb/Bit-array To Byte-array.vi"/>
 				<Item Name="Write BMP File.vi" Type="VI" URL="/&lt;vilib&gt;/picture/bmp.llb/Write BMP File.vi"/>
-				<Item Name="compatOverwrite.vi" Type="VI" URL="/&lt;vilib&gt;/_oldvers/_oldvers.llb/compatOverwrite.vi"/>
 				<Item Name="Write BMP Data.vi" Type="VI" URL="/&lt;vilib&gt;/picture/bmp.llb/Write BMP Data.vi"/>
 				<Item Name="Write BMP Data To Buffer.vi" Type="VI" URL="/&lt;vilib&gt;/picture/bmp.llb/Write BMP Data To Buffer.vi"/>
 				<Item Name="Calc Long Word Padded Width.vi" Type="VI" URL="/&lt;vilib&gt;/picture/bmp.llb/Calc Long Word Padded Width.vi"/>
 				<Item Name="Flip and Pad for Picture Control.vi" Type="VI" URL="/&lt;vilib&gt;/picture/bmp.llb/Flip and Pad for Picture Control.vi"/>
-				<Item Name="Color to RGB.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/colorconv.llb/Color to RGB.vi"/>
 				<Item Name="Get LV Class Default Value.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/LVClass/Get LV Class Default Value.vi"/>
 				<Item Name="Built App File Layout.vi" Type="VI" URL="/&lt;vilib&gt;/AppBuilder/Built App File Layout.vi"/>
 				<Item Name="NI_Excel.lvclass" Type="LVClass" URL="/&lt;vilib&gt;/Utility/NIReport.llb/Excel/NI_Excel.lvclass"/>
@@ -1288,24 +894,17 @@
 				<Item Name="DAQmx Flatten Channel String.vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/miscellaneous.llb/DAQmx Flatten Channel String.vi"/>
 				<Item Name="DAQmx Create Virtual Channel.vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Virtual Channel.vi"/>
 				<Item Name="DAQmx Create Channel (AI-Voltage-Basic).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Voltage-Basic).vi"/>
-				<Item Name="DAQmx Rollback Channel If Error.vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Rollback Channel If Error.vi"/>
-				<Item Name="DAQmx Create AI Channel (sub).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create AI Channel (sub).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Voltage-Custom with Excitation).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Voltage-Custom with Excitation).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Resistance).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Resistance).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Temperature-Thermocouple).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Temperature-Thermocouple).vi"/>
-				<Item Name="DAQmx Set CJC Parameters (sub).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Set CJC Parameters (sub).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Temperature-RTD).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Temperature-RTD).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Temperature-Thermistor-Iex).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Temperature-Thermistor-Iex).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Temperature-Thermistor-Vex).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Temperature-Thermistor-Vex).vi"/>
 				<Item Name="DAQmx Create Channel (AO-Voltage-Basic).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AO-Voltage-Basic).vi"/>
-				<Item Name="DAQmx Create AO Channel (sub).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create AO Channel (sub).vi"/>
 				<Item Name="DAQmx Create Channel (AO-FuncGen).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AO-FuncGen).vi"/>
 				<Item Name="DAQmx Create Channel (DI-Digital Input).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (DI-Digital Input).vi"/>
-				<Item Name="DAQmx Create DI Channel (sub).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create DI Channel (sub).vi"/>
 				<Item Name="DAQmx Create Channel (DO-Digital Output).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (DO-Digital Output).vi"/>
-				<Item Name="DAQmx Create DO Channel (sub).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create DO Channel (sub).vi"/>
 				<Item Name="DAQmx Create Channel (CI-Frequency).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CI-Frequency).vi"/>
-				<Item Name="DAQmx Create CI Channel (sub).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create CI Channel (sub).vi"/>
 				<Item Name="DAQmx Create Channel (CI-Period).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CI-Period).vi"/>
 				<Item Name="DAQmx Create Channel (CI-Count Edges).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CI-Count Edges).vi"/>
 				<Item Name="DAQmx Create Channel (CI-Pulse Width).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CI-Pulse Width).vi"/>
@@ -1315,7 +914,6 @@
 				<Item Name="DAQmx Create Channel (AI-Temperature-Built-in Sensor).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Temperature-Built-in Sensor).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Frequency-Voltage).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Frequency-Voltage).vi"/>
 				<Item Name="DAQmx Create Channel (CO-Pulse Generation-Frequency).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CO-Pulse Generation-Frequency).vi"/>
-				<Item Name="DAQmx Create CO Channel (sub).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create CO Channel (sub).vi"/>
 				<Item Name="DAQmx Create Channel (CO-Pulse Generation-Time).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CO-Pulse Generation-Time).vi"/>
 				<Item Name="DAQmx Create Channel (CO-Pulse Generation-Ticks).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CO-Pulse Generation-Ticks).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Position-LVDT).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Position-LVDT).vi"/>
@@ -1325,7 +923,6 @@
 				<Item Name="DAQmx Create Channel (CI-Position-Angular Encoder).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CI-Position-Angular Encoder).vi"/>
 				<Item Name="DAQmx Create Channel (CI-Position-Linear Encoder).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CI-Position-Linear Encoder).vi"/>
 				<Item Name="DAQmx Create Channel (TEDS-AI-Acceleration-Accelerometer).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (TEDS-AI-Acceleration-Accelerometer).vi"/>
-				<Item Name="DAQmx Create AI Channel TEDS(sub).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create AI Channel TEDS(sub).vi"/>
 				<Item Name="DAQmx Create Channel (TEDS-AI-Current-Basic).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (TEDS-AI-Current-Basic).vi"/>
 				<Item Name="DAQmx Create Channel (TEDS-AI-Position-LVDT).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (TEDS-AI-Position-LVDT).vi"/>
 				<Item Name="DAQmx Create Channel (TEDS-AI-Position-RVDT).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (TEDS-AI-Position-RVDT).vi"/>
@@ -1365,11 +962,32 @@
 				<Item Name="DAQmx Create Channel (TEDS-AI-Bridge).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (TEDS-AI-Bridge).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Velocity-IEPE Sensor).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Velocity-IEPE Sensor).vi"/>
 				<Item Name="DAQmx Create Channel (AI-Strain-Rosette Strain Gage).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Strain-Rosette Strain Gage).vi"/>
-				<Item Name="DAQmx Create Strain Rosette AI Channels (sub).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Strain Rosette AI Channels (sub).vi"/>
 				<Item Name="DAQmx Start Task.vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/configure/task.llb/DAQmx Start Task.vi"/>
 				<Item Name="DAQmx Configure Output Buffer.vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/configure/buffer.llb/DAQmx Configure Output Buffer.vi"/>
 				<Item Name="VISA Flush IO Buffer Mask.ctl" Type="VI" URL="/&lt;vilib&gt;/Instr/_visa.llb/VISA Flush IO Buffer Mask.ctl"/>
 				<Item Name="System Exec.vi" Type="VI" URL="/&lt;vilib&gt;/Platform/system.llb/System Exec.vi"/>
+				<Item Name="General Error Handler Core CORE.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/General Error Handler Core CORE.vi"/>
+				<Item Name="LVRectTypeDef.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVRectTypeDef.ctl"/>
+				<Item Name="Path to URL inner.vi" Type="VI" URL="/&lt;vilib&gt;/printing/PathToURL.llb/Path to URL inner.vi"/>
+				<Item Name="DAQmx Read (Counter 1D DBL NChan 1Samp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Counter 1D DBL NChan 1Samp).vi"/>
+				<Item Name="DAQmx Read (Counter 1D U32 NChan 1Samp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Counter 1D U32 NChan 1Samp).vi"/>
+				<Item Name="DAQmx Read (Counter 2D DBL NChan NSamp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Counter 2D DBL NChan NSamp).vi"/>
+				<Item Name="DAQmx Read (Counter 2D U32 NChan NSamp).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Counter 2D U32 NChan NSamp).vi"/>
+				<Item Name="DAQmx Read (Analog Wfm 1Chan NSamp Duration).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Analog Wfm 1Chan NSamp Duration).vi"/>
+				<Item Name="DAQmx Read (Analog 1D Wfm NChan NSamp Duration).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Analog 1D Wfm NChan NSamp Duration).vi"/>
+				<Item Name="DAQmx Read (Digital Wfm 1Chan NSamp Duration).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Digital Wfm 1Chan NSamp Duration).vi"/>
+				<Item Name="DAQmx Read (Digital 1D Wfm NChan NSamp Duration).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/read.llb/DAQmx Read (Digital 1D Wfm NChan NSamp Duration).vi"/>
+				<Item Name="DAQmx Create Channel (CI-Duty Cycle).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CI-Duty Cycle).vi"/>
+				<Item Name="DAQmx Create Channel (CI-Velocity-Angular).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CI-Velocity-Angular).vi"/>
+				<Item Name="DAQmx Create Channel (CI-Velocity-Linear).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (CI-Velocity-Linear).vi"/>
+				<Item Name="DAQmx Create Channel (AI-Acceleration-4 Wire DC Voltage).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Acceleration-4 Wire DC Voltage).vi"/>
+				<Item Name="DAQmx Create Channel (AI-Acceleration-Charge).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Acceleration-Charge).vi"/>
+				<Item Name="DAQmx Create Channel (AI-Charge).vi" Type="VI" URL="/&lt;vilib&gt;/DAQmx/create/channels.llb/DAQmx Create Channel (AI-Charge).vi"/>
+				<Item Name="Recursive File List.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/libraryn.llb/Recursive File List.vi"/>
+				<Item Name="List Directory and LLBs.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/libraryn.llb/List Directory and LLBs.vi"/>
+				<Item Name="System Directory Type.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/sysdir.llb/System Directory Type.ctl"/>
+				<Item Name="Get System Directory.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/sysdir.llb/Get System Directory.vi"/>
+				<Item Name="LVDateTimeRec.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVDateTimeRec.ctl"/>
 			</Item>
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niScope Initialize.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/niScope Initialize.vi"/>
@@ -1435,6 +1053,11 @@
 				<Item Name="niScope self cal option.ctl" Type="VI" URL="/&lt;instrlib&gt;/niScope/Controls/niScope self cal option.ctl"/>
 				<Item Name="niScope Cal Self Calibrate.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/Calibrate/niScope Cal Self Calibrate.vi"/>
 				<Item Name="niScope Disable.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/Utility/niScope Disable.vi"/>
+				<Item Name="niScope Configure Trigger Glitch.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/Configure/Trigger/niScope Configure Trigger Glitch.vi"/>
+				<Item Name="niScope trigger polarity.ctl" Type="VI" URL="/&lt;instrlib&gt;/niScope/Controls/niScope trigger polarity.ctl"/>
+				<Item Name="niScope glitch condition.ctl" Type="VI" URL="/&lt;instrlib&gt;/niScope/Controls/niScope glitch condition.ctl"/>
+				<Item Name="niScope Configure Trigger Runt.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/Configure/Trigger/niScope Configure Trigger Runt.vi"/>
+				<Item Name="niScope Configure Trigger Width.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/Configure/Trigger/niScope Configure Trigger Width.vi"/>
 			</Item>
 			<Item Name="niScope_32.dll" Type="Document" URL="niScope_32.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
@@ -1455,6 +1078,16 @@
 			<Item Name="nilvaiu.dll" Type="Document" URL="nilvaiu.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
+			<Item Name="Add Key Or Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Add Key Or Table.vi"/>
+			<Item Name="2D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D String.vi"/>
+			<Item Name="1D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D String.vi"/>
+			<Item Name="Load Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Load Info.vi"/>
+			<Item Name="Get Section.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Get Section.vi"/>
+			<Item Name="String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/String.vi"/>
+			<Item Name="I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/I64.vi"/>
+			<Item Name="Insert Info Data.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Insert Info Data.vi"/>
+			<Item Name="Save Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Save Info.vi"/>
+			<Item Name="LV Process library.lvlib" Type="Library" URL="../octave/golpi/LV Process library.lvlib"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM - full" Type="EXE">
@@ -1462,6 +1095,7 @@
 				<Property Name="App_INI_aliasGUID" Type="Str">{8C66452C-5A67-4A8E-B1BD-5A8F3DA5EA7B}</Property>
 				<Property Name="App_INI_GUID" Type="Str">{E89658F0-ABAA-427B-890A-02F40DF16C38}</Property>
 				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="App_serverType" Type="Int">1</Property>
 				<Property Name="Bld_buildCacheID" Type="Str">{192FE75A-65D5-45FC-B03D-2ADB5F6044BF}</Property>
 				<Property Name="Bld_buildSpecDescription" Type="Str">Full version (includes all drivers).</Property>
 				<Property Name="Bld_buildSpecName" Type="Str">TWM - full</Property>
@@ -1504,7 +1138,7 @@
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].itemID" Type="Ref">/My Computer/octave/golpi/lv_proc.dll</Property>
+				<Property Name="Source[4].itemID" Type="Ref"></Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[5].Container.applyDestination" Type="Bool">true</Property>
 				<Property Name="Source[5].Container.applyInclusion" Type="Bool">true</Property>
@@ -1522,7 +1156,7 @@
 				<Property Name="Source[8].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[8].type" Type="Str">Container</Property>
-				<Property Name="Source[9].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
+				<Property Name="Source[9].itemID" Type="Ref"></Property>
 				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="SourceCount" Type="Int">10</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
@@ -1558,6 +1192,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="App_INI_aliasGUID" Type="Str">{89B6655C-307D-46E0-B66B-590EEDBEBBBE}</Property>
 				<Property Name="App_INI_GUID" Type="Str">{3FC40814-77EF-41BB-9528-322802B01604}</Property>
 				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="App_serverType" Type="Int">1</Property>
 				<Property Name="Bld_buildCacheID" Type="Str">{66A1928A-1BA5-40AC-BAF2-1120B8E1382E}</Property>
 				<Property Name="Bld_buildSpecDescription" Type="Str">Version with VISA and niScope drivers only.</Property>
 				<Property Name="Bld_buildSpecName" Type="Str">TWM - visa,niscope</Property>
@@ -1600,7 +1235,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].itemID" Type="Ref">/My Computer/octave/golpi/lv_proc.dll</Property>
+				<Property Name="Source[4].itemID" Type="Ref"></Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[5].Container.applyDestination" Type="Bool">true</Property>
 				<Property Name="Source[5].Container.applyInclusion" Type="Bool">true</Property>
@@ -1618,7 +1253,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Source[8].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[8].type" Type="Str">Container</Property>
-				<Property Name="Source[9].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
+				<Property Name="Source[9].itemID" Type="Ref"></Property>
 				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="SourceCount" Type="Int">10</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
@@ -1652,6 +1287,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="App_INI_aliasGUID" Type="Str">{9B2CA7FA-FE95-45B7-A106-6491F44CA491}</Property>
 				<Property Name="App_INI_GUID" Type="Str">{C1744958-9B06-4909-824A-009EEA52FFEB}</Property>
 				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="App_serverType" Type="Int">1</Property>
 				<Property Name="Bld_buildCacheID" Type="Str">{C4B426E3-129E-425D-AFE7-765817772A4D}</Property>
 				<Property Name="Bld_buildSpecDescription" Type="Str">TWM build with only VISA drivers.</Property>
 				<Property Name="Bld_buildSpecName" Type="Str">TWM - visa</Property>
@@ -1694,7 +1330,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].itemID" Type="Ref">/My Computer/octave/golpi/lv_proc.dll</Property>
+				<Property Name="Source[4].itemID" Type="Ref"></Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[5].Container.applyDestination" Type="Bool">true</Property>
 				<Property Name="Source[5].Container.applyInclusion" Type="Bool">true</Property>
@@ -1712,7 +1348,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Source[8].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[8].type" Type="Str">Container</Property>
-				<Property Name="Source[9].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
+				<Property Name="Source[9].itemID" Type="Ref"></Property>
 				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="SourceCount" Type="Int">10</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
@@ -1782,6 +1418,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="App_INI_aliasGUID" Type="Str">{6EB92510-8128-4E99-A4DD-250C67EB43F2}</Property>
 				<Property Name="App_INI_GUID" Type="Str">{067FB65E-F083-49A9-B393-6FB3D33EE336}</Property>
 				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="App_serverType" Type="Int">1</Property>
 				<Property Name="Bld_buildCacheID" Type="Str">{4EB63204-538F-4639-AEBB-77A6C7D16259}</Property>
 				<Property Name="Bld_buildSpecDescription" Type="Str">Dummy build just for testing purposes.</Property>
 				<Property Name="Bld_buildSpecName" Type="Str">dummy build</Property>

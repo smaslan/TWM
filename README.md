@@ -65,6 +65,7 @@ Important changes and news:
 - 2019-01-24: Improved GUI, 10 of 10 algorithms included (not all validated yet!).
 - 2019-04-04: Improved GUI, 12 algorithms included (not all validated yet!).
 - 2019-04-15: Improved GUI, minor fixes. 
+- 2021-07-21: Conversion of LabVIEW files to LabVIEW 2020. All libraries are inluded as *Source distribution*.
 
 
 ## Download
@@ -76,3 +77,22 @@ Builds are available in separate Git: [smaslan/TWM-builds](https://github.com/sm
 The TWM is distributed under [MIT license](./LICENSE.txt). Note the algorithms in the QWTB toolbox may have different licenses. 
   
   
+## External libraries
+TWM depends on following external software:
+1. [GNU Octave](https://www.gnu.org/software/octave/) or [Matlab](https://www.mathworks.com/products/matlab.html). Has to be installed externally.
+1. [QWTB](https://github.com/qwtb/qwtb). Included in TWM.
+1. [GOLPI](https://github.com/KaeroDot/GOLPI). Included in TWM.
+1. [info-strings](https://github.com/KaeroDot/info-strings). Included in TWM.
+1. [AX Excel](https://gitlab.com/smaslan/xls-template-and-stuff). Included in TWM.
+1. [DirectSound DLL interface](https://github.com/KaeroDot/dsdll_lv). Included in TWM.
+1. [vilib](https://gitlab.com/cmi-6011/vilib). Included in TWM.
+
+## Building
+Only the LabVIEW part has to be build.
+
+The `lvprog/TWM.lvproj` contains 3 buidl specifications:
+- TWM full
+- TWM visa,niscope
+- TWM visa
+
+*TWM full* builds for all implemented hardware. To run, user has to install NI libraries for NI-DAQ, NI-SCOPE, VISA, and of course run time libraries for LabVIEW. Because many users use digitizers not requiring NI-DAQ or NI-SCOPE, other builds are generated.
