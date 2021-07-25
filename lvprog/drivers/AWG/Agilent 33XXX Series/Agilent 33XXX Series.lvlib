@@ -1,13 +1,14 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
-<Library LVVersion="13008000">
+<Library LVVersion="20008000">
 	<Property Name="Instrument Driver" Type="Str">True</Property>
 	<Property Name="NI.Lib.ContainingLib" Type="Str">AWG.lvlib</Property>
 	<Property Name="NI.Lib.ContainingLibPath" Type="Str">../../AWG.lvlib</Property>
 	<Property Name="NI.Lib.Description" Type="Str">This driver controls the Agilent 33XXX Series function generators.  For additional information about this driver, please refer to the Agilent 33XXX Series Readme.html</Property>
 	<Property Name="NI.Lib.HelpPath" Type="Str"></Property>
-	<Property Name="NI.Lib.Icon" Type="Bin">%Q#!!!!!!!)!"1!&amp;!!!-!%!!!@````]!!!!"!!%!!!)U!!!*Q(C=\&gt;3^=&gt;N!%)&lt;B4RY&amp;3NG"BSVM#YC:81P&lt;!F/&amp;&gt;!H&lt;!NS"U)##42WC"&lt;9!PTCM;%ET*B.JRJY2I*8!\`Y?(C")`8C1\L8=/AZ8$^K8L3Y8BT@HS]87O^@\^K5O`N3F[[PRSV`(([[P@]/PK]&gt;8_V@\`^V_Y[$0Y]V/HXR)&gt;VV+*2755^;`X:,E3:\E3:\E32\E12\E12\E1?\E4O\E4O\E4G\E2G\E2G\E2NZ0=J',8/4M3L*YMF!S;4*"UBG+EF_**`%EHM4$2S7?R*.Y%E`CI9M34_**0)EH]4"-C3@R**\%EXC9KEOSH_2Y%A`4+`!%HM!4?!)03SLQ")"AM7$C9")9#BK$C]!4?!)0FQI]A3@Q"*\!1\-#4_!*0)%H]$#E\UJUT8K3YW%;/2\(YXA=D_.B;DE?R_.Y()`D94EZ(M@D)*Q&amp;H=EBS"HE&gt;(!_/"\(QR]Z(M@D?"S0Y['JXS(P/\.KVJ-=D_%R0)&lt;(]"A?JJ$B-4S'R`!9(K;6Y4%]BM@Q'"[7EO%R0)&lt;(A"C,MLS-S9S"2C=D-$T]^+@&amp;_FW+,L&amp;_VL`G^K#K(E$6A[6[9&amp;10AOI'KW[=[I;I.FKVA;K.58VBV2&gt;2!65,KS:5&gt;&gt;3:XT-V53.VIIZ5IQ:K4_X7I2`=]8Q_;ZZH4&gt;/E=2RV/JVU0"\67N-Q$.LP^^LN&gt;J?XV8@/\&lt;B\?3]^=DX.P^JYX^J40P]9B^:_]HH.0\/W^^+`]'\5.SWP8P0MU7]U88+?!!!!!!</Property>
-	<Property Name="NI.Lib.SourceVersion" Type="Int">318799872</Property>
+	<Property Name="NI.Lib.Icon" Type="Bin">)!#!!!!!!!)!"1!&amp;!!!-!%!!!@````]!!!!"!!%!!!)U!!!*Q(C=\&gt;3^=&gt;N!%)&lt;B4RY&amp;3NG"BSVM#YC:81P&lt;!F/&amp;&gt;!H&lt;!NS"U)##42WC"&lt;9!PTCM;%ET*B.JRJY2I*8!\`Y?(C")`8C1\L8=/AZ8$^K8L3Y8BT@HS]87O^@\^K5O`N3F[[PRSV`(([[P@]/PK]&gt;8_V@\`^V_Y[$0Y]V/HXR)&gt;VV+*2755^;`X:,E3:\E3:\E32\E12\E12\E1?\E4O\E4O\E4G\E2G\E2G\E2NZ0=J',8/4M3L*YMF!S;4*"UBG+EF_**`%EHM4$2S7?R*.Y%E`CI9M34_**0)EH]4"-C3@R**\%EXC9KEOSH_2Y%A`4+`!%HM!4?!)03SLQ")"AM7$C9")9#BK$C]!4?!)0FQI]A3@Q"*\!1\-#4_!*0)%H]$#E\UJUT8K3YW%;/2\(YXA=D_.B;DE?R_.Y()`D94EZ(M@D)*Q&amp;H=EBS"HE&gt;(!_/"\(QR]Z(M@D?"S0Y['JXS(P/\.KVJ-=D_%R0)&lt;(]"A?JJ$B-4S'R`!9(K;6Y4%]BM@Q'"[7EO%R0)&lt;(A"C,MLS-S9S"2C=D-$T]^+@&amp;_FW+,L&amp;_VL`G^K#K(E$6A[6[9&amp;10AOI'KW[=[I;I.FKVA;K.58VBV2&gt;2!65,KS:5&gt;&gt;3:XT-V53.VIIZ5IQ:K4_X7I2`=]8Q_;ZZH4&gt;/E=2RV/JVU0"\67N-Q$.LP^^LN&gt;J?XV8@/\&lt;B\?3]^=DX.P^JYX^J40P]9B^:_]HH.0\/W^^+`]'\5.SWP8P0MU7]U88+?!!!!!!</Property>
+	<Property Name="NI.Lib.SourceVersion" Type="Int">536903680</Property>
 	<Property Name="NI.Lib.Version" Type="Str">2.1.4.0</Property>
+	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.SortType" Type="Int">3</Property>
 	<Item Name="Public" Type="Folder">
 		<Property Name="NI.LibItem.Scope" Type="Int">1</Property>
