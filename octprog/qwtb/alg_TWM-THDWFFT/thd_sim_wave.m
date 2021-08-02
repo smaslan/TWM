@@ -90,7 +90,7 @@ function [sig,fs_out,k1_out,h_amps] = thd_sim_wave(p)
     a_rms = sum(0.5*h_amps.^2,1).^0.5;
     
     % calculate actually generated THD 
-    k1_out = mean(sumsq(h_amps(2:end,:),1).^0.5./h_amps(1,:))*100;
+    k1_out = mean(sumsquare(h_amps(2:end,:),1).^0.5./h_amps(1,:))*100;
             
     
     if isfield(p,'corr')
