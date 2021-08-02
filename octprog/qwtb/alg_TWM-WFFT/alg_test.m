@@ -9,7 +9,7 @@ function alg_test(calcset) %<<<1
 
     
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = 5000;
+    is_full_val = 0;
     
     % minimum number of repetitions per test setup:
     %  note: if the value is 1 and all quantities passed, the test is done successfully
