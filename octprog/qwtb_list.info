@@ -19,7 +19,7 @@ type:: qwtb list
 	TWM-PWRTEST
         TWM-WFFT
         TWM-InpZ
-        TWM-VecRat
+        TWM-LowZ
         TWM-RATWFFT
 #endmatrix:: list of supported algorithms
 
@@ -50,7 +50,7 @@ type:: qwtb list
 //                  example: f; si; 1e-6; 0.0001
 //
 
-#startsection:: TWM-VecRat
+#startsection:: TWM-LowZ
         %       name;     fmt;abs;rel
         #startmatrix:: number formats
                 f;        si; 1e-9; 1e-8
@@ -87,7 +87,7 @@ type:: qwtb list
         #startmatrix:: spectrum
                 spec_U;spec_I
         #endmatrix:: spectrum
-#endsection:: TWM-VecRat
+#endsection:: TWM-LowZ
 
 #startsection:: TWM-RATWFFT
         %       name;     fmt;abs;rel
