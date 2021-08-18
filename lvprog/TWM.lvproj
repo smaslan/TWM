@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="20008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;w_daqmx,0;</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;w_daqmx,1;</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -95,6 +95,15 @@
 					<Item Name="niScope Mux Open.vi" Type="VI" URL="../drivers/Multiplexers/Generic niScope/niScope Mux Open.vi"/>
 					<Item Name="niScope Mux Set Path.vi" Type="VI" URL="../drivers/Multiplexers/Generic niScope/niScope Mux Set Path.vi"/>
 				</Item>
+				<Item Name="QPMX" Type="Folder">
+					<Item Name="QuPMXdriver.lvlib" Type="Library" URL="../drivers/Multiplexers/QPMX/QuPMXLabVIEWdriver/QuPMXdriver.lvlib"/>
+					<Item Name="QPMX Session.ctl" Type="VI" URL="../drivers/Multiplexers/Generic COM/QPMX Session.ctl"/>
+					<Item Name="QPMX switch mode.ctl" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX switch mode.ctl"/>
+					<Item Name="QPMX polarity.ctl" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX polarity.ctl"/>
+					<Item Name="QPMX Open.vi" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX Open.vi"/>
+					<Item Name="QPMX Close.vi" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX Close.vi"/>
+					<Item Name="QPMX Set Path.vi" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX Set Path.vi"/>
+				</Item>
 			</Item>
 			<Item Name="Agilent DSO 90000" Type="Folder">
 				<Item Name="Virtual Digitizer" Type="Folder">
@@ -152,8 +161,11 @@
 					<Item Name="F8588A Digitizing Process.vi" Type="VI" URL="../drivers/Fluke 8588A/top level/F8588A Digitizing Process.vi"/>
 					<Item Name="F8588A Read Stream.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Read Stream.vi"/>
 					<Item Name="F8588A Async Start Digitizing Process.vi" Type="VI" URL="../drivers/Fluke 8588A/top level/F8588A Async Start Digitizing Process.vi"/>
-					<Item Name="F8588A Test.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Test.vi"/>
-					<Item Name="F8588A Test2.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Test2.vi"/>
+				</Item>
+				<Item Name="Examples" Type="Folder">
+					<Item Name="F8588A set &amp; read standalone.vi" Type="VI" URL="../drivers/Fluke 8588A/Examples/F8588A set &amp; read standalone.vi"/>
+					<Item Name="F8588A set &amp; read using driver.vi" Type="VI" URL="../drivers/Fluke 8588A/Examples/F8588A set &amp; read using driver.vi"/>
+					<Item Name="F8588A Test.vi" Type="VI" URL="../drivers/Fluke 8588A/Examples/F8588A Test.vi"/>
 				</Item>
 				<Item Name="F8588A Low Pass Filter.ctl" Type="VI" URL="../drivers/Fluke 8588A/F8588A Low Pass Filter.ctl"/>
 				<Item Name="F8588A Phase Lock.ctl" Type="VI" URL="../drivers/Fluke 8588A/F8588A Phase Lock.ctl"/>
@@ -988,6 +1000,27 @@
 				<Item Name="System Directory Type.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/sysdir.llb/System Directory Type.ctl"/>
 				<Item Name="Get System Directory.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/sysdir.llb/Get System Directory.vi"/>
 				<Item Name="LVDateTimeRec.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVDateTimeRec.ctl"/>
+				<Item Name="Search Unsorted 1D Array.vim" Type="VI" URL="/&lt;vilib&gt;/Array/Search Unsorted 1D Array.vim"/>
+				<Item Name="Equal Functor.lvclass" Type="LVClass" URL="/&lt;vilib&gt;/Comparison/Equal/Equal Functor/Equal Functor.lvclass"/>
+				<Item Name="Equal Comparable.lvclass" Type="LVClass" URL="/&lt;vilib&gt;/Comparison/Equal/Equal Comparable/Equal Comparable.lvclass"/>
+				<Item Name="Search Unsorted 1D Array Core.vim" Type="VI" URL="/&lt;vilib&gt;/Array/Helpers/Search Unsorted 1D Array Core.vim"/>
+				<Item Name="Equals.vim" Type="VI" URL="/&lt;vilib&gt;/Comparison/Equals.vim"/>
+				<Item Name="Write Delimited Spreadsheet.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Write Delimited Spreadsheet.vi"/>
+				<Item Name="Write Delimited Spreadsheet (DBL).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Write Delimited Spreadsheet (DBL).vi"/>
+				<Item Name="Write Delimited Spreadsheet (I64).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Write Delimited Spreadsheet (I64).vi"/>
+				<Item Name="Write Delimited Spreadsheet (string).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Write Delimited Spreadsheet (string).vi"/>
+				<Item Name="Read Delimited Spreadsheet.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read Delimited Spreadsheet.vi"/>
+				<Item Name="Read Delimited Spreadsheet (DBL).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read Delimited Spreadsheet (DBL).vi"/>
+				<Item Name="Read Lines From File (with error IO).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read Lines From File (with error IO).vi"/>
+				<Item Name="Open File+.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Open File+.vi"/>
+				<Item Name="Read File+ (string).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read File+ (string).vi"/>
+				<Item Name="compatReadText.vi" Type="VI" URL="/&lt;vilib&gt;/_oldvers/_oldvers.llb/compatReadText.vi"/>
+				<Item Name="Close File+.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Close File+.vi"/>
+				<Item Name="Find First Error.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Find First Error.vi"/>
+				<Item Name="Read Delimited Spreadsheet (I64).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read Delimited Spreadsheet (I64).vi"/>
+				<Item Name="Read Delimited Spreadsheet (string).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read Delimited Spreadsheet (string).vi"/>
+				<Item Name="subTimeDelay.vi" Type="VI" URL="/&lt;vilib&gt;/express/express execution control/TimeDelayBlock.llb/subTimeDelay.vi"/>
+				<Item Name="Stall Data Flow.vim" Type="VI" URL="/&lt;vilib&gt;/Utility/Stall Data Flow.vim"/>
 			</Item>
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niScope Initialize.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/niScope Initialize.vi"/>
