@@ -96,10 +96,13 @@
 					<Item Name="niScope Mux Set Path.vi" Type="VI" URL="../drivers/Multiplexers/Generic niScope/niScope Mux Set Path.vi"/>
 				</Item>
 				<Item Name="QPMX" Type="Folder">
-					<Item Name="QPMX Open.vi" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX Open.vi"/>
-					<Item Name="QPMX Close.vi" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX Close.vi"/>
 					<Item Name="QuPMXdriver.lvlib" Type="Library" URL="../drivers/Multiplexers/QPMX/QuPMXLabVIEWdriver/QuPMXdriver.lvlib"/>
 					<Item Name="QPMX Session.ctl" Type="VI" URL="../drivers/Multiplexers/Generic COM/QPMX Session.ctl"/>
+					<Item Name="QPMX switch mode.ctl" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX switch mode.ctl"/>
+					<Item Name="QPMX polarity.ctl" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX polarity.ctl"/>
+					<Item Name="QPMX Open.vi" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX Open.vi"/>
+					<Item Name="QPMX Close.vi" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX Close.vi"/>
+					<Item Name="QPMX Set Path.vi" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX Set Path.vi"/>
 				</Item>
 			</Item>
 			<Item Name="Agilent DSO 90000" Type="Folder">
