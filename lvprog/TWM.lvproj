@@ -1021,6 +1021,7 @@
 				<Item Name="Read Delimited Spreadsheet (string).vi" Type="VI" URL="/&lt;vilib&gt;/Utility/file.llb/Read Delimited Spreadsheet (string).vi"/>
 				<Item Name="subTimeDelay.vi" Type="VI" URL="/&lt;vilib&gt;/express/express execution control/TimeDelayBlock.llb/subTimeDelay.vi"/>
 				<Item Name="Stall Data Flow.vim" Type="VI" URL="/&lt;vilib&gt;/Utility/Stall Data Flow.vim"/>
+				<Item Name="Normalize End Of Line.vi" Type="VI" URL="/&lt;vilib&gt;/AdvancedString/Normalize End Of Line.vi"/>
 			</Item>
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niScope Initialize.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/niScope Initialize.vi"/>
@@ -1143,7 +1144,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">3</Property>
+				<Property Name="Bld_version.patch" Type="Int">4</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1161,7 +1162,7 @@
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{D061C331-8D0D-4D0F-A999-BD1B55AF040F}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{4B667F71-8402-477D-9267-05722A8731CB}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1171,27 +1172,23 @@
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].itemID" Type="Ref"></Property>
+				<Property Name="Source[4].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[4].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[4].destinationIndex" Type="Int">3</Property>
+				<Property Name="Source[4].itemID" Type="Ref">/My Computer/doc</Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[5].Container.applyDestination" Type="Bool">true</Property>
-				<Property Name="Source[5].Container.applyInclusion" Type="Bool">true</Property>
-				<Property Name="Source[5].destinationIndex" Type="Int">3</Property>
-				<Property Name="Source[5].itemID" Type="Ref">/My Computer/doc</Property>
+				<Property Name="Source[4].type" Type="Str">Container</Property>
+				<Property Name="Source[5].itemID" Type="Ref">/My Computer/LICENSE.txt</Property>
 				<Property Name="Source[5].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[5].type" Type="Str">Container</Property>
-				<Property Name="Source[6].itemID" Type="Ref">/My Computer/LICENSE.txt</Property>
+				<Property Name="Source[6].itemID" Type="Ref">/My Computer/readme.txt</Property>
 				<Property Name="Source[6].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[7].itemID" Type="Ref">/My Computer/readme.txt</Property>
+				<Property Name="Source[7].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[7].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[7].destinationIndex" Type="Int">4</Property>
+				<Property Name="Source[7].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[7].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[8].Container.applyDestination" Type="Bool">true</Property>
-				<Property Name="Source[8].Container.applyInclusion" Type="Bool">true</Property>
-				<Property Name="Source[8].destinationIndex" Type="Int">4</Property>
-				<Property Name="Source[8].itemID" Type="Ref">/My Computer/data</Property>
-				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[8].type" Type="Str">Container</Property>
-				<Property Name="Source[9].itemID" Type="Ref"></Property>
-				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="SourceCount" Type="Int">10</Property>
+				<Property Name="Source[7].type" Type="Str">Container</Property>
+				<Property Name="SourceCount" Type="Int">8</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
 
@@ -1418,7 +1415,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{DB64396F-7FF5-45F4-8E08-882448D7416F}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">3</Property>
-				<Property Name="Bld_version.patch" Type="Int">2</Property>
+				<Property Name="Bld_version.patch" Type="Int">3</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM client.lvlibp</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM client/TWM client.lvlibp</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1427,7 +1424,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/TWM client</Property>
 				<Property Name="DestinationCount" Type="Int">2</Property>
 				<Property Name="PackedLib_callersAdapt" Type="Bool">true</Property>
-				<Property Name="Source[0].itemID" Type="Str">{B53FD108-91F0-4548-AFA2-34ADC15D4E0E}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{4B667F71-8402-477D-9267-05722A8731CB}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/server/TWM Client.lvlib</Property>
@@ -1441,7 +1438,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="TgtF_enableDebugging" Type="Bool">true</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">TWM tool client for remote operation.</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM client</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2020</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2021</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM client</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{6C025CF9-40E7-49D2-B44F-F2225C8410EF}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM client.lvlibp</Property>

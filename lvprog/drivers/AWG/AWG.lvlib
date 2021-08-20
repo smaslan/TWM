@@ -47,14 +47,18 @@
 		<Item Name="CMI ckd2 Write and Read.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Write and Read.vi"/>
 		<Item Name="CMI ckd2 Panel.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Panel.vi"/>
 	</Item>
+	<Item Name="CMI Sync Unit V3.lvlib" Type="Library" URL="../CMI Sync V3/CMI Sync Unit V3.lvlib"/>
 	<Item Name="Tektronix AFG 3000 Series.lvlib" Type="Library" URL="../AFG3000/Tektronix AFG 3000 Series.lvlib"/>
 	<Item Name="AWG Session.ctl" Type="VI" URL="../AWG Session.ctl"/>
 	<Item Name="AWG Type.ctl" Type="VI" URL="../AWG Type.ctl"/>
+	<Item Name="AWG Clock Setup Mode.ctl" Type="VI" URL="../AWG Clock Setup Mode.ctl"/>
+	<Item Name="AWG Capabilities.ctl" Type="VI" URL="../AWG Capabilities.ctl"/>
+	<Item Name="AWG Config Panel.vi" Type="VI" URL="../AWG Config Panel.vi"/>
 	<Item Name="AWG Initialize.vi" Type="VI" URL="../AWG Initialize.vi"/>
 	<Item Name="AWG Close.vi" Type="VI" URL="../AWG Close.vi"/>
 	<Item Name="AWG Start Pulses.vi" Type="VI" URL="../AWG Start Pulses.vi"/>
 	<Item Name="AWG Stop Pulses.vi" Type="VI" URL="../AWG Stop Pulses.vi"/>
 	<Item Name="AWG Set and Arm.vi" Type="VI" URL="../AWG Set and Arm.vi"/>
-	<Item Name="AWG Config Panel.vi" Type="VI" URL="../AWG Config Panel.vi"/>
 	<Item Name="AWG Get Capabilities.vi" Type="VI" URL="../AWG Get Capabilities.vi"/>
+	<Item Name="AWG Get Timestamp.vi" Type="VI" URL="../AWG Get Timestamp.vi"/>
 </Library>
