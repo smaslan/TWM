@@ -36,6 +36,7 @@
 	<Item Name="3458A Virtual Channel Config.ctl" Type="VI" URL="../3458A Virtual Channel Config.ctl"/>
 	<Item Name="3458A Aperture Selection Mode.ctl" Type="VI" URL="../3458A Aperture Selection Mode.ctl"/>
 	<Item Name="3458A Multiplexing Config.ctl" Type="VI" URL="../3458A Multiplexing Config.ctl"/>
+	<Item Name="3458A Sampling Rate.ctl" Type="VI" URL="../3458A Sampling Rate.ctl"/>
 	<Item Name="3458A Initialize Virtual Channels.vi" Type="VI" URL="../3458A Initialize Virtual Channels.vi"/>
 	<Item Name="3458A Close Virtual Channels.vi" Type="VI" URL="../3458A Close Virtual Channels.vi"/>
 	<Item Name="3458A Setup Virtual Channels.vi" Type="VI" URL="../3458A Setup Virtual Channels.vi"/>
