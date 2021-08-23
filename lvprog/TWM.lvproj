@@ -217,7 +217,10 @@
 					<Item Name="GOLPI Multi Process.lvlib" Type="Library" URL="../octave/golpi/mpc/GOLPI Multi Process.lvlib"/>
 					<Item Name="golpi_mpc_demo.vi" Type="VI" URL="../octave/golpi/mpc/golpi_mpc_demo.vi"/>
 				</Item>
+				<Item Name="LV Process library.lvlib" Type="Library" URL="../octave/golpi/LV Process library.lvlib"/>
 				<Item Name="GOLPI library.lvlib" Type="Library" URL="../octave/golpi/GOLPI library.lvlib"/>
+				<Item Name="lv_proc.dll" Type="Document" URL="../octave/golpi/lv_proc.dll"/>
+				<Item Name="golpi-1.2.1.tar.gz" Type="Document" URL="../octave/golpi/golpi-1.2.1.tar.gz"/>
 			</Item>
 		</Item>
 		<Item Name="varilib" Type="Folder">
@@ -377,6 +380,7 @@
 			<Item Name="Meas Sampling Configuration.ctl" Type="VI" URL="../measure/Meas Sampling Configuration.ctl"/>
 			<Item Name="Meas Sampling Rate Mode.ctl" Type="VI" URL="../measure/Meas Sampling Rate Mode.ctl"/>
 			<Item Name="Meas Range Mode.ctl" Type="VI" URL="../measure/Meas Range Mode.ctl"/>
+			<Item Name="Meas Config Panel - Sample Rate Selectors Update.vi" Type="VI" URL="../measure/Meas Config Panel - Sample Rate Selectors Update.vi"/>
 			<Item Name="Meas Config Panel.vi" Type="VI" URL="../measure/Meas Config Panel.vi"/>
 			<Item Name="Meas Asynchronous Start.vi" Type="VI" URL="../measure/Meas Asynchronous Start.vi"/>
 			<Item Name="Meas Asynchronous Wait.vi" Type="VI" URL="../measure/Meas Asynchronous Wait.vi"/>
@@ -403,6 +407,10 @@
 			<Item Name="rowcol2xlscell.vi" Type="VI" URL="../other/rowcol2xlscell.vi"/>
 			<Item Name="Text Viewer.vi" Type="VI" URL="../other/Text Viewer.vi"/>
 			<Item Name="Dir Folder With Attributes.vi" Type="VI" URL="../other/Dir Folder With Attributes.vi"/>
+			<Item Name="Tab Control - Get Tab By Name.vi" Type="VI" URL="../other/Tab Control - Get Tab By Name.vi"/>
+			<Item Name="Tab Control - Get Tab Control Ref By Name.vi" Type="VI" URL="../other/Tab Control - Get Tab Control Ref By Name.vi"/>
+			<Item Name="Tab Control - Get Tab Control Real Value.vi" Type="VI" URL="../other/Tab Control - Get Tab Control Real Value.vi"/>
+			<Item Name="Tab Control - Set Tab Control Real Value.vi" Type="VI" URL="../other/Tab Control - Set Tab Control Real Value.vi"/>
 		</Item>
 		<Item Name="ini" Type="Folder">
 			<Item Name="ini_auto" Type="Folder">
@@ -1112,16 +1120,6 @@
 			<Item Name="nilvaiu.dll" Type="Document" URL="nilvaiu.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="Add Key Or Table.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Add Key Or Table.vi"/>
-			<Item Name="2D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/2D String.vi"/>
-			<Item Name="1D String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add matrix polymorph parts/1D String.vi"/>
-			<Item Name="Load Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Load Info.vi"/>
-			<Item Name="Get Section.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Utilities/Get Section.vi"/>
-			<Item Name="String.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/String.vi"/>
-			<Item Name="I64.vi" Type="VI" URL="../octave/infolib.lvlibp/Private/Add key polymorph parts/I64.vi"/>
-			<Item Name="Insert Info Data.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Insert Info Data.vi"/>
-			<Item Name="Save Info.vi" Type="VI" URL="../octave/infolib.lvlibp/Public/Save Info.vi"/>
-			<Item Name="LV Process library.lvlib" Type="Library" URL="../octave/golpi/LV Process library.lvlib"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM - full" Type="EXE">
@@ -1144,7 +1142,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">4</Property>
+				<Property Name="Bld_version.patch" Type="Int">5</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1162,7 +1160,7 @@
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{4B667F71-8402-477D-9267-05722A8731CB}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{2D9F899A-E112-48DB-9D76-42B1545C9F9E}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1188,7 +1186,13 @@
 				<Property Name="Source[7].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[7].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[7].type" Type="Str">Container</Property>
-				<Property Name="SourceCount" Type="Int">8</Property>
+				<Property Name="Source[8].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[8].itemID" Type="Ref">/My Computer/octave/golpi/lv_proc.dll</Property>
+				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[9].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[9].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
+				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="SourceCount" Type="Int">10</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
 
