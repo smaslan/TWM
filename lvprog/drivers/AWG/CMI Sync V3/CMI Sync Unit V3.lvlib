@@ -22,7 +22,11 @@
 		<Item Name="CMI Sync V3 Reference Clock Source.ctl" Type="VI" URL="../Configure/CMI Sync V3 Reference Clock Source.ctl"/>
 		<Item Name="CMI Sync V3 Trigger Input Level.ctl" Type="VI" URL="../Configure/CMI Sync V3 Trigger Input Level.ctl"/>
 		<Item Name="CMI Sync V3 Trigger Mode.ctl" Type="VI" URL="../Configure/CMI Sync V3 Trigger Mode.ctl"/>
+		<Item Name="CMI Sync V3 Channel 1 Divisor Entry Mode.ctl" Type="VI" URL="../Configure/CMI Sync V3 Channel 1 Divisor Entry Mode.ctl"/>
 		<Item Name="CMI Sync V3 Set Channel 1 Division Factors.vi" Type="VI" URL="../Configure/CMI Sync V3 Set Channel 1 Division Factors.vi"/>
+		<Item Name="CMI Sync V3 Set Channel 1 Division Factor by Desired Freq.vi" Type="VI" URL="../Configure/CMI Sync V3 Set Channel 1 Division Factor by Desired Freq.vi"/>
+		<Item Name="CMI Sync V3 Set Channel 1 DDS Ratio.vi" Type="VI" URL="../Configure/CMI Sync V3 Set Channel 1 DDS Ratio.vi"/>
+		<Item Name="CMI Sync V3 Set Channel 1 DDS Frequency.vi" Type="VI" URL="../Configure/CMI Sync V3 Set Channel 1 DDS Frequency.vi"/>
 		<Item Name="CMI Sync V3 Set Channel 1 Mode.vi" Type="VI" URL="../Configure/CMI Sync V3 Set Channel 1 Mode.vi"/>
 		<Item Name="CMI Sync V3 Set Channel 1 Pulse Count.vi" Type="VI" URL="../Configure/CMI Sync V3 Set Channel 1 Pulse Count.vi"/>
 		<Item Name="CMI Sync V3 Set Channel 2 Divider.vi" Type="VI" URL="../Configure/CMI Sync V3 Set Channel 2 Divider.vi"/>
