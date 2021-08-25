@@ -36,6 +36,7 @@
 	<Item Name="CMI Clock Divider v2" Type="Folder">
 		<Item Name="CMI ckd2 Session.ctl" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Session.ctl"/>
 		<Item Name="CMI ckd2 Source Mode.ctl" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Source Mode.ctl"/>
+		<Item Name="CMI ckd2 Divisor Mode.ctl" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Divisor Mode.ctl"/>
 		<Item Name="CMI ckd2 Open.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Open.vi"/>
 		<Item Name="CMI ckd2 Close.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Close.vi"/>
 		<Item Name="CMI ckd2 Read Error.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Read Error.vi"/>
