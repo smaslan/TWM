@@ -21,6 +21,8 @@
 	<Item Name="TWM Client Cmd Set Measurement.vi" Type="VI" URL="../TWM Client Cmd Set Measurement.vi"/>
 	<Item Name="TWM Client Cmd Start.vi" Type="VI" URL="../TWM Client Cmd Start.vi"/>
 	<Item Name="TWM Client Cmd Stop.vi" Type="VI" URL="../TWM Client Cmd Stop.vi"/>
+	<Item Name="TWM Client Cmd Exec ADC Selfcalibration.vi" Type="VI" URL="../TWM Client Cmd Exec ADC Selfcalibration.vi"/>
+	<Item Name="TWM Client Cmd Get Versions.vi" Type="VI" URL="../TWM Client Cmd Get Versions.vi"/>
 	<Item Name="TWM Client Measure and Get Result.vi" Type="VI" URL="../TWM Client Measure and Get Result.vi"/>
 	<Item Name="TWM Client Recieve Packet.vi" Type="VI" URL="../TWM Client Recieve Packet.vi"/>
 	<Item Name="TWM Client Send Packet.vi" Type="VI" URL="../TWM Client Send Packet.vi"/>
@@ -28,4 +30,5 @@
 	<Item Name="TWM Client Test.vi" Type="VI" URL="../TWM Client Test.vi"/>
 	<Item Name="TWM Client Open.vi" Type="VI" URL="../TWM Client Open.vi"/>
 	<Item Name="TWM Client Close.vi" Type="VI" URL="../TWM Client Close.vi"/>
+	<Item Name="TWM Client Version.vi" Type="VI" URL="../TWM Client Version.vi"/>
 </Library>

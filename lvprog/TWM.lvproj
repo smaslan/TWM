@@ -578,6 +578,7 @@
 				<Item Name="Server Cmd Answer - Get Status.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Get Status.vi"/>
 				<Item Name="Server Cmd Answer - Get Result.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Get Result.vi"/>
 				<Item Name="Server Cmd Answer - Get Algorithm Info.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Get Algorithm Info.vi"/>
+				<Item Name="Server Cmd Answer - Get Version.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Get Version.vi"/>
 				<Item Name="Server Cmd Answer - Identify.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Identify.vi"/>
 			</Item>
 			<Item Name="TWM Client.lvlib" Type="Library" URL="../server/TWM client/TWM Client.lvlib"/>
@@ -1428,7 +1429,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/TWM client</Property>
 				<Property Name="DestinationCount" Type="Int">2</Property>
 				<Property Name="PackedLib_callersAdapt" Type="Bool">true</Property>
-				<Property Name="Source[0].itemID" Type="Str">{4B667F71-8402-477D-9267-05722A8731CB}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{8CC1253B-42E7-4EF0-AD39-B6774CD01AFE}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/server/TWM Client.lvlib</Property>
