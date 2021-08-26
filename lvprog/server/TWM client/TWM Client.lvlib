@@ -31,4 +31,5 @@
 	<Item Name="TWM Client Open.vi" Type="VI" URL="../TWM Client Open.vi"/>
 	<Item Name="TWM Client Close.vi" Type="VI" URL="../TWM Client Close.vi"/>
 	<Item Name="TWM Client Version.vi" Type="VI" URL="../TWM Client Version.vi"/>
+	<Item Name="TWM Client Compare Version Strings.vi" Type="VI" URL="../TWM Client Compare Version Strings.vi"/>
 </Library>
