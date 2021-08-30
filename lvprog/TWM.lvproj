@@ -605,10 +605,10 @@
 		</Item>
 		<Item Name="build" Type="Folder">
 			<Item Name="Build Setup.ctl" Type="VI" URL="../build/Build Setup.ctl"/>
+			<Item Name="Build All TWM Versions.vi" Type="VI" URL="../build/Build All TWM Versions.vi"/>
 			<Item Name="Server pre-Build Action.vi" Type="VI" URL="../server/Server pre-Build Action.vi"/>
 			<Item Name="Post-Build Action.vi" Type="VI" URL="../build/Post-Build Action.vi"/>
 			<Item Name="Set Conditional Symbols.vi" Type="VI" URL="../build/Set Conditional Symbols.vi"/>
-			<Item Name="Pre-Build Action - test.vi" Type="VI" URL="../build/Pre-Build Action - test.vi"/>
 			<Item Name="Pre-Build Action - full.vi" Type="VI" URL="../build/Pre-Build Action - full.vi"/>
 			<Item Name="Pre-Build Action - visa,niscope.vi" Type="VI" URL="../build/Pre-Build Action - visa,niscope.vi"/>
 			<Item Name="Pre-Build Action - visa.vi" Type="VI" URL="../build/Pre-Build Action - visa.vi"/>
@@ -1218,7 +1218,7 @@
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{92721D40-B532-42E1-A7F7-865697F97B32}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{67B13565-3C7C-43E1-AEEC-45996DE827CB}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
