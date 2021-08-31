@@ -163,7 +163,7 @@ function dataout = alg_wrapper(datain, calcset)
             
             % return stuff:
             dataout.f.v = f0;
-            dataout.Uref.v = dout.A.v;
+            dataout.Uref.v = dout.A.v*(2^0.5);
             
             dataout.Cp.v = imag(1./Zi)/w0;
             dataout.Gp.v = real(1./Zi);
@@ -175,8 +175,24 @@ function dataout = alg_wrapper(datain, calcset)
             dataout.mnr.u = ec.umnr;
             
             dataout.mjr_name.v = char([eclist{ecid,1} ' [' eclist{ecid,2} ']']); 
-            dataout.mnr_name.v = char([eclist{ecid,3} ' [' eclist{ecid,4} ']']);         
+            dataout.mnr_name.v = char([eclist{ecid,3} ' [' eclist{ecid,4} ']']);
+            
+            if isfield(dout, 'spec_f')
+                dataout.spec_U.v = dout.spec_A.v;
+            end         
                             
+        elseif vc.name == 'i'
+            % current channel (DUT)
+            
+            % return current as voltage assuming shunt has unity transfer
+            dataout.Udut.v = dout.A.v*(2^0.5);
+            
+            % return spectrum if available
+            if isfield(dout, 'spec_f')
+                dataout.spec_f.v = dout.spec_f.v;
+                dataout.spec_I.v = dout.spec_A.v;
+            end      
+            
         end                            
         
        

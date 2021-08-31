@@ -479,6 +479,10 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Reference RMS voltage [V]';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'Udut';
+    alginfo.outputs(pid).desc = 'DUT channel RMS voltage [V]';
+    pid = pid + 1;
+    
     alginfo.outputs(pid).name = 'Cp';
     alginfo.outputs(pid).desc = 'Input parallel capacitance [F]';
     pid = pid + 1;
@@ -505,6 +509,16 @@ function alginfo = alg_info() %<<<1
     
     alginfo.outputs(pid).name = 'mjr_name';
     alginfo.outputs(pid).desc = 'Name of major component of DUT impedance';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'spec_f';
+    alginfo.outputs(pid).desc = 'Frequency axis of spectrum';
+    pid = pid + 1;
+    alginfo.outputs(pid).name = 'spec_I';
+    alginfo.outputs(pid).desc = 'DUT voltage spectrum';
+    pid = pid + 1;
+    alginfo.outputs(pid).name = 'spec_U';
+    alginfo.outputs(pid).desc = 'REF voltage spectrum';
     pid = pid + 1;
         
     alginfo.providesGUF = 0;

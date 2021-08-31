@@ -121,10 +121,21 @@ type:: qwtb list
         #startmatrix:: number formats
                 f;        si; 1e-9; 1e-7
                 Uref;     si; 1e-9; 1e-7
+                Udut;     si; 1e-9; 1e-7
                 Cp;       si; 1e-15; 1e-5
                 Gp;       si; 1e-15; 1e-5
                 Rp;       si; 1e-9; 1e-5
         #endmatrix:: number formats
+        #startmatrix:: is amplitude
+                spec_U;spec_I
+        #endmatrix:: is amplitude
+        #startmatrix:: graphs
+		spec_f; spec_U
+		spec_f; spec_I
+        #endmatrix:: graphs
+        #startmatrix:: spectrum
+                spec_U;spec_I
+        #endmatrix:: spectrum
 #endsection:: TWM-InpZ
 
 
