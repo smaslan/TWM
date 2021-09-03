@@ -153,7 +153,13 @@ function dataout = alg_wrapper(datain, calcset)
             r = kA.*exp(j*kP);
             
             % reference impedance from user parameters:
-            Zr = 1/(1/datain.Rp.v + j*2*pi*f0*datain.Cp.v);
+            if isfield(datain,'Rp')
+                Zr = 1/(1/datain.Rp.v + j*2*pi*f0*datain.Cp.v);
+            elseif isfield(datain,'D')
+                Zr = 1/(2*pi*f0*datain.Cp.v*(j + datain.D.v));
+            else
+                error('Missing reference impedance minor component Rp or D!');
+            end
             
             % input impedance:
             Zi = Zr*r/(1 - r);

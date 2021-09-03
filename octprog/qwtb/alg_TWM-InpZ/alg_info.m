@@ -59,21 +59,21 @@ function alginfo = alg_info() %<<<1
     % --- configuration:
     % initial frequency estimate
     alginfo.inputs(pid).name = 'f_est';
-    alginfo.inputs(pid).desc = 'Initial frequency estimate';
+    alginfo.inputs(pid).desc = 'Fundamental frequency [Hz]';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     % harmonic estimation mode
     alginfo.inputs(pid).name = 'mode';
-    alginfo.inputs(pid).desc = 'Harmonic estimation mode (PSFE, FPNLSF, WFFT)';
+    alginfo.inputs(pid).desc = 'Harmonic estimation mode (WFFT, PSFE, FPNLSF)';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     % equivalent circuit mode:
     alginfo.inputs(pid).name = 'equ';
-    alginfo.inputs(pid).desc = 'Output equivalent circuit of DUT (CpD, LsRs, etc.)';
+    alginfo.inputs(pid).desc = 'Output equivalent circuit of DUT (CpD, CpGp, LsRs, etc.)';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
@@ -85,17 +85,22 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
-    % window function:
+    % reference impedance:
     alginfo.inputs(pid).name = 'Rp';
-    alginfo.inputs(pid).desc = 'Reference resistor - parallel resistance';
+    alginfo.inputs(pid).desc = 'Reference impedance - parallel resistance (alternative to D)';
+    alginfo.inputs(pid).alternative = 1;
+    alginfo.inputs(pid).optional = 0;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    alginfo.inputs(pid).name = 'Cp';
+    alginfo.inputs(pid).desc = 'Reference impedance - parallel capacitance';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 0;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
-    % window function:
-    alginfo.inputs(pid).name = 'Cp';
-    alginfo.inputs(pid).desc = 'Reference resistor - parallel capacitance';
-    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).name = 'D';
+    alginfo.inputs(pid).desc = 'Reference impedance - Cp loss tangent (alternative to Rp)';
+    alginfo.inputs(pid).alternative = 1;
     alginfo.inputs(pid).optional = 0;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
