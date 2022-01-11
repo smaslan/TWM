@@ -1,8 +1,10 @@
 function dataout = alg_wrapper(datain, calcset)
-% Part of QWTB. Wrapper script for algorithm TWM-LowZ.
+% Part of QWTB. Wrapper script for algorithm TWM-LowZ (top level of the algorithm).
 %
 % See also qwtb
-%
+% This is part of the TWM - TracePQM WattMeter.
+% (c) 2018-2021, Stanislav Maslan, smaslan@cmi.cz
+% The script is distributed under MIT license, https://opensource.org/licenses/MIT.
 % Format input data --------------------------- %<<<1
     
     

@@ -1,13 +1,16 @@
 function alginfo = alg_info() %<<<1
 % Part of QWTB. Info script for algorithm TWM-LowZ.
 %
+% This is part of the TWM - TracePQM WattMeter.
+% (c) 2018-2021, Stanislav Maslan, smaslan@cmi.cz
+% The script is distributed under MIT license, https://opensource.org/licenses/MIT.
 % See also qwtb
 
     alginfo.id = 'TWM-LowZ';
     alginfo.name = 'TWM tool wrapper: Low impedance measurement algorithm';
     alginfo.desc = 'An algorithm for measurement of low impedances using TWM-WFFT, TWM-FPNLSF or TWM-PSFE.';
     alginfo.citation = 'no';
-    alginfo.remarks = 'Can measure low-Z in 4T, 4TP or 2x4T definition.';
+    alginfo.remarks = 'Can measure low-Z in 4T, 4TP or 2x4T definition. Use current transducer for ref. imepedance and dummy voltage transducer for DUT voltage sensing.';
     alginfo.license = 'MIT License';
 
     
