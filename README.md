@@ -12,7 +12,9 @@ Both components are connected together into the single interactive application u
 
 The TWM concept is modular, so it can be simply extended by various digitizer drivers whereas the rest of the application stays unchanged. In the current version the TWM supports:
 - [niScope](http://sine.ni.com/nips/cds/view/p/lang/cs/nid/12638) drivers for control of NI's PXI-5922 digitizer for wideband measurements (can be unlocked for other cards as well...),
-- Synchronized [HP/Agilent/Keysight 3458A](https://www.keysight.com/en/pd-1000001297%3Aepsg%3Apro-pn-3458A/digital-multimeter-8-digit?cc=US&lc=eng) sampling multimeters for precision measurements,
+- Synchronized [HP/Agilent/Keysight 3458A](https://www.keysight.com/en/pd-1000001297%3Aepsg%3Apro-pn-3458A/digital-multimeter-8-digit?cc=US&lc=eng) sampling multimeters for precision measurements, partial support for Fluke 8588A,
+- cDAQ NI9238 module (only single module),
+- Keysight DSO driver (very experimental, tested on model DSOS0604),
 - [DirectSound](http://www.elektronika.kvalitne.cz/SW/dsdll/dsdll_eng.html) driver for ordinary soundcard for test purposes and low accuracy measurements,
 - Simulated digitizer for debug purposes (synthesizer of the composite harmonics signal).
 
@@ -33,6 +35,7 @@ Current version includes following algorithms:
 - TWM-WRMS: RMS level calculation by time-domain integration method for non-coherent sampling.
 - TWM-WFFT: Windowed FFT for single or multiharmonic estimation.
 - TWM-InpZ: Estimator of digitizer input impedance (no uncertainty).
+- TWM-LowZ: Low impedance and voltage ratio measurement algorithm.
 
 
 Details on the algorithms can be found in the [draft document A2.4.4 - Algorithms Description](https://github.com/smaslan/TWM/blob/master/doc/A244%20Algorithms%20description.pdf).
@@ -66,6 +69,7 @@ Important changes and news:
 - 2019-04-04: Improved GUI, 12 algorithms included (not all validated yet!).
 - 2019-04-15: Improved GUI, minor fixes. 
 - 2021-07-21: Conversion of LabVIEW files to LabVIEW 2020. All libraries are inluded as *Source distribution*.
+- 2022-01-12: New build.
 
 
 ## Download
@@ -90,9 +94,9 @@ TWM depends on following external software:
 ## Building
 Only the LabVIEW part has to be build.
 
-The `lvprog/TWM.lvproj` contains 3 buidl specifications:
+The `lvprog/TWM.lvproj` contains 3 build specifications:
 - TWM full
-- TWM visa,niscope
 - TWM visa
+- TWM visa,niscope
 
-*TWM full* builds for all implemented hardware. To run, user has to install NI libraries for NI-DAQ, NI-SCOPE, VISA, and of course run time libraries for LabVIEW. Because many users use digitizers not requiring NI-DAQ or NI-SCOPE, other builds are generated.
+"TWM full" builds for all implemented hardware. To run it, user has to install NI libraries for NI-DAQ, NI-SCOPE, VISA, and of course run time libraries for LabVIEW. Because many users use digitizers not requiring NI-DAQ or NI-SCOPE, other builds are generated. Running VI `build/Build All TWM Versions.vi` will offer automatic build of all builds versions and copies all versions of EXE files of the other builds to "TWM full" folder for convenience.

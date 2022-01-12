@@ -1,6 +1,6 @@
 The MIT License (MIT)
 
-Copyright (c) 2019 Consortium of EMPIR project TracePQM, www.tracepqm.cmi.cz
+Copyright (c) 2022 Consortium of EMPIR project TracePQM, www.tracepqm.cmi.cz
 
 The lincese is relevant to the LabVIEW application and m-files that are part
 of the interface to the QWTB toolbox. Algorithms of the QWTB have their
