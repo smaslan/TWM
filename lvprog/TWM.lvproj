@@ -600,8 +600,14 @@
 			<Item Name="Server Log Panel.vi" Type="VI" URL="../server/Server Log Panel.vi"/>
 			<Item Name="Server Panel.vi" Type="VI" URL="../server/Server Panel.vi"/>
 		</Item>
-		<Item Name="doc" Type="Folder" URL="../../doc">
-			<Property Name="NI.DISK" Type="Bool">true</Property>
+		<Item Name="doc" Type="Folder">
+			<Item Name="A231 Correction Files Reference Manual.docx" Type="Document" URL="../../doc/A231 Correction Files Reference Manual.docx"/>
+			<Item Name="A231 Data exchange format and file formats.docx" Type="Document" URL="../../doc/A231 Data exchange format and file formats.docx"/>
+			<Item Name="A232 Algorithm Exchange Format.docx" Type="Document" URL="../../doc/A232 Algorithm Exchange Format.docx"/>
+			<Item Name="A244 Algorithms description.pdf" Type="Document" URL="../../doc/A244 Algorithms description.pdf"/>
+			<Item Name="A245 TWM structure.docx" Type="Document" URL="../../doc/A245 TWM structure.docx"/>
+			<Item Name="A331 Installation and Guide.docx" Type="Document" URL="../../doc/A331 Installation and Guide.docx"/>
+			<Item Name="TWM_guide.pdf" Type="Document" URL="../../doc/TWM_guide.pdf"/>
 		</Item>
 		<Item Name="build" Type="Folder">
 			<Item Name="Build Setup.ctl" Type="VI" URL="../build/Build Setup.ctl"/>
@@ -1218,7 +1224,7 @@
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{67B13565-3C7C-43E1-AEEC-45996DE827CB}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{017CE76B-F909-4C95-BE6C-9F09ACBDBB35}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1270,9 +1276,10 @@ V1.6.8 - partial support for Fluke 8588A
 V1.6.9 - support for CMI clock div, minor changes in GUI
 V1.7.1 - minor fixes
 V1.7.2 - adc ranges settable via server
-V1.7.3 - Keysight DSO driver small range bug fix</Property>
+V1.7.3 - Keysight DSO driver small range bug fix
+V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2021</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2022</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{D8F2E1E1-802E-4B60-9D7C-5E18E07A06CA}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM.exe</Property>
@@ -1315,7 +1322,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{D061C331-8D0D-4D0F-A999-BD1B55AF040F}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{017CE76B-F909-4C95-BE6C-9F09ACBDBB35}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1325,27 +1332,23 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].itemID" Type="Ref"></Property>
+				<Property Name="Source[4].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[4].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[4].destinationIndex" Type="Int">3</Property>
+				<Property Name="Source[4].itemID" Type="Ref">/My Computer/doc</Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[5].Container.applyDestination" Type="Bool">true</Property>
-				<Property Name="Source[5].Container.applyInclusion" Type="Bool">true</Property>
-				<Property Name="Source[5].destinationIndex" Type="Int">3</Property>
-				<Property Name="Source[5].itemID" Type="Ref">/My Computer/doc</Property>
+				<Property Name="Source[4].type" Type="Str">Container</Property>
+				<Property Name="Source[5].itemID" Type="Ref">/My Computer/LICENSE.txt</Property>
 				<Property Name="Source[5].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[5].type" Type="Str">Container</Property>
-				<Property Name="Source[6].itemID" Type="Ref">/My Computer/LICENSE.txt</Property>
+				<Property Name="Source[6].itemID" Type="Ref">/My Computer/readme.txt</Property>
 				<Property Name="Source[6].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[7].itemID" Type="Ref">/My Computer/readme.txt</Property>
+				<Property Name="Source[7].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[7].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[7].destinationIndex" Type="Int">4</Property>
+				<Property Name="Source[7].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[7].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[8].Container.applyDestination" Type="Bool">true</Property>
-				<Property Name="Source[8].Container.applyInclusion" Type="Bool">true</Property>
-				<Property Name="Source[8].destinationIndex" Type="Int">4</Property>
-				<Property Name="Source[8].itemID" Type="Ref">/My Computer/data</Property>
-				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[8].type" Type="Str">Container</Property>
-				<Property Name="Source[9].itemID" Type="Ref"></Property>
-				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="SourceCount" Type="Int">10</Property>
+				<Property Name="Source[7].type" Type="Str">Container</Property>
+				<Property Name="SourceCount" Type="Int">8</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
 
@@ -1365,9 +1368,10 @@ V1.6.6 - support for cDAQ ADC
 V1.6.9 - support for CMI clock div, Fluke 8588, minor changes in GUI
 V1.7.1 - minor fixes
 V1.7.2 - adc ranges settable via server
-V1.7.3 - Keysight DSO driver small range bug fix</Property>
+V1.7.3 - Keysight DSO driver small range bug fix
+V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2021</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2022</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{19518978-F8E5-4558-9786-71904496379A}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM-visa-niScope.exe</Property>
@@ -1410,7 +1414,7 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{D061C331-8D0D-4D0F-A999-BD1B55AF040F}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{017CE76B-F909-4C95-BE6C-9F09ACBDBB35}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1420,27 +1424,23 @@ V1.7.3 - Keysight DSO driver small range bug fix</Property>
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].itemID" Type="Ref"></Property>
+				<Property Name="Source[4].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[4].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[4].destinationIndex" Type="Int">3</Property>
+				<Property Name="Source[4].itemID" Type="Ref">/My Computer/doc</Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[5].Container.applyDestination" Type="Bool">true</Property>
-				<Property Name="Source[5].Container.applyInclusion" Type="Bool">true</Property>
-				<Property Name="Source[5].destinationIndex" Type="Int">3</Property>
-				<Property Name="Source[5].itemID" Type="Ref">/My Computer/doc</Property>
+				<Property Name="Source[4].type" Type="Str">Container</Property>
+				<Property Name="Source[5].itemID" Type="Ref">/My Computer/LICENSE.txt</Property>
 				<Property Name="Source[5].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[5].type" Type="Str">Container</Property>
-				<Property Name="Source[6].itemID" Type="Ref">/My Computer/LICENSE.txt</Property>
+				<Property Name="Source[6].itemID" Type="Ref">/My Computer/readme.txt</Property>
 				<Property Name="Source[6].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[7].itemID" Type="Ref">/My Computer/readme.txt</Property>
+				<Property Name="Source[7].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[7].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[7].destinationIndex" Type="Int">4</Property>
+				<Property Name="Source[7].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[7].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[8].Container.applyDestination" Type="Bool">true</Property>
-				<Property Name="Source[8].Container.applyInclusion" Type="Bool">true</Property>
-				<Property Name="Source[8].destinationIndex" Type="Int">4</Property>
-				<Property Name="Source[8].itemID" Type="Ref">/My Computer/data</Property>
-				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[8].type" Type="Str">Container</Property>
-				<Property Name="Source[9].itemID" Type="Ref"></Property>
-				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="SourceCount" Type="Int">10</Property>
+				<Property Name="Source[7].type" Type="Str">Container</Property>
+				<Property Name="SourceCount" Type="Int">8</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
 
@@ -1456,9 +1456,10 @@ V1.6.1 - minor fixes in corrections editor, fixed dsdll
 V1.7.0 - parallel QWTB processing
 V1.7.1 - minor fixes
 V1.7.2 - ranges settable via server
-V1.7.3 - Keysight DSO driver small range bug fix</Property>
+V1.7.3 - Keysight DSO driver small range bug fix
+V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2021</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2022</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{AEEC5EC9-3A7F-49CB-BB07-729F6120ABF4}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM-visa.exe</Property>
