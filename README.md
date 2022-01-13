@@ -38,7 +38,7 @@ Current version includes following algorithms:
 - TWM-LowZ: Low impedance and voltage ratio measurement algorithm.
 
 
-Details on the algorithms can be found in the [draft document A2.4.4 - Algorithms Description](https://github.com/smaslan/TWM/blob/master/doc/A244%20Algorithms%20description.pdf).
+Details on the algorithms can be found in the [draft document A2.4.4 - Algorithms Description](https://github.com/smaslan/TWM/blob/multiplex/doc/A244%20Algorithms%20description.pdf).
 
 
 <img src="./imgz/gui_v2_small.jpg">
@@ -90,6 +90,11 @@ TWM depends on following external software:
 1. [AX Excel](https://gitlab.com/smaslan/xls-template-and-stuff). Included in TWM.
 1. [DirectSound DLL interface](https://github.com/KaeroDot/dsdll_lv). Included in TWM.
 1. [vilib](https://gitlab.com/cmi-6011/vilib). Included in TWM.
+
+## Branches
+TWM project has two branches. 
+- `master` is original branch that was developed in scope of EMPIR project [TracePQM](http://tracepqm.cmi.cz/). It was made in LabVIEW 2013 and the development stopped by the end of project (May 2019). This is the version that was used for validation in scope of the project TracePQM.
+- `multiplex` is continuously developed version with many improvements that is currently being developed in LabVIEW 2020. It is intensively used, but it was not fully validated! :warning:
 
 ## Building
 Only the LabVIEW part has to be build.
