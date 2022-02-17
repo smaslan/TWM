@@ -1206,7 +1206,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">5</Property>
+				<Property Name="Bld_version.patch" Type="Int">6</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1224,7 +1224,7 @@
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{017CE76B-F909-4C95-BE6C-9F09ACBDBB35}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{5670EF1F-936E-40FD-9969-A280912CB2D0}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1277,7 +1277,8 @@ V1.6.9 - support for CMI clock div, minor changes in GUI
 V1.7.1 - minor fixes
 V1.7.2 - adc ranges settable via server
 V1.7.3 - Keysight DSO driver small range bug fix
-V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
+V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458
+V1.7.6 - minor fixes in TWM server</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2022</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
@@ -1304,7 +1305,7 @@ V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">5</Property>
+				<Property Name="Bld_version.patch" Type="Int">6</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-niscope/TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1396,7 +1397,7 @@ V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">5</Property>
+				<Property Name="Bld_version.patch" Type="Int">6</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/TWM-visa.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1477,7 +1478,7 @@ V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{DB64396F-7FF5-45F4-8E08-882448D7416F}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">5</Property>
+				<Property Name="Bld_version.patch" Type="Int">6</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM client.lvlibp</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM client/TWM client.lvlibp</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1486,7 +1487,7 @@ V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
 				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/TWM client</Property>
 				<Property Name="DestinationCount" Type="Int">2</Property>
 				<Property Name="PackedLib_callersAdapt" Type="Bool">true</Property>
-				<Property Name="Source[0].itemID" Type="Str">{35FFE26A-E739-4C0E-AA0D-EEF63A2991F0}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{5670EF1F-936E-40FD-9969-A280912CB2D0}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/server/TWM Client.lvlib</Property>
@@ -1500,7 +1501,7 @@ V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
 				<Property Name="TgtF_enableDebugging" Type="Bool">true</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">TWM tool client for remote operation.</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM client</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2021</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2022</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM client</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{6C025CF9-40E7-49D2-B44F-F2225C8410EF}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM client.lvlibp</Property>
