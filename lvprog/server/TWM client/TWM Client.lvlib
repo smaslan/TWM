@@ -12,6 +12,7 @@
 	<Item Name="TWM Client Transducer Correction Item.ctl" Type="VI" URL="../TWM Client Transducer Correction Item.ctl"/>
 	<Item Name="TWM Client Algorithm Info.ctl" Type="VI" URL="../TWM Client Algorithm Info.ctl"/>
 	<Item Name="TWM Client Result Info.ctl" Type="VI" URL="../TWM Client Result Info.ctl"/>
+	<Item Name="TWM Client Mux Path.ctl" Type="VI" URL="../TWM Client Mux Path.ctl"/>
 	<Item Name="TWM Client Cmd Get Result.vi" Type="VI" URL="../TWM Client Cmd Get Result.vi"/>
 	<Item Name="TWM Client Cmd Get Status.vi" Type="VI" URL="../TWM Client Cmd Get Status.vi"/>
 	<Item Name="TWM Client Cmd Get Algorithm Info.vi" Type="VI" URL="../TWM Client Cmd Get Algorithm Info.vi"/>
@@ -32,4 +33,5 @@
 	<Item Name="TWM Client Close.vi" Type="VI" URL="../TWM Client Close.vi"/>
 	<Item Name="TWM Client Version.vi" Type="VI" URL="../TWM Client Version.vi"/>
 	<Item Name="TWM Client Compare Version Strings.vi" Type="VI" URL="../TWM Client Compare Version Strings.vi"/>
+	<Item Name="TWM Client Cmd Set Multiplexer Paths.vi" Type="VI" URL="../TWM Client Cmd Set Multiplexer Paths.vi"/>
 </Library>

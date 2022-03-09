@@ -33,6 +33,7 @@
 				<Item Name="MPX Session.ctl" Type="VI" URL="../adc/Multiplexer/MPX Session.ctl"/>
 				<Item Name="MPX Record Segment Info.ctl" Type="VI" URL="../adc/Multiplexer/MPX Record Segment Info.ctl"/>
 				<Item Name="MPX Sequence Item.ctl" Type="VI" URL="../adc/Multiplexer/MPX Sequence Item.ctl"/>
+				<Item Name="MPX Define Paths.vi" Type="VI" URL="../adc/Multiplexer/MPX Define Paths.vi"/>
 				<Item Name="MPX Post Process Sequence.vi" Type="VI" URL="../adc/Multiplexer/MPX Post Process Sequence.vi"/>
 				<Item Name="MPX Panel.vi" Type="VI" URL="../adc/Multiplexer/MPX Panel.vi"/>
 				<Item Name="MPX Check Sequence.vi" Type="VI" URL="../adc/Multiplexer/MPX Check Sequence.vi"/>
@@ -41,6 +42,7 @@
 				<Item Name="MPX Get Path Names.vi" Type="VI" URL="../adc/Multiplexer/MPX Get Path Names.vi"/>
 				<Item Name="MPX Set Path.vi" Type="VI" URL="../adc/Multiplexer/MPX Set Path.vi"/>
 				<Item Name="MPX Close.vi" Type="VI" URL="../adc/Multiplexer/MPX Close.vi"/>
+				<Item Name="MPX Path Definition.ctl" Type="VI" URL="../adc/Multiplexer/MPX Path Definition.ctl"/>
 			</Item>
 			<Item Name="ADC Session.ctl" Type="VI" URL="../adc/ADC Session.ctl"/>
 			<Item Name="ADC Type.ctl" Type="VI" URL="../adc/ADC Type.ctl"/>
@@ -103,6 +105,16 @@
 					<Item Name="QPMX Open.vi" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX Open.vi"/>
 					<Item Name="QPMX Close.vi" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX Close.vi"/>
 					<Item Name="QPMX Set Path.vi" Type="VI" URL="../drivers/Multiplexers/QPMX/QPMX Set Path.vi"/>
+				</Item>
+				<Item Name="Generic VISA commands" Type="Folder">
+					<Item Name="GVISA Mux Path Entry.ctl" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/GVISA Mux Path Entry.ctl"/>
+					<Item Name="GVISA Mux Session.ctl" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/GVISA Mux Session.ctl"/>
+					<Item Name="met_serial_cfg.vi" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/met_serial_cfg.vi"/>
+					<Item Name="met_serial_setup.ctl" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/met_serial_setup.ctl"/>
+					<Item Name="Parse And Send VISA Command String.vi" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/Parse And Send VISA Command String.vi"/>
+					<Item Name="GVISA Mux Open.vi" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/GVISA Mux Open.vi"/>
+					<Item Name="GVISA Mux Set Path.vi" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/GVISA Mux Set Path.vi"/>
+					<Item Name="GVISA Mux Close.vi" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/GVISA Mux Close.vi"/>
 				</Item>
 			</Item>
 			<Item Name="Agilent DSO 90000" Type="Folder">
@@ -573,6 +585,7 @@
 				<Item Name="wa32 WriteFile.vi" Type="VI" URL="../server/WinAPI32/wa32 WriteFile.vi"/>
 			</Item>
 			<Item Name="TWM server" Type="Folder">
+				<Item Name="Server Cmd Parser - Define Multiplex Paths.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Define Multiplex Paths.vi"/>
 				<Item Name="Server Cmd Parser - Set Measurement.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Set Measurement.vi"/>
 				<Item Name="Server Cmd Parser - Set Corrections.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Set Corrections.vi"/>
 				<Item Name="Server Cmd Answer - Get Status.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Get Status.vi"/>
@@ -1184,6 +1197,8 @@
 			<Item Name="mxLvGetItem.vi" Type="VI" URL="/&lt;resource&gt;/Framework/Providers/API/mxLvGetItem.vi"/>
 			<Item Name="provcom_StringGlobals.vi" Type="VI" URL="/&lt;resource&gt;/Framework/Providers/Common/provcom_StringGlobals.vi"/>
 			<Item Name="mxLvProvider.mxx" Type="Document" URL="/&lt;resource&gt;/Framework/Providers/mxLvProvider.mxx"/>
+			<Item Name="Raw VISA Read Data.ctl" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/Raw VISA Read Data.ctl"/>
+			<Item Name="Raw VISA Read Data.vi" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/Raw VISA Read Data.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM - full" Type="EXE">
@@ -1487,7 +1502,7 @@ V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
 				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/TWM client</Property>
 				<Property Name="DestinationCount" Type="Int">2</Property>
 				<Property Name="PackedLib_callersAdapt" Type="Bool">true</Property>
-				<Property Name="Source[0].itemID" Type="Str">{5670EF1F-936E-40FD-9969-A280912CB2D0}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{B4FEA253-04ED-417B-9EDC-A818A19A9983}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/server/TWM Client.lvlib</Property>
