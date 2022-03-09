@@ -33,5 +33,6 @@
 	<Item Name="TWM Client Close.vi" Type="VI" URL="../TWM Client Close.vi"/>
 	<Item Name="TWM Client Version.vi" Type="VI" URL="../TWM Client Version.vi"/>
 	<Item Name="TWM Client Compare Version Strings.vi" Type="VI" URL="../TWM Client Compare Version Strings.vi"/>
-	<Item Name="TWM Client Cmd Set Multiplexer Paths.vi" Type="VI" URL="../TWM Client Cmd Set Multiplexer Paths.vi"/>
+	<Item Name="TWM Client Cmd Define Multiplexer Paths.vi" Type="VI" URL="../TWM Client Cmd Define Multiplexer Paths.vi"/>
+	<Item Name="TWM Client Cmd Define Multiplexer Sequence.vi" Type="VI" URL="../TWM Client Cmd Define Multiplexer Sequence.vi"/>
 </Library>
