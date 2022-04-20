@@ -50,12 +50,12 @@ function dataout = alg_wrapper(datain, calcset)
         % default (for PSFE):
         f_est = NaN;
     end
-    
+           
     % default window:
     if ~isfield(datain,'window') || isempty(datain.window.v)
         datain.window.v = 'rect';        
     end
-    
+        
     % get equivalent circuit:
     [r,eclist] = z_to_equivalent();
     for k = 1:size(eclist,1)
@@ -120,8 +120,9 @@ function dataout = alg_wrapper(datain, calcset)
         din.fs.v = fs;
         din.f_est.v = f_est;
         if ~isnan(f_est)
-            din.f_nom.v = f_est; % for WFFT mode only
+            din.f_nom.v = f_est; % for WFFT mode only            
         end
+        din.window = datain.window;
         din.adc_aper = datain.adc_aper;
         din.tr_type.v = 'shunt';        
         for v = 1:numel(v_list)            
@@ -145,7 +146,7 @@ function dataout = alg_wrapper(datain, calcset)
             w0 = 2*pi*f0;
             
             % fix I-U time shift:
-            dout.phi.v = dout.phi.v + datain.time_shift.v*w0;
+            dout.phi.v = dout.phi.v - datain.time_shift.v*w0;
             
             % calculate complex ratio of analysed channel to reference channel:
             kA = vcl{1}.A.v/dout.A.v;
@@ -169,7 +170,7 @@ function dataout = alg_wrapper(datain, calcset)
             
             % return stuff:
             dataout.f.v = f0;
-            dataout.Uref.v = dout.A.v*(2^0.5);
+            dataout.Uref.v = dout.A.v*(2^-0.5);
             
             dataout.Cp.v = imag(1./Zi)/w0;
             dataout.Gp.v = real(1./Zi);
@@ -191,7 +192,7 @@ function dataout = alg_wrapper(datain, calcset)
             % current channel (DUT)
             
             % return current as voltage assuming shunt has unity transfer
-            dataout.Udut.v = dout.A.v*(2^0.5);
+            dataout.Udut.v = dout.A.v*(2^-0.5);
             
             % return spectrum if available
             if isfield(dout, 'spec_f')
