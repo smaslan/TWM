@@ -1,4 +1,4 @@
-function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_fix_b,sig_m,f] = thd_eval_thd(f,sig,f_sig,h_num,h_f_max,f_dev_max,probab,mcc,window_type,fs,corr,tab,cfg)
+function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_fix_b,sig_m,f,sfdr] = thd_eval_thd(f,sig,f_sig,h_num,h_f_max,f_dev_max,probab,mcc,window_type,fs,corr,tab,cfg)
 % Part of non-coherent, windowed FFT, THD meter.
 % Calculates THD and its uncertainty from a windowed spectrum.
 %
@@ -72,12 +72,13 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
 %       _b      - right uncertainty bound
 %  sig_m(:,1)   - averaged amplitude spectrum [V]
 %  f(:,1)       - frequency scale of the spectrum [Hz]
+%  sfdr         - negative SFDR value estimate [dBc]
 %
 %
 % License:
 % --------
 % This is part of the non-coherent, windowed FFT, THD meter.
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2022, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.
 %
 
@@ -148,7 +149,8 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     f_list(:,1) = f_sig*[1:h_num];
     
     % alimit max freq by nyquist:
-    h_f_max = min(0.4*fs,h_f_max);
+    h_f_max = min(0.4*fs,h_f_max);    
+    h_f_max_id = find(f <= h_f_max, 1, 'last');
     
     % limit harmonics count by max. frequency and sampling rate:
     f_list = f_list(find(f_list<h_f_max));
@@ -343,6 +345,19 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
         %U_nstd(h) = std(sig_noise(:));
           
     end
+    
+    id = i_sig(1);
+    % left side band search range
+    ida = 10; % skip DC&LF rubbish
+    idb = max(id - noise_start,10);
+    % right side band search range
+    idc = min(id + noise_start,length(sig_m));
+    idd = min(h_f_max_id,length(sig_m));
+    % get the sideband noise bins        
+    sig_spurs = sig([ida:idb,idc:idd],:);
+    % estimate SFDR
+    sfdr = 20*log10(max(sig_spurs(:))/U_harm(1));     
+    
   
     % --- estimate noise amplitude for entire freq range:
     %  ###todo: should come from entire spectrum

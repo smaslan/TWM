@@ -388,6 +388,10 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Noise RMS value estimate';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'SFDR';
+    alginfo.outputs(pid).desc = 'Negative SFDR estimate [dBc]';
+    pid = pid + 1;
+    
     alginfo.outputs(pid).name = 'h';
     alginfo.outputs(pid).desc = 'Harmonic amplitudes';
     pid = pid + 1;
@@ -400,7 +404,7 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Full averaged spectrum frequency axis';
     pid = pid + 1;
     
-    alginfo.outputs(pid).name = 'spec_a';
+    alginfo.outputs(pid).name = 'spec_A';
     alginfo.outputs(pid).desc = 'Full averaged spectrum';
     pid = pid + 1;
     

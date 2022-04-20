@@ -69,6 +69,7 @@ function [r] = thd_wfft(y,fs,s,corr,tab,cfg)
 %   r.a_comp_lst   - mean uncorrected harmonic amplitudes
 %   r.a_comp_lst_a - left uncertainty boundary for 'r.a_comp_lst'
 %   r.a_comp_lst_b - right uncertainty boundary for 'r.a_comp_lst'
+%   r.sfdr         - negative SFDR value estimate [dBc]
 %   optional if 's.save_spec = 1':
 %   r.f(:,1)       - frequency axis of the spectrum [Hz]
 %   r.sig(:,1)     - averaged spectrum of the signals
@@ -103,8 +104,7 @@ function [r] = thd_wfft(y,fs,s,corr,tab,cfg)
   
   
   % evaluate thd coefficients
-  [thd,r.f_lst,f_noise,r.a_noise,r.a_lst,r.a_lst_a,r.a_lst_b,r.a_comp_lst,r.a_comp_lst_a,r.a_comp_lst_b,sig_m,f] = thd_eval_thd(f,sig,r.f_sig,s.h_num,s.h_f_max,s.f_dev_max,s.mc_cover,s.mc_cycles,window_type,fs,corr,tab,cfg);
-  
+  [thd,r.f_lst,f_noise,r.a_noise,r.a_lst,r.a_lst_a,r.a_lst_b,r.a_comp_lst,r.a_comp_lst_a,r.a_comp_lst_b,sig_m,f,r.sfdr] = thd_eval_thd(f,sig,r.f_sig,s.h_num,s.h_f_max,s.f_dev_max,s.mc_cover,s.mc_cycles,window_type,fs,corr,tab,cfg);
   
   % store the results into the results struct
   r = [[fieldnames(r);fieldnames(thd)],[struct2cell(r);struct2cell(thd)]]';

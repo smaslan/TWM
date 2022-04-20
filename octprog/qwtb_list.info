@@ -244,6 +244,7 @@ type:: qwtb list
                 thd2;    f;  1e-6; 1e-5
                 thdn;    f;  1e-6; 1e-5
                 thdn2;   f;  1e-6; 1e-5
+                SFDR;    f;  0.01; 0.0001
                 noise;   si; 1e-8; 1e-7
                 noise_bw;si; 1e-6; 1e-6
                 thd_raw; f;  1e-6; 1e-5

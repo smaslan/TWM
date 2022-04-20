@@ -156,10 +156,10 @@ function dataout = alg_wrapper(datain, calcset)
     % return full spectrum:
     if s.save_spec
         dataout.spec_f.v = r.f(:);
-        dataout.spec_a.v = r.sig(:);
+        dataout.spec_A.v = r.sig(:);
     else
         dataout.spec_f.v = [];
-        dataout.spec_a.v = [];
+        dataout.spec_A.v = [];
     end
         
     % uncorrected calculated THD (fundamental referenced):
@@ -177,6 +177,10 @@ function dataout = alg_wrapper(datain, calcset)
     % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
     dataout.h_raw.u = max(r.a_lst - r.a_lst_a, r.a_lst_b - r.a_lst);
     
+    % SFDR estimate
+    dataout.SFDR.v = r.sfdr;
+    dataout.SFDR.u = 0*r.sfdr;
+
     
     if strcmpi(calcset.unc,'none')
         % none uncertainty - clear uncertainties:
