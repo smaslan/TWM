@@ -99,11 +99,12 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         fh = fh(:);
         w = w(:); % window coeficients    
     else
-        % call wfft via QWTB (slower, but cleaner): 
+        % call wfft via QWTB (slower, but cleaner):
         din = struct();
         din.fs.v = fs;        
         cset.verbose = 0;
-        din.y.v = datain.y.v;                
+        din.y.v = datain.y.v;
+        din.window = datain.window;                
         dout = qwtb('SP-WFFT',din,cset);
         fh    = dout.f.v(:); % freq. vector of the DFT bins
         A     = dout.A.v; % amplitude vector of the DFT bins
