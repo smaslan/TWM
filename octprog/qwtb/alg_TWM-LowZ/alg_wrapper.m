@@ -265,6 +265,7 @@ function dataout = alg_wrapper(datain, calcset)
                 elseif strcmpi(mode,'FPNLSF')
                     dout = qwtb('TWM-FPNLSF',din,cset);
                 elseif strcmpi(mode,'WFFT')
+                    din.window.v = datain.window.v;
                     if is_wfft_local
                         % -- run WFFT directly using local functions:                        
                         [din_wfft,cfg_wfft] = qwtb_restore_twm_input_dims(din,1);
