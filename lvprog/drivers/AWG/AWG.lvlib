@@ -48,6 +48,19 @@
 		<Item Name="CMI ckd2 Write and Read.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Write and Read.vi"/>
 		<Item Name="CMI ckd2 Panel.vi" Type="VI" URL="../CMI Clock Divider v2/CMI ckd2 Panel.vi"/>
 	</Item>
+	<Item Name="RaS HMF2500" Type="Folder">
+		<Item Name="HMF2500 Config Panel.vi" Type="VI" URL="../RaS HMF2500/HMF2500 Config Panel.vi"/>
+		<Item Name="HMF2500 Close.vi" Type="VI" URL="../RaS HMF2500/HMF2500 Close.vi"/>
+		<Item Name="HMF2500 Default Instrument Setup.vi" Type="VI" URL="../RaS HMF2500/HMF2500 Default Instrument Setup.vi"/>
+		<Item Name="HMF2500 Error Query.vi" Type="VI" URL="../RaS HMF2500/HMF2500 Error Query.vi"/>
+		<Item Name="HMF2500 Initialize.vi" Type="VI" URL="../RaS HMF2500/HMF2500 Initialize.vi"/>
+		<Item Name="HMF2500 Reset.vi" Type="VI" URL="../RaS HMF2500/HMF2500 Reset.vi"/>
+		<Item Name="HMF2500 Set Frequency.vi" Type="VI" URL="../RaS HMF2500/HMF2500 Set Frequency.vi"/>
+		<Item Name="HMF2500 Set Output State.vi" Type="VI" URL="../RaS HMF2500/HMF2500 Set Output State.vi"/>
+		<Item Name="HMF2500 Set Pulse Mode TTL.vi" Type="VI" URL="../RaS HMF2500/HMF2500 Set Pulse Mode TTL.vi"/>
+		<Item Name="HMF2500 Set Ext Reference.vi" Type="VI" URL="../RaS HMF2500/HMF2500 Set Ext Reference.vi"/>
+		<Item Name="HMF2500 Config.ctl" Type="VI" URL="../RaS HMF2500/HMF2500 Config.ctl"/>
+	</Item>
 	<Item Name="CMI Sync Unit V3.lvlib" Type="Library" URL="../CMI Sync V3/CMI Sync Unit V3.lvlib"/>
 	<Item Name="Tektronix AFG 3000 Series.lvlib" Type="Library" URL="../AFG3000/Tektronix AFG 3000 Series.lvlib"/>
 	<Item Name="AWG Session.ctl" Type="VI" URL="../AWG Session.ctl"/>
