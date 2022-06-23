@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="20008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;w_daqmx,0;</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;w_daqmx,1;</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -1241,7 +1241,7 @@
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{A5E8A7DF-092A-4C24-986F-F418ECB931C5}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{FC58FEFA-5BFB-4244-8AB3-22EB86B39CBA}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1296,7 +1296,8 @@ V1.7.2 - adc ranges settable via server
 V1.7.3 - Keysight DSO driver small range bug fix
 V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458
 V1.7.6 - minor fixes in TWM server
-V1.7.7 - multiplexer control commands in TWM server</Property>
+V1.7.7 - multiplexer control commands in TWM server
+V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2022</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
@@ -1341,7 +1342,7 @@ V1.7.7 - multiplexer control commands in TWM server</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{017CE76B-F909-4C95-BE6C-9F09ACBDBB35}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{FC58FEFA-5BFB-4244-8AB3-22EB86B39CBA}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1388,7 +1389,8 @@ V1.6.9 - support for CMI clock div, Fluke 8588, minor changes in GUI
 V1.7.1 - minor fixes
 V1.7.2 - adc ranges settable via server
 V1.7.3 - Keysight DSO driver small range bug fix
-V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
+V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458
+V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2022</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
@@ -1433,7 +1435,7 @@ V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{017CE76B-F909-4C95-BE6C-9F09ACBDBB35}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{FC58FEFA-5BFB-4244-8AB3-22EB86B39CBA}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1476,7 +1478,8 @@ V1.7.0 - parallel QWTB processing
 V1.7.1 - minor fixes
 V1.7.2 - ranges settable via server
 V1.7.3 - Keysight DSO driver small range bug fix
-V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
+V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458
+V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2022</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>
@@ -1496,7 +1499,7 @@ V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{DB64396F-7FF5-45F4-8E08-882448D7416F}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">7</Property>
+				<Property Name="Bld_version.patch" Type="Int">9</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM client.lvlibp</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM client/TWM client.lvlibp</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
