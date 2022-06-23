@@ -261,7 +261,10 @@ function dataout = alg_wrapper(datain, calcset)
                 
                 % estimate harmonic                            
                 if strcmpi(mode,'PSFE')
+                    din.comp_timestamp.v = 1;
                     dout = qwtb('TWM-PSFE',din,cset);
+                    dout.dc.v = 0;
+                    dout.dc.u = 0;
                 elseif strcmpi(mode,'FPNLSF')
                     dout = qwtb('TWM-FPNLSF',din,cset);
                 elseif strcmpi(mode,'WFFT')

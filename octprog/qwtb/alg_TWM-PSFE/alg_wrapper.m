@@ -199,8 +199,8 @@ function dataout = alg_wrapper(datain, calcset)
         if isempty(datain.tr_type.v)
             % -- transducer type not defined:
             warning('Transducer type not defined! Not applying tran. correction!');
-            u_A  = A*u_ag;
-            u_ph = ph*u_ap;
+            u_A  = A*adc_gain.u_gain;
+            u_ph = ph*adc_phi.u_phi;
         else
             % -- tran. type defined, apply correction:
             [A,ph,u_A,u_ph] = correction_transducer_loading(tab,datain.tr_type.v,f,[], A,ph,A.*adc_gain.u_gain,adc_phi.u_phi);                

@@ -32,7 +32,7 @@ function alg_test(calcset) %<<<1
     din.invert.v = 0;
     
     % calculation mode (PSFE, FPNLSF, WFFT):
-    din.mode.v = 'WFFT';
+    din.mode.v = 'PSFE';
     % optional window for WFFT (see WFFT algorithm):
     din.window.v = 'hanning';
     
