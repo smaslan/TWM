@@ -392,6 +392,18 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Negative SFDR estimate [dBc]';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'f0';
+    alginfo.outputs(pid).desc = 'Fundamental frequency [Hz]';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'h0';
+    alginfo.outputs(pid).desc = 'Fundamental component amplitude';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'hrms';
+    alginfo.outputs(pid).desc = 'RMS level of harmonics';
+    pid = pid + 1;
+    
     alginfo.outputs(pid).name = 'h';
     alginfo.outputs(pid).desc = 'Harmonic amplitudes';
     pid = pid + 1;

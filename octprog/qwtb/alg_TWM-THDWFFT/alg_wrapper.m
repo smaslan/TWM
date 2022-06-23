@@ -153,6 +153,16 @@ function dataout = alg_wrapper(datain, calcset)
     % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
     dataout.h.u = max(r.a_comp_lst - r.a_comp_lst_a, r.a_comp_lst_b - r.a_comp_lst);
     
+    % return fundamental
+    if ~isempty(r.f_lst)
+        dataout.f0.v = r.f_lst(1);
+        dataout.f0.u = 0;
+        dataout.h0.v = dataout.h.v(1);
+        dataout.h0.u = dataout.h.u(1);
+        dataout.hrms.v = sum(0.5*dataout.h.v.^2)^0.5;
+        dataout.hrms.u = 0;
+    endif
+    
     % return full spectrum:
     if s.save_spec
         dataout.spec_f.v = r.f(:);
