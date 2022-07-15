@@ -8,6 +8,7 @@
 	<Item Name="TWM Client Processing Setup.ctl" Type="VI" URL="../TWM Client Processing Setup.ctl"/>
 	<Item Name="TWM Client Quantity Record.ctl" Type="VI" URL="../TWM Client Quantity Record.ctl"/>
 	<Item Name="TWM Client Meas Setup.ctl" Type="VI" URL="../TWM Client Meas Setup.ctl"/>
+	<Item Name="TWM Client Meas Setup Trig.ctl" Type="VI" URL="../TWM Client Meas Setup Trig.ctl"/>
 	<Item Name="TWM Client Result Max Dim.ctl" Type="VI" URL="../TWM Client Result Max Dim.ctl"/>
 	<Item Name="TWM Client Transducer Correction Item.ctl" Type="VI" URL="../TWM Client Transducer Correction Item.ctl"/>
 	<Item Name="TWM Client Algorithm Info.ctl" Type="VI" URL="../TWM Client Algorithm Info.ctl"/>
