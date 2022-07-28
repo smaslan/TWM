@@ -2,7 +2,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
 % Core function of windowed FFT harmonic analyser with uncertainty estimatior.
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018-2021, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2022, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 
     
@@ -73,6 +73,15 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         
         if numel(datain.f_nom.v) > 1
             error('TWM-WFFT error: you cannot have vector ''f_nom'' if ''h_num'' is assigned!');
+        end
+        
+        % try parse Matlab style range values like: 1:2:7
+        if ~isnumeric(datain.h_num.v)
+            try
+                eval(['datain.h_num.v = ' datain.h_num.v]);
+            catch
+                error(sprintf('TWM-WFFT error: ''h_num'' value of ''%s'' cannot be parsed! Should be Matlab style range like ''1:5'' to generate vector of harmonics {1,2,3,4,5}.',datain.h_num.v));
+            end
         end
         
         % make vector of frequencies:

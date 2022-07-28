@@ -7,7 +7,7 @@ function alginfo = alg_info() %<<<1
     alginfo.name = 'Windowed FFT for harmonic analysis.';
     alginfo.desc = 'Algorithm for single or multitone harmonic analysis using windowed FFT. The algorithm performs windowed FFT of the signal, applies TWM corrections and extracts FFT bin(s) with selected frequencies. It also calculates rms value estimate, however rms will be usable only for coherent sampling. The main purpose of the algorithm is interchannel phase shift and voltage ratio analysis. That will work even for non-coherent sampling, when non-rectangular window is used. ';
     alginfo.citation = '';
-    alginfo.remarks = 'Note the harmonics spacing in the spectrum must be higher, then width of the selected window! E.g. the wide ''flattop_248D'' needs at least some 25 FFT bins spacing.';
+    alginfo.remarks = 'Note the harmonics spacing in the spectrum must be higher, then width of the selected window! E.g. the wide ''flattop_248D'' needs at least some 25 FFT bins spacing. Harmonics h_num can be list of indices or Matlab style range string ''min:step:max''. ';
     alginfo.license = 'MIT';
     
     
@@ -67,7 +67,7 @@ function alginfo = alg_info() %<<<1
     
     % relative harmonic frequencies (f_nom.*h_num)
     alginfo.inputs(pid).name = 'h_num';
-    alginfo.inputs(pid).desc = 'Relative harmonic frequencies';
+    alginfo.inputs(pid).desc = 'Relative harmonic frequencies list or Matlab style range expression (e.g. 1:2:7)';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
@@ -458,7 +458,15 @@ function alginfo = alg_info() %<<<1
     
     alginfo.outputs(pid).name = 'f';
     alginfo.outputs(pid).desc = 'Selected DFT bin frequencies';
-    pid = pid + 1;    
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'A_rel0';
+    alginfo.outputs(pid).desc = 'Amplitude ratios to fundamental [%]';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'ph_rel0';
+    alginfo.outputs(pid).desc = 'Phase difference from fundamental';
+    pid = pid + 1;        
     
     alginfo.outputs(pid).name = 'spec_f';
     alginfo.outputs(pid).desc = 'Full spectrum frequency';
