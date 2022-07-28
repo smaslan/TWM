@@ -472,6 +472,8 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.A_mod.u = u_Am*ke;
     dataout.mod.v = 100*Am/A0;
     dataout.mod.u = 100*u_mod*ke;
+    dataout.dVV.v = 2*dataout.mod.v;
+    dataout.dVV.u = 2*dataout.mod.u;
            
     % --------------------------------------------------------------------
     % End of the demonstration algorithm.
