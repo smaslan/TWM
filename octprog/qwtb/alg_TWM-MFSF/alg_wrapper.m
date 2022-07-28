@@ -65,8 +65,14 @@ function dataout = alg_wrapper(datain, calcset)
     elseif ~isfield(datain,'ExpComp')
         % explicit list not defined, generate [1:H] list:
         datain.ExpComp.v = [1:datain.H.v];
-    end
-    
+    elseif ~isnumeric(datain.ExpComp.v)
+        % parse ExpComp if not directly vector of values    
+        try
+            eval(['datain.ExpComp.v = ' datain.ExpComp.v]);
+        catch
+            error(sprintf('TWM-MFSF error: ''ExpComp'' value of ''%s'' cannot be parsed! Should be Matlab style range like ''1:5'' to generate vector of harmonics {1,2,3,4,5}.',datain.ExpComp.v));
+        end
+    end 
     
     % Rebuild TWM style correction tables:
     % This is not necessary but the TWM style tables are more comfortable to use then raw correction matrices
@@ -80,6 +86,7 @@ function dataout = alg_wrapper(datain, calcset)
     % load input signal (or high-side input channel for diff. mode):
     y = datain.y.v;
     
+       
     
     % call low level PSFE algorithm to obtain estimate of the harmonic:
     %  note: no uncertainty at this time because we don't know all necessary parameters yet! 
@@ -358,7 +365,15 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.dc.v = dc;
     dataout.dc.u = u_dc*loc2covg(calcset.loc,50);
     dataout.thd.v = 100*thd;
-    dataout.thd.u = 100*u_thd*loc2covg(calcset.loc,50);   
+    dataout.thd.u = 100*u_thd*loc2covg(calcset.loc,50);
+    
+    % calculate mormalized harmonics to fundamental
+    dataout.A_rel0.v = 100*dataout.A.v/dataout.A.v(1);
+    dataout.A_rel0.u = 100*((dataout.A.u/dataout.A.v(1)).^2 + (dataout.A.u(1)*dataout.A.v/dataout.A.v(1)^2).^2).^0.5;
+    dataout.A_rel0.u(1) = 0; % no uncertainty for reference harmonic    
+    dataout.ph_rel0.v = mod(dataout.phi.v - dataout.phi.v(1)*dataout.f.v/dataout.f.v(1) + pi, 2*pi) - pi;
+    dataout.ph_rel0.u = (dataout.phi.u.^2 + dataout.phi.u(1).^2).^0.5;
+    dataout.ph_rel0.u(1) = 0; % no uncertainty for reference harmonic   
         
            
     % --------------------------------------------------------------------

@@ -44,7 +44,7 @@ alginfo.license = 'MIT License, see also MFSF license';
     
     % --- parameters:  
     alginfo.inputs(pid).name = 'ExpComp';
-    alginfo.inputs(pid).desc = 'Frequency components to fit (relative to fundamental, e.g. [1,2,3])';
+    alginfo.inputs(pid).desc = 'Frequency components to fit (relative to fundamental, e.g. [1,2,3]) or Matlab style range expression e.g. 1:5';
     alginfo.inputs(pid).alternative = 1;
     alginfo.inputs(pid).optional = 0;
     alginfo.inputs(pid).parameter = 1;
@@ -495,6 +495,14 @@ alginfo.license = 'MIT License, see also MFSF license';
     alginfo.outputs(pid).name = 'thd';
     alginfo.outputs(pid).desc = 'Total harmonic distortion [%]';
     pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'A_rel0';
+    alginfo.outputs(pid).desc = 'Amplitude ratios to fundamental [%]';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'ph_rel0';
+    alginfo.outputs(pid).desc = 'Phase difference from fundamental';
+    pid = pid + 1;  
         
     alginfo.outputs(pid).name = 'spec_f';
     alginfo.outputs(pid).desc = 'Frequencies of spectrum components';
