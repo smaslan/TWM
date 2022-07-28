@@ -588,6 +588,7 @@
 			<Item Name="TWM server" Type="Folder">
 				<Item Name="Server Cmd Parser - Define Multiplex Paths.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Define Multiplex Paths.vi"/>
 				<Item Name="Server Cmd Parser - Define Multiplex Sequence.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Define Multiplex Sequence.vi"/>
+				<Item Name="Server Cmd Parser - Define QPMX.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Define QPMX.vi"/>
 				<Item Name="Server Cmd Parser - Set Measurement.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Set Measurement.vi"/>
 				<Item Name="Server Cmd Parser - Set Corrections.vi" Type="VI" URL="../server/TWM server/Server Cmd Parser - Set Corrections.vi"/>
 				<Item Name="Server Cmd Answer - Get Status.vi" Type="VI" URL="../server/TWM server/Server Cmd Answer - Get Status.vi"/>
