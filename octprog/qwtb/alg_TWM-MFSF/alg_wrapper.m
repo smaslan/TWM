@@ -68,7 +68,7 @@ function dataout = alg_wrapper(datain, calcset)
     elseif ~isnumeric(datain.ExpComp.v)
         % parse ExpComp if not directly vector of values    
         try
-            eval(['datain.ExpComp.v = ' datain.ExpComp.v]);
+            eval(['datain.ExpComp.v = ' datain.ExpComp.v ';']);
         catch
             error(sprintf('TWM-MFSF error: ''ExpComp'' value of ''%s'' cannot be parsed! Should be Matlab style range like ''1:5'' to generate vector of harmonics {1,2,3,4,5}.',datain.ExpComp.v));
         end

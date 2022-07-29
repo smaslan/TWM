@@ -2,7 +2,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
 % Core function of windowed FFT harmonic analyser with uncertainty estimatior.
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018-2021, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2022, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 
     
@@ -75,6 +75,15 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
             error('TWM-WFFT error: you cannot have vector ''f_nom'' if ''h_num'' is assigned!');
         end
         
+        % try parse Matlab style range values like: 1:2:7
+        if ~isnumeric(datain.h_num.v)
+            try
+                eval(['datain.h_num.v = ' datain.h_num.v ';']);
+            catch
+                error(sprintf('TWM-WFFT error: ''h_num'' value of ''%s'' cannot be parsed! Should be Matlab style range like ''1:5'' to generate vector of harmonics {1,2,3,4,5}.',datain.h_num.v));
+            end
+        end
+        
         % make vector of frequencies:
         datain.f_nom.v = datain.f_nom.v*datain.h_num.v;        
     end
@@ -84,7 +93,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
     
     % samples count:    
     N = numel(datain.y.v);
-
+    
     % get high-side (or single-ended) spectrum:
     if isfield(datain,'window')
         din.window = datain.window;
@@ -99,7 +108,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         fh = fh(:);
         w = w(:); % window coeficients    
     else
-        % call wfft via QWTB (slower, but cleaner): 
+        % call wfft via QWTB (slower, but cleaner):
         din = struct();
         din.fs.v = fs;        
         cset.verbose = 0;
@@ -159,7 +168,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
     % get gain/phase correction for the freq. components (high-side ADC):
     ag = correction_interp_table(tab.adc_gain, abs(A), fh, 'f',1, i_mode);
     ap = correction_interp_table(tab.adc_phi,  abs(A), fh, 'f',1, i_mode);
-    
+        
     if any(isnan(ag.gain))
         error('High-side ADC gain correction: not sufficient range of correction data!');
     end
@@ -287,6 +296,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         
                 
         
+        
         % high-side:            
           Y  = A.*exp(j*ph);
         u_Y  = u_A;
@@ -296,62 +306,45 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         u_Y_lo  = u_A_lo;
         u_ph_lo = u_ph_lo;
         % estimate digitizer input rms level:
-        dY = Y - Y_lo; 
-        dA = abs(dY);
-        rms_ref = sum(0.5*dA.^2).^0.5*w_gain/w_rms;
-        
-        if isempty(datain.tr_type.v)
-            % undefined correction type - just apply simplified correction:
-            rms_in = tab.tr_gain.gain(1,1)*rms_ref; % rough estimate of input RMS level            
-            tg = correction_interp_table(tab.tr_gain, rms_in, fh, 'f',1, i_mode);
-            tp = correction_interp_table(tab.tr_phi,  rms_in, fh, 'f',1, i_mode);            
-            % very simplified correction and uncerrtainty 
-            dY = dY.*tg.gain.*exp(j*tp.phi);            
-            A   = abs(dY);
-            u_A = ((u_A.*tg.gain).^2 + (A.*tg.u_gain).^2).^0.5;
-            ph = angle(dY);
-            u_ph = (u_ph.^2 + tp.u_phi.^2).^0.5;
-        else                    
-            % calculate transducer tfer:
-            fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
-            [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo, 'rms',rms_ref);
-            trg(1)= trg(1)*(1 - 2*(abs(trp(1)) > 0.1*pi)); % restore sign
-            A   = trg;
-            u_A = u_trg;
-            ph   = trp;
-            u_ph = u_trp;            
-        end
+        dA = abs(Y - Y_lo);
+        rms_ref = sum(0.5*dA.^2).^0.5*w_gain/w_rms;            
+        % calculate transducer tfer:
+        fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
+        [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo, 'rms',rms_ref);
+        trg(1)= trg(1)*(1 - 2*(abs(trp(1)) > 0.1*pi)); % restore sign
+        A   = trg;
+        u_A = u_trg;
+        ph   = trp;
+        u_ph = u_trp;
         ph(1) = 0;
+        
+        %u_ph(fid)
+        
+        
+        %ap = correction_interp_table(tab.tr_phi, rms_ref, fh, 'f',1, i_mode);
+        %(u_adc_phx^2 + ap.u_phi(fid)^2)^0.5
+        
+        
+        
+%          figure
+%          loglog(fh,A)
+        
     
     else
         % --- single ended mode ---
-    
-        % ADC rms estimate
+        
+        % apply transducer correction:
         rms_ref = sum(0.5*A.^2).^0.5*w_gain/w_rms;
-    
-        if isempty(datain.tr_type.v)
-            % undefined correction type - just apply simplified correction:         
-            rms_in = tab.tr_gain.gain(1,1)*rms_ref; % rough estimate of input RMS level
-            tg = correction_interp_table(tab.tr_gain, rms_in, fh, 'f',1, i_mode);
-            tp = correction_interp_table(tab.tr_phi,  rms_in, fh, 'f',1, i_mode);            
-            A    = A.*tg.gain;
-            u_A  = ((u_A.*tg.gain).^2 + (A.*tg.u_gain).^2).^0.5;
-            ph   = ph + tp.phi;
-            u_ph = (u_ph.^2 + tp.u_phi.^2).^0.5;                  
-            
-        else
-            % apply transducer correction:            
-            Y = abs(A); % amplitudes, rectify DC
-            fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
-            [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], Y,ph,u_A,u_ph, 'rms',rms_ref);
-            trg(1) = trg(1)*sign(A(1)); % restore sign
-            A   = trg;
-            u_A = u_trg;
-            ph   = trp;
-            u_ph = u_trp;            
-        end
+        Y = abs(A); % amplitudes, rectify DC
+        fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
+        [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], Y,ph,u_A,u_ph, 'rms',rms_ref);
+        trg(1) = trg(1)*sign(A(1)); % restore sign
+        A   = trg;
+        u_A = u_trg;
+        ph   = trp;
+        u_ph = u_trp;
         ph(1) = 0;
-    
+        
     end
     
     % wrap phase to +-180deg:

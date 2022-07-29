@@ -78,7 +78,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         % try parse Matlab style range values like: 1:2:7
         if ~isnumeric(datain.h_num.v)
             try
-                eval(['datain.h_num.v = ' datain.h_num.v]);
+                eval(['datain.h_num.v = ' datain.h_num.v ';']);
             catch
                 error(sprintf('TWM-WFFT error: ''h_num'' value of ''%s'' cannot be parsed! Should be Matlab style range like ''1:5'' to generate vector of harmonics {1,2,3,4,5}.',datain.h_num.v));
             end
