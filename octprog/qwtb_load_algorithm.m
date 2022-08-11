@@ -1,7 +1,7 @@
 %% -----------------------------------------------------------------------------
 %% QWTB TracePQM: Returns info for selected algorithm.
 %% -----------------------------------------------------------------------------
-function [alginfo,ptab,input_params_desc,is_multi_inp,is_diff,has_ui,unc_guf,unc_mcm,output_params,input_params] = qwtb_load_algorithm(alg_id)
+function [alginfo,ptab,input_params_desc,support_multi_records,is_diff,has_ui,unc_guf,unc_mcm,output_params,input_params] = qwtb_load_algorithm(alg_id)
   
   % fetch information struct of the QWTB algorithm
   alginfo = qwtb(alg_id,'info');
@@ -40,7 +40,7 @@ function [alginfo,ptab,input_params_desc,is_multi_inp,is_diff,has_ui,unc_guf,unc
   end
   
   % algorithm supports multiple records at once?
-  is_multi_inp = ~~qwtb_find_parameter(alginfo.inputs,'support_multi_inputs');
+  support_multi_records = ~~qwtb_find_parameter(alginfo.inputs,'support_multi_records');
   
   % supports differential tran. mode?
   is_diff = ~~qwtb_find_parameter(alginfo.inputs,'support_diff');

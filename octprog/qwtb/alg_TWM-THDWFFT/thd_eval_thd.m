@@ -43,7 +43,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
 % 'cfg' signal configurtion flags related to the TWM caller:
 % ----------------------------------------------------------
 %   cfg.y_is_diff - non-zero if input signal is differential
-%   cfg.is_multi  - multiple records in 'y'
+%   cfg.is_multi_records  - multiple records in 'y'
 %   ###todo: any other used flags?
 %
 %  Note: opt 1) there must be either 'lsb' defined, or 'adc_nrng' and 'adc_bits'! 'lsb' has priority.

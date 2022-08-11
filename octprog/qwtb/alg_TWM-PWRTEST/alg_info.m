@@ -82,25 +82,18 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    
+
     % --- flags:
     % note: presence of these parameters signalizes caller capabilities of the algoirthm
-     
+    % Algorithm does not support processing of multiple records at once.
     alginfo.inputs(pid).name = 'support_diff';
     alginfo.inputs(pid).desc = 'Algorithm supports differential input data';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    
-    %alginfo.inputs(pid).name = 'support_multi_inputs';
-    %alginfo.inputs(pid).desc = 'Algorithm supports processing of a multiple waveforms at once';
-    %alginfo.inputs(pid).alternative = 0;
-    %alginfo.inputs(pid).optional = 1;
-    %alginfo.inputs(pid).parameter = 0;
-    %pid = pid + 1;
-    
-    
+
+
     % --- parameters:
     
     % ADC setup

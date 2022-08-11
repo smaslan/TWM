@@ -40,7 +40,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 0;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    
+    % Algorithm does not support differential inputs.
     
     % parameters
     alginfo.inputs(pid).name = 'f0';
@@ -84,22 +84,18 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
-    
-    
-    
-    
-    % --- flags {support_multi_inputs, support_diff}:
+
+    % --- flags {support_multi_records}:
     % note: presence of these parameters signalizes caller capabilities of the algoirthm     
     
-    alginfo.inputs(pid).name = 'support_multi_inputs';
+    alginfo.inputs(pid).name = 'support_multi_records';
     alginfo.inputs(pid).desc = 'TWM control flag: supports multiple input records';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    
-    
-    
+
+
     % --- correction data:
         
     % ADC setup:
@@ -439,15 +435,3 @@ function alginfo = alg_info() %<<<1
     alginfo.providesMCM = 0;
 
 end
-
-
-% create a differential complement of the last input parameter
-function [par,pid] = add_diff_par(par,pid,prefix,name_prefix)
-    par.inputs(pid) = par.inputs(pid - 1);
-    par.inputs(pid).name = [prefix par.inputs(pid).name];
-    par.inputs(pid).desc = [name_prefix par.inputs(pid).desc];
-    pid = pid + 1;    
-end
-
-
-% vim settings modeline: vim: foldmarker=%<<<,%>>> fdm=marker fen ft=octave textwidth=80 tabstop=4 shiftwidth=4
