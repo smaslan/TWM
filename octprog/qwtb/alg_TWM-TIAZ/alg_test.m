@@ -1,8 +1,8 @@
 function alg_test(calcset) %<<<1
-% Part of QWTB. Test script for algorithm TWM-LowZ.
+% Part of QWTB. Test script for algorithm TWM-TIAZ.
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018-2021, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2022, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.
 % See also qwtb
 
