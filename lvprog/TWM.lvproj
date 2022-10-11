@@ -632,8 +632,9 @@
 			<Item Name="Post-Build Action.vi" Type="VI" URL="../build/Post-Build Action.vi"/>
 			<Item Name="Set Conditional Symbols.vi" Type="VI" URL="../build/Set Conditional Symbols.vi"/>
 			<Item Name="Pre-Build Action - full.vi" Type="VI" URL="../build/Pre-Build Action - full.vi"/>
-			<Item Name="Pre-Build Action - visa,niscope.vi" Type="VI" URL="../build/Pre-Build Action - visa,niscope.vi"/>
 			<Item Name="Pre-Build Action - visa.vi" Type="VI" URL="../build/Pre-Build Action - visa.vi"/>
+			<Item Name="Pre-Build Action - visa,niscope.vi" Type="VI" URL="../build/Pre-Build Action - visa,niscope.vi"/>
+			<Item Name="Pre-Build Action - visa,daqmx.vi" Type="VI" URL="../build/Pre-Build Action - visa,daqmx.vi"/>
 			<Item Name="Copy Auxiliary Stuff.vi" Type="VI" URL="../build/Copy Auxiliary Stuff.vi"/>
 			<Item Name="Copy octprog.vi" Type="VI" URL="../build/Copy octprog.vi"/>
 			<Item Name="Merge Builds.vi" Type="VI" URL="../build/Merge Builds.vi"/>
@@ -647,10 +648,10 @@
 		<Item Name="main.vi" Type="VI" URL="../main.vi"/>
 		<Item Name="par_test.vi" Type="VI" URL="../par_test.vi"/>
 		<Item Name="info_test.vi" Type="VI" URL="../info_test.vi"/>
-		<Item Name="config.ini" Type="Document" URL="../config.ini"/>
 		<Item Name="LICENSE.txt" Type="Document" URL="../../LICENSE.txt"/>
 		<Item Name="readme.txt" Type="Document" URL="../../readme.txt"/>
 		<Item Name="icon.ico" Type="Document" URL="../../ico/icon.ico"/>
+		<Item Name="config.ini" Type="Document" URL="../config.ini"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
@@ -1223,8 +1224,7 @@
 				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - full.vi</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">9</Property>
+				<Property Name="Bld_version.minor" Type="Int">8</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1242,7 +1242,7 @@
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{FC58FEFA-5BFB-4244-8AB3-22EB86B39CBA}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{8FBC30DD-197E-4C73-AACD-45AFABD18391}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1298,12 +1298,101 @@ V1.7.3 - Keysight DSO driver small range bug fix
 V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458
 V1.7.6 - minor fixes in TWM server
 V1.7.7 - multiplexer control commands in TWM server
-V1.7.9 - add AWG RS HMF25xx</Property>
+V1.7.9 - add AWG RS HMF25xx
+V1.8.0 - cleanup, add TWM-TIAZ algorithm</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2022</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{D8F2E1E1-802E-4B60-9D7C-5E18E07A06CA}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM.exe</Property>
+			</Item>
+			<Item Name="TWM - visa" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{9B2CA7FA-FE95-45B7-A106-6491F44CA491}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{C1744958-9B06-4909-824A-009EEA52FFEB}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="App_serverType" Type="Int">1</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{C4B426E3-129E-425D-AFE7-765817772A4D}</Property>
+				<Property Name="Bld_buildSpecDescription" Type="Str">TWM build with only VISA drivers.</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">TWM - visa</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_postActionVIID" Type="Ref">/My Computer/build/Post-Build Action.vi</Property>
+				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - visa.vi</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Bld_version.minor" Type="Int">8</Property>
+				<Property Name="Destination[0].destName" Type="Str">TWM-visa.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/TWM-visa.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa</Property>
+				<Property Name="Destination[2].destName" Type="Str">octprog</Property>
+				<Property Name="Destination[2].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/octprog</Property>
+				<Property Name="Destination[2].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[3].destName" Type="Str">doc</Property>
+				<Property Name="Destination[3].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/doc</Property>
+				<Property Name="Destination[3].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[4].destName" Type="Str">data</Property>
+				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/data</Property>
+				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="DestinationCount" Type="Int">5</Property>
+				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
+				<Property Name="Source[0].itemID" Type="Str">{FC58FEFA-5BFB-4244-8AB3-22EB86B39CBA}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="Source[2].itemID" Type="Ref"></Property>
+				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
+				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[4].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[4].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[4].destinationIndex" Type="Int">3</Property>
+				<Property Name="Source[4].itemID" Type="Ref">/My Computer/doc</Property>
+				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[4].type" Type="Str">Container</Property>
+				<Property Name="Source[5].itemID" Type="Ref">/My Computer/LICENSE.txt</Property>
+				<Property Name="Source[5].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[6].itemID" Type="Ref">/My Computer/readme.txt</Property>
+				<Property Name="Source[6].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[7].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[7].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[7].destinationIndex" Type="Int">4</Property>
+				<Property Name="Source[7].itemID" Type="Ref">/My Computer/data</Property>
+				<Property Name="Source[7].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[7].type" Type="Str">Container</Property>
+				<Property Name="SourceCount" Type="Int">8</Property>
+				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
+
+V1.3.2 - most of the bugs fixed
+V1.4.0 - FFT analyser added
+V1.4.1 - minor fixes for server oparation
+V1.4.3 - implemented AWG Tek AFG3000 series for 3458A clocking 
+V1.4.4 - DMM fixed relays saved, few more improvements
+V1.4.4 - DMM fixed relays saved, few more improvements
+V1.5.0 - conditional compile of selected drivers included
+V1.6.0 - improved GUI (mainly corrections)
+V1.6.1 - minor fixes in corrections editor, fixed dsdll
+V1.7.0 - parallel QWTB processing
+V1.7.1 - minor fixes
+V1.7.2 - ranges settable via server
+V1.7.3 - Keysight DSO driver small range bug fix
+V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458
+V1.7.9 - add AWG RS HMF25xx</Property>
+				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2022</Property>
+				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{AEEC5EC9-3A7F-49CB-BB07-729F6120ABF4}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">TWM-visa.exe</Property>
 			</Item>
 			<Item Name="TWM - visa,niscope" Type="EXE">
 				<Property Name="App_copyErrors" Type="Bool">true</Property>
@@ -1324,8 +1413,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - visa,niscope.vi</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">9</Property>
+				<Property Name="Bld_version.minor" Type="Int">8</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-niscope/TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1349,7 +1437,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
 				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
 				<Property Name="Source[1].type" Type="Str">VI</Property>
-				<Property Name="Source[2].itemID" Type="Ref">/My Computer/config.ini</Property>
+				<Property Name="Source[2].itemID" Type="Ref"></Property>
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
@@ -1398,71 +1486,68 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{19518978-F8E5-4558-9786-71904496379A}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM-visa-niScope.exe</Property>
 			</Item>
-			<Item Name="TWM - visa" Type="EXE">
+			<Item Name="TWM - visa,daqmx" Type="EXE">
 				<Property Name="App_copyErrors" Type="Bool">true</Property>
-				<Property Name="App_INI_aliasGUID" Type="Str">{9B2CA7FA-FE95-45B7-A106-6491F44CA491}</Property>
-				<Property Name="App_INI_GUID" Type="Str">{C1744958-9B06-4909-824A-009EEA52FFEB}</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{FB68D135-5931-43F5-8BFD-4AE35714BF03}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{41C27D79-E99E-4F8F-8312-C8EFF5E4AC19}</Property>
 				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
 				<Property Name="App_serverType" Type="Int">1</Property>
-				<Property Name="Bld_buildCacheID" Type="Str">{C4B426E3-129E-425D-AFE7-765817772A4D}</Property>
-				<Property Name="Bld_buildSpecDescription" Type="Str">TWM build with only VISA drivers.</Property>
-				<Property Name="Bld_buildSpecName" Type="Str">TWM - visa</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{960DBCFA-4567-49CB-A3C4-E100A1EFA956}</Property>
+				<Property Name="Bld_buildSpecDescription" Type="Str">Version with VISA and daqmx drivers only.</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">TWM - visa,daqmx</Property>
 				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
 				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
 				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
-				<Property Name="Bld_localDestDir" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-daqmx</Property>
 				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
 				<Property Name="Bld_postActionVIID" Type="Ref">/My Computer/build/Post-Build Action.vi</Property>
-				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - visa.vi</Property>
-				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
+				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - visa,daqmx.vi</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{27659806-CFBA-4E41-96E1-CFFCCE604162}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">9</Property>
-				<Property Name="Destination[0].destName" Type="Str">TWM-visa.exe</Property>
-				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/TWM-visa.exe</Property>
+				<Property Name="Bld_version.minor" Type="Int">8</Property>
+				<Property Name="Destination[0].destName" Type="Str">TWM-visa-daqmx.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-daqmx/TWM-visa-daqmx.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="Destination[0].type" Type="Str">App</Property>
 				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
-				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa</Property>
+				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-daqmx</Property>
 				<Property Name="Destination[2].destName" Type="Str">octprog</Property>
-				<Property Name="Destination[2].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/octprog</Property>
+				<Property Name="Destination[2].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-daqmx/octprog</Property>
 				<Property Name="Destination[2].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="Destination[3].destName" Type="Str">doc</Property>
-				<Property Name="Destination[3].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/doc</Property>
+				<Property Name="Destination[3].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-daqmx/doc</Property>
 				<Property Name="Destination[3].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="Destination[4].destName" Type="Str">data</Property>
-				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/data</Property>
+				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-daqmx/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{FC58FEFA-5BFB-4244-8AB3-22EB86B39CBA}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{8FBC30DD-197E-4C73-AACD-45AFABD18391}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
 				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
 				<Property Name="Source[1].type" Type="Str">VI</Property>
-				<Property Name="Source[2].itemID" Type="Ref">/My Computer/config.ini</Property>
+				<Property Name="Source[2].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[3].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
+				<Property Name="Source[3].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[3].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[3].destinationIndex" Type="Int">3</Property>
+				<Property Name="Source[3].itemID" Type="Ref">/My Computer/doc</Property>
 				<Property Name="Source[3].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].Container.applyDestination" Type="Bool">true</Property>
-				<Property Name="Source[4].Container.applyInclusion" Type="Bool">true</Property>
-				<Property Name="Source[4].destinationIndex" Type="Int">3</Property>
-				<Property Name="Source[4].itemID" Type="Ref">/My Computer/doc</Property>
+				<Property Name="Source[3].type" Type="Str">Container</Property>
+				<Property Name="Source[4].itemID" Type="Ref">/My Computer/LICENSE.txt</Property>
 				<Property Name="Source[4].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[4].type" Type="Str">Container</Property>
-				<Property Name="Source[5].itemID" Type="Ref">/My Computer/LICENSE.txt</Property>
+				<Property Name="Source[5].itemID" Type="Ref">/My Computer/readme.txt</Property>
 				<Property Name="Source[5].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[6].itemID" Type="Ref">/My Computer/readme.txt</Property>
+				<Property Name="Source[6].Container.applyDestination" Type="Bool">true</Property>
+				<Property Name="Source[6].Container.applyInclusion" Type="Bool">true</Property>
+				<Property Name="Source[6].destinationIndex" Type="Int">4</Property>
+				<Property Name="Source[6].itemID" Type="Ref">/My Computer/data</Property>
 				<Property Name="Source[6].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[7].Container.applyDestination" Type="Bool">true</Property>
-				<Property Name="Source[7].Container.applyInclusion" Type="Bool">true</Property>
-				<Property Name="Source[7].destinationIndex" Type="Int">4</Property>
-				<Property Name="Source[7].itemID" Type="Ref">/My Computer/data</Property>
-				<Property Name="Source[7].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="Source[7].type" Type="Str">Container</Property>
-				<Property Name="SourceCount" Type="Int">8</Property>
+				<Property Name="Source[6].type" Type="Str">Container</Property>
+				<Property Name="SourceCount" Type="Int">7</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
 
@@ -1471,21 +1556,25 @@ V1.4.0 - FFT analyser added
 V1.4.1 - minor fixes for server oparation
 V1.4.3 - implemented AWG Tek AFG3000 series for 3458A clocking 
 V1.4.4 - DMM fixed relays saved, few more improvements
-V1.4.4 - DMM fixed relays saved, few more improvements
 V1.5.0 - conditional compile of selected drivers included
 V1.6.0 - improved GUI (mainly corrections)
 V1.6.1 - minor fixes in corrections editor, fixed dsdll
-V1.7.0 - parallel QWTB processing
+V1.6.2 - time multiplex support (not tested!)
+V1.6.3 - minor fixes in time multiplex
+V1.6.4 - basic implementation of Keysight DSO
+V1.6.5 - fixed timeout problem for 3458A in sub-records mode
+V1.6.6 - support for cDAQ ADC
+V1.6.9 - support for CMI clock div, Fluke 8588, minor changes in GUI
 V1.7.1 - minor fixes
-V1.7.2 - ranges settable via server
+V1.7.2 - adc ranges settable via server
 V1.7.3 - Keysight DSO driver small range bug fix
 V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458
 V1.7.9 - add AWG RS HMF25xx</Property>
-				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
+				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2022</Property>
-				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>
-				<Property Name="TgtF_targetfileGUID" Type="Str">{AEEC5EC9-3A7F-49CB-BB07-729F6120ABF4}</Property>
-				<Property Name="TgtF_targetfileName" Type="Str">TWM-visa.exe</Property>
+				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{E80F5889-CB69-4BC6-A3FC-E5D5E280944F}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">TWM-visa-daqmx.exe</Property>
 			</Item>
 			<Item Name="TWM client" Type="Packed Library">
 				<Property Name="Bld_buildCacheID" Type="Str">{1AF98330-9B00-411A-BF40-00073A3BEFD4}</Property>
@@ -1499,8 +1588,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Server pre-Build Action.vi</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{DB64396F-7FF5-45F4-8E08-882448D7416F}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">9</Property>
+				<Property Name="Bld_version.minor" Type="Int">8</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM client.lvlibp</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM client/TWM client.lvlibp</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>

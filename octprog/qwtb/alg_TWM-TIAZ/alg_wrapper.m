@@ -41,7 +41,7 @@ function dataout = alg_wrapper(datain, calcset)
         mode = 'WFFT'; % default
     end
     
-    if ~strcmpi(mode,'WFFT') && cfg.is_multi
+    if ~strcmpi(mode,'WFFT') && cfg.is_multi_records
         % Input data 'y' contains more than one record: if it is not allowed, put error message here
         error('Multiple input records in ''y'' not allowed for other than WFFT mode!'); 
     end  
