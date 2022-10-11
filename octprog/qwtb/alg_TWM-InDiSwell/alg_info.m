@@ -40,22 +40,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 0;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    
-%     alginfo.inputs(pid).name = 'y_lo';
-%     alginfo.inputs(pid).desc = 'Sampled values - low-side';
-%     alginfo.inputs(pid).alternative = 0;
-%     alginfo.inputs(pid).optional = 1;
-%     alginfo.inputs(pid).parameter = 0;
-%     pid = pid + 1;
-%     
-%     alginfo.inputs(pid).name = 'time_shift_lo';
-%     alginfo.inputs(pid).desc = 'Low-side channel timeshift';
-%     alginfo.inputs(pid).alternative = 0;
-%     alginfo.inputs(pid).optional = 1;
-%     alginfo.inputs(pid).parameter = 0;
-%     pid = pid + 1;
-    
-    
+    % Algorithm does not support differential inputs.
     
     % --- parameters:
     alginfo.inputs(pid).name = 'nom_rms';
@@ -121,20 +106,12 @@ function alginfo = alg_info() %<<<1
 %     alginfo.inputs(pid).parameter = 1;
 %     pid = pid + 1;
     
-    
-    
-    % --- flags {support_multi_inputs, support_diff}:
+
+    % --- flags {support_multi_records}:
     % note: presence of these parameters signalizes caller capabilities of the algoirthm
-     
-%     alginfo.inputs(pid).name = 'support_diff';
-%     alginfo.inputs(pid).desc = 'TWM control flag: supports differential input data';
-%     alginfo.inputs(pid).alternative = 0;
-%     alginfo.inputs(pid).optional = 1;
-%     alginfo.inputs(pid).parameter = 0;
-%     pid = pid + 1;
-    
-    
-    
+    % Algorithm does not support processing of multiple records at once.
+
+
     % --- correction data:
         
     % ADC setup:
@@ -144,7 +121,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     alginfo.inputs(pid).name = 'adc_nrng';
     alginfo.inputs(pid).desc = 'ADC nominal range';
@@ -152,7 +128,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     alginfo.inputs(pid).name = 'adc_lsb';
     alginfo.inputs(pid).desc = 'ADC LSB voltage';
@@ -160,7 +135,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     % ADC jitter:
     alginfo.inputs(pid).name = 'adc_jitter';
@@ -169,7 +143,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     % ADC apperture effect correction:
     % this set to non-zero value will enable auto correction of the aperture effect by algorithm
@@ -194,7 +167,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     alginfo.inputs(pid).name = 'adc_gain_a';
     alginfo.inputs(pid).desc = 'ADC gain transfer: voltage axis';
@@ -202,7 +174,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     alginfo.inputs(pid).name = 'adc_gain';
     alginfo.inputs(pid).desc = 'ADC gain transfer: 2D data';
@@ -210,7 +181,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     % ADC offset:
     alginfo.inputs(pid).name = 'adc_offset';
@@ -219,7 +189,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     % ADC phase calibration matrix (2D dependence, rows: freqs., columns: harmonic amplitudes)
     alginfo.inputs(pid).name = 'adc_phi_f';
@@ -228,7 +197,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     alginfo.inputs(pid).name = 'adc_phi_a';
     alginfo.inputs(pid).desc = 'ADC phase transfer: voltage axis';
@@ -236,7 +204,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     alginfo.inputs(pid).name = 'adc_phi';
     alginfo.inputs(pid).desc = 'ADC phase transfer: 2D data';
@@ -244,7 +211,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     % ADC SFDR (2D dependence, rows: fund. freqs., columns: fund. harmonic amplitudes)
     alginfo.inputs(pid).name = 'adc_sfdr_f';
@@ -253,7 +219,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     alginfo.inputs(pid).name = 'adc_sfdr_a';
     alginfo.inputs(pid).desc = 'ADC SFDR: fundamental harmonic amplitude';
@@ -261,7 +226,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     alginfo.inputs(pid).name = 'adc_sfdr';
     alginfo.inputs(pid).desc = 'ADC SFDR: 2D data';
@@ -269,7 +233,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     % ADC input admittance matrices (1D dependences, rows: freqs.)
     alginfo.inputs(pid).name = 'adc_Yin_f';
@@ -278,7 +241,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     alginfo.inputs(pid).name = 'adc_Yin_Cp';
     alginfo.inputs(pid).desc = 'ADC input admittance: parallel capacitance';
@@ -286,7 +248,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     alginfo.inputs(pid).name = 'adc_Yin_Gp';
     alginfo.inputs(pid).desc = 'ADC input admittance: parallel conductance';
@@ -294,7 +255,6 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    %[alginfo,pid] = add_diff_par(alginfo,pid,'lo_','Low ');
     
     % ADC timebase frequency correction:
     alginfo.inputs(pid).name = 'adc_freq';
@@ -564,15 +524,3 @@ function alginfo = alg_info() %<<<1
     alginfo.providesMCM = 0;
 
 end
-
-
-% create a differential complement of the last input parameter
-function [par,pid] = add_diff_par(par,pid,prefix,name_prefix)
-    par.inputs(pid) = par.inputs(pid - 1);
-    par.inputs(pid).name = [prefix par.inputs(pid).name];
-    par.inputs(pid).desc = [name_prefix par.inputs(pid).desc];
-    pid = pid + 1;    
-end
-
-
-

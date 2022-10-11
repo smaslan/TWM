@@ -232,9 +232,9 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     % QWTB algorithm input parameters
     q_inp = alginfo.inputs;
     
-    % is this single input algorithm?
-    is_single_inp = qwtb_find_parameter(q_inp,'y');
-    if ~is_single_inp
+    % is this single channel algorithm? (i.e. only y quantity. The other possiblity is paired input with u and i quantity)
+    is_single_chan = qwtb_find_parameter(q_inp,'y');
+    if ~is_single_chan
         % no 'y' input - possibly algorithm with 'u' and 'i' inputs?
         
         if ~(qwtb_find_parameter(q_inp,'u') && qwtb_find_parameter(q_inp,'i'))
@@ -253,11 +253,11 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     % algorithm supports differential inputs?
     has_diff = qwtb_find_parameter(q_inp,'support_diff');
     
-    % algorithm supports multiple waveform input?
-    has_multi = qwtb_find_parameter(q_inp,'support_multi_inputs');
+    % algorithm supports multiple records input? (multiple records of the same channel)
+    support_multi_records = qwtb_find_parameter(q_inp, 'support_multi_records');
     
     % check compatibility:
-    if proc_all && ~has_multi
+    if proc_all && ~support_multi_records
         error(sprintf('QWTB algorithm executer: the algorithm ''%s'' cannot process multiple records at the time!',alg_id));
     end
     
@@ -337,7 +337,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
     subrec_list = [1:size(data.y,3)];
     
     % decide 
-    if has_multi
+    if support_multi_records
         % do all sub-records at once
         subrec_list_count = 1;
     else
@@ -399,7 +399,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         
         
   
-        if ~is_single_inp
+        if ~is_single_chan
             % dual input channel algorithm: we must have always paired 'u' and 'i' for each phase
             
             % store list of phases to the results file ('L1','L2',...)
@@ -642,7 +642,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
             
             end % for each phase (transducer)
           
-        end % if ~is_single_inp (algorithms inputs mode)
+        end % if ~is_single_chan (algorithm inputs mode - number of channels)
         
                
                       

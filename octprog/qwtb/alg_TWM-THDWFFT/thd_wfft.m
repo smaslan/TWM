@@ -34,7 +34,7 @@ function [r] = thd_wfft(y,fs,s,corr,tab,cfg)
 %
 % 'cfg' signal configurtion flags related to the TWM caller:
 %   cfg.y_is_diff - non-zero if input signal is differential
-%   cfg.is_multi  - multiple records in 'y'
+%   cfg.is_multi_records  - multiple records in 'y'
 %   ###todo: any other used flags?
 %
 %  Note: opt 1) there must be either 'lsb' defined, or 'adc_nrng' and 'adc_bits'! 'lsb' has priority.

@@ -120,7 +120,6 @@ function alginfo = alg_info() %<<<1
     
     % --- flags:
     % note: presence of these parameters signalizes caller capabilities of the algoirthm
-     
     alginfo.inputs(pid).name = 'support_diff';
     alginfo.inputs(pid).desc = 'Algorithm supports differential input data';
     alginfo.inputs(pid).alternative = 0;
@@ -129,8 +128,8 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     % only for WFFT
-    alginfo.inputs(pid).name = 'support_multi_inputs';
-    alginfo.inputs(pid).desc = 'Algorithm supports processing of a multiple waveforms at once';
+    alginfo.inputs(pid).name = 'support_multi_records';
+    alginfo.inputs(pid).desc = 'Algorithm supports processing of a multiple records at once';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;

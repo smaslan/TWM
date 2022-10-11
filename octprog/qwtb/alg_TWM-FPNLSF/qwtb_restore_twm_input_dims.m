@@ -33,7 +33,7 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
 %            y_is_diff - nonzero if 'y' input has complementary 'y_lo' input
 %            u_is_diff - nonzero if 'u' input has complementary 'u_lo' input
 %            i_is_diff - nonzero if 'i' input has complementary 'i_lo' input
-%            is_multi  - nonzero if there are multiple records in 'y', 'u', 'i'
+%            is_multi_records  - nonzero if there are multiple records in 'y', 'u', 'i'
 %            pfx_ch    - list of channel prefixes ('', 'u_' and 'i_' for single-ended,
 %                        'lo_', 'lo_u_' and 'lo_i_' for differential complement, ...)
 %            pfx_tr    - list of transducer channel prefixes ('', 'u_' and 'i_')
@@ -86,16 +86,16 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         
         % has multiple records per input?
         if cfg.has_y
-            cfg.is_multi = sum(size(din.y.v) > 1) > 1;
+            cfg.is_multi_records = sum(size(din.y.v) > 1) > 1;
         elseif cfg.has_ui
-            cfg.is_multi = sum(size(din.u.v) > 1) > 1;
+            cfg.is_multi_records = sum(size(din.u.v) > 1) > 1;
         else
-            cfg.is_multi = 0;
+            cfg.is_multi_records = 0;
         end
         
         % check input data compatibility:
-%        if cfg.is_multi && ~isfield(din, 'support_multi_inputs')
-%            error('QWTB input quantities checker: there are multiple records in  ''y'', ''u'' or ''i'' whereas the ''support_multi_inputs'' is missing!');    
+%        if cfg.is_multi_records && ~isfield(din, 'support_multi_records')
+%            error('QWTB input quantities checker: there are multiple records in  ''y'', ''u'' or ''i'' whereas the ''support_multi_records'' is missing!');
 %        end
         
         % y/u/i are differential?
@@ -234,13 +234,13 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         
         
         % fix input data, so the vectors are always vertical
-        if cfg.has_y && ~cfg.is_multi 
+        if cfg.has_y && ~cfg.is_multi_records
             din.y.v = din.y.v(:);
             if cfg.y_is_diff
                 din.y_lo.v = din.y_lo.v(:);
             end
         end
-        if cfg.has_ui && ~cfg.is_multi
+        if cfg.has_ui && ~cfg.is_multi_records
             din.u.v = din.u.v(:);
             din.i.v = din.i.v(:);
             if cfg.u_is_diff 
@@ -479,15 +479,15 @@ function ret = twm_qwtb_restore_input_dims_test()
     clear din;
     din.y.v = ones(1,100);
     [dout, cfg] = qwtb_restore_twm_input_dims(din,1);
-    if size(dout.y.v) ~= size(din.y.v') || cfg.is_multi || cfg.y_is_diff
+    if size(dout.y.v) ~= size(din.y.v') || cfg.is_multi_records || cfg.y_is_diff
         error('Failed at sample data orientation restoration.');
     end
     
     clear din;
-    din.support_multi_inputs.v = 1;
+    din.support_multi_records.v = 1;
     din.y.v = ones(10,100);
     [dout, cfg] = qwtb_restore_twm_input_dims(din,1);
-    if size(dout.y.v) ~= size(din.y.v) || ~cfg.is_multi || cfg.y_is_diff
+    if size(dout.y.v) ~= size(din.y.v) || ~cfg.is_multi_records || cfg.y_is_diff
         error('Failed at sample data orientation restoration.');
     end
     
@@ -516,16 +516,16 @@ function ret = twm_qwtb_restore_input_dims_test()
     din.u.v = ones(1,100);
     din.i.v = ones(1,100);
     [dout, cfg] = qwtb_restore_twm_input_dims(din,1);
-    if size(dout.u.v) ~= size(din.u.v') || size(dout.i.v) ~= size(din.i.v') || cfg.is_multi || cfg.u_is_diff || cfg.i_is_diff 
+    if size(dout.u.v) ~= size(din.u.v') || size(dout.i.v) ~= size(din.i.v') || cfg.is_multi_records || cfg.u_is_diff || cfg.i_is_diff
         error('Failed at sample data orientation restoration.');
     end
     
     clear din;
-    din.support_multi_inputs.v = 1;
+    din.support_multi_records.v = 1;
     din.u.v = ones(100,10);
     din.i.v = ones(100,10);
     [dout, cfg] = qwtb_restore_twm_input_dims(din,1);
-    if size(dout.u.v) ~= size(din.u.v) || size(dout.i.v) ~= size(din.i.v) || ~cfg.is_multi || cfg.u_is_diff || cfg.i_is_diff
+    if size(dout.u.v) ~= size(din.u.v) || size(dout.i.v) ~= size(din.i.v) || ~cfg.is_multi_records || cfg.u_is_diff || cfg.i_is_diff
         error('Failed at sample data orientation restoration.');
     end
     
@@ -548,13 +548,13 @@ function ret = twm_qwtb_restore_input_dims_test()
     din.u_lo.v = ones(1,100);
     din.i_lo.v = ones(1,100);
     [dout, cfg] = qwtb_restore_twm_input_dims(din,1);
-    if size(dout.u_lo.v) ~= size(din.u_lo.v') || size(dout.i_lo.v) ~= size(din.i_lo.v') || cfg.is_multi || ~cfg.u_is_diff || ~cfg.i_is_diff 
+    if size(dout.u_lo.v) ~= size(din.u_lo.v') || size(dout.i_lo.v) ~= size(din.i_lo.v') || cfg.is_multi_records || ~cfg.u_is_diff || ~cfg.i_is_diff
         error('Failed at sample data orientation restoration.');
     end
     
     
     clear din;
-    din.support_multi_inputs.v = 1;
+    din.support_multi_records.v = 1;
     din.y.v = ones(1,10);
     din.y_lo.v = ones(1,10);    
     din.adc_gain.v = [1 2 3];
@@ -573,7 +573,7 @@ function ret = twm_qwtb_restore_input_dims_test()
     
     
     clear din;
-    din.support_multi_inputs.v = 1;
+    din.support_multi_records.v = 1;
     din.u.v = ones(1,10);
     din.u_lo.v = ones(1,10);    
     din.i.v = ones(1,10);
@@ -603,4 +603,4 @@ function ret = twm_qwtb_restore_input_dims_test()
     
     ret = 1;
  
-end 
+end

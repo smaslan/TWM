@@ -30,7 +30,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
     %is_wfft_local
         
     % multiple records data?
-    is_multi = sum(size(datain.y.v)>1) > 1;
+    is_multi_records = sum(size(datain.y.v)>1) > 1;
     
     if ~isfield(datain,'f_nom')
         % -- we aint got no nominal frequency, so try to search it by PSFE:
@@ -38,7 +38,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         % call PSFE:
         if is_psfe_local
             % call PSFE directly outside QWTB:            
-            if is_multi
+            if is_multi_records
                 % select one of the input records only:
                 y_psfe = datain.y.v(:,1);
             else
@@ -53,7 +53,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
             cset.verbose = 0;
             cset.unc = 'none';
             cset.checkinputs = 0;  
-            if is_multi
+            if is_multi_records
                 % select one of the input records only:
                 din.y.v = datain.y.v(:,1);
             else
@@ -118,7 +118,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         fh    = dout.f.v(:); % freq. vector of the DFT bins
         A     = dout.A.v; % amplitude vector of the DFT bins
         ph    = dout.ph.v; % phase vector of the DFT bins
-        if ~is_multi   
+        if ~is_multi_records
             A     = A(:); % amplitude vector of the DFT bins
             ph    = ph(:); % phase vector of the DFT bins
         end
@@ -219,7 +219,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
             dout = qwtb('SP-WFFT',din,cset);
             A_lo  = dout.A.v; % amplitude vector of the DFT bins
             ph_lo = dout.ph.v; % phase vector of the DFT bin
-            if ~is_multi   
+            if ~is_multi_records
                 A_lo  = A_lo(:); % amplitude vector of the DFT bins
                 ph_lo = ph_lo(:); % phase vector of the DFT bins
             end

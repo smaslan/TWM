@@ -23,7 +23,7 @@ function dataout = alg_wrapper(datain, calcset)
         error('Differential input data ''y'' not allowed!');     
     end
     
-    if cfg.is_multi
+    if cfg.is_multi_records
         % Input data 'y' contains more than one record: if it is not allowed, put error message here
         error('Multiple input records in ''y'' not allowed!'); 
     end

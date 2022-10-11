@@ -74,9 +74,9 @@ function alginfo = alg_info() %<<<1
     
     
     
-    % --- flags {support_multi_inputs, support_diff}:
-    % note: presence of these parameters signalizes caller capabilities of the algoirthm
-     
+    % --- flags {support_multi_records, support_diff}:
+    % note: presence of these parameters signalizes caller capabilities of the algorithm
+    % Algorithm does not support processing of multiple records at once.
     alginfo.inputs(pid).name = 'support_diff';
     alginfo.inputs(pid).desc = 'TWM control flag: supports differential input data';
     alginfo.inputs(pid).alternative = 0;
