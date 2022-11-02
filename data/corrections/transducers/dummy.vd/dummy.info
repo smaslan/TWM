@@ -13,3 +13,7 @@ nominal ratio uncertainty:: 0.0
 
 % nominal low-side impedance path:
 rvd low side impedance path:: csv\Z_low.csv
+
+// // frequency dependence of impedance of the buffer output series impedance (leave out to disable buffered mode!):
+//   1D CSV table, y=axis: frequency, quantities order: Rs, Ls, u(Rs), u(Ls)
+buffer output series impedance path:: csv\Zbuf_null.csv

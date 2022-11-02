@@ -10,3 +10,7 @@ serial number:: n/a
 % nominal/DC ratio [V/A]
 nominal ratio:: 1.0
 nominal ratio uncertainty:: 0.0
+
+// // frequency dependence of impedance of the buffer output series impedance (leave out to disable buffered mode!):
+//   1D CSV table, y=axis: frequency, quantities order: Rs, Ls, u(Rs), u(Ls)
+buffer output series impedance path:: csv\Zbuf_null.csv

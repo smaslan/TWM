@@ -1,0 +1,3 @@
+Zero buffer output impedance;;;;
+f;Rs;Ls;u(Rs);u(Ls)
+;1e-08;1e-11;1e-09;1e-12
