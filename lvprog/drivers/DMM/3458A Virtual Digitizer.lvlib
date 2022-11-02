@@ -24,6 +24,7 @@
 		<Item Name="3458A Check Needed Aux HW.vi" Type="VI" URL="../Utilities/3458A Check Needed Aux HW.vi"/>
 		<Item Name="3458A Self Calibrate Virtual Channels.vi" Type="VI" URL="../Utilities/3458A Self Calibrate Virtual Channels.vi"/>
 		<Item Name="3458A Select Aperture.vi" Type="VI" URL="../Utilities/3458A Select Aperture.vi"/>
+		<Item Name="3458A CALSTR Panel.vi" Type="VI" URL="../Utilities/3458A CALSTR Panel.vi"/>
 	</Item>
 	<Item Name="3458A Basic Driver.lvlib" Type="Library" URL="../3458A Basic Driver/3458A Basic Driver.lvlib"/>
 	<Item Name="3458A Digitizing Low Levels.lvlib" Type="Library" URL="../3458A Digitizing Low Levels/3458A Digitizing Low Levels.lvlib"/>

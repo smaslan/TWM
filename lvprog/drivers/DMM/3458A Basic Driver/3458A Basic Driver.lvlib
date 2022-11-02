@@ -52,6 +52,7 @@
 			<Item Name="Get Memory Size.vi" Type="VI" URL="../Public/Utility/Get Memory Size.vi"/>
 			<Item Name="Get Temperature.vi" Type="VI" URL="../Public/Utility/Get Temperature.vi"/>
 			<Item Name="Set Display String.vi" Type="VI" URL="../Public/Utility/Set Display String.vi"/>
+			<Item Name="Set Cal String.vi" Type="VI" URL="../../3458A Digitizing Low Levels/Utility/Set Cal String.vi"/>
 			<Item Name="Get Cal String.vi" Type="VI" URL="../../3458A Digitizing Low Levels/Utility/Get Cal String.vi"/>
 		</Item>
 		<Item Name="Close.vi" Type="VI" URL="../Public/Close.vi"/>
