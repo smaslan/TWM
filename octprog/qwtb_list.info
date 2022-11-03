@@ -5,18 +5,18 @@ type:: qwtb list
 // note: enter algorithm ID's, e.g.: PSFE, SFDR, ...
 #startmatrix:: list of supported algorithms
         TWM-WRMS
-	TWM-PSFE
+        TWM-PSFE
         TWM-FPNLSF
         TWM-MFSF
         TWM-MODTDPS
         TWM-THDWFFT
-	TWM-PWRTDI
+        TWM-PWRTDI
         TWM-PWRFFT
         TWM-Flicker
         TWM-HCRMS
         TWM-InDiSwell
-	TWM-TEST
-	TWM-PWRTEST
+        TWM-TEST
+        TWM-PWRTEST
         TWM-WFFT
         TWM-InpZ
         TWM-LowZ

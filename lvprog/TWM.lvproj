@@ -393,6 +393,7 @@
 			<Item Name="Meas Sampling Configuration.ctl" Type="VI" URL="../measure/Meas Sampling Configuration.ctl"/>
 			<Item Name="Meas Sampling Rate Mode.ctl" Type="VI" URL="../measure/Meas Sampling Rate Mode.ctl"/>
 			<Item Name="Meas Range Mode.ctl" Type="VI" URL="../measure/Meas Range Mode.ctl"/>
+			<Item Name="Meas Default.vi" Type="VI" URL="../measure/Meas Default.vi"/>
 			<Item Name="Meas Config Panel - Sample Rate Selectors Update.vi" Type="VI" URL="../measure/Meas Config Panel - Sample Rate Selectors Update.vi"/>
 			<Item Name="Meas Config Panel.vi" Type="VI" URL="../measure/Meas Config Panel.vi"/>
 			<Item Name="Meas Asynchronous Start.vi" Type="VI" URL="../measure/Meas Asynchronous Start.vi"/>
