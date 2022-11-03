@@ -1,1 +1,1 @@
-% place here command series to be executed before closing GNU Octave/Matlab:
+% place here command sequence to be executed before closing GNU Octave/Matlab:
