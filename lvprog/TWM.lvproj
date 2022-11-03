@@ -651,7 +651,6 @@
 		<Item Name="LICENSE.txt" Type="Document" URL="../../LICENSE.txt"/>
 		<Item Name="readme.txt" Type="Document" URL="../../readme.txt"/>
 		<Item Name="icon.ico" Type="Document" URL="../../ico/icon.ico"/>
-		<Item Name="config.ini" Type="Document" URL="../config.ini"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="Clear Errors.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Clear Errors.vi"/>
