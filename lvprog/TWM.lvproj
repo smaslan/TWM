@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="20008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;w_daqmx,1;</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;w_daqmx,1;</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -425,6 +425,9 @@
 			<Item Name="Tab Control - Get Tab Control Ref By Name.vi" Type="VI" URL="../other/Tab Control - Get Tab Control Ref By Name.vi"/>
 			<Item Name="Tab Control - Get Tab Control Real Value.vi" Type="VI" URL="../other/Tab Control - Get Tab Control Real Value.vi"/>
 			<Item Name="Tab Control - Set Tab Control Real Value.vi" Type="VI" URL="../other/Tab Control - Set Tab Control Real Value.vi"/>
+			<Item Name="Scale Controls.vi" Type="VI" URL="../other/Scale Controls.vi"/>
+			<Item Name="Get Decoration Label.vi" Type="VI" URL="../../../test/Get Decoration Label.vi"/>
+			<Item Name="Set Decoration Label.vi" Type="VI" URL="../../../test/Set Decoration Label.vi"/>
 		</Item>
 		<Item Name="ini" Type="Folder">
 			<Item Name="ini_auto" Type="Folder">
@@ -1081,6 +1084,7 @@
 				<Item Name="NI_App_Builder_API.lvlib" Type="Library" URL="/&lt;vilib&gt;/AppBuilder/AB_API_Simple/NI_App_Builder_API.lvlib"/>
 				<Item Name="Invoke BuildTarget.vi" Type="VI" URL="/&lt;vilib&gt;/AppBuilder/Invoke BuildTarget.vi"/>
 				<Item Name="GetTargetBuildSpecs.vi" Type="VI" URL="/&lt;vilib&gt;/AppBuilder/GetTargetBuildSpecs.vi"/>
+				<Item Name="Delimited String to 1D String Array.vi" Type="VI" URL="/&lt;vilib&gt;/AdvancedString/Delimited String to 1D String Array.vi"/>
 			</Item>
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niScope Initialize.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/niScope Initialize.vi"/>
