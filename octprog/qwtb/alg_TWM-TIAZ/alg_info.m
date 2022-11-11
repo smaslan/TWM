@@ -10,7 +10,7 @@ function alginfo = alg_info() %<<<1
     alginfo.name = 'Impedance measurement using transimpedance amplifier';
     alginfo.desc = 'An algorithm for measurement of high impedances using transimpedance amplifier using TWM-WFFT, TWM-FPNLSF or TWM-PSFE.';
     alginfo.citation = 'no';
-    alginfo.remarks = 'Can measure high impedances connected to TIA input. TIA output goes to current transducer, DUT impedance high-side goes to voltage transducer. Voltage can be sensed via RVD.';
+    alginfo.remarks = 'Can measure high impedances connected to TIA input. TIA output goes to current transducer, DUT impedance high-side goes to voltage transducer. Voltage can be sensed via RVD. Calibration procedure: Connect TIA output to dummy.vd, connect calibration standard high-side to fake current shunt correction containing admittance of calibrating standard in its gain/phase tfer (buffered mode with near zero output impedance). Measure Zphir tfer, use it as digitizer correction. Replace calibration impedance correction by dummy.cs and remeasure tfer. It should now show impedance of calibration standard. Eventually add voltage channel digitizer input impedance correction if it will be used with some RVD.';
     alginfo.license = 'MIT License';
 
     
