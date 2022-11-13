@@ -334,16 +334,18 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         % --- single ended mode ---
         
         % apply transducer correction:
-        rms_ref = sum(0.5*A.^2).^0.5*w_gain/w_rms;
-        Y = abs(A); % amplitudes, rectify DC
-        fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
-        [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], Y,ph,u_A,u_ph, 'rms',rms_ref);
-        trg(1) = trg(1)*sign(A(1)); % restore sign
-        A   = trg;
-        u_A = u_trg;
-        ph   = trp;
-        u_ph = u_trp;
-        ph(1) = 0;
+        if ~isempty(datain.tr_type.v)
+            rms_ref = sum(0.5*A.^2).^0.5*w_gain/w_rms;
+            Y = abs(A); % amplitudes, rectify DC
+            fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
+            [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], Y,ph,u_A,u_ph, 'rms',rms_ref);
+            trg(1) = trg(1)*sign(A(1)); % restore sign
+            A   = trg;
+            u_A = u_trg;
+            ph   = trp;
+            u_ph = u_trp;
+            ph(1) = 0;
+        endif
         
     end
     
