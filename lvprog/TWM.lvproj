@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="20008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;w_daqmx,1;</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;w_daqmx,1;</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -116,6 +116,8 @@
 					<Item Name="GVISA Mux Open.vi" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/GVISA Mux Open.vi"/>
 					<Item Name="GVISA Mux Set Path.vi" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/GVISA Mux Set Path.vi"/>
 					<Item Name="GVISA Mux Close.vi" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/GVISA Mux Close.vi"/>
+					<Item Name="Raw VISA Read Data.ctl" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/Raw VISA Read Data.ctl"/>
+					<Item Name="Raw VISA Read Data.vi" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/Raw VISA Read Data.vi"/>
 				</Item>
 			</Item>
 			<Item Name="Agilent DSO 90000" Type="Folder">
@@ -426,8 +428,12 @@
 			<Item Name="Tab Control - Get Tab Control Real Value.vi" Type="VI" URL="../other/Tab Control - Get Tab Control Real Value.vi"/>
 			<Item Name="Tab Control - Set Tab Control Real Value.vi" Type="VI" URL="../other/Tab Control - Set Tab Control Real Value.vi"/>
 			<Item Name="Scale Controls.vi" Type="VI" URL="../other/Scale Controls.vi"/>
-			<Item Name="Get Decoration Label.vi" Type="VI" URL="../../../test/Get Decoration Label.vi"/>
+			<Item Name="Scale Controls Helper.vi" Type="VI" URL="../other/Scale Controls Helper.vi"/>
+			<Item Name="Scale Controls List.ctl" Type="VI" URL="../other/Scale Controls List.ctl"/>
+			<Item Name="Scale Controls Record.ctl" Type="VI" URL="../other/Scale Controls Record.ctl"/>
 			<Item Name="Set Decoration Label.vi" Type="VI" URL="../../../test/Set Decoration Label.vi"/>
+			<Item Name="Get Decoration Label.vi" Type="VI" URL="../other/Get Decoration Label.vi"/>
+			<Item Name="Round Log.vi" Type="VI" URL="../other/Round Log.vi"/>
 		</Item>
 		<Item Name="ini" Type="Folder">
 			<Item Name="ini_auto" Type="Folder">
@@ -1205,8 +1211,6 @@
 			<Item Name="mxLvGetItem.vi" Type="VI" URL="/&lt;resource&gt;/Framework/Providers/API/mxLvGetItem.vi"/>
 			<Item Name="provcom_StringGlobals.vi" Type="VI" URL="/&lt;resource&gt;/Framework/Providers/Common/provcom_StringGlobals.vi"/>
 			<Item Name="mxLvProvider.mxx" Type="Document" URL="/&lt;resource&gt;/Framework/Providers/mxLvProvider.mxx"/>
-			<Item Name="Raw VISA Read Data.ctl" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/Raw VISA Read Data.ctl"/>
-			<Item Name="Raw VISA Read Data.vi" Type="VI" URL="../drivers/Multiplexers/Generic VISA commands/Raw VISA Read Data.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM - full" Type="EXE">
@@ -1229,7 +1233,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">8</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1247,7 +1251,7 @@
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">5</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{0D3F7155-EDF8-4446-A46C-0E84FE2736FE}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{E49C4817-86AE-43BA-8372-E90828DFBE9C}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1304,7 +1308,8 @@ V1.7.5 - Conversion to LV20, improved server, new sync boxes for 3458
 V1.7.6 - minor fixes in TWM server
 V1.7.7 - multiplexer control commands in TWM server
 V1.7.9 - add AWG RS HMF25xx
-V1.8.0 - cleanup, add TWM-TIAZ algorithm</Property>
+V1.8.0 - cleanup, add TWM-TIAZ algorithm
+V1.8.2 - GUI is scalable (experimental)</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2022</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM - visa,niscope</Property>
@@ -1331,7 +1336,7 @@ V1.8.0 - cleanup, add TWM-TIAZ algorithm</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">8</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/TWM-visa.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1420,7 +1425,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">8</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-niscope/TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1513,7 +1518,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{27659806-CFBA-4E41-96E1-CFFCCE604162}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">8</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-daqmx.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-daqmx/TWM-visa-daqmx.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
