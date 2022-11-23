@@ -698,7 +698,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         
         % try to find if there is already this result (previous call of the QWTB with the same algorithm)
         % first ensure the path is in dos notation ('\'). dos notation is kept because of labview:
-        result_rel_path_d = path_unix2dos(result_rel_path)
+        result_rel_path_d = path_unix2dos(result_rel_path);
         rid = strcmpi(alg_res_list, result_rel_path_d);
         if any(rid)
             % found - overwrite

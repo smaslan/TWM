@@ -53,7 +53,7 @@ function [avg, unca] = qwtb_average_results(res,cfg)
       % build averageing matrices 
       skip = 0;
       for r = 1:R
-        if res{r}{p}{v}.is_big
+        if res{r}{p}{v}.is_big || res{r}{p}{v}.is_string
           skip = 1;
           break;
         end

@@ -129,20 +129,17 @@ function [] = qwtb_store_results(result_path, result, alg_info, phase_info, limi
     else
       % some small variable
       
-      if isnumeric(variable.v)
+      if ischar(variable.v)
+        % character string:        
+        ovar = infosettext(ovar, 'value', variable.v);
+      
+      elseif isnumeric(variable.v)
         % numeric value, store numeric matrix
         ovar = infosetmatrix(ovar, 'value', variable.v);
-        
-      elseif ischar(variable.v)
-        % character string:
-        
-        ovar = infosettext(ovar, 'value', variable.v);
               
       else
         % non numeric output???
         % TODO: decide what to do
-        
-        
         
       end
       

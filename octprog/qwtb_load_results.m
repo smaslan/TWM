@@ -43,6 +43,7 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
 %                  dims - quantity's dimensions count (0: scalar, 1: vector, 2:matrix)
 %                  val - quantity's value
 %                  unc - quantity's uncertainty (empty array [] if not available)
+%                  is_string - quantity is char string
 %                  is_phase - quantity is phase angle
 %                  is_graph - quantity is graph
 %                  graph_x - independent quantity name if 'is_graph'
@@ -56,7 +57,7 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
 %
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2022, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
 
@@ -200,7 +201,7 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
         
         % load selected result file    
         [res,chn_list] = qwtb_parse_result(res_file, cfg, var_list);
-        L = numel(res);
+        L = numel(res);                
         
         % check if all the variables for all phases/channels are scalar
         for p = 1:L
@@ -212,8 +213,9 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
             V = numel(vars);
             
             % check if there are variables larger than scalar?
+            %  ignoring strings - they are considered scalars
             for v = 1:V
-                if vars{v}.dims %&& ~vars{v}.is_big
+                if vars{v}.dims && ~vars{v}.is_string %&& ~vars{v}.is_big
                     are_scalar = 0;
                     break;
                 end
@@ -233,7 +235,6 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
             % find id of the next result to load
             temp_res_id = setxor(result_ids,1:numel(res_files));
             temp_res_id = temp_res_id(1);
-          
           
         else
             % all results loaded, or not more needed for the mode of display
@@ -269,7 +270,7 @@ function [results, avg, unca, res_id, are_scalar, is_avg] = qwtb_load_results(me
         % yes and more than one channel:
         
         % channels to be aligned to reference:
-        did = 1:C;%setxor(1:C,cfg.phi_ref_chn);
+        did = 1:C; %setxor(1:C,cfg.phi_ref_chn);
         D = numel(did);
          
         % for each quantity:

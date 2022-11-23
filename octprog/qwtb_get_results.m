@@ -46,7 +46,7 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
 %
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018-2019, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2022, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
 
@@ -150,7 +150,9 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
             ref = results{1}{p}{v};
             
             % build variable size info string
-            if ref.dims == 0
+            if ref.is_string
+                sstr = ' (string)';
+            elseif ref.dims == 0
                 sstr = ' (scalar)';
             elseif ref.dims == 1
                 sstr = sprintf(' (vector of %d items)',prod(ref.size));
@@ -178,7 +180,7 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
             csv{row,col} = var_name;
             num(row,col) = NaN;
             desc{end+1} = full_var_desc;
-            if cfg.unc_mode == 2
+            if cfg.unc_mode == 2 && ~ref.is_string
                 csv{row+1,col} = var_unc;
                 num(row+1,col) = NaN;
                 desc{end+1} = full_unc_desc;
@@ -190,53 +192,69 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                 
             if are_scalar
                 % scalar variable: write [average, unc. A, readings]
+                %  also includes strings!
                 
-                if numel(avg{p}{v}.val)
+                if numel(avg{p}{v}.val) || ref.is_string
                 
                     % write average
-                    [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(avg{p}{v},[],cfg);        
-                    if cfg.unc_mode == 0
-                        csv{row,col} = [vv vs];
-                        num(row,col) = numv;
-                    elseif cfg.unc_mode == 1
-                        csv{row,col} = vc;
-                        num(row,col) = numu;
-                    else
-                        csv{row+0,col} = [vv vs];
-                        csv{row+1,col} = [vu vs];
-                        num(row+0,col) = numv;
-                        if ~isempty(avg{p}{v}.unc)
-                            num(row+1,col) = numu;
-                        else
-                            num(row+1,col) = NaN;
-                        end
-                    end
-                    col = col + 1;
-                    
-                    % write unc. A
-                    [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(unca{p}{v},[],cfg);        
-                    csv{row,col} = [vv vs];
-                    num(row,col) = numv;
-                    col = col + 1;
-                    
-                    % write readings
-                    for r = 1:R
-                    
-                        [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(results{r}{p}{v},[],cfg);        
+                    if ref.is_string
+                        csv{row,col} = ref.val;
+                        num(row,col) = NaN;                        
+                    else 
+                        [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(avg{p}{v},[],cfg);        
                         if cfg.unc_mode == 0
                             csv{row,col} = [vv vs];
                             num(row,col) = numv;
                         elseif cfg.unc_mode == 1
                             csv{row,col} = vc;
-                            num(row,col) = NaN;
+                            num(row,col) = numv;
                         else
                             csv{row+0,col} = [vv vs];
                             csv{row+1,col} = [vu vs];
                             num(row+0,col) = numv;
-                            if ~isempty(results{r}{p}{v}.unc)
+                            if ~isempty(avg{p}{v}.unc)
                                 num(row+1,col) = numu;
                             else
                                 num(row+1,col) = NaN;
+                            end
+                        end
+                    end
+                    col = col + 1;
+                    
+                    % write unc. A                
+                    if ref.is_string
+                        csv{row,col} = '';
+                        num(row,col) = NaN;                        
+                    else
+                        [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(unca{p}{v},[],cfg);        
+                        csv{row,col} = [vv vs];
+                        num(row,col) = numv;                        
+                    end
+                    col = col + 1;
+                    
+                    % write readings
+                    for r = 1:R
+                    
+                        if ref.is_string
+                            csv{row,col} = results{r}{p}{v}.val;
+                            num(row,col) = NaN;                            
+                        else
+                            [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(results{r}{p}{v},[],cfg);        
+                            if cfg.unc_mode == 0
+                                csv{row,col} = [vv vs];
+                                num(row,col) = numv;
+                            elseif cfg.unc_mode == 1
+                                csv{row,col} = vc;
+                                num(row,col) = NaN;
+                            else
+                                csv{row+0,col} = [vv vs];
+                                csv{row+1,col} = [vu vs];
+                                num(row+0,col) = numv;
+                                if ~isempty(results{r}{p}{v}.unc)
+                                    num(row+1,col) = numu;
+                                else
+                                    num(row+1,col) = NaN;
+                                end
                             end
                         end
                         col = col + 1;
@@ -254,7 +272,7 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
             else
                 % non-scalar: write full variable
                 
-                if ref.is_big
+                if ref.is_big && ~ref.is_string
                     % variable too big - write just info, that it is too big
                     csv{row,col} = 'only graph';
                     num(row,col) = NaN;
@@ -265,7 +283,7 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                     
                     if ref.dims > 1
                         % 2D variable - not supported yet
-                        csv{row,col} = '2D not allowed';
+                        csv{row,col} = '2D not supported';
                         num(row,col) = NaN;
                         col = col + 1;
                     else
@@ -283,22 +301,31 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                         
                             csv{1,k + 1} = sprintf('item %d',k);
                             num(1,k + 1) = NaN;
-                            
-                            [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(data,k,cfg);        
-                            if cfg.unc_mode == 0
-                                csv{row,col} = [vv vs];
-                                num(row,col) = numv;
-                            elseif cfg.unc_mode == 1
-                                csv{row,col} = vc;
-                                num(row,col) = NaN;
-                            else
-                                csv{row+0,col} = [vv vs];
-                                csv{row+1,col} = [vu vs];
-                                num(row+0,col) = numv;
-                                if ~isempty(data.unc)
-                                    num(row+1,col) = numu;
+                                                    
+                            if ref.is_string
+                                if k == 1
+                                    csv{row,col} = results{res_id}{p}{v}.val;
                                 else
-                                    num(row+1,col) = NaN;
+                                    csv{row,col} = '';
+                                end
+                                num(row,col) = NaN;                                
+                            else
+                                [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(data,k,cfg);        
+                                if cfg.unc_mode == 0
+                                    csv{row,col} = [vv vs];
+                                    num(row,col) = numv;
+                                elseif cfg.unc_mode == 1
+                                    csv{row,col} = vc;
+                                    num(row,col) = NaN;
+                                else
+                                    csv{row+0,col} = [vv vs];
+                                    csv{row+1,col} = [vu vs];
+                                    num(row+0,col) = numv;
+                                    if ~isempty(data.unc)
+                                        num(row+1,col) = numu;
+                                    else
+                                        num(row+1,col) = NaN;
+                                    end
                                 end
                             end
                             col = col + 1;                 
@@ -313,7 +340,7 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
           
             % move to next row
             row = row + 1;
-            if cfg.unc_mode == 2
+            if cfg.unc_mode == 2 && ~ref.is_string
                 row = row + 1;
             end  
                
