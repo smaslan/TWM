@@ -198,19 +198,19 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         values = infogettextmatrix(qinf, name);    
         % try to convert them to numeric
         num_values = str2double(values);
-        
+                
         if ~isempty(values)
         
             % create empty parameter in the QWTB inputs list
             inputs = setfield(inputs, name, struct());
           
-            if ~any(isnan(num_values))
+            if ~any(isnan(num_values)) && ~iscomplex(num_values)
                 % all values are numeric, assume the parameter is numeric
                 
                 inputs = setfield(inputs, name, struct('v',num_values));
                           
             else
-                % at least some of the parameters are not numeric, assume string type
+                % at least some of the parameters is not numeric, assume string type
                 
                 if numel(values) == 1
                     % scalar - single string parameter
