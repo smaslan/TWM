@@ -74,7 +74,7 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
             % description text
             vinf = infosettext(vinf,'description',qu.desc);
             
-            if qo.is_string
+            if qu.is_string
                 vinf = infosettext(vinf,'value',qu.val); 
             elseif ~qu.is_big && ~isempty(qu.val)
                 % quantity loaded and numeric                
