@@ -92,6 +92,14 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     
+    % reference channel
+    alginfo.inputs(pid).name = 'ref_channel';
+    alginfo.inputs(pid).desc = 'Reference for phase calculation {''u'', ''i''}, default ''u''';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
     % --- flags:
     % note: presence of these parameters signalizes caller capabilities of the algoirthm
     % Algorithm does not support processing of multiple records at once.
@@ -496,6 +504,10 @@ function alginfo = alg_info() %<<<1
     
     alginfo.outputs(pid).name = 'PF';
     alginfo.outputs(pid).desc = 'Power factor';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'quadrant';
+    alginfo.outputs(pid).desc = 'Capacitive/inductive, import/export';
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'phi_ef';

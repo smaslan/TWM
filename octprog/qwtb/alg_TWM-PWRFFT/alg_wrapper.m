@@ -24,7 +24,18 @@ function dataout = alg_wrapper(datain, calcset)
     
     % AC coupling mode:
     %  exclude DC components of U/I
-    is_ac = isfield(datain,'ac_coupling') && datain.ac_coupling.v;         
+    is_ac = isfield(datain,'ac_coupling') && datain.ac_coupling.v;
+    
+    % reference channel for phase calculation:  
+    if ~isfield(datain,'ref_channel')
+        ref = 'u';
+    elseif strcmpi(datain.ref_channel.v,'i')
+        ref = 'i';
+    elseif strcmpi(datain.ref_channel.v,'u')
+        ref = 'u';
+    else
+        error(sprintf('TWM-PWRFFT parameter ''ref_channel'' value ''%s'' not recognizer! Only ''u'' or ''i'' supported.',datain.ref_channel.v));
+    end              
          
     if cfg.u_is_diff || cfg.i_is_diff
         % Input data 'y' is differential: if it is not allowed, put error message here
@@ -178,12 +189,22 @@ function dataout = alg_wrapper(datain, calcset)
     Uh = vcl{1}.Y; % voltage amplitudes
     Ih = vcl{2}.Y; % current amplitudes
     ph = vcl{2}.ph - vcl{1}.ph; % I-U phase difference
+    if ref == 'i'
+        ph = -ph; % U-I mode
+    end 
     % corresponding uncertainties 
     u_Uh = vcl{1}.u_Y;
     u_Ih = vcl{2}.u_Y;
     u_ph = (vcl{1}.u_ph.^2 + vcl{2}.u_ph.^2).^0.5;
     % number of DFT bins
     N = numel(Uh);
+    
+    % Z calculation test for CAP IND determination (just for debug)
+    %Z = vcl{1}.Y.*exp(j*vcl{1}.ph) ./ (vcl{2}.Y.*exp(j*vcl{2}.ph));
+    %[~,id] = max(vcl{1}.Y);
+    %Zx = abs(Z(id))
+    %Rs = real(Z(id))
+    %Xs = imag(Z(id)) 
     
     % first 'ac' DFT bin - this is used to skip the bins affected by DC component
     nac = 1 + w_size;
@@ -209,7 +230,7 @@ function dataout = alg_wrapper(datain, calcset)
     S = U*I;
     u_S = ((u_U*I)^2 + (u_I*U)^2)^0.5;
     Q = (S^2 - P^2)^0.5*sign(Q_bud);    
-    u_Q = ((S^2*u_S^2 + P^2*u_P^2)/(S^2 - P^2))^0.5; % ###note: ignoring corelations, may be improved         
+    u_Q = ((S^2*u_S^2 + P^2*u_P^2)/(S^2 - P^2))^0.5; % ###note: ignoring corelations, may be improved  
     
     % obtain DC components:
     dc_u = vcl{1}.dc;
@@ -256,6 +277,23 @@ function dataout = alg_wrapper(datain, calcset)
     PF = P/S;
     u_PF  = max(abs(v_PF - PF))/k_in;
     
+    % find cap/ind
+    is_cap = Q < 0;
+    if ref == 'u'
+        is_cap = ~is_cap;
+    end             
+    % quadrant string
+    if sign(P)
+        ie_str = 'IMPORT';
+    else 
+        ie_str = 'EXPORT';
+    end
+    if is_cap
+        cap_str = 'CAP';
+    else
+        cap_str = 'IND';
+    end
+        
     
     % --- energy estimation
     
@@ -294,6 +332,8 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.Q.u = u_Q*ke;
     dataout.PF.v = PF;
     dataout.PF.u = u_PF*ke;
+    dataout.quadrant.v = [ie_str ' ' cap_str];
+    %dataout.quadrant.u = [];
     dataout.phi_ef.v = atan2(Q,P);
     dataout.phi_ef.u = max(abs([atan2(Q+u_Q,P+u_P) atan2(Q-u_Q,P+u_P) atan2(Q-u_Q,P-u_P) atan2(Q-u_Q,P-u_P)]-atan2(Q,P)))*ke;
     dataout.phiH1.v = ph1;
