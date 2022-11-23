@@ -170,7 +170,7 @@ function [chn_list,list] = qwtb_parse_result(result_path, cfg, var_list)
       else
         pid = [];
       end
-      myvar.is_phase = numel(pid) > 0;
+      myvar.is_phase = int32(numel(pid) > 0);
       
       % check if the variable is amplitude
       if numel(amplitudes)
@@ -178,7 +178,7 @@ function [chn_list,list] = qwtb_parse_result(result_path, cfg, var_list)
       else
         pid = [];
       end
-      myvar.is_amplitude = numel(pid) > 0;
+      myvar.is_amplitude = int32(numel(pid) > 0);
       
       
       % store variable's phase/channel tag

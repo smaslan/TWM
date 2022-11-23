@@ -1,5 +1,6 @@
 function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
 % This loads the result data and formats it into INFO style packet.
+% It is used for transfer of TWM data via TWM server/client.
 % ###TODO: better doc
 
     % return averages:
@@ -31,6 +32,15 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
     
         % channel section:        
         cinf = '';
+        
+        % channel/phase tag
+        try
+            qu = avg{c}{1};
+            tag = qu.tag;                                
+        catch       
+            tag = '';
+        end
+        cinf = infosettext(cinf,'phase tag',tag);
                 
         % --- For each quantity
         qu_name = {};
@@ -43,6 +53,19 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
             qu_name{q,1} = qu.name;
             
             vinf = '';
+            
+            % is phase quantity?
+            vinf = infosetnumber(vinf,'is phase',qu.is_phase);
+            
+            % is amplitude quantity?
+            vinf = infosetnumber(vinf,'is amplitude',qu.is_amplitude);
+            
+            % numeric format
+            vinf = infosettext(vinf,'numeric format',qu.num_format);
+            
+            % description text
+            vinf = infosettext(vinf,'description',qu.desc);
+            
             if ~qu.is_big && ~isempty(qu.val)
                 % quantity loaded and numeric                
                 uc = (qu.unc.^2 + (2*ua.val).^2).^0.5;                         
@@ -54,7 +77,7 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
                 vinf = infosetmatrix(vinf,'value',NaN);  
                 vinf = infosetmatrix(vinf,'uncertainty',NaN);
                 vinf = infosetmatrix(vinf,'ua',NaN);            
-            end
+            end            
             
             % store quantity section:
             cinf = infosetsection(cinf,qu.name,vinf);

@@ -330,6 +330,7 @@
 					<Item Name="Meas Proc QWTB Parallel Initialize.vi" Type="VI" URL="../measure/processing/Meas Proc QWTB Parallel Initialize.vi"/>
 					<Item Name="Meas Proc QWTB Parallel Check Results.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Parallel Check Results.vi"/>
 					<Item Name="Meas Proc QWTB Exec Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Exec Mode.ctl"/>
+					<Item Name="Meas Proc QWTB View Amplitude Mode.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB View Amplitude Mode.ctl"/>
 					<Item Name="Meas Proc QWTB Spectrum Data.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Spectrum Data.ctl"/>
 					<Item Name="Meas Proc QWTB Quantity Record.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Quantity Record.ctl"/>
 					<Item Name="Meas Proc QWTB Load Result Spectra.vi" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Load Result Spectra.vi"/>
@@ -1602,6 +1603,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{DB64396F-7FF5-45F4-8E08-882448D7416F}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">8</Property>
+				<Property Name="Bld_version.patch" Type="Int">2</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM client.lvlibp</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM client/TWM client.lvlibp</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1610,7 +1612,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/TWM client</Property>
 				<Property Name="DestinationCount" Type="Int">2</Property>
 				<Property Name="PackedLib_callersAdapt" Type="Bool">true</Property>
-				<Property Name="Source[0].itemID" Type="Str">{B4FEA253-04ED-417B-9EDC-A818A19A9983}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{4968FFE0-9466-43E7-B562-48BECE59BC1F}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/server/TWM Client.lvlib</Property>
