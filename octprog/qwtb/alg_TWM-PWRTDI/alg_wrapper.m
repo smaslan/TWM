@@ -54,6 +54,17 @@ function dataout = alg_wrapper(datain, calcset)
         
     end
     
+    % reference channel for phase calculation:  
+    if ~isfield(datain,'ref_channel')
+        ref = 'u';
+    elseif strcmpi(datain.ref_channel.v,'i')
+        ref = 'i';
+    elseif strcmpi(datain.ref_channel.v,'u')
+        ref = 'u';
+    else
+        error(sprintf('TWM-PWRFFT parameter ''ref_channel'' value ''%s'' not recognizer! Only ''u'' or ''i'' supported.',datain.ref_channel.v));
+    end              
+    
     
     
     % Rebuild TWM style correction tables:
@@ -469,20 +480,23 @@ function dataout = alg_wrapper(datain, calcset)
     % return spectra of the corrected waveforms:   
     Uh = vcl{1}.Y;
     Ih = vcl{2}.Y;
-    ph = vcl{2}.ph - vcl{1}.ph;
+    ph = vcl{2}.ph - vcl{1}.ph; % I-U phase difference
+    if ref == 'i'
+        ph = -ph; % U-I mode
+    end 
     u_Uh = vcl{1}.u_Y;
     u_Ih = vcl{2}.u_Y;
     u_ph = (vcl{1}.u_ph.^2 + vcl{2}.u_ph.^2).^0.5;
     N = numel(Uh);
 
-    % decide reference channel (default 'u')
+    % decide fundamental detection channel (default 'u')
     ref_is_u = 1;
-    if isfield(datain,'ref_channel') && strcmpi(datain.ref_channel.v,'u')
+    if isfield(datain,'fund_channel') && strcmpi(datain.fund_channel.v,'u')
         ref_is_u = 1;
-    elseif isfield(datain,'ref_channel') && (strcmpi(datain.ref_channel.v,'i') || ~isreal(datain.ref_channel.v)) % #todo: remove workaround for bad identification of 'i' as complex number!
+    elseif isfield(datain,'fund_channel') && strcmpi(datain.fund_channel.v,'i')
         ref_is_u = 0;
-    elseif isfield(datain,'ref_channel')
-        error('Parameter ''ref_channel'' has invalid value! Only ''u'' or ''i'' are allowed.');
+    elseif isfield(datain,'fund_channel')
+        error('Parameter ''fund_channel'' has invalid value! Only ''u'' or ''i'' are allowed.');
     end
         
     % no peak harmonics defined yet:
@@ -1185,6 +1199,22 @@ function dataout = alg_wrapper(datain, calcset)
 %     figure
 %     hist(v_PF,50)
     
+    % find cap/ind
+    is_cap = Q < 0;
+    if ref == 'u'
+        is_cap = ~is_cap;
+    end             
+    % quadrant string
+    if sign(P)
+        ie_str = 'IMPORT';
+    else 
+        ie_str = 'EXPORT';
+    end
+    if is_cap
+        cap_str = 'CAP';
+    else
+        cap_str = 'IND';
+    end
         
         
     
@@ -1206,6 +1236,7 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.Q.u = u_Q*ke;
     dataout.PF.v = PF;
     dataout.PF.u = u_PF*ke;
+    dataout.quadrant.v = [ie_str ' ' cap_str];
     dataout.phi_ef.v = atan2(Q,P);
     dataout.phi_ef.u = max(abs([atan2(Q+u_Q,P+u_P) atan2(Q-u_Q,P+u_P) atan2(Q-u_Q,P-u_P) atan2(Q-u_Q,P-u_P)]-atan2(Q,P)))*ke;
     % DC components:
