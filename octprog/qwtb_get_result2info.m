@@ -2,6 +2,11 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
 % This loads the result data and formats it into INFO style packet.
 % It is used for transfer of TWM data via TWM server/client.
 % ###TODO: better doc
+%
+% This is part of the TWM - TracePQM WattMeter.
+% (c) 2018-2022, Stanislav Maslan, smaslan@cmi.cz
+% The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
+%
 
     % return averages:
     res_id = 0;
@@ -60,16 +65,21 @@ function [inf] = qwtb_get_result2info(meas_root, alg_id, cfg, var_list)
             % is amplitude quantity?
             vinf = infosetnumber(vinf,'is amplitude',qu.is_amplitude);
             
+            % is string?
+            vinf = infosetnumber(vinf,'is string',qu.is_string);
+            
             % numeric format
             vinf = infosettext(vinf,'numeric format',qu.num_format);
             
             % description text
             vinf = infosettext(vinf,'description',qu.desc);
             
-            if ~qu.is_big && ~isempty(qu.val)
+            if qo.is_string
+                vinf = infosettext(vinf,'value',qu.val); 
+            elseif ~qu.is_big && ~isempty(qu.val)
                 % quantity loaded and numeric                
-                uc = (qu.unc.^2 + (2*ua.val).^2).^0.5;                         
-                vinf = infosetmatrix(vinf,'value',qu.val);  
+                uc = (qu.unc.^2 + (2*ua.val).^2).^0.5;                                         
+                vinf = infosetmatrix(vinf,'value',qu.val); 
                 vinf = infosetmatrix(vinf,'uncertainty',uc);
                 vinf = infosetmatrix(vinf,'ua',ua.val);
             else
