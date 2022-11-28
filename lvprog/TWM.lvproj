@@ -257,6 +257,9 @@
 				<Item Name="GUI FFT panel 2x.vi" Type="VI" URL="../measure/GUI/GUI FFT panel 2x.vi"/>
 				<Item Name="GUI FFT Show.vi" Type="VI" URL="../measure/GUI/GUI FFT Show.vi"/>
 				<Item Name="GUI FFT Update.vi" Type="VI" URL="../measure/GUI/GUI FFT Update.vi"/>
+				<Item Name="GUI FFT Mode.ctl" Type="VI" URL="../measure/GUI/GUI FFT Mode.ctl"/>
+				<Item Name="GUI FFT Limit Samples.ctl" Type="VI" URL="../measure/GUI/GUI FFT Limit Samples.ctl"/>
+				<Item Name="GUI FFT Calc From Waves.vi" Type="VI" URL="../measure/GUI/GUI FFT Calc From Waves.vi"/>
 				<Item Name="GUI Show Not Available Attribute Message.vi" Type="VI" URL="../measure/GUI/GUI Show Not Available Attribute Message.vi"/>
 			</Item>
 			<Item Name="sequence" Type="Folder">
@@ -406,6 +409,33 @@
 			<Item Name="Meas Single Record.vi" Type="VI" URL="../measure/Meas Single Record.vi"/>
 		</Item>
 		<Item Name="other" Type="Folder">
+			<Item Name="fftw3" Type="Folder">
+				<Item Name="FFTWDLL.lvlibp" Type="LVLibp" URL="../other/fftw3/FFTWDLL.lvlibp">
+					<Item Name="top level" Type="Folder">
+						<Item Name="FFT 1D real 2 cplx.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/FFT 1D real 2 cplx.vi"/>
+					</Item>
+					<Item Name="window" Type="Folder">
+						<Item Name="Window Blackman-Harris.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/Window Blackman-Harris.vi"/>
+						<Item Name="Window Flattop248D.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/Window Flattop248D.vi"/>
+						<Item Name="Window Hanning.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/Window Hanning.vi"/>
+						<Item Name="Window Type.ctl" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/Window Type.ctl"/>
+						<Item Name="Window.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/Window.vi"/>
+					</Item>
+					<Item Name="fftw_const_direction.ctl" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_const_direction.ctl"/>
+					<Item Name="fftw_const_flags.ctl" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_const_flags.ctl"/>
+					<Item Name="fftw_destroy_plan.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_destroy_plan.vi"/>
+					<Item Name="fftw_execute.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_execute.vi"/>
+					<Item Name="fftw_flags_to_u32.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_flags_to_u32.vi"/>
+					<Item Name="fftw_free.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_free.vi"/>
+					<Item Name="fftw_malloc.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_malloc.vi"/>
+					<Item Name="fftw_malloc_cplx_double.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_malloc_cplx_double.vi"/>
+					<Item Name="fftw_malloc_real_double.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_malloc_real_double.vi"/>
+					<Item Name="fftw_memcpy_from_real_dbl.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_memcpy_from_real_dbl.vi"/>
+					<Item Name="fftw_memcpy_to_cplx_dbl.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_memcpy_to_cplx_dbl.vi"/>
+					<Item Name="fftw_plan_dft_2c_1d.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw_plan_dft_2c_1d.vi"/>
+				</Item>
+				<Item Name="libfftw3-3.dll" Type="Document" URL="../other/fftw3/libfftw3-3.dll"/>
+			</Item>
 			<Item Name="GUI Panel Control Action.ctl" Type="VI" URL="../other/GUI Panel Control Action.ctl"/>
 			<Item Name="randn_approximation.vi" Type="VI" URL="../other/randn_approximation.vi"/>
 			<Item Name="GUI Panel Control.vi" Type="VI" URL="../other/GUI Panel Control.vi"/>
@@ -1212,6 +1242,9 @@
 			<Item Name="mxLvGetItem.vi" Type="VI" URL="/&lt;resource&gt;/Framework/Providers/API/mxLvGetItem.vi"/>
 			<Item Name="provcom_StringGlobals.vi" Type="VI" URL="/&lt;resource&gt;/Framework/Providers/Common/provcom_StringGlobals.vi"/>
 			<Item Name="mxLvProvider.mxx" Type="Document" URL="/&lt;resource&gt;/Framework/Providers/mxLvProvider.mxx"/>
+			<Item Name="ntdll.dll" Type="Document" URL="ntdll.dll">
+				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
+			</Item>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM - full" Type="EXE">
