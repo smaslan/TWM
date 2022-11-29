@@ -259,6 +259,7 @@
 				<Item Name="GUI FFT Update.vi" Type="VI" URL="../measure/GUI/GUI FFT Update.vi"/>
 				<Item Name="GUI FFT Mode.ctl" Type="VI" URL="../measure/GUI/GUI FFT Mode.ctl"/>
 				<Item Name="GUI FFT Limit Samples.ctl" Type="VI" URL="../measure/GUI/GUI FFT Limit Samples.ctl"/>
+				<Item Name="GUI FFT Graphs Count.ctl" Type="VI" URL="../measure/GUI/GUI FFT Graphs Count.ctl"/>
 				<Item Name="GUI FFT Calc From Waves.vi" Type="VI" URL="../measure/GUI/GUI FFT Calc From Waves.vi"/>
 				<Item Name="GUI Show Not Available Attribute Message.vi" Type="VI" URL="../measure/GUI/GUI Show Not Available Attribute Message.vi"/>
 			</Item>
