@@ -279,6 +279,7 @@
 				<Item Name="Meas Sample Reader Source Mode.ctl" Type="VI" URL="../measure/files/Meas Sample Reader Source Mode.ctl"/>
 				<Item Name="Meas Get Record Section.vi" Type="VI" URL="../measure/files/Meas Get Record Section.vi"/>
 				<Item Name="Meas Get Record Section Read MAT.vi" Type="VI" URL="../measure/files/Meas Get Record Section Read MAT.vi"/>
+				<Item Name="Meas Get Record Section - Make Groups.vi" Type="VI" URL="../measure/files/Meas Get Record Section - Make Groups.vi"/>
 				<Item Name="Meas Get Session.vi" Type="VI" URL="../measure/files/Meas Get Session.vi"/>
 				<Item Name="Meas Generate File Name.vi" Type="VI" URL="../measure/files/Meas Generate File Name.vi"/>
 			</Item>
@@ -496,6 +497,7 @@
 			<Item Name="Get Decoration Label.vi" Type="VI" URL="../other/Get Decoration Label.vi"/>
 			<Item Name="Round Log.vi" Type="VI" URL="../other/Round Log.vi"/>
 			<Item Name="Vector Unique Values.vi" Type="VI" URL="../other/Vector Unique Values.vi"/>
+			<Item Name="Vector Unique Values String.vi" Type="VI" URL="../other/Vector Unique Values String.vi"/>
 		</Item>
 		<Item Name="ini" Type="Folder">
 			<Item Name="ini_auto" Type="Folder">

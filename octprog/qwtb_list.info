@@ -350,7 +350,7 @@ type:: qwtb list
                 spec_f; spec_S
         #endmatrix:: graphs
         #startmatrix:: spectrum
-                spec_U;spec_I
+                spec_U;spec_I;spec_S
         #endmatrix:: spectrum
 #endsection:: TWM-PWRTDI
 
@@ -388,7 +388,7 @@ type:: qwtb list
                 spec_f; spec_S
         #endmatrix:: graphs
         #startmatrix:: spectrum
-                spec_U;spec_I
+                spec_U;spec_I;spec_S
         #endmatrix:: spectrum
 #endsection:: TWM-PWRFFT
 
