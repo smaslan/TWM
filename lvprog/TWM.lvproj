@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="20008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;w_daqmx,1;</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;w_daqmx,1;</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -414,59 +414,14 @@
 		</Item>
 		<Item Name="other" Type="Folder">
 			<Item Name="fftw3" Type="Folder">
-				<Item Name="FFTWDLL.lvlibp" Type="LVLibp" URL="../other/fftw3/FFTWDLL.lvlibp">
-					<Item Name="top level" Type="Folder">
-						<Item Name="FFT 1D real 2 cplx (poly).vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/top level/FFT 1D real 2 cplx (poly).vi"/>
-					</Item>
-					<Item Name="fftw" Type="Folder">
-						<Item Name="fftw__execute_poly.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw/fftw__execute_poly.vi"/>
-						<Item Name="fftw__malloc_poly.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw/fftw__malloc_poly.vi"/>
-						<Item Name="fftw__free_poly.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw/fftw__free_poly.vi"/>
-						<Item Name="fftw__malloc_real_poly.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw/fftw__malloc_real_poly.vi"/>
-						<Item Name="fftw__malloc_cplx_poly.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw/fftw__malloc_cplx_poly.vi"/>
-						<Item Name="fftw__memcpy_from_real_poly.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw/fftw__memcpy_from_real_poly.vi"/>
-						<Item Name="fftw__memcpy_to_cplx_poly.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw/fftw__memcpy_to_cplx_poly.vi"/>
-						<Item Name="fftw__plan_dft_r2c_1d_poly.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw/fftw__plan_dft_r2c_1d_poly.vi"/>
-						<Item Name="fftw__destroy_plan_poly.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/fftw/fftw__destroy_plan_poly.vi"/>
-					</Item>
-					<Item Name="guts" Type="Folder">
-						<Item Name="top level" Type="Folder">
-							<Item Name="FFT 1D single 2 cplx.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/top level/FFT 1D single 2 cplx.vi"/>
-							<Item Name="FFT 1D real 2 cplx.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/top level/FFT 1D real 2 cplx.vi"/>
-						</Item>
-						<Item Name="types" Type="Folder">
-							<Item Name="fftw_const_direction.ctl" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw_const_direction.ctl"/>
-							<Item Name="fftw_const_flags.ctl" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw_const_flags.ctl"/>
-						</Item>
-						<Item Name="fftw__flags_to_u32.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw__flags_to_u32.vi"/>
-						<Item Name="fftw_malloc.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw_malloc.vi"/>
-						<Item Name="fftw_free.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw_free.vi"/>
-						<Item Name="fftw_malloc_real.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw_malloc_real.vi"/>
-						<Item Name="fftw_malloc_cplx_double.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw_malloc_cplx_double.vi"/>
-						<Item Name="fftw_memcpy_from_real.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw_memcpy_from_real.vi"/>
-						<Item Name="fftw_plan_dft_r2c_1d.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw_plan_dft_r2c_1d.vi"/>
-						<Item Name="fftw_execute.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw_execute.vi"/>
-						<Item Name="fftw_destroy_plan.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw_destroy_plan.vi"/>
-						<Item Name="fftw_memcpy_to_cplx.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftw_memcpy_to_cplx.vi"/>
-						<Item Name="fftwf_malloc.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftwf_malloc.vi"/>
-						<Item Name="fftwf_free.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftwf_free.vi"/>
-						<Item Name="fftwf_malloc_real.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftwf_malloc_real.vi"/>
-						<Item Name="fftwf_malloc_cplx_single.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftwf_malloc_cplx_single.vi"/>
-						<Item Name="fftwf_memcpy_from_real.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftwf_memcpy_from_real.vi"/>
-						<Item Name="fftwf_plan_dft_r2c_1d.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftwf_plan_dft_r2c_1d.vi"/>
-						<Item Name="fftwf_execute.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftwf_execute.vi"/>
-						<Item Name="fftwf_destroy_plan.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftwf_destroy_plan.vi"/>
-						<Item Name="fftwf_memcpy_to_cplx.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/guts/fftwf_memcpy_to_cplx.vi"/>
-					</Item>
-					<Item Name="window" Type="Folder">
-						<Item Name="Window Blackman-Harris.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/window/Window Blackman-Harris.vi"/>
-						<Item Name="Window Flattop248D.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/window/Window Flattop248D.vi"/>
-						<Item Name="Window Hanning.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/window/Window Hanning.vi"/>
-						<Item Name="Window Type.ctl" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/window/Window Type.ctl"/>
-						<Item Name="Window.vi" Type="VI" URL="../other/fftw3/FFTWDLL.lvlibp/window/Window.vi"/>
-					</Item>
+				<Item Name="dll" Type="Folder">
+					<Item Name="COPYING" Type="Document" URL="../other/fftw3/dll/COPYING"/>
+					<Item Name="COPYRIGHT" Type="Document" URL="../other/fftw3/dll/COPYRIGHT"/>
+					<Item Name="libfftw3-3.dll" Type="Document" URL="../other/fftw3/dll/libfftw3-3.dll"/>
+					<Item Name="libfftw3f-3.dll" Type="Document" URL="../other/fftw3/dll/libfftw3f-3.dll"/>
+					<Item Name="README" Type="Document" URL="../other/fftw3/dll/README"/>
 				</Item>
-				<Item Name="libfftw3-3.dll" Type="Document" URL="../other/fftw3/libfftw3-3.dll"/>
+				<Item Name="FFTWDLL.lvlib" Type="Library" URL="../other/fftw3/source/FFTWDLL.lvlib"/>
 			</Item>
 			<Item Name="GUI Panel Control Action.ctl" Type="VI" URL="../other/GUI Panel Control Action.ctl"/>
 			<Item Name="randn_approximation.vi" Type="VI" URL="../other/randn_approximation.vi"/>
@@ -1279,7 +1234,6 @@
 			<Item Name="ntdll.dll" Type="Document" URL="ntdll.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="libfftw3f-3.dll" Type="Document" URL="../other/fftw3/libfftw3f-3.dll"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM - full" Type="EXE">
