@@ -659,15 +659,16 @@
 			<Item Name="Build Setup.ctl" Type="VI" URL="../build/Build Setup.ctl"/>
 			<Item Name="Build All TWM Versions.vi" Type="VI" URL="../build/Build All TWM Versions.vi"/>
 			<Item Name="Server pre-Build Action.vi" Type="VI" URL="../server/Server pre-Build Action.vi"/>
-			<Item Name="Post-Build Action.vi" Type="VI" URL="../build/Post-Build Action.vi"/>
 			<Item Name="Set Conditional Symbols.vi" Type="VI" URL="../build/Set Conditional Symbols.vi"/>
 			<Item Name="Pre-Build Action - full.vi" Type="VI" URL="../build/Pre-Build Action - full.vi"/>
 			<Item Name="Pre-Build Action - visa.vi" Type="VI" URL="../build/Pre-Build Action - visa.vi"/>
 			<Item Name="Pre-Build Action - visa,niscope.vi" Type="VI" URL="../build/Pre-Build Action - visa,niscope.vi"/>
 			<Item Name="Pre-Build Action - visa,daqmx.vi" Type="VI" URL="../build/Pre-Build Action - visa,daqmx.vi"/>
+			<Item Name="Post-Build Action.vi" Type="VI" URL="../build/Post-Build Action.vi"/>
 			<Item Name="Copy Auxiliary Stuff.vi" Type="VI" URL="../build/Copy Auxiliary Stuff.vi"/>
 			<Item Name="Copy octprog.vi" Type="VI" URL="../build/Copy octprog.vi"/>
 			<Item Name="Merge Builds.vi" Type="VI" URL="../build/Merge Builds.vi"/>
+			<Item Name="Set Multiple Instances Mode.vi" Type="VI" URL="../build/Set Multiple Instances Mode.vi"/>
 			<Item Name="Get Build Specification Names.vi" Type="VI" URL="../build/Get Build Specification Names.vi"/>
 			<Item Name="Build Async Wrapper.vi" Type="VI" URL="../build/Build Async Wrapper.vi"/>
 		</Item>
