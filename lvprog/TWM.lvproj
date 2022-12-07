@@ -1273,14 +1273,23 @@
 				<Property Name="Destination[4].destName" Type="Str">data</Property>
 				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/data</Property>
 				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
-				<Property Name="DestinationCount" Type="Int">5</Property>
+				<Property Name="Destination[5].destName" Type="Str">libfftw3</Property>
+				<Property Name="Destination[5].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/libfftw3</Property>
+				<Property Name="Destination[5].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="DestinationCount" Type="Int">6</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{3B2B98D1-ED76-4E54-9996-0A1E8DBF9116}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{37ACBD78-B1BF-444D-8F45-40DCD82E65D2}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
 				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
 				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="Source[10].destinationIndex" Type="Int">5</Property>
+				<Property Name="Source[10].itemID" Type="Ref">/My Computer/other/fftw3/dll/COPYRIGHT</Property>
+				<Property Name="Source[10].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="Source[11].destinationIndex" Type="Int">5</Property>
+				<Property Name="Source[11].itemID" Type="Ref">/My Computer/other/fftw3/dll/README</Property>
+				<Property Name="Source[11].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[2].itemID" Type="Ref">/My Computer/drivers/dsdll/dsdll.dll</Property>
 				<Property Name="Source[2].sourceInclusion" Type="Str">Include</Property>
 				<Property Name="Source[3].Container.applyDestination" Type="Bool">true</Property>
@@ -1305,7 +1314,10 @@
 				<Property Name="Source[8].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[8].itemID" Type="Ref">/My Computer/octave/golpi/golpi-1.2.1.tar.gz</Property>
 				<Property Name="Source[8].sourceInclusion" Type="Str">Include</Property>
-				<Property Name="SourceCount" Type="Int">9</Property>
+				<Property Name="Source[9].destinationIndex" Type="Int">5</Property>
+				<Property Name="Source[9].itemID" Type="Ref">/My Computer/other/fftw3/dll/COPYING</Property>
+				<Property Name="Source[9].sourceInclusion" Type="Str">Include</Property>
+				<Property Name="SourceCount" Type="Int">12</Property>
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
 
