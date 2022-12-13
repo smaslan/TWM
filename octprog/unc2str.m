@@ -29,7 +29,7 @@ function [str,str_val,str_unc,str_int] = unc2str(val,uncv,unit,cfg)
         % use larger bound
         unc = max(abs(uncv));
     else
-        unc = uncv;
+        unc = abs(uncv);
     end
     
     % limit uncertainty by absolute minimum
@@ -42,7 +42,11 @@ function [str,str_val,str_unc,str_int] = unc2str(val,uncv,unit,cfg)
         unc = abs(val)*cfg.min_unc_rel;
     end
     
-    dig = ceil(log10(1/unc)+0.999)+0;
+    if unc
+        dig = ceil(log10(1/unc)+0.999)+0;
+    else
+        dig = 0;
+    end
     mul = 10^dig;  
     str_val = sprintf('%0.*f',max(0,dig),round(val*mul)/mul);
     if cfg.digit_spacing

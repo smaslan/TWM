@@ -31,6 +31,7 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
 %                           1 - 0 - 2*pi [rad]
 %                           2 - +-180 [deg]
 %                           3 - 0-360 [deg]
+%           cfg.amp_mode - real number for scaling amplitudes or 'dB', 'dBmV' or 'dBuV'
 %           cfg.phi_ref_chn - reference channel ID for phase difference calculation
 %
 %     var_list - cell array with names of the variables to load.
@@ -226,9 +227,29 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                         csv{row,col} = '';
                         num(row,col) = NaN;                        
                     else
-                        [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(unca{p}{v},[],cfg);        
-                        csv{row,col} = [vv vs];
-                        num(row,col) = numv;                        
+                        if avg{p}{v}.is_amplitude && ischar(cfg.amp_mode) 
+                            % for dBx modes only
+                            val = avg{p}{v};                        
+                            val.unc = unca{p}{v}.val;
+                            val.min_unc_abs = 0; 
+                            val.min_unc_rel = 0;
+                            val.num_format = 'f';
+                            [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(val,[],cfg);
+                            csv{row,col} = [vu vs];
+                            num(row,col) = numu;
+                        else
+                            % for all other numerics            
+                            val = unca{p}{v};                        
+                            val.unc = unca{p}{v}.val;
+                            val.min_unc_abs = 0; 
+                            val.min_unc_rel = 0;
+                            [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(val,[],cfg);
+                            csv{row,col} = [vu vs];
+                            num(row,col) = numu;
+                            %[vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(unca{p}{v},[],cfg);        
+                            %csv{row,col} = [vv vs];
+                            %num(row,col) = numv;
+                        end                                                
                     end
                     col = col + 1;
                     

@@ -60,8 +60,22 @@ function [full_str,val_str,unc_str,unit_str, val,unc] = qwtb_result_unc2str(valu
   
   % select amplitude display mode
   if isfield(value,'is_amplitude') && value.is_amplitude
-    val = val*cfg.amp_mode;
-    unc = unc*cfg.amp_mode;
+    if isnumeric(cfg.amp_mode)
+        val = val*cfg.amp_mode;
+        unc = unc*cfg.amp_mode;
+    elseif strcmpi(cfg.amp_mode,'dB')
+        val_tmp = val;
+        val = 20*log10(val);
+        unc = 20*log10(val_tmp + unc) - val;
+    elseif strcmpi(cfg.amp_mode,'dBmV')
+        val_tmp = val;
+        val = 20*log10(1000*val);
+        unc = 20*log10(1000*(val_tmp + unc)) - val;
+    elseif strcmpi(cfg.amp_mode,'dBuV')
+        val_tmp = val;
+        val = 20*log10(1e6*val);
+        unc = 20*log10(1e6*(val_tmp + unc)) - val;
+    end
   end
             
   if strcmpi(value.num_format,'si')
