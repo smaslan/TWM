@@ -27,9 +27,27 @@ estO = mean(y);
 est=[estA estf estph estO];
 
 if isOctave
+    % Check existence of leasqr function, load package if needed, make error if
+    % not possible.
+    if not(exist('leasqr'))
+        try
+            pkg load optim
+        catch
+            (printf('>>>>>>>>>>>>> FPNLSF: your GNU Octave is missing optimization package! <<<<<<<<<<<<<<\nTry installing the package using command:\npkg install -forge optim\nError during loading package was:'));
+            % rethrow last error:
+            error(lasterror());
+        end % try
+        if not(exist('leasqr'))
+                error('>>>>>>>>>>>>> FPNLSF: your GNU Octave is missing function `leasqr`!');
+        end % if not(exist('leasqr'))
+    end % if not(exist('leasqr'))
+
     % fitting:
     % model function: A*sin(2*Pi*f*t+phase):
-    fun = inline(' pin(1).*sin( 2.*pi.*pin(2).*t + pin(3) ) + pin(4) ', 't', 'pin');
+    % Definition using 'inline' works only in older versions of leasqr:
+    %   fun = inline(' pin(1).*sin( 2.*pi.*pin(2).*t + pin(3) ) + pin(4) ', 't', 'pin');
+    % definition using @() must be used in newer versions (at least for optim 1.6.2):
+    fun = @(t, pin) pin(1).*sin( 2.*pi.*pin(2).*t + pin(3) ) + pin(4);
 
     stol = .00001;
     niter = 100;
