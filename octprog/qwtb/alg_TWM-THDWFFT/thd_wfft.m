@@ -52,6 +52,7 @@ function [r] = thd_wfft(y,fs,s,corr,tab,cfg)
 %                        2 - PSFE
 %   s.f_fund_zc_filter - moving average filter for zero-cross method (usually 20),
 %                        ZC is used also for initial guess for a fitting algorithm!
+%   s.f_fund_fit_limit - limit samples count for fitting f0 frequency (0: no limit)
 %   s.h_num            - maximum harmonics count to analyze
 %   s.h_f_max          - maximum harmonic frequnecy [Hz]
 %   s.f_dev_max        - maximum harmonic freq. deviation from ideal position [bin]
@@ -80,18 +81,24 @@ function [r] = thd_wfft(y,fs,s,corr,tab,cfg)
 % License:
 % --------
 % This is part of the non-coherent, windowed FFT, THD meter.
-% (c) 2018, Martin Sira, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2023, Martin Sira, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT
 % 
 
   % get samples count per record
   N = size(y,1);
   
+  % f0 estimation samples count limiter
+  if ~s.f_fund_fit_limit
+    s.f_fund_fit_limit = N;
+  end
+  N_fit = min(s.f_fund_fit_limit,N);
+  
   % window type used for the input spectrum - rather do not modify!
   window_type = 'flattop_248D';
     
   % get spectrum of each waveform (one waveform - one averaging cycle)
-  [f,sig,fs,f_bin_step,r.f_sig,f_std,rms] = thd_proc_waves(fs, y, s.f_fund, s.f_fund_fit, s.f_fund_zc_filter, window_type, s.verbose);
+  [f,sig,fs,f_bin_step,r.f_sig,f_std,rms] = thd_proc_waves(fs, y(1:N_fit,:), s.f_fund, s.f_fund_fit, s.f_fund_zc_filter, window_type, s.verbose);
   
   
   % calculate harmonics distance in [DFT bins]

@@ -78,6 +78,13 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     
+    alginfo.inputs(pid).name = 'fit_limit';
+    alginfo.inputs(pid).desc = 'Limits samples count used for fundamental frequency estimation (empty: nolimit)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
     alginfo.inputs(pid).name = 'plot';
     alginfo.inputs(pid).desc = 'Show harmonics plot';
     alginfo.inputs(pid).alternative = 0;

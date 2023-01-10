@@ -48,6 +48,8 @@ function dataout = alg_wrapper(datain, calcset)
     s.f_fund = 0;
     % fundamental frequency autodetection, 0 - zero-cross (fast, usable for high signal periods count), 1 - fitting (slow, accurate), 2 - PSFE
     s.f_fund_fit = 2;
+    % limit sample count for f0 fitting (0: none)
+    s.f_fund_fit_limit = 0;
     % moving average filter for zero-cross method (usually 20), ZC is used also for initial guess for a fitting algorithm! 
     s.f_fund_zc_filter = 20;
     % maximum harmonics count to analyze [-]
@@ -80,6 +82,11 @@ function dataout = alg_wrapper(datain, calcset)
         else
             error(sprintf('QWTB: TWM-THDWFFT wrapper: initial guess mode ''%s'' of the fundamental frequency is not recognized! Only ''zerocross'', ''fit'' or ''PSFE'' are recognized.',datain.f0_mode.v));
         end
+    end
+    
+    % limit sample count for f0 fitting?        
+    if isfield(datain, 'fit_limit')
+        s.f_fund_fit_limit = datain.fit_limit.v;
     end
     
     % obtain harmonics count to analyze
