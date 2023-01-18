@@ -90,6 +90,7 @@ TWM depends on following external software:
 1. [AX Excel](https://gitlab.com/smaslan/xls-template-and-stuff). Included in TWM.
 1. [DirectSound DLL interface](https://github.com/KaeroDot/dsdll_lv). Included in TWM.
 1. [vilib](https://gitlab.com/cmi-6011/vilib). Included in TWM.
+1. [FFTW3](https://www.fftw.org). Included in TWM.
 
 ## Branches
 TWM project has two branches. 
@@ -99,9 +100,10 @@ TWM project has two branches.
 ## Building
 Only the LabVIEW part has to be build.
 
-The `lvprog/TWM.lvproj` contains 3 build specifications:
+The `lvprog/TWM.lvproj` contains several build specifications:
 - TWM full
 - TWM visa
 - TWM visa,niscope
+- TWM visa,daqmx
 
-"TWM full" builds for all implemented hardware. To run it, user has to install NI libraries for NI-DAQ, NI-SCOPE, VISA, and of course run time libraries for LabVIEW. Because many users use digitizers not requiring NI-DAQ or NI-SCOPE, other builds are generated. Running VI `build/Build All TWM Versions.vi` will offer automatic build of all builds versions and copies all versions of EXE files of the other builds to "TWM full" folder for convenience.
+"TWM full" builds for all implemented hardware. To run it, user has to install NI libraries for NI-DAQ, NI-SCOPE, VISA, and of course run time libraries for LabVIEW. Because many users use digitizers not requiring NI-DAQ or NI-SCOPE, other builds are provided. Running VI `build/Build All TWM Versions.vi` will offer automatic build of all builds versions and copies all versions of executable (EXE) files of the other builds to "TWM full" folder for convenience.
