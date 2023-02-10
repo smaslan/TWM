@@ -165,6 +165,7 @@
 			<Item Name="Configure Source Real Time Eye.vi" Type="VI" URL="../Public/Configure/Configure Source Real Time Eye.vi"/>
 			<Item Name="Configure Vertical Coupling.vi" Type="VI" URL="../Public/Configure/Configure Vertical Coupling.vi"/>
 			<Item Name="Enable Normalize Gain.vi" Type="VI" URL="../Public/Configure/Enable Normalize Gain.vi"/>
+			<Item Name="High Res Bits.ctl" Type="VI" URL="../Public/Configure/High Res Bits.ctl"/>
 		</Item>
 		<Item Name="Data" Type="Folder">
 			<Item Name="Low Level" Type="Folder">

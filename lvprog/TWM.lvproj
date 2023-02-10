@@ -124,11 +124,13 @@
 			<Item Name="Agilent DSO 90000" Type="Folder">
 				<Item Name="Virtual Digitizer" Type="Folder">
 					<Item Name="KeDSO session.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO session.ctl"/>
+					<Item Name="KeDSO High Resolution Mode.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO High Resolution Mode.ctl"/>
 					<Item Name="KeDSO Virtual Channel.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Virtual Channel.ctl"/>
 					<Item Name="KeDSO Trigger Source.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Trigger Source.ctl"/>
 					<Item Name="KeDSO Trigger Setup.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Trigger Setup.ctl"/>
 					<Item Name="KeDSO Record Aux Data.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Record Aux Data.ctl"/>
 					<Item Name="KeDSO Record Sample Data.ctl" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Record Sample Data.ctl"/>
+					<Item Name="KeDSO High Resolution Parameters.vi" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO High Resolution Parameters.vi"/>
 					<Item Name="KeDSO Initialize Virtual Channels.vi" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Initialize Virtual Channels.vi"/>
 					<Item Name="KeDSO Setup Virtual Channels.vi" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Setup Virtual Channels.vi"/>
 					<Item Name="KeDSO Initiate Digitizing Process.vi" Type="VI" URL="../drivers/Agilent DSO 90000/Virtual Digitizer/KeDSO Initiate Digitizing Process.vi"/>
@@ -1258,7 +1260,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">8</Property>
-				<Property Name="Bld_version.patch" Type="Int">6</Property>
+				<Property Name="Bld_version.patch" Type="Int">7</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1279,7 +1281,7 @@
 				<Property Name="Destination[5].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">6</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{913BD31E-DF2D-41E4-A0D9-9FE5D5E3AE79}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{0D24C892-2073-4CAA-958D-50A1A3AD264E}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1347,7 +1349,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">8</Property>
-				<Property Name="Bld_version.patch" Type="Int">6</Property>
+				<Property Name="Bld_version.patch" Type="Int">7</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/TWM-visa.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1434,7 +1436,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">8</Property>
-				<Property Name="Bld_version.patch" Type="Int">6</Property>
+				<Property Name="Bld_version.patch" Type="Int">7</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-niscope/TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1525,7 +1527,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{27659806-CFBA-4E41-96E1-CFFCCE604162}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">8</Property>
-				<Property Name="Bld_version.patch" Type="Int">6</Property>
+				<Property Name="Bld_version.patch" Type="Int">7</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-daqmx.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-daqmx/TWM-visa-daqmx.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
