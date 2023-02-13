@@ -1620,7 +1620,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/TWM client</Property>
 				<Property Name="DestinationCount" Type="Int">2</Property>
 				<Property Name="PackedLib_callersAdapt" Type="Bool">true</Property>
-				<Property Name="Source[0].itemID" Type="Str">{4968FFE0-9466-43E7-B562-48BECE59BC1F}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{85A38939-D954-4531-A3D5-D81A9606BCCA}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/server/TWM Client.lvlib</Property>
