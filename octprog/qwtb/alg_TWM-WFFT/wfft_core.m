@@ -4,7 +4,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
 % This is part of the TWM - TracePQM WattMeter.
 % (c) 2018-2022, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
-
+     
     
     is_psfe_local = 0;
     %is_wfft_local = 0;
@@ -26,7 +26,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
             is_wfft_local = 0;
         end
     end
-    
+            
     %is_wfft_local
         
     % multiple records data?
@@ -66,7 +66,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         if calcset.verbose
             fprintf('Searching for nominal frequency by PSFE ... f = %.6g\n', datain.f_nom.v);
         end      
-    end
+    end       
     
     if isfield(datain,'h_num')
         % -- relative harmonic frequencies specified:
@@ -90,6 +90,20 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
     
     % no f_nom should contain list of frequencies to analyse:
     f_nom = datain.f_nom.v;
+    
+    % check Nyquist limit
+    if any(f_nom >= 0.5*fs)
+        
+        f_over = f_nom(find(f_nom >= 0.5*fs));
+        OC_max = 10;
+        OC = numel(f_over);
+        f_over = f_over(1:min(end,OC_max));
+        f_list = catcellcsv(cellfun(@num2str,num2cell(f_over),'UniformOutput',false),'; ');
+        if OC > OC_max
+            f_list = [f_list '; ...'];
+        end
+        error(sprintf('Some of requested harmonic components are outside Nyquist limit!\n  fx = {%s}Hz',f_list));
+    end
     
     % samples count:    
     N = numel(datain.y.v);
@@ -334,16 +348,18 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         % --- single ended mode ---
         
         % apply transducer correction:
-        rms_ref = sum(0.5*A.^2).^0.5*w_gain/w_rms;
-        Y = abs(A); % amplitudes, rectify DC
-        fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
-        [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], Y,ph,u_A,u_ph, 'rms',rms_ref);
-        trg(1) = trg(1)*sign(A(1)); % restore sign
-        A   = trg;
-        u_A = u_trg;
-        ph   = trp;
-        u_ph = u_trp;
-        ph(1) = 0;
+        if ~isempty(datain.tr_type.v)
+            rms_ref = sum(0.5*A.^2).^0.5*w_gain/w_rms;
+            Y = abs(A); % amplitudes, rectify DC
+            fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
+            [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], Y,ph,u_A,u_ph, 'rms',rms_ref);
+            trg(1) = trg(1)*sign(A(1)); % restore sign
+            A   = trg;
+            u_A = u_trg;
+            ph   = trp;
+            u_ph = u_trp;
+            ph(1) = 0;
+        endif
         
     end
     

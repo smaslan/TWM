@@ -231,7 +231,7 @@ function alg_test(calcset) %<<<1
             f0 = rounddig(logrand(f0_min,f0_max),3);
             
             % round to coherent:
-            f0 = round(N/din.fs.v*f0)/N*din.fs.v;
+            f0 = round(N/din.fs.v*f0)/N*din.fs.v;                      
             
             % store nominal frequency parameter:
             din.f_nom.v = f0;
