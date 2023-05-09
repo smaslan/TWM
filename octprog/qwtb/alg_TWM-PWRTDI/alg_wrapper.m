@@ -96,10 +96,10 @@ function dataout = alg_wrapper(datain, calcset)
     
       
     % --- For easier processing we convert u/i channels to virtual channels array ---
-    % so we can process the voltage and current using the same code...   
-        
+    % so we can process the voltage and current using the same code...
+
     % list of involved correction tables without 'u_' or 'i_' prefices
-    tab_list = {'tr_gain','tr_phi','tr_Zca','tr_Yca','tr_Zcal','tr_Zcam','adc_Yin','lo_adc_Yin','Zcb','Ycb','tr_Zlo','adc_gain','adc_phi','lo_adc_gain','lo_adc_phi','tr_sfdr','adc_sfdr','lo_adc_sfdr'};
+    tab_list = {'tr_gain','tr_phi','tr_Zca','tr_Yca','tr_Zcal','tr_Zcam','adc_Yin','lo_adc_Yin','Zcb','Ycb','tr_Zlo','adc_gain','adc_phi','lo_adc_gain','lo_adc_phi','tr_sfdr','adc_sfdr','lo_adc_sfdr','tr_Zbuf'};
     clear vcl; id = 0; % virt. chn. list     
     % -- build virtual channel (U):
     id = id + 1;
@@ -407,6 +407,7 @@ function dataout = alg_wrapper(datain, calcset)
             u_Y = Y.*(ag.u_gain./ag.gain); % amp. uncertainties
             u_ph = ap.u_phi;
             fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
+            %vc.tab = rmfield(vc.tab,'tr_Zbuf'); % ###debug
             [trg,trp,u_trg,u_trp] = correction_transducer_loading(vc.tab,vc.tran,fh_dc,[], Y,0*Y,u_Y,u_ph, 'rms',rms_ref);
             Y = max(Y,eps); % to prevent div-by-zero
             trg = trg./Y;
@@ -859,7 +860,7 @@ function dataout = alg_wrapper(datain, calcset)
             if Ux(h) > spur_min_rat*Ux(1) || Ix(h) > spur_min_rat*Ix(1)            
 
                 % relative spur position:
-                f_spur = abs(fx(h) - fx(1))/fft_step    
+                f_spur = abs(fx(h) - fx(1))/fft_step;    
                 
                 % get U single-tone wrms uncertainty components:
                 [dPx,dUx,dIx] = wrms_unc_spur(lut_sp, Ux(1),Ix(1), f_spur,Ux(h),Ix(h), f0_per,fs_rat);

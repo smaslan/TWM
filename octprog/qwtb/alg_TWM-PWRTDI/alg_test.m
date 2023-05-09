@@ -9,7 +9,7 @@ function alg_test(calcset) %<<<1
 
     
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = 10000;
+    is_full_val = 0;
     %is_full_val = 3000;
     %is_full_val = -1417;
     %is_full_val = -1914;
@@ -404,7 +404,18 @@ function alg_test(calcset) %<<<1
                 din.u_adc_offset.v = linrand(-0.005,0.005);
                 din.u_adc_offset.u = 0.0001;
                 din.u_lo_adc_offset.v = linrand(-0.005,0.005);
-                din.u_lo_adc_offset.u = 0.0001;                
+                din.u_lo_adc_offset.u = 0.0001;
+                % digitizer input admittance:
+                din.u_adc_Yin_f.v = [];         
+                din.u_adc_Yin_Cp.v = logrand(50e-12,500e-12);
+                din.u_adc_Yin_Cp.u = 0;
+                din.u_adc_Yin_Gp.v = logrand(1e-9,1e-6);
+                din.u_adc_Yin_Gp.u = 0;
+                din.u_lo_adc_Yin_f.v = [];         
+                din.u_lo_adc_Yin_Cp.v = logrand(1e-12,100e-12);
+                din.u_lo_adc_Yin_Cp.u = 0;
+                din.u_lo_adc_Yin_Gp.v = logrand(1e-9,1e-6);
+                din.u_lo_adc_Yin_Gp.u = 0;                
                 % transducer type:
                 din.u_tr_type.v = chns{1}.type;
                 % create some corretion table for the transducer gain/phase: 
@@ -414,7 +425,15 @@ function alg_test(calcset) %<<<1
                                  linrand(-tr_mphi,+tr_mphi),0.000080,0.000002,linrand(0.7,3));
                 din.u_tr_phi_f = din.u_tr_gain_f;
                 din.u_tr_gain_a.v = [];
-                din.u_tr_phi_a.v = [];         
+                din.u_tr_phi_a.v = [];
+                % transducer buffer output impedance            
+                if rand() > 0.5
+                    din.u_tr_Zbuf_f.v = [];
+                    din.u_tr_Zbuf_Rs.v = logrand(10.0,1000.0);
+                    din.u_tr_Zbuf_Rs.u = 1e-9;
+                    din.u_tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+                    din.u_tr_Zbuf_Ls.u = 1e-12;
+                end         
                 % transducer SFDR value:
                 din.u_tr_sfdr_a.v = [];
                 din.u_tr_sfdr_f.v = [];
@@ -461,6 +480,17 @@ function alg_test(calcset) %<<<1
                 din.i_adc_offset.u = 0.0001;
                 din.i_lo_adc_offset.v = linrand(-0.005,0.005);
                 din.i_lo_adc_offset.u = 0.0001;
+                % digitizer input admittance:
+                din.i_adc_Yin_f.v = [];         
+                din.i_adc_Yin_Cp.v = logrand(1e-12,100e-12);
+                din.i_adc_Yin_Cp.u = 0;
+                din.i_adc_Yin_Gp.v = logrand(1e-9,1e-6);
+                din.i_adc_Yin_Gp.u = 0;
+                din.i_lo_adc_Yin_f.v = [];         
+                din.i_lo_adc_Yin_Cp.v = logrand(50e-12,500e-12);
+                din.i_lo_adc_Yin_Cp.u = 0;
+                din.i_lo_adc_Yin_Gp.v = logrand(1e-9,1e-6);
+                din.i_lo_adc_Yin_Gp.u = 0;
                 % create some corretion table for the transducer gain/phase: 
                 [din.i_tr_gain_f,din.i_tr_gain,din.i_tr_phi] ...
                   = gen_adc_tfer(din.fs.v/2+1,50, I_rng,0.000002*I_rng, linrand(-tr_mgain_acdc,+tr_mgain_acdc),0.000050,linrand(0.5,3), ...
@@ -469,6 +499,14 @@ function alg_test(calcset) %<<<1
                 din.i_tr_phi_f = din.i_tr_gain_f;
                 din.i_tr_gain_a.v = [];
                 din.i_tr_phi_a.v = [];
+                % transducer buffer output impedance            
+                if rand() > 0.5
+                    din.i_tr_Zbuf_f.v = [];
+                    din.i_tr_Zbuf_Rs.v = logrand(10.0,1000.0);
+                    din.i_tr_Zbuf_Rs.u = 1e-9;
+                    din.i_tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+                    din.i_tr_Zbuf_Ls.u = 1e-12;
+                end
                 % transducer SFDR value:
                 din.i_tr_sfdr_a.v = [];
                 din.i_tr_sfdr_f.v = [];
@@ -579,7 +617,9 @@ function alg_test(calcset) %<<<1
             fprintf('f0 periods = %0.2f\n',(cfg.N/din.fs.v)*f0);
             fprintf('fs/f0 ratio = %0.2f\n',din.fs.v/f0);
             fprintf('Harmonics = %s\n',sprintf('%.3g ',sort([cfg.chn{1}.fx/f0])));
-            fprintf('AC coupling = %.0f\n',din.ac_coupling.v);
+            fprintf('AC coupling = %.0f\n',din.ac_coupling.v);            
+            fprintf('U-transducer buffer = %.0f\n',isfield(din,'u_tr_Zbuf_f'));
+            fprintf('I-transducer buffer = %.0f\n',isfield(din,'i_tr_Zbuf_f'));
         end
     
         % --- generate the signal:        
@@ -590,7 +630,7 @@ function alg_test(calcset) %<<<1
         %alginf = qwtb('TWM-PWRTDI','info');
         %qwtb('TWM-PWRTDI','addpath');    
         %datain = qwtb_add_unc(datain,alginf.inputs);
-    
+            
         % --- execute the algorithm:    
         calcset.mcm.randomize = 0;
         dout = qwtb('TWM-PWRTDI',datain,calcset);

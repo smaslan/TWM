@@ -36,6 +36,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
 %           din.**tr_Yca... - transducer terminals shunting Y matrices
 %           din.**tr_Zcb... - transducer cable(s) series Z matrices
 %           din.**tr_Ycb... - transducer cable(s) shunting Y matrices
+%           din.**tr_Zbuf... - transducer output buffer series Z matrices
 %           *  - prefix of subchannel ('u_' or 'i_' - high-side channel or SE
 %                                      or 'lo_u_', 'lo_i_' - low-side channel for diff. mode)
 %           ** - prefix of channel ('u_' or 'i_' - channel prefix)
@@ -74,7 +75,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
 % License:
 % --------
 % This is part of the TWM tool (https://github.com/smaslan/TWM).
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2023, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT
 
 
@@ -138,7 +139,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
                                         
         % load channel corrections for given v.channel:
         % note: this removes 'u_' or 'i_' prefix so the rest of code can be run in loop for both U and I v.channels
-        tab_list = {'tr_gain','tr_phi','tr_Zca','tr_Yca','tr_Zcal','tr_Zcam','adc_Yin','lo_adc_Yin','Zcb','Ycb','tr_Zlo','adc_gain','adc_phi','lo_adc_gain','lo_adc_phi','tr_sfdr','adc_sfdr','lo_adc_sfdr'};
+        tab_list = {'tr_gain','tr_phi','tr_Zca','tr_Yca','tr_Zcal','tr_Zcam','adc_Yin','lo_adc_Yin','Zcb','Ycb','tr_Zlo','adc_gain','adc_phi','lo_adc_gain','lo_adc_phi','tr_sfdr','adc_sfdr','lo_adc_sfdr','tr_Zbuf'};
         chtab = conv_vchn_tabs(tab,chn.name,tab_list);
             
         % insert fake DC component to the harmonic list:
