@@ -385,7 +385,7 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     [alginfo,pid] = add_ui_pair(alginfo,pid,0);
     
-    % Optional buffer low-side impedance matrix (1D dependence, rows: freqs.)
+    % Optional buffer impedance matrix (1D dependence, rows: freqs.)
     alginfo.inputs(pid).name = 'tr_Zbuf_f';
     alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: frequency axis';
     alginfo.inputs(pid).alternative = 0;

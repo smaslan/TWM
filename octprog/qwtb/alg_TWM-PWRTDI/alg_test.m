@@ -412,7 +412,7 @@ function alg_test(calcset) %<<<1
                 din.u_adc_Yin_Gp.v = logrand(1e-9,1e-6);
                 din.u_adc_Yin_Gp.u = 0;
                 din.u_lo_adc_Yin_f.v = [];         
-                din.u_lo_adc_Yin_Cp.v = logrand(1e-12,100e-12);
+                din.u_lo_adc_Yin_Cp.v = logrand(50e-12,500e-12);
                 din.u_lo_adc_Yin_Cp.u = 0;
                 din.u_lo_adc_Yin_Gp.v = logrand(1e-9,1e-6);
                 din.u_lo_adc_Yin_Gp.u = 0;                
@@ -482,7 +482,7 @@ function alg_test(calcset) %<<<1
                 din.i_lo_adc_offset.u = 0.0001;
                 % digitizer input admittance:
                 din.i_adc_Yin_f.v = [];         
-                din.i_adc_Yin_Cp.v = logrand(1e-12,100e-12);
+                din.i_adc_Yin_Cp.v = logrand(50e-12,500e-12);
                 din.i_adc_Yin_Cp.u = 0;
                 din.i_adc_Yin_Gp.v = logrand(1e-9,1e-6);
                 din.i_adc_Yin_Gp.u = 0;

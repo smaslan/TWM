@@ -101,14 +101,23 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
     %  note: so the sample data are written to these instead of the ones modified during the following code 
     dout = din;
     
+    % power generation?
+    %  note: zero for single channel RMS generatio
+    is_pwr = numel(cfg.chn) > 1;
+    
     
     % Restore orientations of the input vectors to originals (before passing via QWTB)
     % Note the function also generates default values of all corrections so the generator
     %       may be used even without any correction data.
-    din.u.v = ones(10,1); % fake data vector just to make following function work!
-    din.i.v = ones(10,1); % fake data vector just to make following function work!
-    if isfield(cfg.chn{1},'Zx'), din.u_lo.v = din.u.v; end
-    if isfield(cfg.chn{2},'Zx'), din.i_lo.v = din.i.v; end
+    if is_pwr
+        din.u.v = ones(10,1); % fake data vector just to make following function work!
+        din.i.v = ones(10,1); % fake data vector just to make following function work!
+        if isfield(cfg.chn{1},'Zx'), din.u_lo.v = din.u.v; end
+        if isfield(cfg.chn{2},'Zx'), din.i_lo.v = din.i.v; end
+    else
+        din.y.v = ones(10,1); % fake data vector just to make following function work!
+        if isfield(cfg.chn{1},'Zx'), din.y_lo.v = din.y.v; end
+    end    
     [din,t_cfg] = qwtb_restore_twm_input_dims(din,1);
         
     % Rebuild TWM style correction tables (just for more convenient calculations):
@@ -119,7 +128,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
 
     
     % --- For each virtual channel (U,I): ---
-    for c = 1:numel(cfg.chn)
+    for c = 1:(is_pwr+1)
     
         % get current channel:
         chn = cfg.chn{c};
@@ -128,19 +137,31 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
         is_diff = isfield(chn,'Zx');
                 
         % i-channel timeshift:
-        if chn.name == 'i'
+        if is_pwr && chn.name == 'i'
             tsh = -din.time_shift.v + randn(1)*din.time_shift.u*rand_unc; % ###todo: decide if this has correct polarity!!!!!!!!!!!!!!!           
         else
             tsh = 0;
+        end
+        
+        if isfield(din,'time_stamp')
+            tsh = tsh + din.time_stamp.v;
         end            
         
         % channel prefix (eg.: 'u_'):
-        cpfx = [chn.name '_'];
+        if is_pwr
+            cpfx = [chn.name '_'];
+        else
+            cpfx = '';
+        end
                                         
         % load channel corrections for given v.channel:
         % note: this removes 'u_' or 'i_' prefix so the rest of code can be run in loop for both U and I v.channels
         tab_list = {'tr_gain','tr_phi','tr_Zca','tr_Yca','tr_Zcal','tr_Zcam','adc_Yin','lo_adc_Yin','Zcb','Ycb','tr_Zlo','adc_gain','adc_phi','lo_adc_gain','lo_adc_phi','tr_sfdr','adc_sfdr','lo_adc_sfdr','tr_Zbuf'};
-        chtab = conv_vchn_tabs(tab,chn.name,tab_list);
+        if is_pwr
+            chtab = conv_vchn_tabs(tab,chn.name,tab_list);
+        else
+            chtab = tab;
+        end
             
         % insert fake DC component to the harmonic list:
         chn.fxg = [1e-12;  chn.fx];
@@ -152,7 +173,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
         
         % include DC?
         cfg.chn{c}.rms_ac = rms;
-        if ~din.ac_coupling.v
+        if ~isfield(din,'ac_coupling') || ~din.ac_coupling.v
             rms = (rms^2 + chn.dc^2)^0.5;       
         end                
         cfg.chn{c}.rms = rms;
@@ -207,12 +228,12 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
             sub_chn{2} = [chn.name '_lo']; % low-side
             
             % ADC offset:
-            adc_ofs(1) = getfield(din,[chn.name '_adc_offset']);
-            adc_ofs(2) = getfield(din,[chn.name '_lo_adc_offset']);
+            adc_ofs(1) = getfield(din,[cpfx 'adc_offset']);
+            adc_ofs(2) = getfield(din,[cpfx 'lo_adc_offset']);
             
             % ADC jitter:
-            adc_jitt(1) = getfield(din,[chn.name '_adc_jitter']);
-            adc_jitt(2) = getfield(din,[chn.name '_lo_adc_jitter']);
+            adc_jitt(1) = getfield(din,[cpfx 'adc_jitter']);
+            adc_jitt(2) = getfield(din,[cpfx 'lo_adc_jitter']);
             
         else
             % -- single-ended connection (create single channel):
@@ -227,9 +248,14 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
             % subchannel waveform names:
             sub_chn{1} = chn.name;
             % ADC offset:
-            adc_ofs(1) = getfield(din,[chn.name '_adc_offset']);
+            if is_pwr
+                chn_pfx_str = [chn.name '_'];
+            else
+                chn_pfx_str = '';
+            end
+            adc_ofs(1) = getfield(din,[chn_pfx_str 'adc_offset']);
             % ADC jitter:
-            adc_jitt(1) = getfield(din,[chn.name '_adc_jitter']);            
+            adc_jitt(1) = getfield(din,[chn_pfx_str 'adc_jitter']);            
         end
         
         % apply aperture error:
@@ -283,26 +309,31 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
     
     end
     
-    
     % calculate reference values:
-    simout.U_rms = cfg.chn{1}.rms;
-    simout.I_rms = cfg.chn{2}.rms;
-    simout.S = cfg.chn{1}.rms_ac.*cfg.chn{2}.rms_ac;
-    simout.P = 0.5*sum(cfg.chn{1}.A.*cfg.chn{2}.A.*cos(cfg.chn{2}.ph - cfg.chn{1}.ph));
-    Q_tmp = 0.5*sum((cfg.chn{1}.A.*cfg.chn{2}.A.*sin(cfg.chn{2}.ph - cfg.chn{1}.ph)));
-    simout.Q = (simout.S^2 - simout.P^2)^0.5*sign(Q_tmp); % ###note: the sign() thingy estimates actual polarity of Q.
-                                                          %          It won't work properly for highly distorted waveforms and for PF near 0.
-    if ~din.ac_coupling.v
-        simout.P = simout.P + (cfg.chn{1}.dc*cfg.chn{2}.dc);
-        simout.S = cfg.chn{1}.rms.*cfg.chn{2}.rms;
-    end        
-    %simout.Q  = (simout.S^2 - simout.P^2)^0.5;
-    simout.PF = simout.P/simout.S;
-    simout.phi_ef = atan2(simout.Q,simout.P);
-    % DC components:
-    simout.Udc = cfg.chn{1}.dc;
-    simout.Idc = cfg.chn{2}.dc;
-    simout.Pdc = cfg.chn{1}.dc*cfg.chn{2}.dc;
+    if is_pwr
+        simout.U_rms = cfg.chn{1}.rms;
+        simout.I_rms = cfg.chn{2}.rms;
+        simout.S = cfg.chn{1}.rms_ac.*cfg.chn{2}.rms_ac;
+        simout.P = 0.5*sum(cfg.chn{1}.A.*cfg.chn{2}.A.*cos(cfg.chn{2}.ph - cfg.chn{1}.ph));
+        Q_tmp = 0.5*sum((cfg.chn{1}.A.*cfg.chn{2}.A.*sin(cfg.chn{2}.ph - cfg.chn{1}.ph)));
+        simout.Q = (simout.S^2 - simout.P^2)^0.5*sign(Q_tmp); % ###note: the sign() thingy estimates actual polarity of Q.
+                                                              %          It won't work properly for highly distorted waveforms and for PF near 0.
+        if ~isfield(din,'ac_coupling') || ~din.ac_coupling.v
+            simout.P = simout.P + (cfg.chn{1}.dc*cfg.chn{2}.dc);
+            simout.S = cfg.chn{1}.rms.*cfg.chn{2}.rms;
+        end        
+        %simout.Q  = (simout.S^2 - simout.P^2)^0.5;
+        simout.PF = simout.P/simout.S;
+        simout.phi_ef = atan2(simout.Q,simout.P);
+        % DC components:
+        simout.Udc = cfg.chn{1}.dc;
+        simout.Idc = cfg.chn{2}.dc;
+        simout.Pdc = cfg.chn{1}.dc*cfg.chn{2}.dc;
+    
+    else
+        simout.rms = cfg.chn{1}.rms;
+        simout.dc = cfg.chn{1}.dc;
+    end
     
 
 end
