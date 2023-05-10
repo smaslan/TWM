@@ -2,7 +2,7 @@ function alg_test(calcset) %<<<1
 % Part of QWTB. Test script for algorithm TWM-THDWFFT.
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2023, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.  
 %
 % See also qwtb
@@ -158,6 +158,12 @@ function alg_test(calcset) %<<<1
             din.tr_gain_a.v = [];
             % jitter
             din.adc_jitter.v = logrand(1e-9,100e-9);
+            % digitizer input admittance:
+            din.adc_Yin_f.v = [];         
+            din.adc_Yin_Cp.v = logrand(50e-12,500e-12);
+            din.adc_Yin_Cp.u = 0;
+            din.adc_Yin_Gp.v = logrand(1e-9,1e-6);
+            din.adc_Yin_Gp.u = 0;
             
             % note: split SFDR somehow between digitizer and transducer 
             % generate some SFDR values for digitizer:
@@ -176,6 +182,15 @@ function alg_test(calcset) %<<<1
             din.tr_Zlo_Cp.v = [1e-12];        
             din.tr_Zlo_Rp.u = [0e-6];
             din.tr_Zlo_Cp.u = [0e-12];
+            
+            % transducer buffer output impedance            
+            if rand() > 0.5
+                din.tr_Zbuf_f.v = [];
+                din.tr_Zbuf_Rs.v = 100*logrand(100.0,10000.0);
+                din.tr_Zbuf_Rs.u = 1e-9;
+                din.tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+                din.tr_Zbuf_Ls.u = 1e-12;
+            end         
             
             % transducer type:
             trt = {'shunt','rvd'};
@@ -285,7 +300,8 @@ function alg_test(calcset) %<<<1
                 fprintf('N = %.0f samples\n',N);
                 fprintf('fs = %0.4f Hz\n',fs);
                 fprintf('f0 = %0.4f Hz\n',sim.f0);
-                fprintf('Harmonic stepping = %0.2f DFT bins\n\n',sim.f0/fs*N);
+                fprintf('Harmonic stepping = %0.2f DFT bins\n',sim.f0/fs*N);
+                fprintf('Transducer buffer = %.0f\n\n',isfield(din,'tr_Zbuf_f'));
             end
             
         end

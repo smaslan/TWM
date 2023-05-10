@@ -236,6 +236,7 @@ function [thd,f_harm,f_noise,U_noise,U_org_m,U_org_a,U_org_b,U_fix_m,U_fix_a,U_f
     % calculate effective transfer of the transducer:
     if ~isempty(corr.tr_type.v)    
         sig_tmp = mean(sig,2); % ###Todo: denormalize, because now the tr. correction estimates wrong RMS!!! 
+        %tab = rmfield(tab,'tr_Zbuf'); %###debug
         [tr_gain,ph_tmp,u_tr_gain] = correction_transducer_loading(tab,corr.tr_type.v,f,[],sig_tmp,0*sig_tmp,0*sig_tmp,0*sig_tmp);    
         tr_gain = tr_gain./sig_tmp;
         u_tr_gain = u_tr_gain./sig_tmp;
