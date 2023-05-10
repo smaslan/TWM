@@ -36,6 +36,7 @@ function dout = gen_composite(din,cfg,rand_unc)
 %           din.tr_Yca... - transducer terminals shunting Y matrices
 %           din.tr_Zcb... - transducer cable(s) series Z matrices
 %           din.tr_Ycb... - transducer cable(s) shunting Y matrices
+%           din.tr_Zbuf... - transducer buffer output impedance (optional)
 %           * - prefix of subchannel ('' - high-side channel or SE, or 'lo_' - low-side channel)
 %         
 %   cfg - configuration of the simulator:
@@ -61,7 +62,7 @@ function dout = gen_composite(din,cfg,rand_unc)
 % License:
 % --------
 % This is part of the TWM tool (https://github.com/smaslan/TWM).
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2023, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT   
 
 
@@ -104,9 +105,9 @@ function dout = gen_composite(din,cfg,rand_unc)
     phx = cfg.phx;
     
     % add fake DC component:
-    fx = [1e-12;  fx]; 
-    Ax = [cfg.dc; Ax];
-    phx = [pi/2;  phx];
+    fx = [1e-12;fx]; 
+    Ax = [cfg.dc;Ax];
+    phx = [pi/2;phx];
     
     % add SFDR harmonic spurrs to the composite signal:
     fh = fx(2)*[2:cfg.sfdr_hn+1]'; % odd and even harmonics
@@ -118,9 +119,9 @@ function dout = gen_composite(din,cfg,rand_unc)
     end
     phh = rand(size(fh))*2*pi; % random amplitudes     
     % add SFDR spurrs to the list
-    fx  = [fx;  fh];
-    Ax  = [Ax;  Ah];
-    phx = [phx; phh];
+    fx  = [fx;fh];
+    Ax  = [Ax;Ah];
+    phx = [phx;phh];
      
     
     % apply transducer transfer:
@@ -231,8 +232,6 @@ function dout = gen_composite(din,cfg,rand_unc)
         % store to the QWTB input list:
         dout = setfield(dout, t_cfg.ysub{c}, struct('v',u));
         
-    end
-    
-      
+    end    
 
 end

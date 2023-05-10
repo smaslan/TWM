@@ -259,6 +259,7 @@ function dataout = alg_wrapper(datain, calcset)
         if ~isempty(vc.tran)
             Y0    = [dc A0].*exp(j*[0 ph0]);
             Y0_lo = [dc_lo A0_lo].*exp(j*[0 ph0_lo]);
+            %tab = rmfield(tab, 'tr_Zbuf'); % ###debug
             [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,vc.tran,[1e-6 fx],[], [dc A0],[0 ph0],[u_dc u_A0],[0 u_ph0], [dc_lo A0_lo],[0 ph0_lo],[u_dc_lo u_A0_lo],[0 u_ph0_lo]);           
             u_trg = u_trg./trg;
             tr = trg.*exp(j*trp);
@@ -455,6 +456,7 @@ function dataout = alg_wrapper(datain, calcset)
         u_ox = (vc.ofs.u^2 + unc.dox.val^2)^0.5;
                 
         % apply transducer tfer to signal estimates:
+        %tab = rmfield(tab, 'tr_Zbuf'); % ###debug
         [Ax,phx,u_Ax,u_phx] = correction_transducer_loading(tab,vc.tran,[1e-6 fx],[], [abs(ox) Ax],[0 phx],[u_ox u_Ax],[0 u_phx]);
         
         % extract offset:

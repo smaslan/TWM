@@ -336,6 +336,28 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     
+    % Optional buffer impedance matrix (1D dependence, rows: freqs.)
+    alginfo.inputs(pid).name = 'tr_Zbuf_f';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: frequency axis';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'tr_Zbuf_Rs';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: series resistance';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'tr_Zbuf_Ls';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: series inductance';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
     % Transducer output terminals series impedance matrix (1D dependence, rows: freqs.)
     alginfo.inputs(pid).name = 'tr_Zca_f';
     alginfo.inputs(pid).desc = 'Transducer terminals series impedance: frequency axis';
