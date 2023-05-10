@@ -101,6 +101,12 @@ function alg_test(calcset) %<<<1
     din.adc_phi_a.v = [];
     din.adc_phi.v = [0.500; 0.100; 0.500]*pi;
     din.adc_phi.u = [0.001; 0.002; 0.005]*pi*0.01;
+    % digitizer input admittance:
+    din.adc_Yin_f.v = [];         
+    din.adc_Yin_Cp.v = logrand(50e-12,500e-12);
+    din.adc_Yin_Cp.u = 0;
+    din.adc_Yin_Gp.v = logrand(1e-9,1e-6);
+    din.adc_Yin_Gp.u = 0;   
     % create some low-side corretion table for the digitizer gain: 
     din.lo_adc_gain_f = din.adc_gain_f; % ###note: not used
     din.lo_adc_gain_a = din.adc_gain_a; % ###note: not used
@@ -142,6 +148,15 @@ function alg_test(calcset) %<<<1
     din.tr_Zlo_Rp.u = [  0.05];
     din.tr_Zlo_Cp.v = [1e-12];
     din.tr_Zlo_Cp.u = [1e-12];
+    
+    % transducer buffer output impedance            
+    if rand() > 0.5
+        din.tr_Zbuf_f.v = [];
+        din.tr_Zbuf_Rs.v = 100*logrand(10.0,1000.0);
+        din.tr_Zbuf_Rs.u = 1e-9;
+        din.tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+        din.tr_Zbuf_Ls.u = 1e-12;
+    end
     
         
     if ~rand_unc

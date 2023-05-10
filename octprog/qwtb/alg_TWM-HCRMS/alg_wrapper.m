@@ -168,9 +168,10 @@ function dataout = alg_wrapper(datain, calcset)
         % calculate transducer transfer + loading effect:
         %  ###todo: here we are trying to calculate just transfer of the transducer, but when it is rms dependent, it will be needed
         %           to somehow get rid of that dependence because it is correction applied for whole range of amplitudes
-        An = zeros(size(fh));
+        An = repmat(amp_mean,size(fh));
+        %An(fid) = amp_mean;
         An(1) = dc; 
-        An(fid) = amp_mean;
+        %tab = rmfield(tab,'tr_Zbuf'); %###debug
         [gain,phi,u_gain,u_phi] = correction_transducer_loading(tab,datain.tr_type.v,fh,[], An,An*0,An*0,An*0);
         gain = gain./An;
         u_gain = u_gain./An;        
@@ -185,6 +186,7 @@ function dataout = alg_wrapper(datain, calcset)
         trp.phi   = phi;
                
     end
+        
     
     % combine gain/phase:
     trg.gain = trg.gain.*ag.gain;
@@ -223,7 +225,7 @@ function dataout = alg_wrapper(datain, calcset)
     % calculate relative gain of frequency components to the f0 gain:
     gain = trg.gain/f0_gain;
     gain_u = trg.u_gain/f0_gain;
-    gain_u = (gain_u.^2 + f0_gain_u^2).^0.5;
+    gain_u = (gain_u.^2 + (f0_gain_u/f0_gain)^2).^0.5;
     
     
     % get combined SFDR of digitizer and transducer:
@@ -232,6 +234,8 @@ function dataout = alg_wrapper(datain, calcset)
     adc_sfdr = max(adc_sfdr.sfdr);
     tr_sfdr = max(tr_sfdr.sfdr);    
     sfdr = -20*log10(10^-(adc_sfdr/20) + 10^-(tr_sfdr/20));
+    
+    
             
       
     cfg.f0_est = f0_est;
@@ -240,7 +244,7 @@ function dataout = alg_wrapper(datain, calcset)
     cfg.do_plots = do_plots;
     cfg.corr.gain.f = fh;
     cfg.corr.gain.gain = gain;
-    cfg.corr.gain.unc = u_gain;
+    cfg.corr.gain.unc = gain_u;
     cfg.corr.sfdr = sfdr;
         
     % generate empty results:
