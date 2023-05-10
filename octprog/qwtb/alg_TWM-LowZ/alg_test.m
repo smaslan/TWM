@@ -32,7 +32,7 @@ function alg_test(calcset) %<<<1
     din.invert.v = 0;
     
     % calculation mode (PSFE, FPNLSF, WFFT):
-    din.mode.v = 'PSFE';
+    din.mode.v = 'WFFT';
     % optional window for WFFT (see WFFT algorithm):
     din.window.v = 'hanning';
     
@@ -52,7 +52,7 @@ function alg_test(calcset) %<<<1
     % DUT ground impedance (differential modes only)
     cfg.ZdutG = 0.001;
     % dut is differential?
-    is_dut_diff = 1;
+    is_dut_diff = 0;
     % 4TP measurement mode {'4TP': regular differential connection of DUT, '2x4T': high-side for lives difference, low-side for neutrals difference}
     %   note: applies for differential only
     din.mode_4TP.v = '2x4T';
@@ -113,14 +113,7 @@ function alg_test(calcset) %<<<1
     if is_dut_diff
         chns{id}.Zx = Zref;
     end 
-    
-    % print some header:
-    fprintf('samples count = %g\n',N);
-    fprintf('sampling rate = %.7g kSa/s\n',0.001*din.fs.v);
-    fprintf('fundamental frequency = %.7g Hz\n',f0);
-    fprintf('fundamental periods = %.7g\n',N/din.fs.v*f0);
-    fprintf('fundamental samples per period = %.7g\n',din.fs.v/f0);
-    fprintf('\n');
+        
             
     
     % ADC aperture [s]:
@@ -143,6 +136,11 @@ function alg_test(calcset) %<<<1
     din.i_adc_phi_a.v = [];    
     din.i_adc_phi.v   = linrand(-0.01,+0.01);
     din.i_adc_phi.u   = 0;
+    din.i_adc_Yin_f.v = []; 
+    din.i_adc_Yin_Cp.v = 100e-12;
+    din.i_adc_Yin_Cp.u = 1e-12;
+    din.i_adc_Yin_Gp.v = 1e-6;
+    din.i_adc_Yin_Gp.u = 1e-9;
     % generate DUT ADC:
     din.u_adc_aper_corr.v = 1;
     din.u_adc_gain_f.v = [];
@@ -154,9 +152,9 @@ function alg_test(calcset) %<<<1
     din.u_adc_phi.v   = linrand(-0.01,+0.01);
     din.u_adc_phi.u   = 0;
     din.u_adc_Yin_f.v = []; 
-    din.u_adc_Yin_Cp.v = 10e-12;
+    din.u_adc_Yin_Cp.v = 100e-12;
     din.u_adc_Yin_Cp.u = 1e-12;
-    din.u_adc_Yin_Gp.v = 10e-9;
+    din.u_adc_Yin_Gp.v = 1e-6;
     din.u_adc_Yin_Gp.u = 1e-9;
     din.u_lo_adc_Yin_f = din.u_adc_Yin_f;
     din.u_lo_adc_Yin_Cp = din.u_adc_Yin_Cp;
@@ -174,6 +172,14 @@ function alg_test(calcset) %<<<1
     din.i_tr_phi_a.v = [];
     din.i_tr_phi.v   = angle(1/Zref);
     din.i_tr_phi.u   = 0;
+    % transducer buffer output impedance            
+    if rand() > 0.5
+        din.i_tr_Zbuf_f.v = [];
+        din.i_tr_Zbuf_Rs.v = 100*logrand(10.0,1000.0);
+        din.i_tr_Zbuf_Rs.u = 1e-9;
+        din.i_tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+        din.i_tr_Zbuf_Ls.u = 1e-12;
+    end    
     % generate DUT shunt
     if is_dut_diff && isfield(din,'mode_4TP') && strcmpi(din.mode_4TP.v,'2x4T')    
         Zdut_sim = Zdut - cfg.ZdutG; % simulate shield impedance
@@ -188,6 +194,25 @@ function alg_test(calcset) %<<<1
     din.u_tr_phi_a.v = [];
     din.u_tr_phi.v   = angle(1/Zdut_sim);
     din.u_tr_phi.u   = 0;
+    % transducer buffer output impedance            
+    if rand() > 0.5 && ~is_dut_diff
+        din.u_tr_Zbuf_f.v = [];
+        din.u_tr_Zbuf_Rs.v = 100*logrand(10.0,1000.0);
+        din.u_tr_Zbuf_Rs.u = 1e-9;
+        din.u_tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+        din.u_tr_Zbuf_Ls.u = 1e-12;
+    end
+    
+    
+    % print some header:
+    fprintf('samples count = %g\n',N);
+    fprintf('sampling rate = %.7g kSa/s\n',0.001*din.fs.v);
+    fprintf('fundamental frequency = %.7g Hz\n',f0);
+    fprintf('fundamental periods = %.7g\n',N/din.fs.v*f0);
+    fprintf('fundamental samples per period = %.7g\n',din.fs.v/f0);
+    fprintf('I-transducer buffer (REF) = %.0f\n',isfield(din,'i_tr_Zbuf_f'));
+    fprintf('U-transducer buffer (DUT) = %.0f\n',isfield(din,'u_tr_Zbuf_f'));
+    fprintf('\n');
     
     
     % create generator setup
