@@ -2,7 +2,7 @@ function alg_test(calcset) %<<<1
 % Part of QWTB. Test script for algorithm TWM-MFSF.
 %
 % This is part of the QWTB TWM-MFSF wrapper.
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2023, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.
 %
 % See also qwtb
@@ -62,13 +62,7 @@ function alg_test(calcset) %<<<1
     dc = linrand(-0.1,+0.1);
     
     
-    % print some header:
-    fprintf('samples count = %g\n',N);
-    fprintf('sampling rate = %.7g kSa/s\n',0.001*din.fs.v);
-    fprintf('fundamental frequency = %.7g Hz\n',f0_per/N*din.fs.v);
-    fprintf('fundamental periods = %.7g\n',f0_per);
-    fprintf('fundamental samples per period = %.7g\n',N/f0_per);
-    fprintf('\n');
+    
     
         
     % current loop impedance (used for simulation of differential transducer):
@@ -128,6 +122,12 @@ function alg_test(calcset) %<<<1
 %     din.lo_adc_phi_a = din.adc_phi_a;
 %     din.lo_adc_phi = din.adc_phi;
 %     din.lo_adc_phi.v = din.lo_adc_phi.v - 0.001*pi;
+    % digitizer input admittance:
+    din.adc_Yin_f.v = [];         
+    din.adc_Yin_Cp.v = logrand(50e-12,500e-12);
+    din.adc_Yin_Cp.u = 0;
+    din.adc_Yin_Gp.v = logrand(1e-9,1e-6);
+    din.adc_Yin_Gp.u = 0;   
     % create corretion of the digitizer timebase:
     din.adc_freq.v = linrand(-0.001,0.001);
     din.adc_freq.u = 0.000005;
@@ -175,6 +175,28 @@ function alg_test(calcset) %<<<1
     din.tr_Zlo_Rp.u = [  0.05];
     din.tr_Zlo_Cp.v = [1e-12];
     din.tr_Zlo_Cp.u = [1e-12];
+    
+    % transducer buffer output impedance            
+    if rand() > 0.5
+        din.tr_Zbuf_f.v = [];
+        din.tr_Zbuf_Rs.v = 100*logrand(10.0,1000.0);
+        din.tr_Zbuf_Rs.u = 1e-9;
+        din.tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+        din.tr_Zbuf_Ls.u = 1e-12;
+    end
+    
+    
+    
+    
+    % print some header:
+    fprintf('samples count = %g\n',N);
+    fprintf('sampling rate = %.7g kSa/s\n',0.001*din.fs.v);
+    fprintf('fundamental frequency = %.7g Hz\n',f0_per/N*din.fs.v);
+    fprintf('fundamental periods = %.7g\n',f0_per);
+    fprintf('fundamental samples per period = %.7g\n',N/f0_per);
+    fprintf('Transducer type = %s\n',din.tr_type.v);
+    fprintf('Transducer buffer = %.0f\n',isfield(din,'tr_Zbuf_f'));
+    fprintf('\n');
     
     
     

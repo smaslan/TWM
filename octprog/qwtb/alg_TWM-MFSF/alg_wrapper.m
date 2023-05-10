@@ -191,6 +191,7 @@ function dataout = alg_wrapper(datain, calcset)
     else
         % -- tran. type defined, apply correction:
         sgn_A = sign(A);
+        %tab = rmfield(tab,'tr_Zbuf'); %###debug
         [A,ph,u_A,u_ph] = correction_transducer_loading(tab,datain.tr_type.v,f,[], abs(A),ph,u_A,u_ph);
         A(1) = A(1)*sgn_A(1); % restore 'DC' polarity                
     end
