@@ -272,7 +272,13 @@ function alg_test(calcset) %<<<1
                                  linrand(-adc_mphi,+adc_mphi),0.00008,0.000002,linrand(0.7,3)); % phi_at_fs/2, max_phi_unc, min_phi_unc, shape (power)
                 din.adc_phi_f = din.adc_gain_f;         
                 din.adc_gain_a.v = [];
-                din.adc_phi_a.v = [];               
+                din.adc_phi_a.v = [];
+                % digitizer input admittance:
+                din.adc_Yin_f.v = [];         
+                din.adc_Yin_Cp.v = logrand(50e-12,500e-12);
+                din.adc_Yin_Cp.u = 0;
+                din.adc_Yin_Gp.v = logrand(1e-9,1e-6);
+                din.adc_Yin_Gp.u = 0;               
                 % create some corretion table for the digitizer gain: 
                 din.lo_adc_gain_f = din.adc_gain_f;
                 din.lo_adc_gain_a = din.adc_gain_a;
@@ -281,6 +287,12 @@ function alg_test(calcset) %<<<1
                 din.lo_adc_phi_f = din.adc_phi_f;
                 din.lo_adc_phi_a = din.adc_phi_a;
                 din.lo_adc_phi = din.adc_phi;
+                % digitizer input admittance (low-side):
+                din.lo_adc_Yin_f.v = [];         
+                din.lo_adc_Yin_Cp.v = logrand(50e-12,500e-12);
+                din.lo_adc_Yin_Cp.u = 0;
+                din.lo_adc_Yin_Gp.v = logrand(1e-9,1e-6);
+                din.lo_adc_Yin_Gp.u = 0;
                 % generate some ADC sfdr:
                 w_sfdr = linrand(0.1,0.9);
                 din.adc_sfdr_a.v = [];
@@ -321,6 +333,14 @@ function alg_test(calcset) %<<<1
                 din.tr_phi_f = din.tr_gain_f;
                 din.tr_gain_a.v = [];
                 din.tr_phi_a.v = [];
+                % transducer buffer output impedance            
+                if rand() > 0.5
+                    din.tr_Zbuf_f.v = [];
+                    din.tr_Zbuf_Rs.v = 100*logrand(10.0,1000.0);
+                    din.tr_Zbuf_Rs.u = 1e-9;
+                    din.tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+                    din.tr_Zbuf_Ls.u = 1e-12;
+                end
                 % transducer SFDR:
                 din.tr_sfdr.v = -log10(sfdr*(1-w_sfdr))*20;
                 din.tr_sfdr_f.v = [];
@@ -480,6 +500,8 @@ function alg_test(calcset) %<<<1
             fprintf('modulating periods = %.7g\n', (cfg.N/din.fs.v)*cfg.fm);
             fprintf('fundamental samples per period = %.7g\n', din.fs.v/cfg.f0);
             fprintf('modulation to carrier frequency ratio = %.5g\n', cfg.fm/cfg.f0);
+            fprintf('Transducer type = %s\n',din.tr_type.v);
+            fprintf('Transducer buffer = %.0f\n',isfield(din,'tr_Zbuf_f'));
             fprintf('\n');
         end
         

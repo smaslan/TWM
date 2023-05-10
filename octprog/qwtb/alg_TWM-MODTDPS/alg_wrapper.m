@@ -218,7 +218,8 @@ function dataout = alg_wrapper(datain, calcset)
             
         % estimate transducer correction tfer for dominant component 'f0':
         % note: corrector estimates rms just from the component 'f0', so it may not be accurate
-        if ~isempty(vc.tran)
+        if ~isempty(vc.tran)            
+            %tab = rmfield(tab,'tr_Zbuf'); %###debug
             [trg,trp] = correction_transducer_loading(tab,vc.tran,f0,[],A0,0,0,0);
             trg = trg./A0;
         else

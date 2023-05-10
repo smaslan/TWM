@@ -38,6 +38,7 @@ function dout = gen_mod(din,cfg,rand_unc)
 %           din.tr_Yca... - transducer terminals shunting Y matrices
 %           din.tr_Zcb... - transducer cable(s) series Z matrices
 %           din.tr_Ycb... - transducer cable(s) shunting Y matrices
+%           din.tr_Zbuf... - transducer optional buffer output impedance
 %           * - prefix of subchannel ('' - high-side channel or SE, or 'lo_' - low-side channel)
 %         
 %   cfg - configuration of the simulator:
@@ -67,7 +68,7 @@ function dout = gen_mod(din,cfg,rand_unc)
 % License:
 % --------
 % This is part of the TWM tool (https://github.com/smaslan/TWM).
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2023, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT   
 
 

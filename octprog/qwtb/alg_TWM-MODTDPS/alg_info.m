@@ -314,7 +314,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
-    
+   
     alginfo.inputs(pid).name = 'tr_Zlo_Rp';
     alginfo.inputs(pid).desc = 'RVD low-side impedance: parallel resistance';
     alginfo.inputs(pid).alternative = 0;
@@ -324,6 +324,28 @@ function alginfo = alg_info() %<<<1
     
     alginfo.inputs(pid).name = 'tr_Zlo_Cp';
     alginfo.inputs(pid).desc = 'RVD low-side impedance: parallel capacitance';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    % Optional buffer impedance matrix (1D dependence, rows: freqs.)
+    alginfo.inputs(pid).name = 'tr_Zbuf_f';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: frequency axis';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'tr_Zbuf_Rs';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: series resistance';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    
+    alginfo.inputs(pid).name = 'tr_Zbuf_Ls';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: series inductance';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
