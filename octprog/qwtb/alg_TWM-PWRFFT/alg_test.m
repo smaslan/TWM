@@ -21,7 +21,7 @@ function alg_test(calcset) %<<<1
 
     
     % testing mode {0: single test, N >= 1: N repeated tests}:
-    is_full_val = 5000;
+    is_full_val = 0;
     
     
     % --- setup for validation only:
@@ -397,6 +397,12 @@ function alg_test(calcset) %<<<1
                 din.u_adc_phi_f = din.u_adc_gain_f;         
                 din.u_adc_gain_a.v = [];
                 din.u_adc_phi_a.v = [];
+                % digitizer input admittance:
+                din.u_adc_Yin_f.v = [];         
+                din.u_adc_Yin_Cp.v = logrand(50e-12,500e-12);
+                din.u_adc_Yin_Cp.u = 0;
+                din.u_adc_Yin_Gp.v = logrand(1e-9,1e-6);
+                din.u_adc_Yin_Gp.u = 0;
                 % digitizer SFDR value:
                 din.u_adc_sfdr_a.v = [];
                 din.u_adc_sfdr_f.v = [];
@@ -409,6 +415,12 @@ function alg_test(calcset) %<<<1
                 din.u_lo_adc_phi_f = din.u_lo_adc_gain_f;         
                 din.u_lo_adc_gain_a.v = [];
                 din.u_lo_adc_phi_a.v = [];
+                % digitizer input admittance (low-side):
+                din.u_lo_adc_Yin_f.v = [];         
+                din.u_lo_adc_Yin_Cp.v = logrand(50e-12,500e-12);
+                din.u_lo_adc_Yin_Cp.u = 0;
+                din.u_lo_adc_Yin_Gp.v = logrand(1e-9,1e-6);
+                din.u_lo_adc_Yin_Gp.u = 0;
                 % digitizer SFDR value (low-side):
                 din.u_lo_adc_sfdr_a.v = din.u_adc_sfdr_a.v;
                 din.u_lo_adc_sfdr_f.v = din.u_adc_sfdr_f.v;
@@ -430,7 +442,15 @@ function alg_test(calcset) %<<<1
                                  linrand(-tr_mphi,+tr_mphi),0.000080,0.000002,linrand(0.7,3));
                 din.u_tr_phi_f = din.u_tr_gain_f;
                 din.u_tr_gain_a.v = [];
-                din.u_tr_phi_a.v = [];         
+                din.u_tr_phi_a.v = [];
+                % transducer buffer output impedance            
+                if rand() > 0.5
+                    din.u_tr_Zbuf_f.v = [];
+                    din.u_tr_Zbuf_Rs.v = logrand(10.0,1000.0);
+                    din.u_tr_Zbuf_Rs.u = 1e-9;
+                    din.u_tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+                    din.u_tr_Zbuf_Ls.u = 1e-12;
+                end
                 % transducer SFDR value:
                 din.u_tr_sfdr_a.v = [];
                 din.u_tr_sfdr_f.v = [];
@@ -449,6 +469,12 @@ function alg_test(calcset) %<<<1
                 din.i_adc_phi_f = din.i_adc_gain_f;         
                 din.i_adc_gain_a.v = [];
                 din.i_adc_phi_a.v = [];
+                % digitizer input admittance:
+                din.i_adc_Yin_f.v = [];         
+                din.i_adc_Yin_Cp.v = logrand(50e-12,500e-12);
+                din.i_adc_Yin_Cp.u = 0;
+                din.i_adc_Yin_Gp.v = logrand(1e-9,1e-6);
+                din.i_adc_Yin_Gp.u = 0;
                 % digitizer SFDR value:
                 din.i_adc_sfdr_a.v = [];
                 din.i_adc_sfdr_f.v = [];
@@ -461,6 +487,12 @@ function alg_test(calcset) %<<<1
                 din.i_lo_adc_phi_f = din.i_lo_adc_gain_f;         
                 din.i_lo_adc_gain_a.v = [];
                 din.i_lo_adc_phi_a.v = [];
+                % digitizer input admittance (low-side):
+                din.i_lo_adc_Yin_f.v = [];         
+                din.i_lo_adc_Yin_Cp.v = logrand(50e-12,500e-12);
+                din.i_lo_adc_Yin_Cp.u = 0;
+                din.i_lo_adc_Yin_Gp.v = logrand(1e-9,1e-6);
+                din.i_lo_adc_Yin_Gp.u = 0;
                 % digitizer SFDR value (low-side):
                 din.i_lo_adc_sfdr_a.v = din.i_adc_sfdr_a.v;
                 din.i_lo_adc_sfdr_f.v = din.i_adc_sfdr_f.v;
@@ -483,6 +515,14 @@ function alg_test(calcset) %<<<1
                 din.i_tr_phi_f = din.i_tr_gain_f;
                 din.i_tr_gain_a.v = [];
                 din.i_tr_phi_a.v = [];
+                % transducer buffer output impedance            
+                if rand() > 0.5
+                    din.i_tr_Zbuf_f.v = [];
+                    din.i_tr_Zbuf_Rs.v = logrand(10.0,1000.0);
+                    din.i_tr_Zbuf_Rs.u = 1e-9;
+                    din.i_tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+                    din.i_tr_Zbuf_Ls.u = 1e-12;
+                end
                 % transducer SFDR value:
                 din.i_tr_sfdr_a.v = [];
                 din.i_tr_sfdr_f.v = [];
@@ -577,6 +617,8 @@ function alg_test(calcset) %<<<1
             fprintf('fs/f0 ratio = %0.2f\n',din.fs.v/f0);
             fprintf('Harmonics = %s\n',sprintf('%.3g ',sort([cfg.chn{1}.fx/f0])));
             fprintf('AC coupling = %.0f\n',din.ac_coupling.v);
+            fprintf('U-transducer buffer = %.0f\n',isfield(din,'u_tr_Zbuf_f'));
+            fprintf('I-transducer buffer = %.0f\n',isfield(din,'i_tr_Zbuf_f'));
         end
     
         % --- generate the signal:        
