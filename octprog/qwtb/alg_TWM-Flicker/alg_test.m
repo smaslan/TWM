@@ -64,6 +64,12 @@ function alg_test(calcset) %<<<1
     din.adc_phi_a.v = [];
     din.adc_phi.v = [0.000000; 0.000100; 0.005000]*pi;
     din.adc_phi.u = [0.000010; 0.000020; 0.000500]*pi;
+    % digitizer input admittance:
+    din.adc_Yin_f.v = [];         
+    din.adc_Yin_Cp.v = logrand(50e-12,500e-12);
+    din.adc_Yin_Cp.u = 0;
+    din.adc_Yin_Gp.v = logrand(1e-9,1e-6);
+    din.adc_Yin_Gp.u = 0;
     % create corretion of the digitizer timebase:
     din.adc_freq.v = 0.001;
     din.adc_freq.u = 0.000005;
@@ -92,6 +98,15 @@ function alg_test(calcset) %<<<1
     din.tr_Zlo_Cp.v = [1e-12];
     din.tr_Zlo_Cp.u = [1e-12];
     
+    % transducer buffer output impedance            
+    if rand() > 0.5
+        din.tr_Zbuf_f.v = [];
+        din.tr_Zbuf_Rs.v = 100*logrand(10.0,1000.0);
+        din.tr_Zbuf_Rs.u = 1e-9;
+        din.tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+        din.tr_Zbuf_Ls.u = 1e-12;
+    end
+        
     if ~rand_unc
         % discard all correction uncertainties if randomization disabled:        
         corrz = fieldnames(din);        
