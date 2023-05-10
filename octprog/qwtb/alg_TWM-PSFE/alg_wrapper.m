@@ -203,6 +203,7 @@ function dataout = alg_wrapper(datain, calcset)
             u_ph = ph*adc_phi.u_phi;
         else
             % -- tran. type defined, apply correction:
+            %tab = rmfield(tab,'tr_Zbuf'); %###debug
             [A,ph,u_A,u_ph] = correction_transducer_loading(tab,datain.tr_type.v,f,[], A,ph,A.*adc_gain.u_gain,adc_phi.u_phi);                
         end
         
