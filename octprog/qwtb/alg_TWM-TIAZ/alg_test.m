@@ -107,13 +107,7 @@ function alg_test(calcset) %<<<1
     % invert DUT:
     chns{id}.invert = din.invert.v;
     
-    % print some header:
-    fprintf('samples count = %g\n',N);
-    fprintf('sampling rate = %.7g kSa/s\n',0.001*din.fs.v);
-    fprintf('fundamental frequency = %.7g Hz\n',f0);
-    fprintf('fundamental periods = %.7g\n',N/din.fs.v*f0);
-    fprintf('fundamental samples per period = %.7g\n',din.fs.v/f0);
-    fprintf('\n');
+    
             
     
     % ADC aperture [s]:
@@ -137,9 +131,9 @@ function alg_test(calcset) %<<<1
     din.i_adc_phi.v   = linrand(-0.01,+0.01)-angle(Ztia);
     din.i_adc_phi.u   = 0;
     din.i_adc_Yin_f.v = [];
-    din.i_adc_Yin_Cp.v = 10e-12;
+    din.i_adc_Yin_Cp.v = 100e-12;
     din.i_adc_Yin_Cp.u = 1e-12;
-    din.i_adc_Yin_Gp.v = 10e-9;
+    din.i_adc_Yin_Gp.v = 1e-6;
     din.i_adc_Yin_Gp.u = 1e-9;
     % generate DUT ref voltage ADC:
     din.u_adc_aper_corr.v = 1;
@@ -152,9 +146,9 @@ function alg_test(calcset) %<<<1
     din.u_adc_phi.v   = linrand(-0.01,+0.01);
     din.u_adc_phi.u   = 0;
     din.u_adc_Yin_f.v = []; 
-    din.u_adc_Yin_Cp.v = 10e-12;
+    din.u_adc_Yin_Cp.v = 100e-12;
     din.u_adc_Yin_Cp.u = 1e-12;
-    din.u_adc_Yin_Gp.v = 10e-9;
+    din.u_adc_Yin_Gp.v = 1e-6;
     din.u_adc_Yin_Gp.u = 1e-9;
     
     
@@ -169,7 +163,9 @@ function alg_test(calcset) %<<<1
     din.i_tr_phi.u   = 0;
     din.i_tr_Zbuf_f.v = []; % fake buffer with zero output Z (but the Z must be non-zero to enable the buffer mode!)
     din.i_tr_Zbuf_Rs.v = 1e-6;
+    din.i_tr_Zbuf_Rs.u = 1e-9;
     din.i_tr_Zbuf_Ls.v = 1e-9;
+    din.i_tr_Zbuf_Ls.u = 1e-12;
     % generate DUT reference voltage transducer:
     Zdut_sim = Zdut;
     din.u_tr_gain_f.v = [];
@@ -180,6 +176,25 @@ function alg_test(calcset) %<<<1
     din.u_tr_phi_a.v = [];
     din.u_tr_phi.v   = angle(r_dut);
     din.u_tr_phi.u   = 0;
+    % transducer buffer output impedance            
+    if rand() > 0.5
+        din.u_tr_Zbuf_f.v = [];
+        din.u_tr_Zbuf_Rs.v = 100*logrand(10.0,1000.0);
+        din.u_tr_Zbuf_Rs.u = 1e-9;
+        din.u_tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
+        din.u_tr_Zbuf_Ls.u = 1e-12;
+    end
+    
+    
+    % print some header:
+    fprintf('samples count = %g\n',N);
+    fprintf('sampling rate = %.7g kSa/s\n',0.001*din.fs.v);
+    fprintf('fundamental frequency = %.7g Hz\n',f0);
+    fprintf('fundamental periods = %.7g\n',N/din.fs.v*f0);
+    fprintf('fundamental samples per period = %.7g\n',din.fs.v/f0);
+    fprintf('I-transducer buffer (REF) = %.0f\n',isfield(din,'i_tr_Zbuf_f'));
+    fprintf('U-transducer buffer (DUT) = %.0f\n',isfield(din,'u_tr_Zbuf_f'));
+    fprintf('\n');
     
     
     % create generator setup

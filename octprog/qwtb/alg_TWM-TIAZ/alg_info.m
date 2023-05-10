@@ -452,17 +452,25 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     [alginfo,pid] = add_ui_pair(alginfo,pid,0);
     
-    % transducer buffer output Z
-    alginfo.inputs(pid).name = 'Zbuf_Rs';
-    alginfo.inputs(pid).desc = 'Transducer buffer series output impedance: series resistance';
+    % Optional buffer impedance matrix (1D dependence, rows: freqs.)
+    alginfo.inputs(pid).name = 'tr_Zbuf_f';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: frequency axis';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     [alginfo,pid] = add_ui_pair(alginfo,pid,0);
     
-    alginfo.inputs(pid).name = 'Zbuf_Ls';
-    alginfo.inputs(pid).desc = 'Transducer buffer series output impedance: series inductance';
+    alginfo.inputs(pid).name = 'tr_Zbuf_Rs';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: series resistance';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    [alginfo,pid] = add_ui_pair(alginfo,pid,0);
+    
+    alginfo.inputs(pid).name = 'tr_Zbuf_Ls';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: series inductance';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;
