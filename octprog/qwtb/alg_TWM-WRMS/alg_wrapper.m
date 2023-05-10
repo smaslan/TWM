@@ -66,7 +66,10 @@ function dataout = alg_wrapper(datain, calcset)
     din.time_shift.v = 1e-9; din.time_shift.u = 0; % fake some timeshift
     
     % copy corrections to both U/I channels:    
-    list = {'adc_gain','adc_phi','adc_offset','adc_jitter','adc_bits','adc_nrng','adc_lsb','adc_aper_corr','adc_Yin_f','adc_Yin_Cp','adc_Yin_Gp','time_shift','tr_gain','tr_phi','adc_sfdr','tr_sfdr','tr_Zlo','tr_Zlo_f','tr_Zlo_Rp','tr_Zlo_Cp','tr_Zca_f','tr_Zca_Ls','tr_Zca_Rs', 'tr_Yca_f','tr_Yca_Cp','tr_Yca_D', 'tr_Zcal_f','tr_Zcal_Ls','tr_Zcal_Rs', 'tr_Zcam_f','tr_Zcam', 'Zcb_f','Zcb_Ls','Zcb_Rs', 'Ycb_f','Ycb_Cp','Ycb_D'};
+    list = {'adc_gain','adc_phi','adc_offset','adc_jitter','adc_bits','adc_nrng','adc_lsb','adc_aper_corr','adc_Yin_f','adc_Yin_Cp','adc_Yin_Gp', ...
+            'time_shift','tr_gain','tr_phi','adc_sfdr','tr_sfdr','tr_Zlo','tr_Zlo_f','tr_Zlo_Rp','tr_Zlo_Cp','tr_Zca_f','tr_Zca_Ls','tr_Zca_Rs', ...
+            'tr_Yca_f','tr_Yca_Cp','tr_Yca_D', 'tr_Zcal_f','tr_Zcal_Ls','tr_Zcal_Rs', 'tr_Zcam_f','tr_Zcam', 'Zcb_f','Zcb_Ls','Zcb_Rs', 'Ycb_f','Ycb_Cp','Ycb_D', ...
+            'tr_Zbuf_Rs','tr_Zbuf_Ls','tr_Zbuf_f'};
     din = close_ui_tabs(din,datain,'u',list);
     din = close_ui_tabs(din,datain,'i',list);
     calcset.checkinputs = 0;
