@@ -319,19 +319,31 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
           Y_lo  = A_lo.*exp(j*ph_lo);
         u_Y_lo  = u_A_lo;
         u_ph_lo = u_ph_lo;
-        % estimate digitizer input rms level:
-        dA = abs(Y - Y_lo);
-        rms_ref = sum(0.5*dA.^2).^0.5*w_gain/w_rms;            
-        % calculate transducer tfer:
-        fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
-        %tab = rmfield(tab,'tr_Zbuf'); % ###debug
-        [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo, 'rms',rms_ref);
-        trg(1)= trg(1)*(1 - 2*(abs(trp(1)) > 0.1*pi)); % restore sign
-        A   = trg;
-        u_A = u_trg;
-        ph   = trp;
-        u_ph = u_trp;
-        ph(1) = 0;
+        if ~isempty(datain.tr_type.v)            
+            % estimate digitizer input rms level:
+            dA = abs(Y - Y_lo);
+            rms_ref = sum(0.5*dA.^2).^0.5*w_gain/w_rms;            
+            % calculate transducer tfer:
+            fh_dc = fh; fh_dc(1) = 1e-3; % override DC frequency by non-zero value
+            %tab = rmfield(tab,'tr_Zbuf'); % ###debug
+            [trg,trp,u_trg,u_trp] = correction_transducer_loading(tab,datain.tr_type.v,fh_dc,[], abs(Y),angle(Y),u_Y,u_ph, abs(Y_lo),angle(Y_lo),u_Y_lo,u_ph_lo, 'rms',rms_ref);
+            trg(1)= trg(1)*(1 - 2*(abs(trp(1)) > 0.1*pi)); % restore sign
+            A   = trg;
+            u_A = u_trg;
+            ph   = trp;
+            u_ph = u_trp;
+            ph(1) = 0;
+            
+        else
+            % no transducer type defined - do just fast subtraction of ADC high-low
+            dY = Y - Y_lo;
+            A   = abs(dY);
+            u_A = (u_A.^2 + u_A_lo.^2).^0.5;
+            ph   = angle(dY);
+            u_ph = (u_ph.^2 + u_ph_lo.^2).^0.5;
+            ph(1) = 0;
+                         
+        end
         
         %u_ph(fid)
         

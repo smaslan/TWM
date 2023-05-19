@@ -52,7 +52,7 @@ function alg_test(calcset) %<<<1
     % DUT ground impedance (differential modes only)
     cfg.ZdutG = 0.001;
     % dut is differential?
-    is_dut_diff = 0;
+    is_dut_diff = 1;
     % 4TP measurement mode {'4TP': regular differential connection of DUT, '2x4T': high-side for lives difference, low-side for neutrals difference}
     %   note: applies for differential only
     din.mode_4TP.v = '2x4T';

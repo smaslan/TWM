@@ -87,17 +87,17 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
-    pid = pid + 1;
-    % equivalent circuit mode:
-    alginfo.inputs(pid).name = 'equ';
-    alginfo.inputs(pid).desc = 'Equivalent circuit of DUT (CpD, LsRs, etc.)';
+    pid = pid + 1;    
+    % window function:
+    alginfo.inputs(pid).name = 'window';
+    alginfo.inputs(pid).desc = 'Window function name for FFT mode';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
-    % window function:
-    alginfo.inputs(pid).name = 'window';
-    alginfo.inputs(pid).desc = 'Window function name for FFT mode';
+    % equivalent circuit mode:
+    alginfo.inputs(pid).name = 'equ';
+    alginfo.inputs(pid).desc = 'Equivalent circuit of DUT (CpD, LsRs, etc.)';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;

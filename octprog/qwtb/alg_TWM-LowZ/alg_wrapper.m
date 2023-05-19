@@ -3,7 +3,7 @@ function dataout = alg_wrapper(datain, calcset)
 %
 % See also qwtb
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018-2021, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2023, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.
 % Format input data --------------------------- %<<<1
     
