@@ -37,6 +37,7 @@ function [tab] = qwtb_restore_correction_tables(din,cfg)
 %           *tr_Yca  - output shunting Y of transducer (dependent on 'f')
 %           *Zcb     - output series Z of cable to transducer (dependent on 'f')
 %           *Ycb     - output shunting Y of cable to transducer (dependent on 'f')
+%           *tr_Zbuf - output series Z of buffer (dependent on 'f')
 %             where * is prefix: '' for single input 'y'   
 %             where * is prefix: 'u_' and 'i_' for dual inputs 'u' and 'i'
 %       
@@ -52,22 +53,25 @@ function [tab] = qwtb_restore_correction_tables(din,cfg)
     tab = struct();
     
     % list of default channel quantities:
-    t_list{1} = {{{'adc_gain'},                {'adc_gain_f';'adc_gain_a'}, {1},               {0},       {[],[]}, {'gain'},    {'f';'a'}, 'adc_gain'},
-                 {{'adc_phi'},                 {'adc_phi_f';'adc_phi_a'},   {0},               {0},       {[],[]}, {'phi'},     {'f';'a'}, 'adc_phi'}, 
-                 {{'adc_sfdr'},                {'adc_sfdr_f';'adc_sfdr_a'}, {180},             {},        {[],[]}, {'sfdr'},    {'f';'a'}, 'adc_sfdr'},
-                 {{'adc_Yin_Cp';'adc_Yin_Gp'}, {'adc_Yin_f'},               {[1e-15],[1e-15]}, {[0],[0]}, {[]},    {'Cp';'Gp'}, {'f'},     'adc_Yin'}};
+    t_list{1} = {{{'adc_gain'},                {'adc_gain_f';'adc_gain_a'}, {1},               {0},       {[],[]}, {'gain'},    {'f';'a'},   'adc_gain'},
+                 {{'adc_phi'},                 {'adc_phi_f';'adc_phi_a'},   {0},               {0},       {[],[]}, {'phi'},     {'f';'a'},   'adc_phi'}, 
+                 {{'adc_sfdr'},                {'adc_sfdr_f';'adc_sfdr_a'}, {180},             {},        {[],[]}, {'sfdr'},    {'f';'a'},   'adc_sfdr'},
+                 {{'adc_Yin_Cp';'adc_Yin_Gp'}, {'adc_Yin_f'},               {[1e-15],[1e-15]}, {[0],[0]}, {[]},    {'Cp';'Gp'}, {'f'},       'adc_Yin'}};
              
     % list of default transducer quantities:
-    t_list{2} = {{{'tr_gain'},                 {'tr_gain_f';'tr_gain_a'}, {1},               {0},       {[],[]}, {'gain'},    {'f';'rms'}, 'tr_gain'},
-                 {{'tr_phi'},                  {'tr_phi_f';'tr_phi_a'},   {0},               {0},       {[],[]}, {'phi'},     {'f';'rms'}, 'tr_phi'}, 
-                 {{'tr_sfdr'},                 {'tr_sfdr_f';'tr_sfdr_a'}, {180},             {},        {[],[]}, {'sfdr'},    {'f';'rms'}, 'tr_sfdr'},
-                 {{'tr_Zlo_Rp';'tr_Zlo_Cp'},   {'tr_Zlo_f'},              {[1e3],[1e-15]},   {[0],[0]}, {[]},    {'Rp';'Cp'}, {'f'},       'tr_Zlo'},
-                 {{'tr_Zca_Rs';'tr_Zca_Ls'},   {'tr_Zca_f'},              {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zca'},
-                 {{'tr_Yca_Cp';'tr_Yca_D'},    {'tr_Yca_f'},              {[1e-15],[1e-12]}, {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'tr_Yca'},
-                 {{'tr_Zcal_Rs';'tr_Zcal_Ls'}, {'tr_Zcal_f'},             {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zcal'},
-                 {{'tr_Zcam'},                 {'tr_Zcam_f'},             {[1e-12]},         {[0]},     {[]},    {'M'},       {'f'},       'tr_Zcam'},
-                 {{'Zcb_Rs';'Zcb_Ls'},         {'Zcb_f'},                 {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'Zcb'},
-                 {{'Ycb_Cp';'Ycb_D'},          {'Ycb_f'},                 {[1e-15],[1e-12]}, {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'Ycb'}};
+    t_list{2} = {{{'tr_gain'},                 {'tr_gain_f';'tr_gain_a'},   {1},               {0},       {[],[]}, {'gain'},    {'f';'rms'}, 'tr_gain'},
+                 {{'tr_phi'},                  {'tr_phi_f';'tr_phi_a'},     {0},               {0},       {[],[]}, {'phi'},     {'f';'rms'}, 'tr_phi'}, 
+                 {{'tr_sfdr'},                 {'tr_sfdr_f';'tr_sfdr_a'},   {180},             {},        {[],[]}, {'sfdr'},    {'f';'rms'}, 'tr_sfdr'},
+                 {{'tr_Zlo_Rp';'tr_Zlo_Cp'},   {'tr_Zlo_f'},                {[1e3],[1e-15]},   {[0],[0]}, {[]},    {'Rp';'Cp'}, {'f'},       'tr_Zlo'},
+                 {{'tr_Zca_Rs';'tr_Zca_Ls'},   {'tr_Zca_f'},                {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zca'},
+                 {{'tr_Yca_Cp';'tr_Yca_D'},    {'tr_Yca_f'},                {[1e-15],[1e-12]}, {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'tr_Yca'},
+                 {{'tr_Zcal_Rs';'tr_Zcal_Ls'}, {'tr_Zcal_f'},               {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zcal'},
+                 {{'tr_Zcam'},                 {'tr_Zcam_f'},               {[1e-12]},         {[0]},     {[]},    {'M'},       {'f'},       'tr_Zcam'},
+                 {{'Zcb_Rs';'Zcb_Ls'},         {'Zcb_f'},                   {[1e-9],[1e-12]},  {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'Zcb'},
+                 {{'Ycb_Cp';'Ycb_D'},          {'Ycb_f'},                   {[1e-15],[1e-12]}, {[0],[0]}, {[]},    {'Cp';'D'},  {'f'},       'Ycb'},
+                 {{'tr_Zbuf_Rs';'tr_Zbuf_Ls'}, {'tr_Zbuf_f'},               {[0],[0]},         {[0],[0]}, {[]},    {'Rs';'Ls'}, {'f'},       'tr_Zbuf'}};
+                 % note: 'tf_Zbuf' must be generated with zero default impedance which disables the buffer option in the correction scheme!
+                 %        yeah ... not the best way to do it, but it works... 
 
     % channel/tranducer quantity prefix lists:
     p_lists = {cfg.pfx_ch,cfg.pfx_tr};

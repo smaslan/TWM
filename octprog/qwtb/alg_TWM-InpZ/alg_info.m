@@ -5,9 +5,9 @@ function alginfo = alg_info() %<<<1
 
     alginfo.id = 'TWM-InpZ';
     alginfo.name = 'TWM tool wrapper: Input impedance estimator';
-    alginfo.desc = 'An algorithm for calculation of input impedance of digitizer channel.';
+    alginfo.desc = 'An algorithm for calculation of input impedance of digitizer channel or simple 1-port VNA impedance measurements.';
     alginfo.citation = 'no';
-    alginfo.remarks = 'Set one channel to voltage, other channel to current, both unity transfers. Connect current channel via known impedance comparable to expected input impedance.';
+    alginfo.remarks = 'Set analyzed digitizer channel as current and some auxiliary channel as voltage. Both corrections should be unity transfer transducers. Connect current channel via known reference impedance standard of comparable impedance value to the expected input impedance. Connect voltage channel to input of the reference impedance (to signal source).';
     alginfo.license = 'MIT License';
 
     
@@ -61,21 +61,14 @@ function alginfo = alg_info() %<<<1
     % --- configuration:
     % initial frequency estimate
     alginfo.inputs(pid).name = 'f_est';
-    alginfo.inputs(pid).desc = 'Fundamental frequency [Hz]';
+    alginfo.inputs(pid).desc = 'Fundamental frequency estimate (exact for WFFT) [Hz] or empty to auto';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     % harmonic estimation mode
     alginfo.inputs(pid).name = 'mode';
-    alginfo.inputs(pid).desc = 'Harmonic estimation mode (WFFT, PSFE, FPNLSF)';
-    alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 1;
-    alginfo.inputs(pid).parameter = 1;
-    pid = pid + 1;
-    % equivalent circuit mode:
-    alginfo.inputs(pid).name = 'equ';
-    alginfo.inputs(pid).desc = 'Output equivalent circuit of DUT (CpD, CpGp, LsRs, etc.)';
+    alginfo.inputs(pid).desc = 'Harmonic estimation mode {WFFT (default), PSFE, FPNLSF}';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
@@ -87,6 +80,37 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
+    % equivalent circuit mode:
+    alginfo.inputs(pid).name = 'equ';
+    alginfo.inputs(pid).desc = 'Output equivalent circuit of DUT (CpD, CpGp, LsRs, etc.)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
+    % sub-records mode:
+    alginfo.inputs(pid).name = 'vector';
+    alginfo.inputs(pid).desc = 'Process each sub-record as reading, return vector of results (default 0)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    % sub-records mode:
+    alginfo.inputs(pid).name = 'fast';
+    alginfo.inputs(pid).desc = 'Use faster calculation (default 1: no transducer corrections)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    % open correction:
+    alginfo.inputs(pid).name = 'open';
+    alginfo.inputs(pid).desc = 'Enable open correction by ''i_adc_Yin'' value (default 0)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+      
+    
     % reference impedance:
     alginfo.inputs(pid).name = 'Rp';
     alginfo.inputs(pid).desc = 'Reference impedance - parallel resistance (alternative to D)';
@@ -111,6 +135,14 @@ function alginfo = alg_info() %<<<1
     % --- flags:
     % note: presence of these parameters signalizes caller capabilities of the algorithm
     % Algorithm does not support processing of multiple records at once.
+    
+    % multiple sub-records processing allowed (for WFFT) or vector of results for all others
+    alginfo.inputs(pid).name = 'support_multi_records';
+    alginfo.inputs(pid).desc = 'Algorithm supports processing of a multiple records at once';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
 
     % --- parameters:
     
@@ -353,6 +385,31 @@ function alginfo = alg_info() %<<<1
     
     alginfo.inputs(pid).name = 'tr_Zlo_Cp';
     alginfo.inputs(pid).desc = 'RVD low-side impedance: parallel capacitance';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    [alginfo,pid] = add_ui_pair(alginfo,pid,0);
+    
+    % Optional buffer impedance matrix (1D dependence, rows: freqs.)
+    alginfo.inputs(pid).name = 'tr_Zbuf_f';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: frequency axis';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    [alginfo,pid] = add_ui_pair(alginfo,pid,0);
+    
+    alginfo.inputs(pid).name = 'tr_Zbuf_Rs';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: series resistance';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    [alginfo,pid] = add_ui_pair(alginfo,pid,0);
+    
+    alginfo.inputs(pid).name = 'tr_Zbuf_Ls';
+    alginfo.inputs(pid).desc = 'Transducer optional output buffer impedance: series inductance';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 0;

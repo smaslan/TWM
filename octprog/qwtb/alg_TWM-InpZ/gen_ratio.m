@@ -34,6 +34,7 @@ function [dout] = gen_ratio(din,cfg,rand_unc)
 %           din.**tr_Yca... - transducer terminals shunting Y matrices
 %           din.**tr_Zcb... - transducer cable(s) series Z matrices
 %           din.**tr_Ycb... - transducer cable(s) shunting Y matrices
+%           din.**tr_Zbuf... - transducer buffer output Z matrices
 %           *  - prefix of subchannel ('u_' or 'i_' - high-side channel or SE
 %                                      or 'lo_u_', 'lo_i_' - low-side channel for diff. mode)
 %           ** - prefix of channel ('u_' or 'i_' - channel prefix)
@@ -45,6 +46,7 @@ function [dout] = gen_ratio(din,cfg,rand_unc)
 %       cfg.chn{}.A  - harmonic component amplitudes
 %       cfg.chn{}.ph - armonic component phases [rad]
 %       cfg.chn{}.dc - DC offset of the signal
+%       cfg.chn{}.invert - non-zero to ivnert polarity if connection to digitizer (only SE mode!)
 %       cfg.chn{}.sfdr - max. SFDR of harmonic spurrs (relative to Ax(1))
 %       cfg.chn{}.sfdr_hn - maximum count of harmonic spurrs
 %       cfg.chn{}.sfdr_rand - non-zero enable randomization of spurr amplitudes
@@ -65,7 +67,7 @@ function [dout] = gen_ratio(din,cfg,rand_unc)
 % License:
 % --------
 % This is part of the TWM tool (https://github.com/smaslan/TWM).
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2023, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT
 
 
@@ -97,10 +99,15 @@ function [dout] = gen_ratio(din,cfg,rand_unc)
     %       may be used even without any correction data.
     din.u.v = ones(10,1); % fake data vector just to make following function work!
     din.i.v = ones(10,1); % fake data vector just to make following function work!
-    if isfield(cfg.chn{1},'Zx'), din.u_lo.v = din.u.v; end
-    if isfield(cfg.chn{2},'Zx'), din.i_lo.v = din.i.v; end
+    if cfg.chn{1}.name == 'u'
+        ids = [1 2];
+    else
+        ids = [2 1];
+    end        
+    if isfield(cfg.chn{ids(1)},'Zx'), din.u_lo.v = din.u.v; end
+    if isfield(cfg.chn{ids(2)},'Zx'), din.i_lo.v = din.i.v; end
     [din,t_cfg] = qwtb_restore_twm_input_dims(din,1);
-        
+    
     % Rebuild TWM style correction tables (just for more convenient calculations):
     tab = qwtb_restore_correction_tables(din,t_cfg);
     
@@ -129,9 +136,9 @@ function [dout] = gen_ratio(din,cfg,rand_unc)
                                         
         % load channel corrections for given v.channel:
         % note: this removes 'u_' or 'i_' prefix so the rest of code can be run in loop for both U and I v.channels
-        tab_list = {'tr_gain','tr_phi','tr_Zca','tr_Yca','tr_Zcal','tr_Zcam','adc_Yin','lo_adc_Yin','Zcb','Ycb','tr_Zlo','adc_gain','adc_phi','lo_adc_gain','lo_adc_phi','tr_sfdr','adc_sfdr','lo_adc_sfdr'};
+        tab_list = {'tr_gain','tr_phi','tr_Zca','tr_Yca','tr_Zcal','tr_Zcam','adc_Yin','lo_adc_Yin','Zcb','Ycb','tr_Zlo','adc_gain','adc_phi','lo_adc_gain','lo_adc_phi','tr_sfdr','adc_sfdr','lo_adc_sfdr','tr_Zbuf'};
         chtab = conv_vchn_tabs(tab,chn.name,tab_list);
-            
+        
         % insert fake DC component to the harmonic list:
         chn.fxg = [1e-12;  chn.fx];
         chn.Ag  = [chn.dc; chn.A];
@@ -163,6 +170,10 @@ function [dout] = gen_ratio(din,cfg,rand_unc)
         chn.Ag  = [chn.Ag;  Ah];
         chn.phg = [chn.phg; phh];
         
+        
+        
+        
+
                                
         % --- apply transducer transfer:
         if rand_unc, rand_unc_str = 'rand'; else rand_unc_str = ''; end % randomize uncertainty option:
@@ -171,7 +182,48 @@ function [dout] = gen_ratio(din,cfg,rand_unc)
         tsh_lo = [];
         sctab = {};
         sub_chn = {};        
-        if is_diff
+        if is_diff && isfield(din,'mode_4TP') && strcmpi(din.mode_4TP.v,'2x4T')
+            % -- 2x4T mode, i.e. two subsequent single ended measurements, one for lives and one for shields difference voltage
+            
+            % - high side (lives difference)           
+            [A_syn(:,1),ph_syn(:,1)] = correction_transducer_sim(chtab,chn.type,chn.fxg,chn.Ag,chn.phg,0,0,rand_unc_str);
+            % prepare digitizer sunchannel correction tables:
+            sctab{1}.adc_gain = chtab.adc_gain;
+            sctab{1}.adc_phi  = chtab.adc_phi;
+            sctab{1}.adc_sfdr  = chtab.adc_sfdr;
+            % prepare subchannel timeshifts:
+            tsh_lo(1) = 0;
+            % subchannel waveform names:
+            sub_chn{1} = chn.name;
+            % ADC offset:
+            adc_ofs(1) = getfield(din,[chn.name '_adc_offset']);
+            % ADC jitter:
+            adc_jitt(1) = getfield(din,[chn.name '_adc_jitter']);             
+                      
+            % - low side (shields difference)
+            chtab.tr_gain.gain = abs(1/cfg.ZdutG); % override tfer by shield impedance
+            chtab.tr_phi.phi = angle(1/cfg.ZdutG);                      
+            chn.phg(2) = chn.phg(2) + pi; % phase via the shield should be inverted compared to lives
+            [A_syn(:,2),ph_syn(:,2)] = correction_transducer_sim(chtab,chn.type,chn.fxg,chn.Ag,chn.phg,0,0,rand_unc_str);
+            % prepare digitizer sunchannel correction tables:
+            sctab{2}.adc_gain = chtab.lo_adc_gain;
+            sctab{2}.adc_phi  = chtab.lo_adc_phi;
+            sctab{2}.adc_sfdr  = chtab.lo_adc_sfdr;
+            % prepare subchannel timeshifts:
+            tslo = getfield(din,[cpfx 'time_shift_lo']); 
+            tsh_lo(2) = tslo.v + randn(1)*tslo.u.*rand_unc; % low-side ###todo: decide if the polarity is ok!!!!
+            % subchannel waveform names:
+            sub_chn{2} = [chn.name '_lo']; % low-side
+            % ADC offset:
+            adc_ofs(2) = getfield(din,[chn.name '_lo_adc_offset']);
+            % ADC jitter:
+            adc_jitt(2) = getfield(din,[chn.name '_lo_adc_jitter']);
+                        
+            % restore DC polarity
+            is_neg = 2*(abs(angle(A_syn(1,:).*exp(j*ph_syn(1,:)))) < 0.1) - 1; % sub-channel DC polarities
+            A_syn(1,:) = A_syn(1,:).*is_neg;          
+        
+        elseif is_diff
             % -- differential connection (create two subchannels: high and low-side):            
             [A_syn(:,1),ph_syn(:,1),A_syn(:,2),ph_syn(:,2)] = correction_transducer_sim(chtab,chn.type,chn.fxg,chn.Ag,chn.phg,0,0,rand_unc_str,chn.Zx);
             is_neg = 2*(abs(angle(A_syn(1,:).*exp(j*ph_syn(1,:)))) < 0.1) - 1; % sub-channel DC polarities
@@ -201,7 +253,7 @@ function [dout] = gen_ratio(din,cfg,rand_unc)
             % ADC jitter:
             adc_jitt(1) = getfield(din,[chn.name '_adc_jitter']);
             adc_jitt(2) = getfield(din,[chn.name '_lo_adc_jitter']);
-            
+
         else
             % -- single-ended connection (create single channel):
             [A_syn,ph_syn] = correction_transducer_sim(chtab,chn.type,chn.fxg,chn.Ag,chn.phg,0,0,rand_unc_str);
@@ -232,11 +284,16 @@ function [dout] = gen_ratio(din,cfg,rand_unc)
         end
         
         % --- for each sub channel (low/high-side): 
-        for k = 1:size(A_syn,2)
+        for k = 1:size(A_syn,2)                      
         
             % interpolate digitizer gain/phase to the measured frequencies and amplitudes:
             k_gain = correction_interp_table(sctab{k}.adc_gain, abs(A_syn(:,k)), chn.fxg,'f',1, i_mode);   
             k_phi =  correction_interp_table(sctab{k}.adc_phi,  abs(A_syn(:,k)), chn.fxg,'f',1, i_mode);
+            
+            if ~is_diff && isfield(chn,'invert') && chn.invert
+                % invert polarity of signal:
+                k_phi.phi = k_phi.phi + pi;
+            end
                         
             % apply digitizer gain:
             Ac  = A_syn(:,k)./(k_gain.gain + randn(size(A_syn(:,k))).*k_gain.u_gain*rand_unc);
