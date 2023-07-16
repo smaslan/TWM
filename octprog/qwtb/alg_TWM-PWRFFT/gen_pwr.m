@@ -177,7 +177,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
             rms = (rms^2 + chn.dc^2)^0.5;       
         end                
         cfg.chn{c}.rms = rms;
-        
+                
                 
         
         % ###todo: this should probably somehow be scaled by the transducer transfer??
@@ -311,13 +311,19 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
     
     % calculate reference values:
     if is_pwr
+        
+        % ###todo: decide actual definition of S!!!
+        %simout.S = 0.5*sum(cfg.chn{1}.A.*cfg.chn{2}.A);
+        
         simout.U_rms = cfg.chn{1}.rms;
         simout.I_rms = cfg.chn{2}.rms;
         simout.S = cfg.chn{1}.rms_ac.*cfg.chn{2}.rms_ac;
         simout.P = 0.5*sum(cfg.chn{1}.A.*cfg.chn{2}.A.*cos(cfg.chn{2}.ph - cfg.chn{1}.ph));
-        Q_tmp = 0.5*sum((cfg.chn{1}.A.*cfg.chn{2}.A.*sin(cfg.chn{2}.ph - cfg.chn{1}.ph)));
-        simout.Q = (simout.S^2 - simout.P^2)^0.5*sign(Q_tmp); % ###note: the sign() thingy estimates actual polarity of Q.
-                                                              %          It won't work properly for highly distorted waveforms and for PF near 0.
+        simout.Q_bud = 0.5*sum((cfg.chn{1}.A.*cfg.chn{2}.A.*sin(cfg.chn{2}.ph - cfg.chn{1}.ph)));
+        simout.D_bud = max(simout.S^2 - simout.P^2 - simout.Q_bud^2,0)^0.5;
+        simout.Q = max(simout.S^2 - simout.P^2,0)^0.5*sign(simout.Q_bud + eps); % ###note: the sign() thingy estimates actual polarity of Q.
+        %simout.S = (Q_bud^2 + simout.P^2)^0.5;
+                                                                    %          It won't work properly for highly distorted waveforms and for PF near 0.
         if ~isfield(din,'ac_coupling') || ~din.ac_coupling.v
             simout.P = simout.P + (cfg.chn{1}.dc*cfg.chn{2}.dc);
             simout.S = cfg.chn{1}.rms.*cfg.chn{2}.rms;

@@ -4,7 +4,7 @@ function dataout = alg_wrapper(datain, calcset)
 % See also qwtb
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018 - 2023, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
 % Format input data --------------------------- %<<<1
@@ -218,19 +218,23 @@ function dataout = alg_wrapper(datain, calcset)
     % active power
     P   = sum(0.5*Uh(nac:end).*Ih(nac:end).*cos(ph(nac:end)));
     u_P = sum((0.5*((Ih(nac:end).*cos(ph(nac:end)).*u_Uh(nac:end)).^2 + (Uh(nac:end).*cos(ph(nac:end)).*u_Ih(nac:end)).^2 + (Uh(nac:end).*Ih(nac:end).*sin(ph(nac:end)).*u_ph(nac:end)).^2).^0.5).^2).^0.5; % GUF method
-    
-    % reactive power (no DC component)
-    Q_bud = sum(0.5*Uh(nac:end).*Ih(nac:end).*sin(ph(nac:end)));
-    
-    
+        
+    % reactive power (Budeanu, no DC component)
+    Q_bud =   sum(0.5*Uh(nac:end).*Ih(nac:end).*sin(ph(nac:end)));
+    u_Q_bud = sum((0.5*((Ih(nac:end).*sin(ph(nac:end)).*u_Uh(nac:end)).^2 + (Uh(nac:end).*sin(ph(nac:end)).*u_Ih(nac:end)).^2 + (Uh(nac:end).*Ih(nac:end).*cos(ph(nac:end)).*u_ph(nac:end)).^2).^0.5).^2).^0.5; % GUF method
+        
     % calculate reactive power:
     % ###todo: decide on actual definition of reactive power!!!
     %          I assume equation S^2 = P^2 + Q^2 applies only without DC component.
     %          That is how the U, I and P paremeters above were calculated.        
     S = U*I;
     u_S = ((u_U*I)^2 + (u_I*U)^2)^0.5;
-    Q = (S^2 - P^2)^0.5*sign(Q_bud);    
+    Q = (S^2 - P^2)^0.5*sign(Q_bud + eps);    
     u_Q = ((S^2*u_S^2 + P^2*u_P^2)/(S^2 - P^2))^0.5; % ###note: ignoring corelations, may be improved  
+    
+    % distortion power (Budeanu)
+    D_bud = max(S^2 - P^2 - Q_bud^2,0)^0.5;
+    u_D_bud = ((S^2*u_S^2 + P^2*u_P^2 + Q_bud^2*u_Q_bud^2)/(S^2 - P^2 - Q_bud^2))^0.5; % ###note: ignoring corelations, may be improved  
     
     % obtain DC components:
     dc_u = vcl{1}.dc;
@@ -330,6 +334,10 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.S.u = u_S*ke;
     dataout.Q.v = Q;
     dataout.Q.u = u_Q*ke;
+    dataout.Qb.v = Q_bud;
+    dataout.Qb.u = u_Q_bud*ke;
+    dataout.Db.v = D_bud;
+    dataout.Db.u = u_D_bud*ke;
     dataout.PF.v = PF;
     dataout.PF.u = u_PF*ke;
     dataout.quadrant.v = [ie_str ' ' cap_str];

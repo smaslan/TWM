@@ -1,5 +1,5 @@
 function alginfo = alg_info() %<<<1
-% Part of QWTB. Info script for algorithm TWM-PWRTDI.
+% Part of QWTB. Info script for algorithm TWM-PWRFFT.
 %
 % See also qwtb
 
@@ -520,11 +520,19 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'S';
-    alginfo.outputs(pid).desc = 'Apparent power';
+    alginfo.outputs(pid).desc = 'Apparent power (S = UI)';
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'Q';
-    alginfo.outputs(pid).desc = 'Reactive power';
+    alginfo.outputs(pid).desc = 'Reactive power (Fryze: Q^2 = S^2 - P^2)';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'Qb';
+    alginfo.outputs(pid).desc = 'Reactive power (Budeanu)';
+    pid = pid + 1;
+    
+    alginfo.outputs(pid).name = 'Db';
+    alginfo.outputs(pid).desc = 'Distortion power (Budeanu: D^2 = S^2 - P^2 - Qb^2)';
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'PF';

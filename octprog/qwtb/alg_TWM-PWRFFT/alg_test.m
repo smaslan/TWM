@@ -213,7 +213,7 @@ function alg_test(calcset) %<<<1
             nylim = 0.4;
             
             % enable AC coupling:
-            din.ac_coupling.v = (rand > 0.5);
+            din.ac_coupling.v = 1;%(rand > 0.5);
             
             % aperture correction state:
             din.u_adc_aper_corr.v = 1;
@@ -278,7 +278,10 @@ function alg_test(calcset) %<<<1
             % harmonic components to generate:
             f_harm = [1:round(linrand(1,5))];   
             f_harm = f_harm(f0*f_harm < nylim*din.fs.v); % lim by nyquist
-            n_harm = numel(f_harm);    
+            n_harm = numel(f_harm);
+            
+            % randomization of harmonics phase [+-rad]
+            harm_ph_rng = 0.99*pi;    
                 
             % -- generate some interharmonic:            
             % max amplitude:
@@ -318,7 +321,7 @@ function alg_test(calcset) %<<<1
             U0 = logrand(0.1,1)*U_max;
             chns{id}.A = U0*[1     logrand(0.01,0.1,[1 n_harm-1]) i_harm_amp]';
             % harmonic phases:
-            chns{id}.ph =   [0     linrand(-0.9,0.9,[1 n_harm-1]) rand*2]'*pi;
+            chns{id}.ph =   [0     linrand(-harm_ph_rng,harm_ph_rng,[1 n_harm-1]) rand*2]'*pi;
             % harmonic component frequencies:
             chns{id}.fx = f0*[f_harm f_iharm]';
             % DC component:
@@ -345,8 +348,8 @@ function alg_test(calcset) %<<<1
             I0 = logrand(0.1,1)*I_max;
             chns{id}.A  = I0*[1      logrand(0.01,0.1,[1 n_harm-1])  i_harm_amp]';
             % harmonic phases:        
-            phi_ef = linrand(-0.45*pi,+0.45*pi)*sign(randn);
-            chns{id}.ph =    [phi_ef linrand(-0.9,0.9,[1 n_harm-1])  rand*2]'*pi;
+            phi_ef = linrand(-harm_ph_rng,+harm_ph_rng);
+            chns{id}.ph =    [phi_ef linrand(-harm_ph_rng,harm_ph_rng,[1 n_harm-1])  rand*2]'*pi;
             % harmonic component frequencies:
             chns{id}.fx = chns{id-1}.fx;
             % DC component:
@@ -638,10 +641,10 @@ function alg_test(calcset) %<<<1
         % --- plot results:
             
         % make list of quantities to display:
-        ref_list =  [simout.U_rms, simout.I_rms, simout.S, simout.P, simout.Q, simout.PF, simout.phi_ef*180/pi, simout.Udc, simout.Idc, simout.Pdc];
-        dut_list =  [dout.U.v,     dout.I.v,     dout.S.v, dout.P.v, dout.Q.v, dout.PF.v, dout.phi_ef.v*180/pi, dout.Udc.v, dout.Idc.v, dout.Pdc.v];
-        unc_list =  [dout.U.u,     dout.I.u,     dout.S.u, dout.P.u, dout.Q.u, dout.PF.u, dout.phi_ef.u*180/pi, dout.Udc.u, dout.Idc.u, dout.Pdc.u];
-        name_list = {'U',          'I',          'S',      'P',      'Q',      'PF',      'phi',                'Udc',      'Idc',      'Pdc'};
+        ref_list =  [simout.U_rms, simout.I_rms, simout.S, simout.P, simout.Q, simout.Q_bud, simout.D_bud, simout.PF, simout.phi_ef*180/pi, simout.Udc, simout.Idc, simout.Pdc];
+        dut_list =  [dout.U.v,     dout.I.v,     dout.S.v, dout.P.v, dout.Q.v, dout.Qb.v,    dout.Db.v,    dout.PF.v, dout.phi_ef.v*180/pi, dout.Udc.v, dout.Idc.v, dout.Pdc.v];
+        unc_list =  [dout.U.u,     dout.I.u,     dout.S.u, dout.P.u, dout.Q.u, dout.Qb.u,    dout.Db.u,    dout.PF.u, dout.phi_ef.u*180/pi, dout.Udc.u, dout.Idc.u, dout.Pdc.u];
+        name_list = {'U',          'I',          'S',      'P',      'Q',      'Qb',         'Db',         'PF',      'phi',                'Udc',      'Idc',      'Pdc'};
             
         % plot table of results:
         fprintf('\n----+-------------+----------------------------+-------------+----------+----------+-----------\n');
