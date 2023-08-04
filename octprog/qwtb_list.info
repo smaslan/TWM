@@ -22,6 +22,7 @@ type:: qwtb list
         TWM-LowZ
         TWM-TIAZ
         TWM-RATWFFT
+        TWM-CLKSKIP
 #endmatrix:: list of supported algorithms
 
 
@@ -463,3 +464,15 @@ type:: qwtb list
                 spec_f; spec_A
         #endmatrix:: graphs
 #endsection:: TWM-MFSF
+
+#startsection:: TWM-CLKSKIP
+        #startmatrix:: number formats
+                f0;        si; 1e-12; 1e-8
+                t_skip;    si; 1e-12; 1e-6
+                delta_t;   si; 1e-12; 1e-7
+                delta_phi;  f; 1e-9;  1e-7
+        #endmatrix:: number formats
+        #startmatrix:: is phase
+                delta_phi
+        #endmatrix:: is phase
+#endsection:: TWM-CLKSKIP
