@@ -100,7 +100,7 @@ function dataout = alg_wrapper(datain, calcset)
     
     % get approxiamte amplitude:    
     amp_mean = sum(y.^2).^0.5/N^0.5*2^0.5;
-    
+        
     % remove DC temporarily from the signal:
     y = y - dc;   
        
@@ -172,7 +172,8 @@ function dataout = alg_wrapper(datain, calcset)
         %An(fid) = amp_mean;
         An(1) = dc; 
         %tab = rmfield(tab,'tr_Zbuf'); %###debug
-        [gain,phi,u_gain,u_phi] = correction_transducer_loading(tab,datain.tr_type.v,fh,[], An,An*0,An*0,An*0);
+        rms_out_est = mean(0.5*(w.*y).^2).^0.5/mean(w);
+        [gain,phi,u_gain,u_phi] = correction_transducer_loading(tab,datain.tr_type.v,fh,[], An,An*0,An*0,An*0, 'rms',rms_out_est);
         gain = gain./An;
         u_gain = u_gain./An;        
         
@@ -186,7 +187,9 @@ function dataout = alg_wrapper(datain, calcset)
         trp.phi   = phi;
                
     end
-        
+    
+            
+            
     
     % combine gain/phase:
     trg.gain = trg.gain.*ag.gain;
