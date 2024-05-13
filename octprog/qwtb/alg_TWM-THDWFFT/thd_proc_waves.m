@@ -1,4 +1,4 @@
-function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_freq,fit_freq,f_fund_zc,window_type,verbose)
+function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_freq,fit_freq,f_fund_zc,window_type,verbose,fund_fit_limit)
 % Part of non-coherent, windowed FFT, THD meter.
 % Calculates windowed amplitude spectrum of the signals.
 %
@@ -13,6 +13,7 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
 %   f_fund_zc   - moving average filter size for zero-cross method (usually 20)
 %   window_type - name string of the used window function
 %   verbose     - 0: shut up mode, 1: some information will be printed
+%   fund_fit_limit - limit sample count for freq fitting
 %
 % Outputs:
 %   f           - frequency axis of the returned spectra [Hz]
@@ -27,7 +28,7 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
 % License:
 % --------
 % This is part of the non-coherent, windowed FFT, THD meter.
-% (c) 2017, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2017-2024, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT
 %  
   
@@ -40,6 +41,12 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
   % generate time vector [s]
   M = size(w_sig,1);
   t(:,1) = [0:M-1]/fs;
+  
+  % fundamental fitting limit
+  if ~fund_fit_limit
+    fund_fit_limit = M;
+  end
+  fund_fit_limit = min(fund_fit_limit,M);
   
   % calculate window rms gain coeficient
   WN = 100;
@@ -65,7 +72,7 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
       s_freq(k) = init_freq;
     else
       % zeros-cross or fitting mehod enabled
-      s_freq(k) = thd_find_freq(t,w_sig(:,k),fit_freq,f_fund_zc,0);             
+      s_freq(k) = thd_find_freq(t,w_sig(1:fund_fit_limit,k),fit_freq,f_fund_zc,0);             
     end
         
     %% get waveform spectrum

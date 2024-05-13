@@ -81,7 +81,7 @@ function [r] = thd_wfft(y,fs,s,corr,tab,cfg)
 % License:
 % --------
 % This is part of the non-coherent, windowed FFT, THD meter.
-% (c) 2018-2023, Martin Sira, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2024, Martin Sira, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT
 % 
 
@@ -89,19 +89,20 @@ function [r] = thd_wfft(y,fs,s,corr,tab,cfg)
   N = size(y,1);
   
   % f0 estimation samples count limiter
-  if ~s.f_fund_fit_limit
-    s.f_fund_fit_limit = N;
-  end
-  N_fit = min(s.f_fund_fit_limit,N);
+%   if ~s.f_fund_fit_limit
+%     s.f_fund_fit_limit = N;
+%   end
+%   N_fit = min(s.f_fund_fit_limit,N);
   
   % window type used for the input spectrum - rather do not modify!
   window_type = 'flattop_248D';
     
   % get spectrum of each waveform (one waveform - one averaging cycle)
-  [f,sig,fs,f_bin_step,r.f_sig,f_std,rms] = thd_proc_waves(fs, y(1:N_fit,:), s.f_fund, s.f_fund_fit, s.f_fund_zc_filter, window_type, s.verbose);
+  [f,sig,fs,f_bin_step,r.f_sig,f_std,rms] = thd_proc_waves(fs, y, s.f_fund, s.f_fund_fit, s.f_fund_zc_filter, window_type, s.verbose, s.f_fund_fit_limit);
   
   
   % calculate harmonics distance in [DFT bins]
+  %f_bin_step
   harm_dist = r.f_sig/f_bin_step;
   % check minimum harmonics spacing
   min_h_dist = 30;
