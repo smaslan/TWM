@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="20008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;w_daqmx,1;</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;w_daqmx,1;</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -356,6 +356,7 @@
 			<Item Name="Corrections" Type="Folder">
 				<Item Name="utilities" Type="Folder">
 					<Item Name="Corr Check Relative Path.vi" Type="VI" URL="../measure/Corrections/utilities/Corr Check Relative Path.vi"/>
+					<Item Name="Corr Get Example Corrections Folder.vi" Type="VI" URL="../measure/Corrections/Corr Get Example Corrections Folder.vi"/>
 				</Item>
 				<Item Name="Corr Setup.ctl" Type="VI" URL="../measure/Corrections/Corr Setup.ctl"/>
 				<Item Name="Corr Tranducer Item.ctl" Type="VI" URL="../measure/Corrections/Corr Tranducer Item.ctl"/>
@@ -364,6 +365,7 @@
 				<Item Name="Corr Digitizers.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizers.ctl"/>
 				<Item Name="Corr Digitizer Channel.ctl" Type="VI" URL="../measure/Corrections/Corr Digitizer Channel.ctl"/>
 				<Item Name="Corr Panel.vi" Type="VI" URL="../measure/Corrections/Corr Panel.vi"/>
+				<Item Name="Corr Transducers Get Unity Corrections.vi" Type="VI" URL="../measure/Corrections/Corr Transducers Get Unity Corrections.vi"/>
 				<Item Name="Corr Transducers File Dialog.vi" Type="VI" URL="../measure/Corrections/Corr Transducers File Dialog.vi"/>
 				<Item Name="Corr Transducers Reload All.vi" Type="VI" URL="../measure/Corrections/Corr Transducers Reload All.vi"/>
 				<Item Name="Corr Transducers Build Meas Paths.vi" Type="VI" URL="../measure/Corrections/Corr Transducers Build Meas Paths.vi"/>
@@ -442,6 +444,7 @@
 			<Item Name="Table Trim Whites.vi" Type="VI" URL="../other/Table Trim Whites.vi"/>
 			<Item Name="Table Paste Clipboard.vi" Type="VI" URL="../other/Table Paste Clipboard.vi"/>
 			<Item Name="rowcol2xlscell.vi" Type="VI" URL="../other/rowcol2xlscell.vi"/>
+			<Item Name="Set Decoration Label.vi" Type="VI" URL="../other/Set Decoration Label.vi"/>
 			<Item Name="Text Viewer.vi" Type="VI" URL="../other/Text Viewer.vi"/>
 			<Item Name="Dir Folder With Attributes.vi" Type="VI" URL="../other/Dir Folder With Attributes.vi"/>
 			<Item Name="Tab Control - Get Tab By Name.vi" Type="VI" URL="../other/Tab Control - Get Tab By Name.vi"/>
@@ -452,7 +455,6 @@
 			<Item Name="Scale Controls Helper.vi" Type="VI" URL="../other/Scale Controls Helper.vi"/>
 			<Item Name="Scale Controls List.ctl" Type="VI" URL="../other/Scale Controls List.ctl"/>
 			<Item Name="Scale Controls Record.ctl" Type="VI" URL="../other/Scale Controls Record.ctl"/>
-			<Item Name="Set Decoration Label.vi" Type="VI" URL="../../../test/Set Decoration Label.vi"/>
 			<Item Name="Get Decoration Label.vi" Type="VI" URL="../other/Get Decoration Label.vi"/>
 			<Item Name="Round Log.vi" Type="VI" URL="../other/Round Log.vi"/>
 			<Item Name="Vector Unique Values.vi" Type="VI" URL="../other/Vector Unique Values.vi"/>
@@ -1258,6 +1260,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">9</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1346,6 +1349,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">9</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/TWM-visa.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1432,6 +1436,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">9</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-niscope/TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1522,6 +1527,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{27659806-CFBA-4E41-96E1-CFFCCE604162}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">9</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-daqmx.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-daqmx/TWM-visa-daqmx.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
