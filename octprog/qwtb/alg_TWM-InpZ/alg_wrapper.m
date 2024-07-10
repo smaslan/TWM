@@ -61,6 +61,11 @@ function dataout = alg_wrapper(datain, calcset)
         datain.open.v = 0;        
     end
     
+    % default short
+    if ~isfield(datain,'short') || isempty(datain.short.v)
+        datain.short.v = 0;        
+    end
+    
     % vector mode?
     if ~isfield(datain,'vector') || isempty(datain.vector.v)
         datain.vector.v = 0;        
@@ -261,6 +266,15 @@ function dataout = alg_wrapper(datain, calcset)
                     
                     % make open correction
                     Zi = 1/(1/Zi - Yop);
+                end
+                
+                if datain.short.v
+                    % get analyzed channel's transducer output buffer impedance as option short correction                                        
+                    Zbuf = correction_interp_table(tab.i_tr_Zbuf, [], f0, i_mode);
+                    Zsh = Zbuf.Rs + j*w0*Zbuf.Ls;
+                    
+                    % make short correction
+                    Zi = Zi - Zsh;
                 end
                 
                 % convert Zi to equivalent circuit:

@@ -69,6 +69,9 @@ function alg_test(calcset) %<<<1
     % use open correction by adc_Yin?
     din.open.v = 1;
     
+    % use short correction by tr_Zbuf?
+    din.short.v = 1;
+    
     
     % RMS noise of the ADC [V]:
     adc_noise = 1e-6;

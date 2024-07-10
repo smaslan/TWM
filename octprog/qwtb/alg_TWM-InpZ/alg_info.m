@@ -109,6 +109,13 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
+    % open correction:
+    alginfo.inputs(pid).name = 'short';
+    alginfo.inputs(pid).desc = 'Enable short correction by ''i_tr_Zbuf'' value (default 0)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
       
     
     % reference impedance:
