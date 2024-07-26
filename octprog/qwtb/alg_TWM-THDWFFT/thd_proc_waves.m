@@ -36,7 +36,7 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
     disp('Processing signal waveforms:');
   end
   
-  
+  fund_fit_limit = 1e6;
   
   % generate time vector [s]
   M = size(w_sig,1);
@@ -59,6 +59,7 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
   sig = [];
   s_freq = zeros(1,n);
   rms_v = [];
+  w = [];
   for k = 1:n
   
     %% print progress
@@ -74,9 +75,9 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
       % zeros-cross or fitting mehod enabled
       s_freq(k) = thd_find_freq(t,w_sig(1:fund_fit_limit,k),fit_freq,f_fund_zc,0);             
     end
-        
-    %% get waveform spectrum
-    [f,amp] = ampphspectrum(w_sig(:,k), fs, 0, 0, window_type, [], 0);
+   
+    %% get waveform spectrum (recycle window coefs because it is super SLOW to generate them)
+    [f,amp,ph,w] = ampphspectrum(w_sig(:,k), fs, 0, 0, window_type, [], 0, w);
     
     %w = window_coeff(window_type, M, 'periodic');
     %w = w(:);        

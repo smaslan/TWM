@@ -182,6 +182,7 @@ end
 n=[1:1:N];
 w = a0+a1*cos(2*pi*(n-1)/(N-1))+a2*cos(4*pi*(n-1)/(N-1))+a3*cos(6*pi*(n-1)/(N-1))+a4*cos(8*pi*(n-1)/(N-1))+a5*cos(10*pi*(n-1)/(N-1))+a6*cos(12*pi*(n-1)/(N-1))+a7*cos(14*pi*(n-1)/(N-1))+a8*cos(16*pi*(n-1)/(N-1))+a9*cos(18*pi*(n-1)/(N-1))+a10*cos(20*pi*(n-1)/(N-1));
 
+
 end
 
 % vim settings line: vim: foldmarker=%<<<,%>>> fdm=marker fen ft=octave textwidth=1000
