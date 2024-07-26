@@ -36,8 +36,6 @@ function [f,sig,fs,f_bin_step,f_sig,f_std,rms_v] = thd_proc_waves(fs,w_sig,init_
     disp('Processing signal waveforms:');
   end
   
-  fund_fit_limit = 1e6;
-  
   % generate time vector [s]
   M = size(w_sig,1);
   t(:,1) = [0:M-1]/fs;
