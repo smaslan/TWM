@@ -1,6 +1,6 @@
-function w = flattop(N, T)%<<<1
+function w = flattop(N, T, mode)
 % original function definition changed because of matlab compatibility:
-% function w = flattop(N, T=8)%<<<1
+% function w = flattop(N, T=8, mode=0)%<<<1
 % -- Function File: W = flattop (T,N)
 %     Function generates symmetric flat top window coefficients W of
 %     length N and type T.  Parameter N sets the length of the window, so
@@ -14,6 +14,9 @@ function w = flattop(N, T)%<<<1
 %          Minimum sidelobe
 %     '8'
 %          Lowest sidelobe
+%     Parameter MODE set to non-zero will generate window using iFFT (faster).
+%     When using MODE=1, N must be more than 2x number of window components + 2.
+%     I.e. at least 22 for the widest window. 
 %   'G. Heinzel, ‘Spectrum and spectral density estimation by the
 %Discrete Fourier transform (DFT), including a comprehensive list of
 %window functions and some new flat-top windows’, IEEE, 2003.'
@@ -24,7 +27,7 @@ function w = flattop(N, T)%<<<1
 %(Part I)." Windows to FFT Analysis (Part I): Brüel & Kjær Technical
 %Review, No. 3, 1987, pp. 1–28.'
 
-% Copyright (C) Věra Nováková Zachovalová
+% Copyright (C) Věra Nováková Zachovalová, Stanislav Maslan
 %
 % This program is free software; you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -42,6 +45,8 @@ function w = flattop(N, T)%<<<1
 % Contact: Věra Nováková Zachovalová <vnovakovazachovalovaATcmi.cz>
 % Created: 2011
 % Version: 0.10
+% Modifief: 28/07/2024 by Stanislav Maslan (iFFT generation mode)
+% Version: 0.20
 % Contains help: yes
 % Contains test: no
 % Contains demo: no
@@ -50,7 +55,11 @@ function w = flattop(N, T)%<<<1
 
 % added because of matlab compatibility:
 if nargin < 2
-        T = 8;
+        T = 9;
+end
+
+if nargin < 3
+        mode = 0;
 end
 
 switch T
@@ -175,12 +184,22 @@ switch T
                 a10 = 0;
 end
 
-%for n = 1:1:N
-%	w(n) = a0+a1*cos(2*pi*(n-1)/(N-1))+a2*cos(4*pi*(n-1)/(N-1))+a3*cos(6*pi*(n-1)/(N-1))+a4*cos(8*pi*(n-1)/(N-1))+a5*cos(10*pi*(n-1)/(N-1))+a6*cos(12*pi*(n-1)/(N-1))+a7*cos(14*pi*(n-1)/(N-1))+a8*cos(16*pi*(n-1)/(N-1))+a9*cos(18*pi*(n-1)/(N-1))+a10*cos(20*pi*(n-1)/(N-1));
-%end
-
-n=[1:1:N];
-w = a0+a1*cos(2*pi*(n-1)/(N-1))+a2*cos(4*pi*(n-1)/(N-1))+a3*cos(6*pi*(n-1)/(N-1))+a4*cos(8*pi*(n-1)/(N-1))+a5*cos(10*pi*(n-1)/(N-1))+a6*cos(12*pi*(n-1)/(N-1))+a7*cos(14*pi*(n-1)/(N-1))+a8*cos(16*pi*(n-1)/(N-1))+a9*cos(18*pi*(n-1)/(N-1))+a10*cos(20*pi*(n-1)/(N-1));
+if mode
+    % generation using iFFT (faster)    
+    A = [a1 a2 a3 a4 a5 a6 a7 a8 a9 a10];    
+    W = zeros([1 N-1]);
+    W(1) = 2*a0;    
+    W(2:2+numel(A)-1) = A;
+    W(end:-1:end-numel(A)+1) = A;
+    w = real(ifft(W))*(N-1)/2;
+    w(end+1) = w(1);
+    
+else
+    % generation in timedomain mode (slower)    
+    n=[0:N-1];
+    w = a0+a1*cos(2*pi*n/(N-1))+a2*cos(4*pi*n/(N-1))+a3*cos(6*pi*n/(N-1))+a4*cos(8*pi*n/(N-1))+a5*cos(10*pi*n/(N-1))+a6*cos(12*pi*n/(N-1))+a7*cos(14*pi*n/(N-1))+a8*cos(16*pi*n/(N-1))+a9*cos(18*pi*n/(N-1))+a10*cos(20*pi*n/(N-1));
+    
+end
 
 
 end
