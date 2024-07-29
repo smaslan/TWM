@@ -249,7 +249,7 @@ else
                 case 'flattop_SFT5M'
                         w = flattop(L, 7);
                 case 'flattop_248D'
-                        w = flattop(L, 8);
+                        w = flattop(L, 8, 1);
                 % windows with additional arguments:
                 case 'cheb'
                         if isempty(thirdarg)
