@@ -255,8 +255,19 @@ function [dout] = gen_ratio(din,cfg,rand_unc)
             adc_jitt(2) = getfield(din,[chn.name '_lo_adc_jitter']);
 
         else
-            % -- single-ended connection (create single channel):
-            [A_syn,ph_syn] = correction_transducer_sim(chtab,chn.type,chn.fxg,chn.Ag,chn.phg,0,0,rand_unc_str);
+            % -- single-ended connection (create single channel):            
+            if strcmpi(chn.type,'')
+                % simplified tran. gain/phase:                
+                rms = sum(0.5*chn.Ag.^2).^0.5;
+                tr_gain = correction_interp_table(chtab.tr_gain,rms,chn.fxg,i_mode);
+                tr_phi =  correction_interp_table(chtab.tr_phi,rms,chn.fxg,i_mode);
+                trg = tr_gain.gain + tr_gain.u_gain.*randn(size(chn.fxg))*rand_unc;
+                trp = tr_phi.phi + tr_phi.u_phi.*randn(size(chn.fxg))*rand_unc;
+                A_syn = chn.Ag./trg;
+                ph_syn = chn.phg - trp;                
+            else
+                [A_syn,ph_syn] = correction_transducer_sim(chtab,chn.type,chn.fxg,chn.Ag,chn.phg,0,0,rand_unc_str);
+            end
             A_syn = bsxfun(@times,A_syn,sign(chn.Ag)); % restore DC polarity
             % prepare digitizer sunchannel correction tables:
             sctab{1}.adc_gain = chtab.adc_gain;

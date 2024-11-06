@@ -36,6 +36,9 @@ function alg_test(calcset) %<<<1
     % optional window for WFFT (see WFFT algorithm):
     din.window.v = 'hanning';
     
+    % fast mode (no transducer corrections)
+    din.fast.v = 1;
+    
     
     % measurement frequency [Hz]:
     f0 = logrand(100,1000.0);
@@ -52,10 +55,10 @@ function alg_test(calcset) %<<<1
     % DUT ground impedance (differential modes only)
     cfg.ZdutG = 0.001;
     % dut is differential?
-    is_dut_diff = 1;
+    is_dut_diff = 0;
     % 4TP measurement mode {'4TP': regular differential connection of DUT, '2x4T': high-side for lives difference, low-side for neutrals difference}
     %   note: applies for differential only
-    din.mode_4TP.v = '2x4T';
+    din.mode_4TP.v = '4TP';
     
     
     % RMS noise of the ADC [V]:
@@ -164,14 +167,26 @@ function alg_test(calcset) %<<<1
     
     
     % generate REF shunt:
-    din.i_tr_gain_f.v = [];
-    din.i_tr_gain_a.v = [];    
-    din.i_tr_gain.v   = abs(1/Zref);
-    din.i_tr_gain.u   = 0;
-    din.i_tr_phi_f.v = [];
-    din.i_tr_phi_a.v = [];
-    din.i_tr_phi.v   = angle(1/Zref);
-    din.i_tr_phi.u   = 0;
+    if din.fast.v
+        chns{1}.type = '';
+        din.i_tr_gain_f.v = [];
+        din.i_tr_gain_a.v = [];    
+        din.i_tr_gain.v   = 1.0;
+        din.i_tr_gain.u   = 0;
+        din.i_tr_phi_f.v = [];
+        din.i_tr_phi_a.v = [];
+        din.i_tr_phi.v   = 0.0;
+        din.i_tr_phi.u   = 0;
+    else
+        din.i_tr_gain_f.v = [];
+        din.i_tr_gain_a.v = [];    
+        din.i_tr_gain.v   = abs(1/Zref);
+        din.i_tr_gain.u   = 0;
+        din.i_tr_phi_f.v = [];
+        din.i_tr_phi_a.v = [];
+        din.i_tr_phi.v   = angle(1/Zref);
+        din.i_tr_phi.u   = 0;
+    end
     % transducer buffer output impedance            
     if rand() > 0.5
         din.i_tr_Zbuf_f.v = [];
@@ -185,6 +200,9 @@ function alg_test(calcset) %<<<1
         Zdut_sim = Zdut - cfg.ZdutG; % simulate shield impedance
     else
         Zdut_sim = Zdut;
+    end
+    if din.fast.v
+        chns{2}.type = '';
     end
     din.u_tr_gain_f.v = [];
     din.u_tr_gain_a.v = [];

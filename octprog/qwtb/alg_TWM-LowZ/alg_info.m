@@ -2,15 +2,15 @@ function alginfo = alg_info() %<<<1
 % Part of QWTB. Info script for algorithm TWM-LowZ.
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018-2023, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2024, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.
 % See also qwtb
 
     alginfo.id = 'TWM-LowZ';
     alginfo.name = 'TWM tool wrapper: Low impedance measurement algorithm';
-    alginfo.desc = 'An algorithm for measurement of low impedances using TWM-WFFT, TWM-FPNLSF or TWM-PSFE.';
+    alginfo.desc = 'An algorithm for measurement of low impedances using TWM-WFFT, TWM-FPNLSF or TWM-PSFE harmonic analysis algorithms. Also usable for measurement of general complex voltage ratios.';
     alginfo.citation = 'no';
-    alginfo.remarks = 'Can measure low-Z in 4T, 4TP or 2x4T definition. Use current transducer for ref. imepedance and dummy voltage transducer for DUT voltage sensing.';
+    alginfo.remarks = 'Can measure low-Z in 4T, 4TP or 2x4T definition or general complex voltage ratios. Use current transducer correction for reference imepedance and dummy voltage transducer for DUT voltage sensing. ''fast=1'' will skip transducer corrections, so it will measure just plain complex ratio of voltage to current channel. ADC corrections are active even with ''fast=1''.';
     alginfo.license = 'MIT License';
 
     
@@ -96,22 +96,30 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     % equivalent circuit mode:
+    ers = z_to_equivalent();    
     alginfo.inputs(pid).name = 'equ';
-    alginfo.inputs(pid).desc = 'Equivalent circuit of DUT (CpD, LsRs, etc.)';
+    alginfo.inputs(pid).desc = sprintf('Output equivalent circuit of DUT (%s)',catcellcsv(ers.tags',', '));
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     % invert phase function:
     alginfo.inputs(pid).name = 'invert';
-    alginfo.inputs(pid).desc = 'Set when one of the impedances has inversed polarity';
+    alginfo.inputs(pid).desc = 'Set ''invert=1'' when one of the impedances has inversed polarity';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    % sub-records mode:
+    alginfo.inputs(pid).name = 'fast';
+    alginfo.inputs(pid).desc = 'Use faster calculation (default=0: transducer corrections enabled)';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     % 4TP mode:
     alginfo.inputs(pid).name = 'mode_4TP';
-    alginfo.inputs(pid).desc = '4TP impedance measurement wiring (4TP, 2x4T)';
+    alginfo.inputs(pid).desc = '4TP impedance measurement wiring (''4TP'', ''2x4T'')';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;

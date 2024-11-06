@@ -76,6 +76,11 @@ function dataout = alg_wrapper(datain, calcset)
         datain.window.v = 'rect';        
     end
     
+    % default fast:
+    if ~isfield(datain,'fast') || isempty(datain.fast.v)
+        datain.fast.v = 0;        
+    end
+    
     % invert phase mode:
     is_invert = isfield(datain,'invert') && datain.invert.v;
     
@@ -154,7 +159,7 @@ function dataout = alg_wrapper(datain, calcset)
     %  2. DUT (u) channel
     for k = 1:numel(vcl)
         % get channel:
-        vc = vcl{k};
+        vc = vcl{k};              
         
         % Dual execution when 2x4T mode emulation of 4TP measurement is selected
         % otherwise single execution.
@@ -163,8 +168,17 @@ function dataout = alg_wrapper(datain, calcset)
             % Dual execution for DUT (u):
             %   1. pass: get approximate value of dut Z
             %   2. pass: get accurate value including proper loading corrections
-            % Single execution for REF (i):
-            for m = 1:k
+            % Single execution for REF (i):        
+            pass_count = k;
+            if datain.fast.v
+                pass_count = 1;
+            end        
+            for m = 1:pass_count
+            
+                % current channel needs to be processed just once - skip following passes to save some time
+                if vc.name == 'i' && (m > 1 || d4t > 1)
+                    continue;
+                end 
             
                 % build harmonic estimator parameters:
                 cset = struct();
@@ -234,6 +248,8 @@ function dataout = alg_wrapper(datain, calcset)
                     if m == 1
                         % -- 1. pass: setup unity DUT tfer so we get approximate unscalled DUT amplitude:
                         
+                        Zx1 = 1.0;
+                        px1 = 0.0;                        
                         din.tr_type.v = ''; % simplified correction
                         din.tr_gain.v = [1]; 
                         din.tr_gain.u = [0];                    
@@ -257,6 +273,15 @@ function dataout = alg_wrapper(datain, calcset)
                         din.tr_phi.u = [0];
                         
                     end
+                end
+                
+                if vc.name == 'i' && datain.fast.v
+                    % in fast mode discard transducer correction
+                    din.tr_type.v = '';
+                    din.tr_gain.v = [1]; 
+                    din.tr_gain.u = [0];                    
+                    din.tr_phi.v = [0]; 
+                    din.tr_phi.u = [0];   
                 end
                 
                 % estimate harmonic                            
@@ -323,9 +348,10 @@ function dataout = alg_wrapper(datain, calcset)
                             spec_U = spec_U - dout.spec_A.v;
                         end                        
                     end                    
-                    
-                elseif vc.name == 'u' && (m > 1)
-                    % -- DUT channel, 2. pass:
+                end    
+                
+                if vc.name == 'u' && (m > 1 || datain.fast.v)
+                    % -- DUT channel, 2. pass (or fast mode 1. pass):
                     
                     % invert DUT connection mode? (0 or 180 deg)
                     inv_phi = is_invert*pi;
@@ -432,8 +458,9 @@ function dataout = alg_wrapper(datain, calcset)
                         dataout.mnr_name.v = char([eclist{ecid,3} ' [' eclist{ecid,4} ']']);
                         
                     end
-                                                    
-                elseif vc.name == 'i' && isfield(dout,'spec_A')
+                end                                    
+                
+                if vc.name == 'i' && isfield(dout,'spec_A')
                     % try to store ref current spectrum
                     spec_f = dout.spec_f.v;
                     spec_I = dout.spec_A.v;                    
