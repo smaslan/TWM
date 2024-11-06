@@ -432,6 +432,8 @@ function alg_test(calcset) %<<<1
                 % differential timeshift:
                 din.time_shift_lo.v = linrand(-1,1)*max_chn2chn_td;
                 din.time_shift_lo.u = logrand(0.1,1)*max_chn2chn_td_u;
+                
+                din.tr_is_inverted.v = 0;
             
             end
             
@@ -548,6 +550,10 @@ function alg_test(calcset) %<<<1
         
         % --- generate the signal:        
         [datain,simout] = gen_pwr(din, cfg, rand_unc); % generate
+        
+        if din.tr_is_inverted.v
+            datain.y.v = -datain.y.v;            
+        end
                 
         % add fake uncertainties to allow uncertainty calculation:
         %  ###todo: to be removed when QWTB supports no uncertainty checking 

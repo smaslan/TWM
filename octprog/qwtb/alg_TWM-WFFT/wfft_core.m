@@ -2,9 +2,16 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
 % Core function of windowed FFT harmonic analyser with uncertainty estimatior.
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018-2023, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2024, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
      
+    
+    % transducer inverted?
+    is_inverted = isfield(datain,'tr_is_inverted') && datain.tr_is_inverted.v && ~cfg.y_is_diff;
+    if is_inverted
+        datain.y.v = -datain.y.v;
+        datain.adc_offset.v = -datain.adc_offset.v;         
+    end
     
     is_psfe_local = 0;
     %is_wfft_local = 0;
@@ -139,6 +146,8 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
         w     = dout.w.v; % window coefficients
     end
     
+    
+    
     % Normalized Equivalent Noise BaNdWidth (Rado's book "Sampling with 3458A", page 196, formula 4.36):
     NENBNW = numel(w)*sum(w.^2)/sum(w)^2;
     
@@ -178,7 +187,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
     A(1)   = A(1) - datain.adc_offset.v; % remove DC offset from spectrum
     u_A    = 0*A;
     u_A(1) = datain.adc_offset.u;
-            
+               
     % get gain/phase correction for the freq. components (high-side ADC):
     ag = correction_interp_table(tab.adc_gain, abs(A), fh, 'f',1, i_mode);
     ap = correction_interp_table(tab.adc_phi,  abs(A), fh, 'f',1, i_mode);
@@ -201,8 +210,7 @@ function dataout = wfft_core(datain, cfg, tab, calcset, fs)
     A   = A.*ag.gain;
     u_A = (u_A.^2 + (A.*ag.u_gain).^2).^0.5;
     ph   = ph + ap.phi;
-    u_ph = ap.u_phi;
-        
+    u_ph = ap.u_phi;        
     
     % store temporary high-side:
     A_hi = A;

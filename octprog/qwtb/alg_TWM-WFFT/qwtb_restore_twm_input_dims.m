@@ -230,6 +230,11 @@ function [din, cfg] = qwtb_restore_twm_input_dims(din, opt, varargin)
         din = qwtb_rtwm_inps_default(din,cfg.has_ui,'i_adc_nrng',1000);
         din = qwtb_rtwm_inps_default(din,cfg.u_is_diff,'u_lo_adc_nrng',1000);
         din = qwtb_rtwm_inps_default(din,cfg.i_is_diff,'i_lo_adc_nrng',1000);
+        
+        % create default inverted flags
+        din = qwtb_rtwm_inps_default(din,cfg.has_y,'tr_is_inverted',0);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'u_tr_is_inverted',0);
+        din = qwtb_rtwm_inps_default(din,cfg.has_ui,'i_tr_is_inverted',0);
 
         
         

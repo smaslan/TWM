@@ -32,11 +32,10 @@ function dataout = alg_wrapper(datain, calcset)
 %         error('Multiple input records in ''y'' not allowed!'); 
 %     end
     
-    
     % Rebuild TWM style correction tables:
     % This is not necessary, but the TWM style tables are more comfortable to use then raw correction matrices
     tab = qwtb_restore_correction_tables(datain,cfg);
-        
+    
     % ------------------------------------------------------------------------------------------     
     % algorithm start
     % ------------------------------------------------------------------------------------------
