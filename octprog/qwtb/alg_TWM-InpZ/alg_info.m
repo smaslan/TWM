@@ -5,9 +5,9 @@ function alginfo = alg_info() %<<<1
 
     alginfo.id = 'TWM-InpZ';
     alginfo.name = 'TWM tool wrapper: Input impedance estimator';
-    alginfo.desc = 'An algorithm for calculation of input impedance of digitizer channel or simple 1-port VNA impedance measurements.';
+    alginfo.desc = 'An algorithm for measurement of input impedance of digitizer channel or simple 1-port VNA impedance measurements.';
     alginfo.citation = 'no';
-    alginfo.remarks = 'Set analyzed digitizer channel as current and some auxiliary channel as voltage. Both corrections should be unity transfer transducers. Connect current channel via known reference impedance standard of comparable impedance value to the expected input impedance. Connect voltage channel to input of the reference impedance (to signal source).';
+    alginfo.remarks = 'Set analyzed digitizer channel as current and some auxiliary channel as voltage. Both corrections should be unity transfer transducers. Connect current channel via known reference impedance standard of comparable impedance value to the expected input impedance. Connect voltage channel to input of the reference impedance (to signal source). Reference impedance value can be entered using Rp-Cp or Cp-D user parameters (simple frequency independent values) or can be taken from current transducer gain-phase data ''i_tr_gain'' and ''i_tr_phi'' when Rp, Cp and D are not provided. Algorithm can perform simple open correction by subtracting ''i_adc_Yin'' admittance from measured impedance. It can also perform input cable series and shunting impedance correction by cable model provided in ''i_Zcb'' and ''i_Ycb'' impedances. For low frequencies, the ''i_Ycb'' value can be combined with ''i_adc_Yin'' and ''i_Ycb'' can be set to zero. ''i_Zcb'' value can be used as short correction when ''cable=1''. For high frequencies (VNA mode of operation), all three values ''i_adc_Yin'', ''i_Ycb'' and ''i_Zcb'' must be provided for any meaningful results. With ''cable=1'', the ''i_adc_Yin'' can be replaced by tranducer correction ''i_tr_Yca'', so all three corrections are in transducer data set. Note the ''i_Ycb'', ''i_Zcb'' and ''i_tr_Yca'', values with ''cable=1'' will work correctly only with ''fast=1'' option, otherwise the algorithm would apply usual transducer corrections scheme. ';
     alginfo.license = 'MIT License';
 
     
@@ -81,8 +81,9 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     % equivalent circuit mode:
-    alginfo.inputs(pid).name = 'equ';
-    alginfo.inputs(pid).desc = 'Output equivalent circuit of DUT (CpD, CpGp, LsRs, etc.)';
+    ers = z_to_equivalent();    
+    alginfo.inputs(pid).name = 'equ';    
+    alginfo.inputs(pid).desc = sprintf('Output equivalent circuit of DUT (%s)',catcellcsv(ers.tags',', '));
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
@@ -104,14 +105,14 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     % open correction:
     alginfo.inputs(pid).name = 'open';
-    alginfo.inputs(pid).desc = 'Enable open correction by ''i_adc_Yin'' value (default 0)';
+    alginfo.inputs(pid).desc = 'Enable open correction by ADC input admittance ''i_adc_Yin'' value (default 0)';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     % open correction:
-    alginfo.inputs(pid).name = 'short';
-    alginfo.inputs(pid).desc = 'Enable short correction by ''i_tr_Zbuf'' value (default 0)';
+    alginfo.inputs(pid).name = 'cable';
+    alginfo.inputs(pid).desc = 'Enable input cable correction by ''i_Zcb'' and ''i_Ycb'' values for VNA mode (default 0)';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
@@ -122,19 +123,19 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).name = 'Rp';
     alginfo.inputs(pid).desc = 'Reference impedance - parallel resistance (alternative to D)';
     alginfo.inputs(pid).alternative = 1;
-    alginfo.inputs(pid).optional = 0;
+    alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     alginfo.inputs(pid).name = 'Cp';
     alginfo.inputs(pid).desc = 'Reference impedance - parallel capacitance';
     alginfo.inputs(pid).alternative = 0;
-    alginfo.inputs(pid).optional = 0;
+    alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     alginfo.inputs(pid).name = 'D';
     alginfo.inputs(pid).desc = 'Reference impedance - Cp loss tangent (alternative to Rp)';
     alginfo.inputs(pid).alternative = 1;
-    alginfo.inputs(pid).optional = 0;
+    alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
     pid = pid + 1;
     

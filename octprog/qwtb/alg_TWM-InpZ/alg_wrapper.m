@@ -38,7 +38,7 @@ function dataout = alg_wrapper(datain, calcset)
     elseif isfield(datain, 'mode')
         error(sprintf('Harmonic estimation mode ''%s'' is unknown!'),datain.mode.v);
     else
-        mode = 'PSFE'; % default
+        mode = 'WFFT'; % default
     end
     
     % initial frequency estimate mode:
@@ -56,14 +56,22 @@ function dataout = alg_wrapper(datain, calcset)
         datain.window.v = 'rect';        
     end
     
+    % default fast mode
+    if ~isfield(datain,'fast') || isempty(datain.fast.v)
+        datain.fast.v = 1;        
+    end
+    
     % default open
     if ~isfield(datain,'open') || isempty(datain.open.v)
         datain.open.v = 0;        
     end
     
     % default short
-    if ~isfield(datain,'short') || isempty(datain.short.v)
-        datain.short.v = 0;        
+    if ~isfield(datain,'cable') || isempty(datain.cable.v)
+        datain.cable.v = 0;        
+    end
+    if datain.cable.v && ~datain.fast.v
+        error('Option cable=1 cannot be used together with option fast=0! fast=0 would apply typical transducer correction scheme for i-channel transducer.');
     end
     
     % vector mode?
@@ -77,11 +85,7 @@ function dataout = alg_wrapper(datain, calcset)
     if datain.vector.v
         subrec_count = size(datain.u.v,2);
     end
-    
-    % default fast mode
-    if ~isfield(datain,'fast') || isempty(datain.fast.v)
-        datain.fast.v = 1;        
-    end
+        
     
     % get equivalent circuit:
     [r,eclist] = z_to_equivalent();
@@ -242,50 +246,57 @@ function dataout = alg_wrapper(datain, calcset)
                     % reference impedance from DUT transducer gain-phase
                     gain = correction_interp_table(tab.i_tr_gain, [], f0, i_mode);
                     phi = correction_interp_table(tab.i_tr_phi, [], f0, i_mode);
-                    Zr = 1/gain.gain*exp(-j*phi.phi);
+                    Zref = 1/gain.gain*exp(-j*phi.phi);
                                     
                 else
                     % reference impedance from user parameters:
                     if isfield(datain,'Rp')
-                        Zr = 1/(1/datain.Rp.v + j*w0*datain.Cp.v);
+                        Zref = 1/(1/datain.Rp.v + j*w0*datain.Cp.v);
                     elseif isfield(datain,'D')
-                        Zr = 1/(w0*datain.Cp.v*(j + datain.D.v));
+                        Zref = 1/(w0*datain.Cp.v*(j + datain.D.v));
                     else
                         error('Missing reference impedance minor component Rp or D!');
                     end
                 end
                             
-                % input impedance:
-                Zi = Zr*r/(1 - r);
+                % input impedance
+                Zx = Zref*r/(1 - r);
                 
                 if datain.open.v
-                    % get analyzed channel input impedance as optional open correction
-                    %qwtb_build_correction_table(din,{'adc_Yin_Cp';'adc_Yin_Gp'},{'adc_Yin_f'},[0.0],[0.0],{'Cp','Gp'},{'f'})                    
-                    Yin = correction_interp_table(tab.i_adc_Yin, [], f0, i_mode);
-                    Yop = Yin.Gp + j*w0*Yin.Cp;
+                    % get analyzed channel input impedance as optional open correction                  
+                    Yi = correction_interp_table(tab.i_adc_Yin, [], f0, i_mode);
+                    Yi = Yi.Gp + j*w0*Yi.Cp;
                     
-                    % make open correction
-                    Zi = 1/(1/Zi - Yop);
+                    % make simple open correction
+                    Zx = 1/(1/Zx - Yi);
+                else
+                    Yi = 0.0;
                 end
-                
-                if datain.short.v
-                    % get analyzed channel's transducer output buffer impedance as option short correction                                        
-                    Zbuf = correction_interp_table(tab.i_tr_Zbuf, [], f0, i_mode);
-                    Zsh = Zbuf.Rs + j*w0*Zbuf.Ls;
+                                
+                if datain.cable.v
+                    % get analyzed channel's transducer cable impedance model                                        
+                    Zc = correction_interp_table(tab.i_Zcb, [], f0, i_mode);
+                    Zc = Zc.Rs + j*w0*Zc.Ls;
+                    Yc = correction_interp_table(tab.i_Ycb, [], f0, i_mode);
+                    Yc = w0*Yc.Cp*(j + Yc.D);
+                    % get alternative ADC input admittance value
+                    Yi = correction_interp_table(tab.i_tr_Yca, [], f0, i_mode);
+                    Yi = w0*Yi.Cp*(j + Yi.D);
+                      
                     
-                    % make short correction
-                    Zi = Zi - Zsh;
+                    % make complete cable correction + ADC input Y correction (VNA mode)
+                    Zx = -(((Yc.*Yi.*Zc.^2+(4*Yi+2*Yc).*Zc+4).*Zref+Yc.*Zc.^2+4*Zc).*r-Yc.*Zc.^2-4*Zc)./(((2*Yc.*Yi.*Zc+4*Yi+4*Yc).*Zref+2*Yc.*Zc+4).*r-2*Yc.*Zc-4);
                 end
                 
                 % convert Zi to equivalent circuit:
-                ec = z_to_equivalent(ecid-1,f0,Zi,Zi*0);
+                ec = z_to_equivalent(ecid-1, f0, Zx, Zx*0);
                 
                 % return stuff:
                 dataout.f.v = f0;
                 dataout.Uref.v = dout.A.v*(2^-0.5);
                 
-                dataout.Cp.v(sid) = imag(1./Zi)/w0;
-                dataout.Gp.v(sid) = real(1./Zi);
+                dataout.Cp.v(sid) = imag(1./Zx)/w0;
+                dataout.Gp.v(sid) = real(1./Zx);
                 dataout.Cp.u(sid) = 0;
                 dataout.Gp.u(sid) = 0;
                 dataout.Rp.v = 1./dataout.Gp.v;
