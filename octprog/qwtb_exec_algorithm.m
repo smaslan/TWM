@@ -344,6 +344,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         % do sub-records one by one
         subrec_list_count = numel(subrec_list);        
     end
+      
   
     % -- for each sub-record:
     for s = 1:subrec_list_count
@@ -502,11 +503,14 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
                         pfx = dig_pfx{c};
                         
                         % store range value:
-                        di = setfield(di, [pfx '_adc_nrng'], struct('v',data.ranges(c)));                
+                        di = setfield(di, [pfx '_adc_nrng'], struct('v',data.ranges(c)));
+                        
+                        % channel inverted flag: [u/i]_tr_is_inverted.v = ?
+                        di = setfield(di, [pfx '_tr_is_inverted'], struct('v',tran.is_inverted));                
                     
                         % store waveform data:
                         % note stores all available repetitions, one column per repetition:
-                        di = setfield(di, pfx, struct('v',reshape(data.y(:, tran.channels(c), subrec_ids), [size(data.y,1) numel(subrec_ids)])));
+                        di = setfield(di, pfx, struct('v',reshape(data.y(:, tran.channels(c), subrec_ids), [size(data.y,1) numel(subrec_ids)])));                                                
                         
                         % store channel corrections:
                         di = qwtb_alg_insert_corrs(di, data.corr.dig.chn{tran.channels(c)}, pfx);
@@ -588,6 +592,8 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
                     di.time_shift_lo.u = sum(u_tm_stamp(subrec_ids, tran.channels).^2,2).^0.5; % uncertainty
                     % ###note: summing high+low side unc. which is maybe not correct?
                 end
+                
+                
               
                 
                 % for each digitizer channel assigned to the transducer:
@@ -606,7 +612,10 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
                    
                     % store waveform data:
                     % note stores all available repetitions, one column per repetition:
-                    di = setfield(di, d_pfx, struct('v', reshape(data.y(:, tran.channels(c), subrec_ids), [size(data.y,1) numel(subrec_ids)])));               
+                    di = setfield(di, d_pfx, struct('v', reshape(data.y(:, tran.channels(c), subrec_ids), [size(data.y,1) numel(subrec_ids)])));
+                    
+                    % channel inverted flag: y_tr_is_inverted.v = ?
+                    di = setfield(di, [pfx 'tr_is_inverted'], struct('v',tran.is_inverted));
                     
                     % store channel corrections:
                     di = qwtb_alg_insert_corrs(di, data.corr.dig.chn{tran.channels(c)}, dig_pfx{c});

@@ -55,11 +55,12 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
 %         channels - list of digitizer channel indexes associated with this tran.
 %                    note: high-side first, low-side second for diff. connect. mode
 %         is_diff - non-zero if channel is connected in diff. mode
+%         is_inverted - non-zero if channel is inverted 
 %         * - correction tables, see transducer loader function
 %
 %
 % This is part of the TWM - TracePQM WattMeter (https://github.com/smaslan/TWM).
-% (c) 2017-2020, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2017-2024, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
     
@@ -454,6 +455,17 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
         error('TWM loader: Multiplexer mapping matrix size does not match transducers count!');
     end
     
+    % load transducer inverted flags
+    try
+        tran_inv_map = infogetmatrix(cinf, 'transducer inverted');
+        if isempty(tran_inv_map)
+            tran_inv_map = zeros(TC,1);
+        end
+    catch
+        % create default if not available
+        tran_inv_map = zeros(TC,1);        
+    end
+    
         
     % load tranducer correction files
     tr_chn_all = [];
@@ -498,6 +510,9 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
         
         % is transducer connected differentially?:
         corr.tran{t}.is_diff = numel(tr_chn) > 1;
+        
+        % store inverted flag
+        corr.tran{t}.is_inverted = tran_inv_map(t);
         
         % collect all used channel indexes:        
         tr_chn_all = [tr_chn_all, tr_chn];

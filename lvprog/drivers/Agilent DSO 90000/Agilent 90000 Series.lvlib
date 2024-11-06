@@ -166,6 +166,7 @@
 			<Item Name="Configure Vertical Coupling.vi" Type="VI" URL="../Public/Configure/Configure Vertical Coupling.vi"/>
 			<Item Name="Enable Normalize Gain.vi" Type="VI" URL="../Public/Configure/Enable Normalize Gain.vi"/>
 			<Item Name="High Res Bits.ctl" Type="VI" URL="../Public/Configure/High Res Bits.ctl"/>
+			<Item Name="Configure Timebase Reference Clock.vi" Type="VI" URL="../Public/Configure/Measurement/Configure Timebase Reference Clock.vi"/>
 		</Item>
 		<Item Name="Data" Type="Folder">
 			<Item Name="Low Level" Type="Folder">
@@ -249,6 +250,7 @@
 			<Item Name="Revision Query.vi" Type="VI" URL="../Public/Utility/Revision Query.vi"/>
 			<Item Name="Self-Test.vi" Type="VI" URL="../Public/Utility/Self-Test.vi"/>
 		</Item>
+		<Item Name="DSO type.ctl" Type="VI" URL="../Public/Utility/DSO type.ctl"/>
 		<Item Name="Close.vi" Type="VI" URL="../Public/Close.vi"/>
 		<Item Name="Initialize.vi" Type="VI" URL="../Public/Initialize.vi"/>
 		<Item Name="VI Tree.vi" Type="VI" URL="../Public/VI Tree.vi"/>
