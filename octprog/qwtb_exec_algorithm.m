@@ -25,7 +25,7 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
 %         cfg.parallel - set to non-zero when executed in parallel instances!
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018-2020, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2024, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
     
@@ -61,10 +61,31 @@ function [] = qwtb_exec_algorithm(meas_file, calc_unc, is_last_avg, avg_id, grou
         qinf = infoparse(qinf_txt);
         % try to get the content section:
         qinf = infogetsection(qinf, 'QWTB processing setup');
-    catch
-        % not present - no calculation, no error
-        warning('QWTB algorithm executer: No QWTB calculation setup found for given measurement session!');
-        return    
+        
+    catch err
+        % Following errors can happen:
+        %   1, missing function infoload, infoparse, infogetsection,
+        %   2, missing file qwtb.info,
+        %   3, missing section 'QWTB proecssing setup',
+        %   4, something other
+        if not(all( [exist('infoload'), exist('infoparse'), exist('infogetsection')] ))
+            % Error type 1, info scripts are missing
+            error(['QWTB algorithm executer: Missing functions `infoload`, `infoparse`, or `infogetsection`. Installation of TWM is probably corrupted. Try following command: addpath(' char(39) 'info' char(39) ')']);
+            
+        elseif strfind(lower(err.message), 'not found') % type 2 or 3
+            % Error type 2, file qwtb.info missing. infoload reports:
+            % file or section not present - no calculation, no error
+            %   err.message = "infoload: file `somepath\qwtb.info` not found"
+            % Error type 3, section missing. infogetsection reports:
+            %   err.message = "infogetsection: section `QWTB processing setup` not found"
+            warning('QWTB algorithm executer: No QWTB calculation setup found for given measurement session! (Either file `qwtb.info` or proper sections in info files are missing.)');
+            return;
+            
+        else % type 4
+            % unknown error, just repeat error:
+            rethrow(err);
+            
+        end       
     end
     
     % get QWTB algorithm ID:

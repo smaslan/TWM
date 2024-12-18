@@ -89,7 +89,7 @@ function [res,ecct] = z_to_equivalent(cct,f,Z,uZ,mjr,mnr,umjr,umnr)
         if isempty(eid)
             error(sprintf('Equivalent circuit ''%s'' not recognized! Use one of following: %s.',cct,catcellcsv(tags',', ')));
         end
-        cct = eid;
+        cct = eid - 1;
     end
     
     
