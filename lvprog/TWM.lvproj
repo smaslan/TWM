@@ -194,6 +194,40 @@
 				<Item Name="F8588A Error Query.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Error Query.vi"/>
 				<Item Name="F8588A Reset.vi" Type="VI" URL="../drivers/Fluke 8588A/F8588A Reset.vi"/>
 			</Item>
+			<Item Name="CMI_ADS127L21" Type="Folder">
+				<Item Name="CMI ADS127L21 - EXTOUT Mode.ctl" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - EXTOUT Mode.ctl"/>
+				<Item Name="CMI ADS127L21 - EXTOUT Polarity.ctl" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - EXTOUT Polarity.ctl"/>
+				<Item Name="CMI ADS127L21 - Input Impedance.ctl" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Input Impedance.ctl"/>
+				<Item Name="CMI ADS127L21 - Input Mode.ctl" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Input Mode.ctl"/>
+				<Item Name="CMI ADS127L21 - Input Range.ctl" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Input Range.ctl"/>
+				<Item Name="CMI ADS127L21 - Record Channel.ctl" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Record Channel.ctl"/>
+				<Item Name="CMI ADS127L21 - Session.ctl" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Session.ctl"/>
+				<Item Name="CMI ADS127L21 - Merge Errors.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Merge Errors.vi"/>
+				<Item Name="CMI ADS127L21 - Get Error.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Get Error.vi"/>
+				<Item Name="CMI ADS127L21 - Open.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Open.vi"/>
+				<Item Name="CMI ADS127L21 - Close.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Close.vi"/>
+				<Item Name="CMI ADS127L21 - Config Channels.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Config Channels.vi"/>
+				<Item Name="CMI ADS127L21 - Config EXTOUT.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Config EXTOUT.vi"/>
+				<Item Name="CMI ADS127L21 - Config Input.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Config Input.vi"/>
+				<Item Name="CMI ADS127L21 - Config Record Size.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Config Record Size.vi"/>
+				<Item Name="CMI ADS127L21 - Config Reference Clock Source.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Config Reference Clock Source.vi"/>
+				<Item Name="CMI ADS127L21 - Config Sampling Rate.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Config Sampling Rate.vi"/>
+				<Item Name="CMI ADS127L21 - Get Measured Reference Freq.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Get Measured Reference Freq.vi"/>
+				<Item Name="CMI ADS127L21 - Get Record Scaling.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Get Record Scaling.vi"/>
+				<Item Name="CMI ADS127L21 - Get Record Status.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Get Record Status.vi"/>
+				<Item Name="CMI ADS127L21 - Get Record Timestamp.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Get Record Timestamp.vi"/>
+				<Item Name="CMI ADS127L21 - Read Record Data.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Read Record Data.vi"/>
+				<Item Name="CMI ADS127L21 - Reset Timestamp.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Reset Timestamp.vi"/>
+				<Item Name="CMI ADS127L21 - Select Channels.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Select Channels.vi"/>
+				<Item Name="CMI ADS127L21 - Start Record.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Start Record.vi"/>
+				<Item Name="CMI ADS127L21 - Abort Record.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Abort Record.vi"/>
+				<Item Name="CMI ADS127L21 - Start Sampling.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Start Sampling.vi"/>
+				<Item Name="CMI ADS127L21 - Stop Sampling.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Stop Sampling.vi"/>
+				<Item Name="CMI ADS127L21 - Test.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Test.vi"/>
+				<Item Name="CMI ADS127L21 - Fetch Data.ctl" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Fetch Data.ctl"/>
+				<Item Name="CMI ADS127L21 - Try Fetch Data.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Try Fetch Data.vi"/>
+				<Item Name="CMI ADS127L21 - Config Virtual Channels.vi" Type="VI" URL="../drivers/CMI_ADS127L21/CMI ADS127L21 - Config Virtual Channels.vi"/>
+			</Item>
 			<Item Name="niScope Virtual Digitizer.lvlib" Type="Library" URL="../drivers/niScope/niScope Virtual Digitizer.lvlib"/>
 			<Item Name="AWG.lvlib" Type="Library" URL="../drivers/AWG/AWG.lvlib"/>
 			<Item Name="Counter.lvlib" Type="Library" URL="../drivers/Counter/Counter.lvlib"/>
@@ -427,6 +461,9 @@
 					<Item Name="README" Type="Document" URL="../other/fftw3/dll/README"/>
 				</Item>
 				<Item Name="FFTWDLL.lvlib" Type="Library" URL="../other/fftw3/source/FFTWDLL.lvlib"/>
+			</Item>
+			<Item Name="get_com_descriptor" Type="Folder">
+				<Item Name="Get COM Descriptor.lvlib" Type="Library" URL="../other/get_com_descriptor/Get COM Descriptor.lvlib"/>
 			</Item>
 			<Item Name="GUI Panel Control Action.ctl" Type="VI" URL="../other/GUI Panel Control Action.ctl"/>
 			<Item Name="randn_approximation.vi" Type="VI" URL="../other/randn_approximation.vi"/>
@@ -1259,8 +1296,8 @@
 				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - full.vi</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">9</Property>
-				<Property Name="Bld_version.patch" Type="Int">3</Property>
+				<Property Name="Bld_version.minor" Type="Int">10</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1281,7 +1318,7 @@
 				<Property Name="Destination[5].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="DestinationCount" Type="Int">6</Property>
 				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/icon.ico</Property>
-				<Property Name="Source[0].itemID" Type="Str">{B40C2391-451C-49A4-9891-648501C3B7CE}</Property>
+				<Property Name="Source[0].itemID" Type="Str">{18597394-C0E0-4B16-871D-ED021F420CED}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
 				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
@@ -1324,7 +1361,7 @@
 				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
 				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM (https://tracepqm.cmi.cz).</Property>
 				<Property Name="TgtF_internalName" Type="Str">TWM - visa,niscope</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2023</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2017 - 2025</Property>
 				<Property Name="TgtF_productName" Type="Str">TWM</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{D8F2E1E1-802E-4B60-9D7C-5E18E07A06CA}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM.exe</Property>
@@ -1348,8 +1385,8 @@
 				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - visa.vi</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">9</Property>
-				<Property Name="Bld_version.patch" Type="Int">3</Property>
+				<Property Name="Bld_version.minor" Type="Int">10</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/TWM-visa.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1435,8 +1472,8 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - visa,niscope.vi</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">9</Property>
-				<Property Name="Bld_version.patch" Type="Int">3</Property>
+				<Property Name="Bld_version.minor" Type="Int">10</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-niscope/TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1526,8 +1563,8 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Pre-Build Action - visa,daqmx.vi</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{27659806-CFBA-4E41-96E1-CFFCCE604162}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">9</Property>
-				<Property Name="Bld_version.patch" Type="Int">3</Property>
+				<Property Name="Bld_version.minor" Type="Int">10</Property>
+				<Property Name="Bld_version.patch" Type="Int">1</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-daqmx.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-daqmx/TWM-visa-daqmx.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
