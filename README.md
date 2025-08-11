@@ -16,6 +16,7 @@ The TWM concept is modular, so it can be simply extended by various digitizer dr
 - cDAQ NI9238 module (only single module),
 - Keysight DSO driver (very experimental, tested on model DSOS0604),
 - [DirectSound](http://www.elektronika.kvalitne.cz/SW/dsdll/dsdll_eng.html) driver for ordinary soundcard for test purposes and low accuracy measurements,
+- CMI ADS127L21 digitizer driver (experimental digitizer with TI ADS127L21 chip),
 - Simulated digitizer for debug purposes (synthesizer of the composite harmonics signal).
 
 Modularity of the Power and PQ calculation algorithms used by the TWM is ensured by the [QWTB](https://qwtb.github.io/qwtb/) toolbox. 
