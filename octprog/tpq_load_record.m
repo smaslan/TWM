@@ -60,7 +60,7 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
 %
 %
 % This is part of the TWM - TracePQM WattMeter (https://github.com/smaslan/TWM).
-% (c) 2017-2024, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2017-2025, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
     
@@ -206,7 +206,9 @@ function [data] = tpq_load_record(header, group_id, repetition_id,data_ofs,data_
     if isfield(cfg,'time_stamp_mode') && cfg.time_stamp_mode == 0
         relative_timestamps = 0*relative_timestamps;
     elseif isfield(cfg,'time_stamp_mode') && cfg.time_stamp_mode < 0
-        relative_timestamps = bsxfun(@minus,relative_timestamps,relative_timestamps(1,:));
+        % make them relative to first record, use lowest timestamp of all channels (each ADC channel can have different timestamp offset!)
+        %relative_timestamps = bsxfun(@minus,relative_timestamps,relative_timestamps(1,:)); %###note: was wrong the whole time, but fortunately should not cause problems for most digitizers)
+        relative_timestamps = relative_timestamps - min(relative_timestamps(1,:));
     end
          
     
