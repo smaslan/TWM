@@ -15,6 +15,7 @@
 		<Item Name="golpi_mpc_command.vi" Type="VI" URL="../golpi_mpc_command.vi"/>
 		<Item Name="golpi_mpc_get_access.vi" Type="VI" URL="../golpi_mpc_get_access.vi"/>
 		<Item Name="golpi_mpc_release.vi" Type="VI" URL="../golpi_mpc_release.vi"/>
+		<Item Name="golpi_mpc_check_state.vi" Type="VI" URL="../golpi_mpc_check_state.vi"/>
 	</Item>
 	<Item Name="golpi_mpc_init_session.vi" Type="VI" URL="../golpi_mpc_init_session.vi"/>
 	<Item Name="golpi_mpc_close_session.vi" Type="VI" URL="../golpi_mpc_close_session.vi"/>
