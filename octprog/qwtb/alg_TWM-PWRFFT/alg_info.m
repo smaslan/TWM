@@ -94,7 +94,15 @@ function alginfo = alg_info() %<<<1
     
     % reference channel
     alginfo.inputs(pid).name = 'ref_channel';
-    alginfo.inputs(pid).desc = 'Reference for phase calculation {''u'', ''i''}, default ''u''';
+    alginfo.inputs(pid).desc = 'Reference for phase calculation {''u'', ''i''}, default ''i'' (IEC standard)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 1;
+    pid = pid + 1;
+    
+    % invert current channel
+    alginfo.inputs(pid).name = 'inv_i_channel';
+    alginfo.inputs(pid).desc = 'Inverted current channel phase, default ''0''';
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
@@ -502,6 +510,14 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     [alginfo,pid] = add_ui_pair(alginfo,pid,0);
     
+    alginfo.inputs(pid).name = 'tr_is_inverted';
+    alginfo.inputs(pid).desc = 'Transducer connection is inverted (swap high-low)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+    [alginfo,pid] = add_ui_pair(alginfo,pid,0);
+    
     
     
     
@@ -540,7 +556,7 @@ function alginfo = alg_info() %<<<1
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'quadrant';
-    alginfo.outputs(pid).desc = 'Capacitive/inductive, import/export';
+    alginfo.outputs(pid).desc = 'Quadrant number';
     pid = pid + 1;
     
     alginfo.outputs(pid).name = 'phi_ef';

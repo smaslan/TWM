@@ -212,6 +212,9 @@ function alg_test(calcset) %<<<1
             %  note: maximum allowed f_component/fs ratio
             nylim = 0.4;
             
+            % testing in IEEE notation
+            din.ref_channel.v = 'u';
+            
             % enable AC coupling:
             din.ac_coupling.v = 1;%(rand > 0.5);
             

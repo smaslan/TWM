@@ -448,6 +448,13 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).parameter = 0;
     pid = pid + 1;
     
+    alginfo.inputs(pid).name = 'tr_is_inverted';
+    alginfo.inputs(pid).desc = 'Transducer connection is inverted (swap high-low)';
+    alginfo.inputs(pid).alternative = 0;
+    alginfo.inputs(pid).optional = 1;
+    alginfo.inputs(pid).parameter = 0;
+    pid = pid + 1;
+        
     
     
     

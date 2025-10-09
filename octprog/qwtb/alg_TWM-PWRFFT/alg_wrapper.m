@@ -28,14 +28,17 @@ function dataout = alg_wrapper(datain, calcset)
     
     % reference channel for phase calculation:  
     if ~isfield(datain,'ref_channel')
-        ref = 'u';
+        ref = 'i';
     elseif strcmpi(datain.ref_channel.v,'i')
         ref = 'i';
     elseif strcmpi(datain.ref_channel.v,'u')
         ref = 'u';
     else
         error(sprintf('TWM-PWRFFT parameter ''ref_channel'' value ''%s'' not recognizer! Only ''u'' or ''i'' supported.',datain.ref_channel.v));
-    end              
+    end
+    
+    % invert phase mode:
+    is_i_invert = isfield(datain,'inv_i_channel') && datain.inv_i_channel.v;
          
     if cfg.u_is_diff || cfg.i_is_diff
         % Input data 'y' is differential: if it is not allowed, put error message here
@@ -97,7 +100,7 @@ function dataout = alg_wrapper(datain, calcset)
               'adc_gain_f','adc_gain_a','adc_gain','adc_phi_f','adc_phi_a','adc_phi','adc_sfdr_f','adc_sfdr_a','adc_sfdr', ... 
               'adc_Yin_f','adc_Yin_Cp','adc_Yin_Gp','tr_gain_f','tr_gain_a','tr_gain','tr_phi_f','tr_phi_a','tr_phi', ...
               'tr_Zlo_f','tr_Zlo_Rp','tr_Zlo_Cp','tr_Zca_f','tr_Zca_Ls','tr_Zca_Rs','tr_Yca_f','tr_Yca_Cp','tr_Yca_D', ...
-              'Zcb_f','Zcb_Ls','Zcb_Rs','Ycb_f','Ycb_Cp','Ycb_D','tr_Zbuf_Rs','tr_Zbuf_Ls','tr_Zbuf_f'};
+              'Zcb_f','Zcb_Ls','Zcb_Rs','Ycb_f','Ycb_Cp','Ycb_D','tr_Zbuf_Rs','tr_Zbuf_Ls','tr_Zbuf_f','tr_is_inverted'};
     
     % --- Pre-processing ---
    
@@ -109,7 +112,7 @@ function dataout = alg_wrapper(datain, calcset)
     %           + it will be more immune to interharmonics in the signal
     %           - it will be more sensitive to inaccurate coherent setup in terms of phase?
     %win_type = 'flattop_144D';
-    win_type = 'rect';
+    win_type = 'rect';    
          
     
     % --- get channel spectra:    
@@ -146,6 +149,12 @@ function dataout = alg_wrapper(datain, calcset)
                 din = setfield(din, ['lo_' v_list{v}], getfield(datain,[vc.name '_lo_' v_list{v}]));
             end
         end
+        
+        % override inverted flag for i-channel
+        if vc.name == 'i' && is_i_invert
+            din.tr_is_inverted = 1;
+        end
+                
         % execute WFFT:
         dout = qwtb('TWM-WFFT',din,cset);        
         % extract DFT bins:
@@ -155,7 +164,7 @@ function dataout = alg_wrapper(datain, calcset)
         vc.ph = dout.ph.v(:); % phase vector of the DFT bins
         vc.u_ph = dout.ph.u(:); % phase vector of the DFT bins
         %w     = dout.w.v; % window coefficients
-        
+                
         % estimate DC offset of channel:           
         vc.dc = vc.Y(1);
         vc.u_dc = vc.u_Y(1);
@@ -281,21 +290,15 @@ function dataout = alg_wrapper(datain, calcset)
     PF = P/S;
     u_PF  = max(abs(v_PF - PF))/k_in;
     
-    % find cap/ind
-    is_cap = Q < 0;
-    if ref == 'u'
-        is_cap = ~is_cap;
-    end             
-    % quadrant string
-    if sign(P)
-        ie_str = 'IMPORT';
-    else 
-        ie_str = 'EXPORT';
-    end
-    if is_cap
-        cap_str = 'CAP';
+    % decide quadrant
+    if P >= 0 && Q >= 0
+        quad = 'Q1';
+    elseif P < 0 && Q >= 0
+        quad = 'Q2';
+    elseif P < 0 && Q < 0
+        quad = 'Q3';
     else
-        cap_str = 'IND';
+        quad = 'Q4';
     end
         
     
@@ -340,7 +343,7 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.Db.u = u_D_bud*ke;
     dataout.PF.v = PF;
     dataout.PF.u = u_PF*ke;
-    dataout.quadrant.v = [ie_str ' ' cap_str];
+    dataout.quadrant.v = quad;
     %dataout.quadrant.u = [];
     dataout.phi_ef.v = atan2(Q,P);
     dataout.phi_ef.u = max(abs([atan2(Q+u_Q,P+u_P) atan2(Q-u_Q,P+u_P) atan2(Q-u_Q,P-u_P) atan2(Q-u_Q,P-u_P)]-atan2(Q,P)))*ke;
