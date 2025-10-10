@@ -4,7 +4,7 @@ function dataout = alg_wrapper(datain, calcset)
 % See also qwtb
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2025, Stanislav Maslan, smaslan@cmi.gov.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
 % Format input data --------------------------- %<<<1
@@ -56,13 +56,13 @@ function dataout = alg_wrapper(datain, calcset)
     
     % reference channel for phase calculation:  
     if ~isfield(datain,'ref_channel')
-        ref = 'u';
+        ref = 'i';
     elseif strcmpi(datain.ref_channel.v,'i')
         ref = 'i';
     elseif strcmpi(datain.ref_channel.v,'u')
         ref = 'u';
     else
-        error(sprintf('TWM-PWRFFT parameter ''ref_channel'' value ''%s'' not recognizer! Only ''u'' or ''i'' supported.',datain.ref_channel.v));
+        error(sprintf('TWM-PWRFFT parameter ''ref_channel'' value ''%s'' not recognized! Only ''u'' or ''i'' supported.',datain.ref_channel.v));
     end              
     
     
@@ -109,6 +109,7 @@ function dataout = alg_wrapper(datain, calcset)
     vcl{id}.y = datain.u.v;
     vcl{id}.ap_corr = datain.u_adc_aper_corr.v;
     vcl{id}.adc_ofs = datain.u_adc_offset;
+    vcl{id}.tr_inv = isfield(datain,'u_tr_is_inverted') && datain.u_tr_is_inverted.v;
     if cfg.u_is_diff
         vcl{id}.y_lo = datain.u_lo.v;
         vcl{id}.tsh_lo = datain.u_time_shift_lo; % low-high side channel time shift
@@ -125,6 +126,7 @@ function dataout = alg_wrapper(datain, calcset)
     vcl{id}.y = datain.i.v;
     vcl{id}.ap_corr = datain.i_adc_aper_corr.v;
     vcl{id}.adc_ofs = datain.i_adc_offset;
+    vcl{id}.tr_inv = isfield(datain,'i_tr_is_inverted') && datain.i_tr_is_inverted.v;
     if cfg.i_is_diff
         vcl{id}.y_lo = datain.i_lo.v;
         vcl{id}.tsh_lo = datain.i_time_shift_lo;
@@ -154,6 +156,18 @@ function dataout = alg_wrapper(datain, calcset)
     %  note: this is not the window for the main RMS algorithms itself!
     %        This is just to calculate signal spectrum for purposes of corrections, uncertainty, etc.
     win_type = 'flattop_144D';
+    
+
+    % for each virtual (u/i) channel:
+    for k = 1:numel(vcl)        
+        vc = vcl{k};
+        if vc.tr_inv && ~vc.is_diff
+            % inverted connection
+            vc.y = -vc.y;
+            vc.adc_ofs.v = -vc.adc_ofs.v;
+        end
+        vcl{k} = vc;        
+    end
          
     
     % --- get channel spectra:    
@@ -1147,7 +1161,7 @@ function dataout = alg_wrapper(datain, calcset)
     u_S = ((u_U*I)^2 + (u_I*U)^2)^0.5;
     Q = (S^2 - P^2)^0.5;    
     u_Q = ((S^2*u_S^2 + P^2*u_P^2)/(S^2 - P^2))^0.5; % ###note: ignoring corelations, may be improved    
-    % ###note: very experiMENTAL solution. The sing() of the FFT based Q (according Budenau) is used to estimate polarity.
+    % ###note: very experiMENTAL solution. The sing() of the FFT based Q (according Budeanu) is used to estimate polarity.
     %          Correct solution would be to use hilbert transform but that is not done yet.
     %          This solution should work for PF > 0.05 and for not insane THD. In the worst case it will change only polarity. 
     Q = Q.*sign(Q_fft); % apply polarity obtained from FFT    
@@ -1200,21 +1214,15 @@ function dataout = alg_wrapper(datain, calcset)
 %     figure
 %     hist(v_PF,50)
     
-    % find cap/ind
-    is_cap = Q < 0;
-    if ref == 'u'
-        is_cap = ~is_cap;
-    end             
-    % quadrant string
-    if sign(P)
-        ie_str = 'IMPORT';
-    else 
-        ie_str = 'EXPORT';
-    end
-    if is_cap
-        cap_str = 'CAP';
+    % decide quadrant
+    if P >= 0 && Q >= 0
+        quadstr = 'Q1';
+    elseif P < 0 && Q >= 0
+        quadstr = 'Q2';
+    elseif P < 0 && Q < 0
+        quadstr = 'Q3';
     else
-        cap_str = 'IND';
+        quadstr = 'Q4';
     end
         
         
@@ -1237,7 +1245,7 @@ function dataout = alg_wrapper(datain, calcset)
     dataout.Q.u = u_Q*ke;
     dataout.PF.v = PF;
     dataout.PF.u = u_PF*ke;
-    dataout.quadrant.v = [ie_str ' ' cap_str];
+    dataout.quadrant.v = quadstr;
     dataout.phi_ef.v = atan2(Q,P);
     dataout.phi_ef.u = max(abs([atan2(Q+u_Q,P+u_P) atan2(Q-u_Q,P+u_P) atan2(Q-u_Q,P-u_P) atan2(Q-u_Q,P-u_P)]-atan2(Q,P)))*ke;
     % DC components:
