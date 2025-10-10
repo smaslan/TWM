@@ -37,6 +37,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
 %           din.**tr_Zcb... - transducer cable(s) series Z matrices
 %           din.**tr_Ycb... - transducer cable(s) shunting Y matrices
 %           din.**tr_Zbuf... - transducer output buffer series Z matrices
+%           din.**tr_is_inverted - transducer connection to ADC is inverted (only for SE)
 %           *  - prefix of subchannel ('u_' or 'i_' - high-side channel or SE
 %                                      or 'lo_u_', 'lo_i_' - low-side channel for diff. mode)
 %           ** - prefix of channel ('u_' or 'i_' - channel prefix)
@@ -75,7 +76,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
 % License:
 % --------
 % This is part of the TWM tool (https://github.com/smaslan/TWM).
-% (c) 2018-2023, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2025, Stanislav Maslan, smaslan@cmi.gov.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT
 
 
@@ -138,7 +139,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
                 
         % i-channel timeshift:
         if is_pwr && chn.name == 'i'
-            tsh = -din.time_shift.v + randn(1)*din.time_shift.u*rand_unc; % ###todo: decide if this has correct polarity!!!!!!!!!!!!!!!           
+            tsh = -din.time_shift.v + randn(1)*din.time_shift.u*rand_unc; % ###todo: decide if this has correct polarity!!!!!!!!!!!!!!!                       
         else
             tsh = 0;
         end
@@ -153,6 +154,10 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
         else
             cpfx = '';
         end
+        
+        % channel inverted (only for single-ended)?
+        inv_name = [cpfx 'tr_is_inverted'];
+        chn.tr_inverted = isfield(din,inv_name) && getfield(din,inv_name).v;
                                         
         % load channel corrections for given v.channel:
         % note: this removes 'u_' or 'i_' prefix so the rest of code can be run in loop for both U and I v.channels
@@ -162,7 +167,8 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
         else
             chtab = tab;
         end
-            
+        
+                    
         % insert fake DC component to the harmonic list:
         chn.fxg = [1e-12;  chn.fx];
         chn.Ag  = [chn.dc; chn.A];
@@ -177,7 +183,7 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
             rms = (rms^2 + chn.dc^2)^0.5;       
         end                
         cfg.chn{c}.rms = rms;
-                
+        
                 
         
         % ###todo: this should probably somehow be scaled by the transducer transfer??
@@ -295,9 +301,13 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
             
             % add some ADC noise:
             u = u + randn(size(u))*chn.adc_std_noise;
-            
+                        
             % add ADC offset:
-            u = u + adc_ofs(k).v + adc_ofs(k).u*randn;
+            if chn.tr_inverted
+                u = -u + adc_ofs(k).v + adc_ofs(k).u*randn;
+            else
+                u = u + adc_ofs(k).v + adc_ofs(k).u*randn;
+            end                       
             
             % store to the QWTB input list:
             dout = setfield(dout, sub_chn{k}, struct('v',u));
@@ -311,7 +321,6 @@ function [dout,simout] = gen_pwr(din,cfg,rand_unc)
     
     % calculate reference values:
     if is_pwr
-        
         % ###todo: decide actual definition of S!!!
         %simout.S = 0.5*sum(cfg.chn{1}.A.*cfg.chn{2}.A);
         

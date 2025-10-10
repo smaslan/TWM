@@ -4,7 +4,7 @@ function dataout = alg_wrapper(datain, calcset)
 % See also qwtb
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018 - 2023, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018 - 2025, Stanislav Maslan, smaslan@cmi.gov.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
 % Format input data --------------------------- %<<<1
@@ -34,7 +34,7 @@ function dataout = alg_wrapper(datain, calcset)
     elseif strcmpi(datain.ref_channel.v,'u')
         ref = 'u';
     else
-        error(sprintf('TWM-PWRFFT parameter ''ref_channel'' value ''%s'' not recognizer! Only ''u'' or ''i'' supported.',datain.ref_channel.v));
+        error(sprintf('TWM-PWRFFT parameter ''ref_channel'' value ''%s'' not recognized! Only ''u'' or ''i'' supported.',datain.ref_channel.v));
     end
     
     % invert phase mode:

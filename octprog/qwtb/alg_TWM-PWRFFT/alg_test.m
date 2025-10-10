@@ -2,7 +2,7 @@ function alg_test(calcset) %<<<1
 % Part of QWTB. Test script for algorithm TWM-PWRFFT.
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2025, Stanislav Maslan, smaslan@cmi.gov.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.   
 %
 % See also qwtb
@@ -464,6 +464,8 @@ function alg_test(calcset) %<<<1
                 % differential timeshift:
                 din.u_time_shift_lo.v = linrand(-1,1)*max_chn2chn_td;
                 din.u_time_shift_lo.u = logrand(0.1,1)*max_chn2chn_td_u;
+                % inverted connection?
+                din.u_tr_is_inverted.v = (rand > 0.5) && ~simcom{c}.is_diff;
                 
                 
                 % -- current channel:
@@ -540,6 +542,9 @@ function alg_test(calcset) %<<<1
                 % U-I interchannel timeshift:
                 din.time_shift.v =  linrand(-1,1)*max_chn2chn_td;
                 din.time_shift.u =  logrand(0.1,1)*max_chn2chn_td_u*0.1;
+                
+                % inverted connection?
+                din.i_tr_is_inverted.v = (rand > 0.5) && ~simcom{c}.is_diff;
             
             end
             
@@ -623,8 +628,10 @@ function alg_test(calcset) %<<<1
             fprintf('fs/f0 ratio = %0.2f\n',din.fs.v/f0);
             fprintf('Harmonics = %s\n',sprintf('%.3g ',sort([cfg.chn{1}.fx/f0])));
             fprintf('AC coupling = %.0f\n',din.ac_coupling.v);
-            fprintf('U-transducer buffer = %.0f\n',isfield(din,'u_tr_Zbuf_f'));
-            fprintf('I-transducer buffer = %.0f\n',isfield(din,'i_tr_Zbuf_f'));
+            fprintf('U-transducer has buffer = %.0f\n',isfield(din,'u_tr_Zbuf_f'));
+            fprintf('I-transducer has buffer = %.0f\n',isfield(din,'i_tr_Zbuf_f'));
+            fprintf('U-transducer inverted = %.0f\n',din.u_tr_is_inverted.v);
+            fprintf('I-transducer inverted = %.0f\n',din.i_tr_is_inverted.v);
         end
     
         % --- generate the signal:        
