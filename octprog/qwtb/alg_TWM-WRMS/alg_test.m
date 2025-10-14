@@ -410,6 +410,9 @@ function alg_test(calcset) %<<<1
                 % differential timeshift:
                 din.time_shift_lo.v = linrand(-1,1)*max_chn2chn_td;
                 din.time_shift_lo.u = logrand(0.1,1)*max_chn2chn_td_u;
+                
+                % inverted transducer connection?
+                din.tr_is_inverted.v = (rand() > 0.5) && ~simcom{c}.is_diff;
             
             end
             
@@ -472,6 +475,7 @@ function alg_test(calcset) %<<<1
             fprintf('Harmonics = %s\n',sprintf('%.3g ',sort([cfg.chn{1}.fx/f0])));
             fprintf('AC coupling = %.0f\n',din.ac_coupling.v);
             fprintf('Transducer buffer = %.0f\n',isfield(din,'tr_Zbuf_f'));
+            fprintf('Transducer inverted = %.0f\n',din.tr_is_inverted.v);
         end
         
         % --- generate the signal:        
