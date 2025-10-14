@@ -433,7 +433,7 @@ function alg_test(calcset) %<<<1
                 din.time_shift_lo.v = linrand(-1,1)*max_chn2chn_td;
                 din.time_shift_lo.u = logrand(0.1,1)*max_chn2chn_td_u;
                 
-                din.tr_is_inverted.v = 0;
+                din.tr_is_inverted.v = rand() > 0.5;
             
             end
             
@@ -544,6 +544,7 @@ function alg_test(calcset) %<<<1
             fprintf('Harmonics = %s\n',sprintf('%.3g ',sort([cfg.chn{1}.fx/f0])));
             fprintf('Transducer type = %s\n',cfg.chn{1}.type);
             fprintf('Transducer buffer = %.0f\n',isfield(din,'tr_Zbuf_f'));
+            fprintf('Transducer inverted = %.0f\n',din.tr_is_inverted.v);
             
             %cfg.chn{1}.Zx = 0.1;
         end
@@ -551,9 +552,9 @@ function alg_test(calcset) %<<<1
         % --- generate the signal:        
         [datain,simout] = gen_pwr(din, cfg, rand_unc); % generate
         
-        if din.tr_is_inverted.v
-            datain.y.v = -datain.y.v;            
-        end
+        %if din.tr_is_inverted.v
+        %    datain.y.v = -datain.y.v;            
+        %end
                 
         % add fake uncertainties to allow uncertainty calculation:
         %  ###todo: to be removed when QWTB supports no uncertainty checking 
