@@ -37,6 +37,7 @@ function dout = gen_composite(din,cfg,rand_unc)
 %           din.tr_Zcb... - transducer cable(s) series Z matrices
 %           din.tr_Ycb... - transducer cable(s) shunting Y matrices
 %           din.tr_Zbuf... - transducer buffer output impedance (optional)
+%           din.tr_is_inverted... - transducer connection inverted? (optional)
 %           * - prefix of subchannel ('' - high-side channel or SE, or 'lo_' - low-side channel)
 %         
 %   cfg - configuration of the simulator:
@@ -62,7 +63,7 @@ function dout = gen_composite(din,cfg,rand_unc)
 % License:
 % --------
 % This is part of the TWM tool (https://github.com/smaslan/TWM).
-% (c) 2018-2023, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2025, Stanislav Maslan, smaslan@cmi.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT   
 
 
@@ -220,7 +221,11 @@ function dout = gen_composite(din,cfg,rand_unc)
         end
         
         % add ADC DC offset:
-        u = u + ofs(c).v + randn*ofs(c).u;
+        if isfield(din,'tr_is_inverted') && din.tr_is_inverted.v
+            u = -u + ofs(c).v + randn*ofs(c).u;
+        else
+            u = u + ofs(c).v + randn*ofs(c).u;
+        end
                 
         % add ADC noise:
         u = u + randn(cfg.N,1)*cfg.adc_std_noise;

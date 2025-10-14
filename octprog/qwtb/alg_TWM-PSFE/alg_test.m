@@ -37,14 +37,6 @@ function alg_test(calcset) %<<<1
     % dc offset:
     dc = 0.1;
     
-    % print some header:
-    fprintf('samples count = %g\n',N);
-    fprintf('sampling rate = %.7g kSa/s\n',0.001*din.fs.v);
-    fprintf('fundamental frequency = %.7g Hz\n',f0_per/N*din.fs.v);
-    fprintf('fundamental periods = %.7g\n',f0_per);
-    fprintf('fundamental samples per period = %.7g\n',N/f0_per);
-    fprintf('\n');
-    
         
     % current loop impedance (used for simulation of differential transducer):
     %  note: uncomment to enable differential mode of transducer
@@ -171,6 +163,20 @@ function alg_test(calcset) %<<<1
         din.tr_Zbuf_Ls.v = logrand(1e-9,1e-6);
         din.tr_Zbuf_Ls.u = 1e-12;
     end
+    
+    % inverted transducer?
+    din.tr_is_inverted.v = rand() > 0.5 && ~exist('Zx','var');
+    
+    
+    % print some header:
+    fprintf('samples count = %g\n',N);
+    fprintf('sampling rate = %.7g kSa/s\n',0.001*din.fs.v);
+    fprintf('fundamental frequency = %.7g Hz\n',f0_per/N*din.fs.v);
+    fprintf('fundamental periods = %.7g\n',f0_per);
+    fprintf('fundamental samples per period = %.7g\n',N/f0_per);
+    fprintf('transducer inverted = %.0f\n',din.tr_is_inverted.v);
+    
+    fprintf('\n');
     
     % generate the signal:
     cfg.N = N; % samples count

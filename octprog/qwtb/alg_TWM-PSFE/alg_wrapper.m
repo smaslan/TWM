@@ -105,6 +105,11 @@ function dataout = alg_wrapper(datain, calcset)
     f  = dout.f.v;
     A  = dout.A.v;
     ph = dout.ph.v;
+    
+    % inveted transducer?
+    if isfield(datain,'tr_is_inverted') && datain.tr_is_inverted.v
+        ph = ph - pi;
+    end
  
     
     % store original frequency before tb. correction:
