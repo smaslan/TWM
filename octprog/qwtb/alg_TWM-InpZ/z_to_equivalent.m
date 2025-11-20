@@ -35,22 +35,25 @@ function [res,ecct] = z_to_equivalent(cct,f,Z,uZ,mjr,mnr,umjr,umnr)
   
     % list of equivalant circuits
     ecct = {
-       'Rs','Ohm','Xs','Ohm','%_7p','%_7p';
-       'Gp','S','Bp','S','%_7p','%_7p';
-       'Z','Ohm','phid','deg','%_7p','%.5f';
-       'Z','Ohm','phir','rad','%_7p','%.7f';
-       'Y','S','phid','deg','%_7p','%.5f';
-       'Y','S','phir','rad','%_7p','%.7f';
-       'Cp','F','D','-','%_7p','%.7f';
-       'Cp','F','Q','-','%_7p','%_6f';
-       'Cp','F','Rp','Ohm','%_7p','%_7p';
-       'Cp','F','Gp','S','%_7p','%_7p';
-       'Cs','F','D','-','%_7p','%.7f';
-       'Cs','F','Q','-','%_7p','%_6f';
-       'Cs','F','Rs','Ohm','%_7p','%_7p';
-       'Ls','H','Rs','Ohm','%_7p','%_7p';
-       'Ls','H','Q','-','%_7p','%_6f',
-       'Rs','Ohm','tau','s','%_7p','%_5p'};
+           'Rs','Ohm','Xs','Ohm','%_7p','%_7p';
+           'Gp','S','Bp','S','%_7p','%_7p';
+           'Z','Ohm','phid','deg','%_7p','%.5f';
+           'Z','Ohm','phir','rad','%_7p','%.7f';
+           'Y','S','phid','deg','%_7p','%.5f';
+           'Y','S','phir','rad','%_7p','%.7f';
+           'Cp','F','D','-','%_7p','%.7f';
+           'Cp','F','Q','-','%_7p','%_6f';
+           'Cp','F','Rp','Ohm','%_7p','%_7p';
+           'Cp','F','Gp','S','%_7p','%_7p';
+           'Cs','F','D','-','%_7p','%.7f';
+           'Cs','F','Q','-','%_7p','%_6f';
+           'Cs','F','Rs','Ohm','%_7p','%_7p';
+           'Ls','H','Rs','Ohm','%_7p','%_7p';
+           'Ls','H','Q','-','%_7p','%_6f',           
+           'Rs','Ohm','tau','s','%_7p','%_5p',
+           'Rp','Ohm','tau','s','%_7p','%_5p',
+           'Lp','H','Q','-','%_7p','%_6f',        
+           'Lp','H','Rp','Ohm','%_7p','%_7p'};
        
     % build supported list (RsXs, LsQ, ...)
     tags = {};
@@ -93,7 +96,7 @@ function [res,ecct] = z_to_equivalent(cct,f,Z,uZ,mjr,mnr,umjr,umnr)
     end
     
     
-    if nargin == 4
+    if(nargin == 4)
         % --- convert Zx to desired equivalent circuit ---
         
         Rs = real(Z);
@@ -103,126 +106,147 @@ function [res,ecct] = z_to_equivalent(cct,f,Z,uZ,mjr,mnr,umjr,umnr)
         w = 2*pi*f;
         
         switch(cct)
-            case 0
-                % Rs-Xs
-                mjr = Rs; 
-                mnr = Xs;
-                umjr = abs(uRs);
-                umnr = abs(uXs);
-      
-            case 1
-                % Gp-Bp
-                mjr = Rs./(Rs.^2 + Xs.^2);
-                mnr = -Xs./(Rs.^2 + Xs.^2);     
-                umjr = sqrt(4*Rs.^2.*Xs.^2.*uXs.^2+(Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uRs.^2)./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4);
-                umnr = sqrt((Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uXs.^2+4*Rs.^2.*Xs.^2.*uRs.^2)./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4);
-                      
-            case 2
-                % Z-phi [deg]
-                mjr = (Rs.^2 + Xs.^2).^0.5;
-                mnr = atan2(Xs,Rs)*180/pi;
-                umjr = (Xs.^2.*uXs.^2+Rs.^2.*uRs.^2).^0.5./(Xs.^2+Rs.^2).^0.5;
-                umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4).^0.5*180/pi;        
-                      
-            case 3
-                % Z-phi [rad]
-                mjr = (Rs.^2 + Xs.^2).^0.5;
-                mnr = atan2(Xs,Rs);
-                umjr = (Xs.^2.*uXs.^2+Rs.^2.*uRs.^2).^0.5./(Xs.^2+Rs.^2).^0.5;
-                umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4).^0.5;        
-      
-            case 4
-                % Y-phi [deg]
-                mjr = (Rs.^2 + Xs.^2).^-0.5;
-                mnr = atan2(-Xs,Rs)*180/pi;
-                umjr = (Xs.^2.*uXs.^2+Rs.^2.*uRs.^2).^0.5./(Xs.^6+3*Rs.^2.*Xs.^4+3*Rs.^4.*Xs.^2+Rs.^6).^0.5;
-                umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4).^0.5*180/pi;
-                      
-            case 5
-                % Y-phi [rad]
-                mjr = (Rs.^2 + Xs.^2).^-0.5;
-                mnr = atan2(-Xs,Rs);
-                umjr = (Xs.^2.*uXs.^2+Rs.^2.*uRs.^2).^0.5./(Xs.^6+3*Rs.^2.*Xs.^4+3*Rs.^4.*Xs.^2+Rs.^6).^0.5;
-                umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4).^0.5;
-      
-            case 6
-                % Cp-D
-                mjr = -Xs./(Rs.^2 + Xs.^2)./w;
-                mnr = -Rs./Xs;
-                umjr = ((Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uXs.^2+4*Rs.^2.*Xs.^2.*uRs.^2).^0.5./(w.^2.*Xs.^8+4*Rs.^2.*w.^2.*Xs.^6+6*Rs.^4.*w.^2.*Xs.^4+4*Rs.^6.*w.^2.*Xs.^2+Rs.^8.*w.^2).^0.5;
-                umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./abs(Xs).^2.0;
-                      
-            case 7
-                % Cp-Q
-                mjr = -Xs./(Rs.^2 + Xs.^2)./w;
-                mnr = -Xs./Rs;
-                umjr = ((Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uXs.^2+4*Rs.^2.*Xs.^2.*uRs.^2).^0.5./(w.^2.*Xs.^8+4*Rs.^2.*w.^2.*Xs.^6+6*Rs.^4.*w.^2.*Xs.^4+4*Rs.^6.*w.^2.*Xs.^2+Rs.^8.*w.^2).^0.5;
-                umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./abs(Rs).^2.0;
-              
-            case 8
-                % Cp-Rp
-                mjr = -Xs./(Rs.^2 + Xs.^2)./w;
-                mnr = 1./(Rs./(Rs.^2 + Xs.^2));
-                umjr = ((Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uXs.^2+4*Rs.^2.*Xs.^2.*uRs.^2).^0.5./(w.^2.*Xs.^8+4*Rs.^2.*w.^2.*Xs.^6+6*Rs.^4.*w.^2.*Xs.^4+4*Rs.^6.*w.^2.*Xs.^2+Rs.^8.*w.^2).^0.5;
-                umnr = (4*Rs.^2.*Xs.^2.*uXs.^2+(Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uRs.^2).^0.5./abs(Rs).^2.0; 
-              
-            case 9
-                % Cp-Gp
-                mjr = -Xs./(Rs.^2 + Xs.^2)./w;
-                mnr = Rs./(Rs.^2 + Xs.^2);
-                umjr = ((Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uXs.^2+4*Rs.^2.*Xs.^2.*uRs.^2).^0.5./(w.^2.*Xs.^8+4*Rs.^2.*w.^2.*Xs.^6+6*Rs.^4.*w.^2.*Xs.^4+4*Rs.^6.*w.^2.*Xs.^2+Rs.^8.*w.^2).^0.5;
-                umnr = (4*Rs.^2.*Xs.^2.*uXs.^2+(Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uRs.^2).^0.5./(Xs.^8+4*Rs.^2.*Xs.^6+6*Rs.^4.*Xs.^4+4*Rs.^6.*Xs.^2+Rs.^8).^0.5; 
-              
-            case 10
-                % Cs-D
-                mjr = -1./Xs./w;
-                mnr = -Rs./Xs;
-                umjr = abs(uXs)./(abs(w).^1.0.*abs(Xs).^2.0);
-                umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./abs(Xs).^2.0; 
-              
-            case 11
-                % Cs-Q
-                mjr = -1./Xs./w;
-                mnr = -Xs./Rs;
-                umjr = abs(uXs)./(abs(w).^1.0.*abs(Xs).^2.0);
-                umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./abs(Rs).^2.0; 
+          case 0
+            % Rs-Xs
+            mjr = Rs; 
+            mnr = Xs;
+            umjr = abs(uRs);
+            umnr = abs(uXs);
+    
+          case 1
+            % Gp-Bp
+            mjr = Rs./(Rs.^2 + Xs.^2);
+            mnr = -Xs./(Rs.^2 + Xs.^2);     
+            umjr = sqrt(4*Rs.^2.*Xs.^2.*uXs.^2+(Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uRs.^2)./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4);
+            umnr = sqrt((Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uXs.^2+4*Rs.^2.*Xs.^2.*uRs.^2)./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4);
                     
-            case 12
-                % Cs-Rs
-                mjr = -1./Xs./w;
-                mnr = Rs;
-                umjr = abs(uXs)./(abs(w).^1.0.*abs(Xs).^2.0);
-                umnr = abs(uRs); 
-              
-            case 13
-                % Ls-Rs
-                mjr = Xs./w;
-                mnr = Rs;
-                umjr = abs(uXs)./abs(w).^1.0;
-                umnr = abs(uRs); 
-                      
-            case 14
-                % Ls-Q
-                mjr = Xs./w;
-                mnr = Xs./Rs;
-                umjr = abs(uXs)./abs(w).^1.0;
-                umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./abs(Rs).^2.0;
-              
-            case 15
-                % Rs-tau
-                mjr = Rs;
-                mnr = Xs./(w.*Rs);
-                umjr = abs(uRs);
-                umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./(abs(Rs).^2.0.*abs(w));
+          case 2
+            % Z-phi [deg]
+            mjr = (Rs.^2 + Xs.^2).^0.5;
+            mnr = atan2(Xs,Rs)*180/pi;
+            umjr = (Xs.^2.*uXs.^2+Rs.^2.*uRs.^2).^0.5./(Xs.^2+Rs.^2).^0.5;
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4).^0.5*180/pi;        
+                    
+          case 3
+            % Z-phi [rad]
+            mjr = (Rs.^2 + Xs.^2).^0.5;
+            mnr = atan2(Xs,Rs);
+            umjr = (Xs.^2.*uXs.^2+Rs.^2.*uRs.^2).^0.5./(Xs.^2+Rs.^2).^0.5;
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4).^0.5;        
+    
+          case 4
+            % Y-phi [deg]
+            mjr = (Rs.^2 + Xs.^2).^-0.5;
+            mnr = atan2(-Xs,Rs)*180/pi;
+            umjr = (Xs.^2.*uXs.^2+Rs.^2.*uRs.^2).^0.5./(Xs.^6+3*Rs.^2.*Xs.^4+3*Rs.^4.*Xs.^2+Rs.^6).^0.5;
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4).^0.5*180/pi;
+                    
+          case 5
+            % Y-phi [rad]
+            mjr = (Rs.^2 + Xs.^2).^-0.5;
+            mnr = atan2(-Xs,Rs);
+            umjr = (Xs.^2.*uXs.^2+Rs.^2.*uRs.^2).^0.5./(Xs.^6+3*Rs.^2.*Xs.^4+3*Rs.^4.*Xs.^2+Rs.^6).^0.5;
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./(Xs.^4+2*Rs.^2.*Xs.^2+Rs.^4).^0.5;
+    
+          case 6
+            % Cp-D
+            mjr = -Xs./(Rs.^2 + Xs.^2)./w;
+            mnr = -Rs./Xs;
+            umjr = ((Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uXs.^2+4*Rs.^2.*Xs.^2.*uRs.^2).^0.5./(w.^2.*Xs.^8+4*Rs.^2.*w.^2.*Xs.^6+6*Rs.^4.*w.^2.*Xs.^4+4*Rs.^6.*w.^2.*Xs.^2+Rs.^8.*w.^2).^0.5;
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./abs(Xs).^2.0;
+                    
+          case 7
+            % Cp-Q
+            mjr = -Xs./(Rs.^2 + Xs.^2)./w;
+            mnr = -Xs./Rs;
+            umjr = ((Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uXs.^2+4*Rs.^2.*Xs.^2.*uRs.^2).^0.5./(w.^2.*Xs.^8+4*Rs.^2.*w.^2.*Xs.^6+6*Rs.^4.*w.^2.*Xs.^4+4*Rs.^6.*w.^2.*Xs.^2+Rs.^8.*w.^2).^0.5;
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./abs(Rs).^2.0;
+            
+          case 8
+            % Cp-Rp
+            mjr = -Xs./(Rs.^2 + Xs.^2)./w;
+            mnr = 1./(Rs./(Rs.^2 + Xs.^2));
+            umjr = ((Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uXs.^2+4*Rs.^2.*Xs.^2.*uRs.^2).^0.5./(w.^2.*Xs.^8+4*Rs.^2.*w.^2.*Xs.^6+6*Rs.^4.*w.^2.*Xs.^4+4*Rs.^6.*w.^2.*Xs.^2+Rs.^8.*w.^2).^0.5;
+            umnr = (4*Rs.^2.*Xs.^2.*uXs.^2+(Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uRs.^2).^0.5./abs(Rs).^2.0; 
+            
+          case 9
+            % Cp-Gp
+            mjr = -Xs./(Rs.^2 + Xs.^2)./w;
+            mnr = Rs./(Rs.^2 + Xs.^2);
+            umjr = ((Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uXs.^2+4*Rs.^2.*Xs.^2.*uRs.^2).^0.5./(w.^2.*Xs.^8+4*Rs.^2.*w.^2.*Xs.^6+6*Rs.^4.*w.^2.*Xs.^4+4*Rs.^6.*w.^2.*Xs.^2+Rs.^8.*w.^2).^0.5;
+            umnr = (4*Rs.^2.*Xs.^2.*uXs.^2+(Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uRs.^2).^0.5./(Xs.^8+4*Rs.^2.*Xs.^6+6*Rs.^4.*Xs.^4+4*Rs.^6.*Xs.^2+Rs.^8).^0.5; 
+            
+          case 10
+            % Cs-D
+            mjr = -1./Xs./w;
+            mnr = -Rs./Xs;
+            umjr = abs(uXs)./(abs(w).^1.0.*abs(Xs).^2.0);
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./abs(Xs).^2.0; 
+            
+          case 11
+            % Cs-Q
+            mjr = -1./Xs./w;
+            mnr = -Xs./Rs;
+            umjr = abs(uXs)./(abs(w).^1.0.*abs(Xs).^2.0);
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./abs(Rs).^2.0; 
+                  
+          case 12
+            % Cs-Rs
+            mjr = -1./Xs./w;
+            mnr = Rs;
+            umjr = abs(uXs)./(abs(w).^1.0.*abs(Xs).^2.0);
+            umnr = abs(uRs); 
+            
+          case 13
+            % Ls-Rs
+            mjr = Xs./w;
+            mnr = Rs;
+            umjr = abs(uXs)./abs(w).^1.0;
+            umnr = abs(uRs); 
+                    
+          case 14
+            % Ls-Q
+            mjr = Xs./w;
+            mnr = Xs./Rs;
+            umjr = abs(uXs)./abs(w).^1.0;
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./abs(Rs).^2.0;                  
+            
+          case 15
+            % Rs-tau
+            mjr = Rs;
+            mnr = Xs./(w.*Rs);
+            umjr = abs(uRs);
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./(abs(Rs).^2.0.*abs(w));
+            
+          case 16
+            % Rp-tau
+            mjr = 1./(Rs./(Rs.^2 + Xs.^2));
+            mnr = -Xs./(w.*Rs);
+            umjr = (4*Rs.^2.*Xs.^2.*uXs.^2+(Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uRs.^2).^0.5./abs(Rs).^2.0; 
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./(abs(Rs).^2.0.*abs(w));
+            
+          case 17
+            % Lp-Q
+            mjr = 1./(Xs./(Rs.^2 + Xs.^2).*w);
+            mnr = Xs./Rs;
+            umjr = (((2*Rs)./(Xs.*w).*uRs).^2 + ((Xs.^2-Rs.^2)./(Xs.^2.*w)).^2).^0.5; 
+            umnr = (Rs.^2.*uXs.^2+Xs.^2.*uRs.^2).^0.5./abs(Rs).^2.0;
+            
+          case 18
+            % Lp-Rp
+            mjr = 1./(Xs./(Rs.^2 + Xs.^2).*w);
+            mnr = 1./(Rs./(Rs.^2 + Xs.^2));
+            umjr = (((2*Rs)./(Xs.*w).*uRs).^2 + ((Xs.^2-Rs.^2)./(Xs.^2.*w)).^2).^0.5; 
+            umnr = (4*Rs.^2.*Xs.^2.*uXs.^2+(Xs.^4-2*Rs.^2.*Xs.^2+Rs.^4).*uRs.^2).^0.5./abs(Rs).^2.0; 
             
         end
         
         % fix uncertainty vector lengths to match mean values vector length 
         if(numel(umjr) == 1)
-            umjr = repmat(umjr,size(mjr));
+          umjr = repmat(umjr,size(mjr));
         end
         if(numel(umnr) == 1)
-            umnr = repmat(umnr,size(mnr));
+          umnr = repmat(umnr,size(mnr));
         end
         
         % return converted equivalent model
@@ -232,128 +256,157 @@ function [res,ecct] = z_to_equivalent(cct,f,Z,uZ,mjr,mnr,umjr,umnr)
         res.umnr = umnr;
     
     
-    elseif nargin == 8
+    elseif(nargin == 8)
         % --- convert desired equivalent circuit to Zx ---
            
         w = 2*pi*f;
         
         switch(cct)
-            case 0
-                % Rs-Xs
-                Rs = mjr;
-                Xs = mnr;
-                uRs = abs(umjr);
-                uXs = abs(umnr);
-      
-            case 1
-                % Gp-Bp
-                Rs = mjr./(mjr.^2 + mnr.^2);
-                Xs = -mnr./(mjr.^2 + mnr.^2);                
-                uRs = sqrt(4*mjr.^2.*mnr.^2.*umnr.^2+(mnr.^4-2*mjr.^2.*mnr.^2+mjr.^4).*umjr.^2)./(mnr.^4+2*mjr.^2.*mnr.^2+mjr.^4);
-                uXs = sqrt((mnr.^4-2*mjr.^2.*mnr.^2+mjr.^4).*umnr.^2+4*mjr.^2.*mnr.^2.*umjr.^2)./(mnr.^4+2*mjr.^2.*mnr.^2+mjr.^4);
-                      
-            case 2
-                % Z-phi [deg]
-                mnr = mnr/180*pi;
-                umnr = umnr/180*pi;
-                Rs = mjr.*cos(mnr);
-                Xs = mjr.*sin(mnr);
-                uRs = sqrt(mjr.^2.*sin(mnr).^2.*umnr.^2 + cos(mnr).^2.*umjr.^2);
-                uXs = sqrt(mjr.^2.*cos(mnr).^2.*umnr.^2 + sin(mnr).^2.*umjr.^2);        
-                      
-            case 3
-                % Z-phi [rad]
-                Rs = mjr.*cos(mnr);
-                Xs = mjr.*sin(mnr);
-                uRs = sqrt(mjr.^2.*sin(mnr).^2.*umnr.^2 + cos(mnr).^2.*umjr.^2);
-                uXs = sqrt(mjr.^2.*cos(mnr).^2.*umnr.^2 + sin(mnr).^2.*umjr.^2);        
-      
-            case 4
-                % Y-phi [deg]
-                mnr = mnr/180*pi;
-                umnr = umnr/180*pi;
-                Rs = 1./mjr.*cos(mnr);
-                Xs = 1./mjr.*sin(-mnr);
-                uRs = sqrt(mjr.^2.*sin(mnr).^2.*umnr.^2 + cos(mnr).^2.*umjr.^2)./mjr.^2;
-                uXs = sqrt(mjr.^2.*cos(mnr).^2.*umnr.^2 + sin(mnr).^2.*umjr.^2)./mjr.^2;
-                      
-            case 5
-                % Y-phi [rad]
-                Rs = 1./mjr.*cos(mnr);
-                Xs = 1./mjr.*sin(-mnr);
-                uRs = sqrt(mjr.^2.*sin(mnr).^2.*umnr.^2 + cos(mnr).^2.*umjr.^2)./mjr.^2;
-                uXs = sqrt(mjr.^2.*cos(mnr).^2.*umnr.^2 + sin(mnr).^2.*umjr.^2)./mjr.^2;
-      
-            case 6
-                % Cp-D
-                Rs = mnr./((mjr.*mnr.^2+mjr).*w);
-                Xs = -1./((mjr.*mnr.^2+mjr).*w);
-                uRs = sqrt((mjr.^2.*mnr.^4-2.*mjr.^2.*mnr.^2+mjr.^2).*umnr.^2+(mnr.^6+2.*mnr.^4+mnr.^2).*umjr.^2)./((mjr.^2.*mnr.^4+2.*mjr.^2.*mnr.^2+mjr.^2).*abs(w));
-                uXs = sqrt(4.*mjr.^2.*mnr.^2.*umnr.^2+(mnr.^4+2.*mnr.^2+1).*umjr.^2)./((mjr.^2.*mnr.^4+2.*mjr.^2.*mnr.^2+mjr.^2).*abs(w));
-                              
-            case 7
-                % Cp-Q
-                Rs = mnr./((mjr.*mnr.^2+mjr).*w);
-                Xs = -mnr.^2./((mjr.*mnr.^2+mjr).*w);
-                uRs = sqrt((mjr.^2.*mnr.^4-2.*mjr.^2.*mnr.^2+mjr.^2).*umnr.^2+(mnr.^6+2.*mnr.^4+mnr.^2).*umjr.^2)./((mjr.^2.*mnr.^4+2.*mjr.^2.*mnr.^2+mjr.^2).*abs(w));
-                uXs = (mnr.*sqrt(4.*mjr.^2.*umnr.^2+(mnr.^6+2.*mnr.^4+mnr.^2).*umjr.^2))./((mjr.^2.*mnr.^4+2.*mjr.^2.*mnr.^2+mjr.^2).*abs(w));
-              
-            case 8
-                % Cp-Rp
-                Rs = mnr./(mjr.^2.*mnr.^2.*w.^2+1);
-                Xs = -(mjr.*mnr.^2.*w)./(mjr.^2.*mnr.^2.*w.^2+1);
-                uRs = sqrt((mjr.^4.*mnr.^4.*umnr.^2+4.*mjr.^2.*mnr.^6.*umjr.^2).*w.^4-2.*mjr.^2.*mnr.^2.*umnr.^2.*w.^2+umnr.^2)./(mjr.^4.*mnr.^4.*w.^4+2.*mjr.^2.*mnr.^2.*w.^2+1);
-                uXs = (mnr.*w.*sqrt(mjr.^4.*mnr.^6.*umjr.^2.*w.^4-2.*mjr.^2.*mnr.^4.*umjr.^2.*w.^2+4.*mjr.^2.*umnr.^2+mnr.^2.*umjr.^2))./(mjr.^4.*mnr.^4.*w.^4+2.*mjr.^2.*mnr.^2.*w.^2+1); 
-              
-            case 9
-                % Cp-Gp
-                Rs = mnr./(mjr.^2.*w.^2+mnr.^2);
-                Xs = -(mjr.*w)./(mjr.^2.*w.^2+mnr.^2);        
-                uRs = sqrt((mjr.^4.*umnr.^2+4.*mjr.^2.*mnr.^2.*umjr.^2).*w.^4-2.*mjr.^2.*mnr.^2.*umnr.^2.*w.^2+mnr.^4.*umnr.^2)./(mjr.^4.*w.^4+2.*mjr.^2.*mnr.^2.*w.^2+mnr.^4);
-                uXs = (w.*sqrt(mjr.^4.*umjr.^2.*w.^4-2.*mjr.^2.*mnr.^2.*umjr.^2.*w.^2+4.*mjr.^2.*mnr.^2.*umnr.^2+mnr.^4.*umjr.^2))./(mjr.^4.*w.^4+2.*mjr.^2.*mnr^2.*w.^2+mnr.^4);
-              
-            case 10
-                % Cs-D
-                Rs = mnr./(mjr.*w);
-                Xs = -1./(mjr.*w);
-                uRs = sqrt(mjr.^2.*umnr.^2+mnr.^2.*umjr.^2)./(mjr.^2.*abs(w));
-                uXs = abs(umjr)./(mjr.^2.*abs(w)); 
-              
-            case 11
-                % Cs-Q
-                Rs = 1./(mjr.*mnr.*w);
-                Xs = -1./(mjr.*w);
-                uRs = sqrt(mjr.^2.*umnr.^2+mnr.^2.*umjr.^2)./(mjr.^2.*abs(w));
-                uXs = abs(umjr)./(mjr.^2.*abs(w)); 
+          case 0
+            % Rs-Xs
+            Rs = mjr;
+            Xs = mnr;
+            uRs = abs(umjr);
+            uXs = abs(umnr);
+    
+          case 1
+            % Gp-Bp
+            Rs = mjr./(mjr.^2 + mnr.^2);
+            Xs = -mnr./(mjr.^2 + mnr.^2);                
+            uRs = sqrt(4*mjr.^2.*mnr.^2.*umnr.^2+(mnr.^4-2*mjr.^2.*mnr.^2+mjr.^4).*umjr.^2)./(mnr.^4+2*mjr.^2.*mnr.^2+mjr.^4);
+            uXs = sqrt((mnr.^4-2*mjr.^2.*mnr.^2+mjr.^4).*umnr.^2+4*mjr.^2.*mnr.^2.*umjr.^2)./(mnr.^4+2*mjr.^2.*mnr.^2+mjr.^4);
                     
-            case 12
-                % Cs-Rs
-                Rs = mnr;
-                Xs = -1./(mjr.*w);
-                uRs = abs(umnr);
-                uXs = abs(umjr)./(mjr.^2.*abs(w));
-              
-            case 13
-                % Ls-Rs        
-                Rs = mnr;
-                Xs = mjr.*w;
-                uRs = abs(umnr);
-                uXs = abs(umjr).*abs(w);
-                      
-            case 14
-                % Ls-Q
-                Rs = mjr.*w./mnr;
-                Xs = mjr.*w;
-                uRs = (sqrt(mjr.^2.*umnr.^2+mnr.^2.*umjr.^2).*abs(w))./mnr.^2;
-                uXs = abs(umjr).*abs(w);
-              
-            case 15
-                % Rs-tau
-                Rs = mjr;
-                Xs = mjr.*mnr.*w;
-                uRs = abs(umjr);
-                uXs = (mjr.^2.*umnr.^2+mnr.^2.*umjr.^2).^0.5.*abs(w);
+          case 2
+            % Z-phi [deg]
+            mnr = mnr/180*pi;
+            umnr = umnr/180*pi;
+            Rs = mjr.*cos(mnr);
+            Xs = mjr.*sin(mnr);
+            uRs = sqrt(mjr.^2.*sin(mnr).^2.*umnr.^2 + cos(mnr).^2.*umjr.^2);
+            uXs = sqrt(mjr.^2.*cos(mnr).^2.*umnr.^2 + sin(mnr).^2.*umjr.^2);        
+                    
+          case 3
+            % Z-phi [rad]
+            Rs = mjr.*cos(mnr);
+            Xs = mjr.*sin(mnr);
+            uRs = sqrt(mjr.^2.*sin(mnr).^2.*umnr.^2 + cos(mnr).^2.*umjr.^2);
+            uXs = sqrt(mjr.^2.*cos(mnr).^2.*umnr.^2 + sin(mnr).^2.*umjr.^2);        
+    
+          case 4
+            % Y-phi [deg]
+            mnr = mnr/180*pi;
+            umnr = umnr/180*pi;
+            Rs = 1./mjr.*cos(mnr);
+            Xs = 1./mjr.*sin(-mnr);
+            uRs = sqrt(mjr.^2.*sin(mnr).^2.*umnr.^2 + cos(mnr).^2.*umjr.^2)./mjr.^2;
+            uXs = sqrt(mjr.^2.*cos(mnr).^2.*umnr.^2 + sin(mnr).^2.*umjr.^2)./mjr.^2;
+                    
+          case 5
+            % Y-phi [rad]
+            Rs = 1./mjr.*cos(mnr);
+            Xs = 1./mjr.*sin(-mnr);
+            uRs = sqrt(mjr.^2.*sin(mnr).^2.*umnr.^2 + cos(mnr).^2.*umjr.^2)./mjr.^2;
+            uXs = sqrt(mjr.^2.*cos(mnr).^2.*umnr.^2 + sin(mnr).^2.*umjr.^2)./mjr.^2;
+    
+          case 6
+            % Cp-D
+            Rs = mnr./((mjr.*mnr.^2+mjr).*w);
+            Xs = -1./((mjr.*mnr.^2+mjr).*w);
+            uRs = sqrt((mjr.^2.*mnr.^4-2.*mjr.^2.*mnr.^2+mjr.^2).*umnr.^2+(mnr.^6+2.*mnr.^4+mnr.^2).*umjr.^2)./((mjr.^2.*mnr.^4+2.*mjr.^2.*mnr.^2+mjr.^2).*abs(w));
+            uXs = sqrt(4.*mjr.^2.*mnr.^2.*umnr.^2+(mnr.^4+2.*mnr.^2+1).*umjr.^2)./((mjr.^2.*mnr.^4+2.*mjr.^2.*mnr.^2+mjr.^2).*abs(w));
+                            
+          case 7
+            % Cp-Q
+            Rs = mnr./((mjr.*mnr.^2+mjr).*w);
+            Xs = -mnr.^2./((mjr.*mnr.^2+mjr).*w);
+            uRs = sqrt((mjr.^2.*mnr.^4-2.*mjr.^2.*mnr.^2+mjr.^2).*umnr.^2+(mnr.^6+2.*mnr.^4+mnr.^2).*umjr.^2)./((mjr.^2.*mnr.^4+2.*mjr.^2.*mnr.^2+mjr.^2).*abs(w));
+            uXs = (mnr.*sqrt(4.*mjr.^2.*umnr.^2+(mnr.^6+2.*mnr.^4+mnr.^2).*umjr.^2))./((mjr.^2.*mnr.^4+2.*mjr.^2.*mnr.^2+mjr.^2).*abs(w));
             
+          case 8
+            % Cp-Rp
+            Rs = mnr./(mjr.^2.*mnr.^2.*w.^2+1);
+            Xs = -(mjr.*mnr.^2.*w)./(mjr.^2.*mnr.^2.*w.^2+1);
+            uRs = sqrt((mjr.^4.*mnr.^4.*umnr.^2+4.*mjr.^2.*mnr.^6.*umjr.^2).*w.^4-2.*mjr.^2.*mnr.^2.*umnr.^2.*w.^2+umnr.^2)./(mjr.^4.*mnr.^4.*w.^4+2.*mjr.^2.*mnr.^2.*w.^2+1);
+            uXs = (mnr.*w.*sqrt(mjr.^4.*mnr.^6.*umjr.^2.*w.^4-2.*mjr.^2.*mnr.^4.*umjr.^2.*w.^2+4.*mjr.^2.*umnr.^2+mnr.^2.*umjr.^2))./(mjr.^4.*mnr.^4.*w.^4+2.*mjr.^2.*mnr.^2.*w.^2+1); 
+            
+          case 9
+            % Cp-Gp
+            Rs = mnr./(mjr.^2.*w.^2+mnr.^2);
+            Xs = -(mjr.*w)./(mjr.^2.*w.^2+mnr.^2);        
+            uRs = sqrt((mjr.^4.*umnr.^2+4.*mjr.^2.*mnr.^2.*umjr.^2).*w.^4-2.*mjr.^2.*mnr.^2.*umnr.^2.*w.^2+mnr.^4.*umnr.^2)./(mjr.^4.*w.^4+2.*mjr.^2.*mnr.^2.*w.^2+mnr.^4);
+            uXs = (w.*sqrt(mjr.^4.*umjr.^2.*w.^4-2.*mjr.^2.*mnr.^2.*umjr.^2.*w.^2+4.*mjr.^2.*mnr.^2.*umnr.^2+mnr.^4.*umjr.^2))./(mjr.^4.*w.^4+2.*mjr.^2.*mnr.^2.*w.^2+mnr.^4);
+            
+          case 10
+            % Cs-D
+            Rs = mnr./(mjr.*w);
+            Xs = -1./(mjr.*w);
+            uRs = sqrt(mjr.^2.*umnr.^2+mnr.^2.*umjr.^2)./(mjr.^2.*abs(w));
+            uXs = abs(umjr)./(mjr.^2.*abs(w)); 
+            
+          case 11
+            % Cs-Q
+            Rs = 1./(mjr.*mnr.*w);
+            Xs = -1./(mjr.*w);
+            uRs = sqrt(mjr.^2.*umnr.^2+mnr.^2.*umjr.^2)./(mjr.^2.*abs(w));
+            uXs = abs(umjr)./(mjr.^2.*abs(w)); 
+                  
+          case 12
+            % Cs-Rs
+            Rs = mnr;
+            Xs = -1./(mjr.*w);
+            uRs = abs(umnr);
+            uXs = abs(umjr)./(mjr.^2.*abs(w));
+            
+          case 13
+            % Ls-Rs        
+            Rs = mnr;
+            Xs = mjr.*w;
+            uRs = abs(umnr);
+            uXs = abs(umjr).*abs(w);
+                    
+          case 14
+            % Ls-Q
+            Rs = mjr.*w./mnr;
+            Xs = mjr.*w;
+            uRs = (sqrt(mjr.^2.*umnr.^2+mnr.^2.*umjr.^2).*abs(w))./mnr.^2;
+            uXs = abs(umjr).*abs(w);
+            
+          case 15
+            % Rs-tau
+            Rs = mjr;
+            Xs = mjr.*mnr.*w;
+            uRs = abs(umjr);
+            uXs = (mjr.^2.*umnr.^2+mnr.^2.*umjr.^2).^0.5.*abs(w);
+            
+          case 16
+            % Rp-tau (via Cp-Rp)
+            t_mjr = mnr;
+            t_mnr = mnr./mjr;
+            t_umjr = umnr;
+            t_umnr = ((umnr./mjr).^2 + (umjr.*mnr./mjr^2).^2).^0.5;
+            Rs = t_mnr./(t_mjr.^2.*t_mnr.^2.*w.^2+1);
+            Xs = -(t_mjr.*t_mnr.^2.*w)./(t_mjr.^2.*t_mnr.^2.*w.^2+1);
+            uRs = sqrt((t_mjr.^4.*t_mnr.^4.*t_umnr.^2+4.*t_mjr.^2.*t_mnr.^6.*t_umjr.^2).*w.^4-2.*t_mjr.^2.*t_mnr.^2.*t_umnr.^2.*w.^2+t_umnr.^2)./(t_mjr.^4.*t_mnr.^4.*w.^4+2.*t_mjr.^2.*t_mnr.^2.*w.^2+1);
+            uXs = (t_mnr.*w.*sqrt(t_mjr.^4.*t_mnr.^6.*t_umjr.^2.*w.^4-2.*t_mjr.^2.*t_mnr.^4.*t_umjr.^2.*w.^2+4.*t_mjr.^2.*t_umnr.^2+t_mnr.^2.*t_umjr.^2))./(t_mjr.^4.*t_mnr.^4.*w.^4+2.*t_mjr.^2.*t_mnr.^2.*w.^2+1);
+                       
+          case 17
+            % Lp-Q
+            Rs = (mjr.*mnr.*w)./(mnr.^2+1);
+            Xs = (mjr.*w)./(mnr.^2+1);
+            uRs = (((mjr.*w)./(mnr.^2+1).*umjr).^2 + (((mjr.*mnr.^2-mjr).*w)./(mnr.^4+2*mnr.^2+1).*umnr).^2).^0.5;
+            uXs = ((w./(mnr.^2+1).*umjr).^2 + ((2*mjr.*mnr.*w)./(mnr.^4+2*mnr.^2+1).*umnr).^2).^0.5;
+          
+          case 18
+            % Lp-Rp          
+            Lp = mjr;
+            Rp = mnr;
+            uLp = umjr;
+            uRp = umnr;
+            Y = 1./(j*w.*Lp) + 1./Rp;
+            Rs = real(1./Y);
+            Xs = imag(1./Y);          
+            uRs = sqrt(((Lp.^4.*w.^4 - Lp.^2.*Rp.^2.*w.^2)./(Lp.^4.*w.^4 + 2*Lp.^2.*Rp.^2.*w.^2 + Rp.^4).*uRp).^2 + ((2*Lp.*Rp.^3.*w.^2)./(Lp.^4.*w.^4 + 2*Lp.^2.*Rp.^2.*w.^2 + Rp.^4).*uLp).^2);
+            uXs = sqrt(((2*Lp.^3.*Rp.*w.^3)./(Lp.^4.*w.^4 + 2*Lp.^2.*Rp.^2.*w.^2 + Rp.^4).*uRp).^2 + ((Lp.^2.*Rp.^2.*w.^3 - Rp.^4.*w)./(Lp.^4.*w.^4 + 2*Lp.^2.*Rp.^2.*w.^2 + Rp.^4).*uLp).^2);          
         end
             
         % combine components
@@ -373,7 +426,7 @@ function [res,ecct] = z_to_equivalent(cct,f,Z,uZ,mjr,mnr,umjr,umnr)
         res.uZ = uZ;  
       
     else
-      error('Impedance conversion to/from equivalnet circuit failed!');    
+        error('Impedance conversion to/from equivalnet circuit failed!');    
     end
 end
 
