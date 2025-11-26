@@ -152,7 +152,7 @@ function dataout = alg_wrapper(datain, calcset)
         
         % override inverted flag for i-channel
         if vc.name == 'i' && is_i_invert
-            din.tr_is_inverted = 1;
+            din.tr_is_inverted.v = 1;
         end
                 
         % execute WFFT:
