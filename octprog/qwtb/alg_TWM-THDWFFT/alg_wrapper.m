@@ -160,6 +160,11 @@ function dataout = alg_wrapper(datain, calcset)
     % uncertainty is maximum from left and right tolerance (asymmetric not supported by QWTB)
     dataout.h.u = max(r.a_comp_lst - r.a_comp_lst_a, r.a_comp_lst_b - r.a_comp_lst);
     
+    % relative harmonic amplitudes (assuming uncorrelated uncertainty)
+    dataout.h_rel.v = dataout.h.v/dataout.h.v(1);
+    dataout.h_rel.u = (dataout.h.u.^2 + dataout.h.u(1)^2).^0.5; 
+    
+    
     % return fundamental
     if ~isempty(r.f_lst)
         dataout.f0.v = r.f_lst(1);

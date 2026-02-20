@@ -433,6 +433,10 @@ function alginfo = alg_info() %<<<1
     alginfo.outputs(pid).desc = 'Harmonic amplitudes';
     pid = pid + 1;
     
+    alginfo.outputs(pid).name = 'h_rel';
+    alginfo.outputs(pid).desc = 'Relative harmonic amplitudes';
+    pid = pid + 1;
+    
     alginfo.outputs(pid).name = 'f';
     alginfo.outputs(pid).desc = 'Harmonic frequencies';
     pid = pid + 1;

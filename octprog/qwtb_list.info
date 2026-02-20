@@ -275,6 +275,8 @@ type:: qwtb list
                 H;       f;  1e-7; 1e-7
                 f;       si; 1e-6; 1e-6
                 h;       si; 1e-8; 1e-5
+                h0;      si; 1e-8; 1e-5
+                h_rel;   si; 1e-8; 1e-5
                 h_raw;   si; 1e-8; 1e-5
                 thd;     f;  1e-6; 1e-5
                 thd2;    f;  1e-6; 1e-5
@@ -289,11 +291,12 @@ type:: qwtb list
                 spec_A;  si; 1e-8; 1e-6
         #endmatrix:: number formats
         #startmatrix:: is amplitude
-                h;h_raw;spec_A
+                h;h0;h_raw;h_rel;spec_A
         #endmatrix:: is amplitude
         #startmatrix:: graphs
                 f; h
                 f; h_raw
+                f; h_rel
                 spec_f; spec_A
         #endmatrix:: graphs
         spectrum:: spec_A
