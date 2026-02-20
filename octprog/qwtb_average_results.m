@@ -16,7 +16,11 @@
 %% outputs:
 %%   avg - vector of channels with averages quantities
 %%   unca - type A uncertainty of averaged quantities
-%%          note the 'unc' item of 'unca' is invalid  
+%%          note the 'unc' item of 'unca' is invalid
+%
+% This is part of the TWM - TracePQM WattMeter.
+% (c) 2018-2026, Stanislav Maslan, stanislav.maslan@cmi.gov.cz
+% The script is distributed under MIT license, https://opensource.org/licenses/MIT.               
 %% -----------------------------------------------------------------------------
 function [avg, unca] = qwtb_average_results(res,cfg)
 
@@ -92,7 +96,7 @@ function [avg, unca] = qwtb_average_results(res,cfg)
           avg{p}{v}.val = nanmean(val,3);
           avg{p}{v}.unc = nanmean(unc,3);
           unca{p}{v}.val = nanstd(val,[],3)/R^0.5; % type A uncertainty estimate
-          unca{p}{v}.unc = avg{p}{v}.unc;
+          unca{p}{v}.unc = avg{p}{v}.unc;                    
         end
         avg{p}{v}.unc(isnan(avg{p}{v}.unc)) = 0;
         unca{p}{v}.val(isnan(unca{p}{v}.val)) = 0;

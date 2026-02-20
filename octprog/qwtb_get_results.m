@@ -47,7 +47,7 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
 %
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018-2022, Stanislav Maslan, smaslan@cmi.cz
+% (c) 2018-2026, Stanislav Maslan, stanislav.maslan@cmi.gov.cz
 % The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
 %
 
@@ -201,8 +201,17 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                     if ref.is_string
                         csv{row,col} = ref.val;
                         num(row,col) = NaN;                        
-                    else 
-                        [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(avg{p}{v},[],cfg);        
+                    else
+                    
+                        data = avg{p}{v};
+                        data_ua = unca{p}{v};
+                        if ~isempty(data.unc)
+                            % combine variable uncertainty with ua of multiple records using coverage factor estimate
+                            unc_k_est = loc2covg(data.conf_level,50);
+                            data.unc = (data.unc.^2 + (data_ua.val*unc_k_est).^2).^0.5;                            
+                        end
+                     
+                        [vc,vv,vu,vs, numv,numu] = qwtb_result_unc2str(data,[],cfg);        
                         if cfg.unc_mode == 0
                             csv{row,col} = [vv vs];
                             num(row,col) = numv;
@@ -304,7 +313,7 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                     
                     if ref.dims > 1
                         % 2D variable - not supported yet
-                        csv{row,col} = '2D not supported';
+                        csv{row,col} = '2D not implemented';
                         num(row,col) = NaN;
                         col = col + 1;
                     else
@@ -313,9 +322,18 @@ function [txt, desc, var_names, chn_index, num] = qwtb_get_results(meas_root, re
                         % select source: average or reading
                         if is_avg
                             data = avg{p}{v};
+                            data_unc = unca{p}{v};
+                            if ~isempty(data.unc)
+                                % combine variable uncertainty with ua of multiple records using coverage factor estimate
+                                unc_k_est = loc2covg(data.conf_level,50);
+                                data.unc = (data.unc.^2 + (data_unc.val*unc_k_est).^2).^0.5;                            
+                            end
+                            
                         else
                             data = results{res_id}{p}{v};
                         end
+                        
+                        
                         
                         % write variable data
                         for k = 1:prod(data.size)

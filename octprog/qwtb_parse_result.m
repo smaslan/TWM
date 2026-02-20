@@ -41,8 +41,8 @@ function [chn_list,list] = qwtb_parse_result(result_path, cfg, var_list)
 %                                for displaying (default 1e-6)
 %
 % This is part of the TWM - TracePQM WattMeter.
-% (c) 2018-2022, Stanislav Maslan, smaslan@cmi.cz
-% The script is distributed under MIT license, https://opensource.org/licenses/MIT.                
+% (c) 2018-2026, Stanislav Maslan, stanislav.maslan@cmi.gov.cz
+% The script is distributed under MIT license, https://opensource.org/licenses/MIT.             
 %
 
     list = {};
@@ -59,6 +59,13 @@ function [chn_list,list] = qwtb_parse_result(result_path, cfg, var_list)
     
     % complementary MAT file
     result_mat = [result_path '.mat'];
+    
+    % try get uncertainty confidence level
+    try 
+        conf_level = infogetnumber(inf, 'level of confidence [-]', {'QWTB processing setup'});
+    catch
+        conf_level = 0.95;
+    end      
     
     % read QWTB algorithm setup
     try 
@@ -143,6 +150,9 @@ function [chn_list,list] = qwtb_parse_result(result_path, cfg, var_list)
         
             % create empty variable record
             myvar = struct();
+            
+            % store confidence level
+            myvar.conf_level = conf_level;
             
             % this variable
             myvar.name = var_names_all{v};
@@ -293,6 +303,11 @@ function [chn_list,list] = qwtb_parse_result(result_path, cfg, var_list)
                         unc = [];
                     end
                   
+                end
+                
+                % always return at least zero unc
+                if isempty(unc)
+                    unc = zeros(size(value));
                 end
                 
                 % always transform vectors to row
