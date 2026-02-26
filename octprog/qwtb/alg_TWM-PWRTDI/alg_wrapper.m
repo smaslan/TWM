@@ -1159,8 +1159,8 @@ function dataout = alg_wrapper(datain, calcset)
     %          That is how the U, I and P paremeters above were calculated.        
     S = U*I;
     u_S = ((u_U*I)^2 + (u_I*U)^2)^0.5;
-    Q = (S^2 - P^2)^0.5;    
-    u_Q = ((S^2*u_S^2 + P^2*u_P^2)/(S^2 - P^2))^0.5; % ###note: ignoring corelations, may be improved    
+    Q = abs(S^2 - P^2)^0.5;    
+    u_Q = ((S^2*u_S^2 + P^2*u_P^2)/abs(S^2 - P^2))^0.5; % ###note: ignoring corelations, may be improved    
     % ###note: very experiMENTAL solution. The sing() of the FFT based Q (according Budeanu) is used to estimate polarity.
     %          Correct solution would be to use hilbert transform but that is not done yet.
     %          This solution should work for PF > 0.05 and for not insane THD. In the worst case it will change only polarity. 
