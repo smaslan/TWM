@@ -87,6 +87,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
+    alginfo.inputs(pid).enum = {'WFFT','PSFE','FPNLSF'};
     pid = pid + 1;    
     % window function:
     alginfo.inputs(pid).name = 'window';
@@ -102,6 +103,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
+    alginfo.inputs(pid).enum = ers.tags;
     pid = pid + 1;
     % invert phase function:
     alginfo.inputs(pid).name = 'invert';
@@ -123,6 +125,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
+    alginfo.inputs(pid).enum = {'4TP','2x4T'};
     pid = pid + 1;
     
     

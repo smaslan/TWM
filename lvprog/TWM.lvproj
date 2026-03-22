@@ -466,6 +466,12 @@
 			<Item Name="get_com_descriptor" Type="Folder">
 				<Item Name="Get COM Descriptor.lvlib" Type="Library" URL="../other/get_com_descriptor/Get COM Descriptor.lvlib"/>
 			</Item>
+			<Item Name="Parameter Matrix" Type="Folder">
+				<Item Name="Corr Parameter Item.ctl" Type="VI" URL="../other/Parameter Matrix/Corr Parameter Item.ctl"/>
+				<Item Name="Corr Parameters.ctl" Type="VI" URL="../other/Parameter Matrix/Corr Parameters.ctl"/>
+				<Item Name="Parameter Matrix Handler.vi" Type="VI" URL="../other/Parameter Matrix/Parameter Matrix Handler.vi"/>
+				<Item Name="Parameter Matrix Operation.vi" Type="VI" URL="../other/Parameter Matrix/Parameter Matrix Operation.vi"/>
+			</Item>
 			<Item Name="GUI Panel Control Action.ctl" Type="VI" URL="../other/GUI Panel Control Action.ctl"/>
 			<Item Name="randn_approximation.vi" Type="VI" URL="../other/randn_approximation.vi"/>
 			<Item Name="GUI Panel Control.vi" Type="VI" URL="../other/GUI Panel Control.vi"/>
@@ -1154,6 +1160,7 @@
 				<Item Name="Delimited String to 1D String Array.vi" Type="VI" URL="/&lt;vilib&gt;/AdvancedString/Delimited String to 1D String Array.vi"/>
 				<Item Name="1D String Array to Delimited String.vi" Type="VI" URL="/&lt;vilib&gt;/AdvancedString/1D String Array to Delimited String.vi"/>
 				<Item Name="Get Semaphore Status.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/semaphor.llb/Get Semaphore Status.vi"/>
+				<Item Name="LVPositionTypeDef.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/miscctls.llb/LVPositionTypeDef.ctl"/>
 			</Item>
 			<Item Name="instr.lib" Type="Folder">
 				<Item Name="niScope Initialize.vi" Type="VI" URL="/&lt;instrlib&gt;/niScope/niScope Initialize.vi"/>
@@ -1277,6 +1284,7 @@
 			<Item Name="ntdll.dll" Type="Document" URL="ntdll.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
+			<Item Name="matscript.dll" Type="Document"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM - full" Type="EXE">

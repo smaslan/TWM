@@ -480,11 +480,12 @@ function msg = check_alginfo(alginfo) %<<<1
     if isempty(msg)
             for i = 1:length(alginfo.inputs)
                     Q = alginfo.inputs(i);
-                    if ~(length(fieldnames(Q)) == 5)
-                        msg = ['some fields are missing or redundant in input quantity number ' num2str(i)];
+                    %###todo: make this check optional somehow? it is needed to be able to pass extra TWM data associated to input quantities
+                    %if ~(length(fieldnames(Q)) == 5)
+                    %    msg = ['some fields are missing or redundant in input quantity number ' num2str(i)];
 
                     % name
-                    elseif ~isfield(Q, 'name');
+                    if ~isfield(Q, 'name');
                         msg = ['missing field `name` in input quantity number ' num2str(i)];
                     elseif isempty(Q.name);
                         msg = ['empty field `name` in input quantity number ' num2str(i)];

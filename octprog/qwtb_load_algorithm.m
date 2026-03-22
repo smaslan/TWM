@@ -1,7 +1,7 @@
 %% -----------------------------------------------------------------------------
 %% QWTB TracePQM: Returns info for selected algorithm.
 %% -----------------------------------------------------------------------------
-function [alginfo,ptab,input_params_desc,support_multi_records,is_diff,has_ui,unc_guf,unc_mcm,output_params,input_params] = qwtb_load_algorithm(alg_id)
+function [alginfo,ptab,input_params_desc,support_multi_records,is_diff,has_ui,unc_guf,unc_mcm,output_params,input_params,input_param_enums] = qwtb_load_algorithm(alg_id)
   
   % fetch information struct of the QWTB algorithm
   alginfo = qwtb(alg_id,'info');
@@ -14,6 +14,8 @@ function [alginfo,ptab,input_params_desc,support_multi_records,is_diff,has_ui,un
   row{1,1} = 'parameter';
   row{1,2} = 'value';
       
+  input_param_enums = {};
+  
   % --- build parameters table  ---
   for k = 1:numel(inps)
  
@@ -32,12 +34,22 @@ function [alginfo,ptab,input_params_desc,support_multi_records,is_diff,has_ui,un
     % combine row header
     if numel(com)
       name = [name '  (' com ')'];
-    end     
+    end            
     
     % write variable header to the param. table
     row{end+1,1} = name;
-       
+    
+    % enums for each parameter (if available)
+    enums = '';
+    if isfield(inps(k),'enum') && ~isempty(inps(k).enum) 
+        enums = catcellcsv(inps(k).enum(:),'',sprintf('\t')); 
+    end
+    input_param_enums{k,1} = enums;
+           
   end
+  
+  % make list of enums  
+  input_param_enums = catcellcsv(input_param_enums,sprintf('\n'))
   
   % algorithm supports multiple records at once?
   support_multi_records = ~~qwtb_find_parameter(alginfo.inputs,'support_multi_records');
@@ -60,7 +72,7 @@ function [alginfo,ptab,input_params_desc,support_multi_records,is_diff,has_ui,un
   
   % return description of the parameters
   input_params = catcellcsv({inps.name});
-  
+      
   % return description matrix of the output parameters
   output_params = catcellcsv(cat(1,{alginfo.outputs.name},{alginfo.outputs.desc}).');
   
