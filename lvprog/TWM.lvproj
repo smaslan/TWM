@@ -1,6 +1,6 @@
 ﻿<?xml version='1.0' encoding='UTF-8'?>
 <Project Type="Project" LVVersion="20008000">
-	<Property Name="CCSymbols" Type="Str">w_niscope,0;w_visa,1;w_daqmx,1;</Property>
+	<Property Name="CCSymbols" Type="Str">w_niscope,1;w_visa,1;w_daqmx,1;</Property>
 	<Property Name="NI.LV.All.SourceOnly" Type="Bool">true</Property>
 	<Property Name="NI.Project.Description" Type="Str"></Property>
 	<Item Name="My Computer" Type="My Computer">
@@ -1284,7 +1284,6 @@
 			<Item Name="ntdll.dll" Type="Document" URL="ntdll.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
-			<Item Name="matscript.dll" Type="Document"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="TWM - full" Type="EXE">
@@ -1307,7 +1306,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{760E6441-58E1-45EF-AC33-D56DB8BDDEEF}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">10</Property>
-				<Property Name="Bld_version.patch" Type="Int">2</Property>
+				<Property Name="Bld_version.patch" Type="Int">3</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-full/NI_AB_PROJECTNAME.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1396,7 +1395,7 @@
 				<Property Name="Bld_previewCacheID" Type="Str">{6610392B-F2DD-4345-9565-78A1287C6779}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">10</Property>
-				<Property Name="Bld_version.patch" Type="Int">2</Property>
+				<Property Name="Bld_version.patch" Type="Int">3</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/TWM-visa.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1483,7 +1482,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{18CDA2A0-4686-4CF7-A999-34E367684EE7}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">10</Property>
-				<Property Name="Bld_version.patch" Type="Int">2</Property>
+				<Property Name="Bld_version.patch" Type="Int">3</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-niscope/TWM-visa-niScope.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1574,7 +1573,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{27659806-CFBA-4E41-96E1-CFFCCE604162}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
 				<Property Name="Bld_version.minor" Type="Int">10</Property>
-				<Property Name="Bld_version.patch" Type="Int">2</Property>
+				<Property Name="Bld_version.patch" Type="Int">3</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM-visa-daqmx.exe</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa-daqmx/TWM-visa-daqmx.exe</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
@@ -1657,7 +1656,7 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Server pre-Build Action.vi</Property>
 				<Property Name="Bld_previewCacheID" Type="Str">{DB64396F-7FF5-45F4-8E08-882448D7416F}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">9</Property>
+				<Property Name="Bld_version.minor" Type="Int">10</Property>
 				<Property Name="Bld_version.patch" Type="Int">3</Property>
 				<Property Name="Destination[0].destName" Type="Str">TWM client.lvlibp</Property>
 				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM client/TWM client.lvlibp</Property>
@@ -1686,83 +1685,46 @@ V1.7.9 - add AWG RS HMF25xx</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{6C025CF9-40E7-49D2-B44F-F2225C8410EF}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">TWM client.lvlibp</Property>
 			</Item>
-			<Item Name="dummy build" Type="EXE">
-				<Property Name="App_copyErrors" Type="Bool">true</Property>
-				<Property Name="App_INI_aliasGUID" Type="Str">{6EB92510-8128-4E99-A4DD-250C67EB43F2}</Property>
-				<Property Name="App_INI_GUID" Type="Str">{067FB65E-F083-49A9-B393-6FB3D33EE336}</Property>
-				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
-				<Property Name="App_serverType" Type="Int">1</Property>
-				<Property Name="Bld_buildCacheID" Type="Str">{4EB63204-538F-4639-AEBB-77A6C7D16259}</Property>
-				<Property Name="Bld_buildSpecDescription" Type="Str">Dummy build just for testing purposes.</Property>
-				<Property Name="Bld_buildSpecName" Type="Str">dummy build</Property>
+			<Item Name="Copy of TWM client" Type="Packed Library">
+				<Property Name="Bld_buildCacheID" Type="Str">{32C404B3-C379-4A6B-991A-5A2A1005F4D0}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">Copy of TWM client</Property>
 				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
 				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
 				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
-				<Property Name="Bld_localDestDir" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../TWM-builds/builds/Copy of TWM client</Property>
 				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
 				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
-				<Property Name="Bld_postActionVIID" Type="Ref">/My Computer/build/Post-Build Action.vi</Property>
-				<Property Name="Bld_previewCacheID" Type="Str">{EC92165E-980E-4BE0-ACFD-B7F482C8CFAB}</Property>
+				<Property Name="Bld_preActionVIID" Type="Ref">/My Computer/build/Server pre-Build Action.vi</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{CBAF6734-BD78-40AA-8431-374E888C9DAA}</Property>
 				<Property Name="Bld_version.major" Type="Int">1</Property>
-				<Property Name="Bld_version.minor" Type="Int">7</Property>
-				<Property Name="Bld_version.patch" Type="Int">1</Property>
-				<Property Name="Destination[0].destName" Type="Str">TWM.exe</Property>
-				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/NI_AB_PROJECTNAME.exe</Property>
+				<Property Name="Bld_version.minor" Type="Int">9</Property>
+				<Property Name="Bld_version.patch" Type="Int">3</Property>
+				<Property Name="Destination[0].destName" Type="Str">TWM client.lvlibp</Property>
+				<Property Name="Destination[0].path" Type="Path">../TWM-builds/builds/Copy of TWM client/TWM client.lvlibp</Property>
 				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
 				<Property Name="Destination[0].type" Type="Str">App</Property>
 				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
-				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa</Property>
-				<Property Name="Destination[2].destName" Type="Str">octprog</Property>
-				<Property Name="Destination[2].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/octprog</Property>
-				<Property Name="Destination[2].preserveHierarchy" Type="Bool">true</Property>
-				<Property Name="Destination[3].destName" Type="Str">doc</Property>
-				<Property Name="Destination[3].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/doc</Property>
-				<Property Name="Destination[3].preserveHierarchy" Type="Bool">true</Property>
-				<Property Name="Destination[4].destName" Type="Str">data</Property>
-				<Property Name="Destination[4].path" Type="Path">../TWM-builds/builds/TWM-[VersionNumber]-visa/data</Property>
-				<Property Name="Destination[4].preserveHierarchy" Type="Bool">true</Property>
-				<Property Name="DestinationCount" Type="Int">5</Property>
-				<Property Name="Source[0].itemID" Type="Str">{6E37BBAE-F219-461D-88C6-705A83DF4ECC}</Property>
+				<Property Name="Destination[1].path" Type="Path">../TWM-builds/builds/Copy of TWM client</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="PackedLib_callersAdapt" Type="Bool">true</Property>
+				<Property Name="Source[0].itemID" Type="Str">{50EF0A88-65C1-464E-A580-4DF8FCC87993}</Property>
 				<Property Name="Source[0].type" Type="Str">Container</Property>
 				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
-				<Property Name="Source[1].itemID" Type="Ref">/My Computer/main.vi</Property>
-				<Property Name="Source[1].type" Type="Str">VI</Property>
-				<Property Name="Source[2].Container.applyDestination" Type="Bool">true</Property>
-				<Property Name="Source[2].destinationIndex" Type="Int">2</Property>
-				<Property Name="Source[2].itemID" Type="Ref"></Property>
-				<Property Name="Source[2].type" Type="Str">Container</Property>
-				<Property Name="Source[3].Container.applyDestination" Type="Bool">true</Property>
-				<Property Name="Source[3].destinationIndex" Type="Int">3</Property>
-				<Property Name="Source[3].itemID" Type="Ref">/My Computer/doc</Property>
-				<Property Name="Source[3].type" Type="Str">Container</Property>
-				<Property Name="Source[4].Container.applyDestination" Type="Bool">true</Property>
-				<Property Name="Source[4].destinationIndex" Type="Int">4</Property>
-				<Property Name="Source[4].itemID" Type="Ref">/My Computer/data</Property>
-				<Property Name="Source[4].type" Type="Str">Container</Property>
-				<Property Name="Source[5].destinationIndex" Type="Int">0</Property>
-				<Property Name="Source[5].itemID" Type="Ref">/My Computer/info_test.vi</Property>
-				<Property Name="Source[5].sourceInclusion" Type="Str">TopLevel</Property>
-				<Property Name="Source[5].type" Type="Str">VI</Property>
-				<Property Name="SourceCount" Type="Int">6</Property>
-				<Property Name="TgtF_companyName" Type="Str">Czech Metrology Institute</Property>
-				<Property Name="TgtF_fileDescription" Type="Str">Traceable Wattmeter. EMPIR project TracePQM.
-
-V1.3.2 - most of the bugs fixed
-V1.4.0 - FFT analyser added
-V1.4.1 - minor fixes for server oparation
-V1.4.3 - implemented AWG Tek AFG3000 series for 3458A clocking 
-V1.4.4 - DMM fixed relays saved, few more improvements
-V1.4.4 - DMM fixed relays saved, few more improvements
-V1.5.0 - conditional compile of selected drivers included
-V1.6.0 - improved GUI (mainly corrections)
-V1.6.1 - minor fixes in corrections editor, fixed dsdll
-V1.7.0 - parallel QWTB processing
-V1.7.1 - minor fixes</Property>
-				<Property Name="TgtF_internalName" Type="Str">TWM - Full</Property>
-				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2020</Property>
-				<Property Name="TgtF_productName" Type="Str">TWM - Full</Property>
-				<Property Name="TgtF_targetfileGUID" Type="Str">{C2769234-725A-4E54-B71A-C229138897BB}</Property>
-				<Property Name="TgtF_targetfileName" Type="Str">TWM.exe</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/server/TWM Client.lvlib</Property>
+				<Property Name="Source[1].Library.allowMissingMembers" Type="Bool">true</Property>
+				<Property Name="Source[1].Library.atomicCopy" Type="Bool">true</Property>
+				<Property Name="Source[1].Library.LVLIBPtopLevel" Type="Bool">true</Property>
+				<Property Name="Source[1].preventRename" Type="Bool">true</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">Library</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_enableDebugging" Type="Bool">true</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">TWM tool client for remote operation.</Property>
+				<Property Name="TgtF_internalName" Type="Str">TWM client</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2018 - 2024</Property>
+				<Property Name="TgtF_productName" Type="Str">TWM client</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{D9C6C3AE-91D7-445F-B4F5-A23219B8CAD6}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">TWM client.lvlibp</Property>
 			</Item>
 		</Item>
 	</Item>
