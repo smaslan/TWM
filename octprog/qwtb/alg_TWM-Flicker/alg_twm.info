@@ -1,0 +1,34 @@
+// TWM quantities configuration for qwtb_list.info definition file (optional)
+
+// === setup for the particular algorithms ===
+// These are optional sections, one for each algorithm. Name of the section must be equal to the value
+// in the 'list of supported algorithms'. These are used to configurate the algorithm behaviour.
+//
+// parameters:
+//  exclude outputs: matrix of output quantities that will be excluded from display (usually time vector)
+//  graphs: 2D matrix of graph-like outputs (frequency dependence, ...), one row per graph, column: x, y qunatity
+//          example: f; A
+//  spectrum: output quantity that will be displayed as default frequency spectrum
+//  is phase: matrix of output quantities that are phase (used for phase unit display mode selection [rad/deg])
+//  is amplitude: matrix of output quantities that are amplitude (used for amplitude scaling selection)
+//  number formats: 2D matrix of configurations for particular variables, one row per variable, columns:
+//                  variable name; format specifier; minimum absolute uncertainty; minimum relative uncertainty;
+//
+//                    variable name - name of the output variable
+//                    format specifier - number format:
+//                                       'f': float (no exponent)
+//                                       'si': SI prefix
+//                    minimum absolute uncertainty - minimum absolute uncertainty of the quantity
+//                                                 - this will have effect in case no uncertainty is available
+//                    minimum relative uncertainty - minimum relative uncertainty of the quantity (unit-less)
+//                                                 - this will have effect in case no uncertainty is available
+//
+//                  example: f; si; 1e-6; 0.0001
+//
+
+#startsection:: TWM-Flicker
+        #startmatrix:: number formats
+                Pst;    f;  1e-5; 1e-5
+                Pinst;  f;  1e-5; 1e-5
+        #endmatrix:: number formats
+#endsection:: TWM-Flicker

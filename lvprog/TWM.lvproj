@@ -344,6 +344,14 @@
 					<Item Name="Batch" Type="Folder">
 						<Item Name="Meas Batch Proc QWTB Panel.vi" Type="VI" URL="../measure/processing/QWTB/Batch/Meas Batch Proc QWTB Panel.vi"/>
 					</Item>
+					<Item Name="Algs Setup" Type="Folder">
+						<Item Name="QWTB Algorithms Configurator Panel.vi" Type="VI" URL="../measure/processing/QWTB/Algs Setup/QWTB Algorithms Configurator Panel.vi"/>
+						<Item Name="QWTB Algorithms Filter Find Existing Algs.vi" Type="VI" URL="../measure/processing/QWTB/Algs Setup/QWTB Algorithms Filter Find Existing Algs.vi"/>
+						<Item Name="QWTB Algorithms Filter Find Alg Config.vi" Type="VI" URL="../measure/processing/QWTB/Algs Setup/QWTB Algorithms Filter Find Alg Config.vi"/>
+						<Item Name="QWTB Algorithms Filter Set Config.vi" Type="VI" URL="../measure/processing/QWTB/Algs Setup/QWTB Algorithms Filter Set Config.vi"/>
+						<Item Name="QWTB Algorithms Filter Set List.vi" Type="VI" URL="../measure/processing/QWTB/Algs Setup/QWTB Algorithms Filter Set List.vi"/>
+						<Item Name="QWTB Algorithms Filter Get List.vi" Type="VI" URL="../measure/processing/QWTB/Algs Setup/QWTB Algorithms Filter Get List.vi"/>
+					</Item>
 					<Item Name="Meas Proc QWTB Calculation Setup.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Calculation Setup.ctl"/>
 					<Item Name="Meas Proc QWTB Setup.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Setup.ctl"/>
 					<Item Name="Meas Proc QWTB Viewer Asyn Session.ctl" Type="VI" URL="../measure/processing/QWTB/Meas Proc QWTB Viewer Asyn Session.ctl"/>
