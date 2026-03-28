@@ -95,6 +95,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
+    alginfo.inputs(pid).enum = window_coeff();
     pid = pid + 1;
     % equivalent circuit mode:
     ers = z_to_equivalent();    

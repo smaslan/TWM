@@ -72,6 +72,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
+    alginfo.inputs(pid).enum = {'WFFT','PSFE','FPNLSF'};
     pid = pid + 1;
     % window function:
     alginfo.inputs(pid).name = 'window';
@@ -79,6 +80,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
+    alginfo.inputs(pid).enum = window_coeff();
     pid = pid + 1;
     % equivalent circuit mode:
     ers = z_to_equivalent();    
@@ -87,6 +89,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
+    alginfo.inputs(pid).enum = ers.tags;
     pid = pid + 1;
     
     % sub-records mode:

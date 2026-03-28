@@ -87,13 +87,16 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
+    alginfo.inputs(pid).enum = {'WFFT','PSFE','FPNLSF'};
     pid = pid + 1;
     % equivalent circuit mode:
-    alginfo.inputs(pid).name = 'equ';
-    alginfo.inputs(pid).desc = 'Equivalent circuit of DUT (CpD, LsRs, etc.)';
+    ers = z_to_equivalent();    
+    alginfo.inputs(pid).name = 'equ';    
+    alginfo.inputs(pid).desc = sprintf('Output equivalent circuit of DUT (%s)',catcellcsv(ers.tags',', '));
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
+    alginfo.inputs(pid).enum = ers.tags;
     pid = pid + 1;
     % window function:
     alginfo.inputs(pid).name = 'window';
@@ -101,6 +104,7 @@ function alginfo = alg_info() %<<<1
     alginfo.inputs(pid).alternative = 0;
     alginfo.inputs(pid).optional = 1;
     alginfo.inputs(pid).parameter = 1;
+    alginfo.inputs(pid).enum = window_coeff();
     pid = pid + 1;
     % invert phase function:
     alginfo.inputs(pid).name = 'invert';
