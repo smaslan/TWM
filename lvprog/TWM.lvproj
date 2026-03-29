@@ -253,6 +253,7 @@
 				<Item Name="Info Insert Row to 2D String Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 2D String Array.vi"/>
 				<Item Name="Info Insert Row to 1D TimeStamps Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 1D TimeStamps Array.vi"/>
 				<Item Name="Info Insert Row to 1D String Array.vi" Type="VI" URL="../octave/info/Info Insert Row to 1D String Array.vi"/>
+				<Item Name="Info Fix Indent.vi" Type="VI" URL="../octave/info/Info Fix Indent.vi"/>
 				<Item Name="Info Replace Scalar.vi" Type="VI" URL="../octave/info/Info Replace Scalar.vi"/>
 				<Item Name="Info Replace Matrix.vi" Type="VI" URL="../octave/info/Info Replace Matrix.vi"/>
 				<Item Name="infolib.lvlib" Type="Library" URL="../octave/infolib/infolib.lvlib"/>

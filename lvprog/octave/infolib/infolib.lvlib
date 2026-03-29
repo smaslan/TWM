@@ -75,7 +75,6 @@
 			<Item Name="Create Sections Headings.vi" Type="VI" URL="../Create Sections Headings.vi"/>
 			<Item Name="Create Table Heading.vi" Type="VI" URL="../Create Table Heading.vi"/>
 			<Item Name="EOL.vi" Type="VI" URL="../EOL.vi"/>
-			<Item Name="Exist Section.vi" Type="VI" URL="../Exist Section.vi"/>
 			<Item Name="Flatten to CSV Record.vi" Type="VI" URL="../Flatten to CSV Record.vi"/>
 			<Item Name="Get Key Line.vi" Type="VI" URL="../Get Key Line.vi"/>
 			<Item Name="Get Matrix String.vi" Type="VI" URL="../Get Matrix String.vi"/>
@@ -90,6 +89,7 @@
 	</Item>
 	<Item Name="Public" Type="Folder">
 		<Item Name="Add Key Or Table.vi" Type="VI" URL="../Add Key Or Table.vi"/>
+		<Item Name="Exist Section.vi" Type="VI" URL="../Exist Section.vi"/>
 		<Item Name="Get Key Or Table.vi" Type="VI" URL="../Get Key Or Table.vi"/>
 		<Item Name="Get Section.vi" Type="VI" URL="../Get Section.vi"/>
 		<Item Name="Insert Info Data.vi" Type="VI" URL="../Insert Info Data.vi"/>
