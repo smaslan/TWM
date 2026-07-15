@@ -52,7 +52,7 @@ function [grp_setup] = qwtb_plot_result(meas_root, res_id, alg_id, chn_id, cfg, 
     is_refresh = false;    
     if nargin == 1
         % load setup from struct
-        grp_setup = mea_root;
+        grp_setup = meas_root;
         
         if ~isfield(grp_setup,'meas_root') || ~isfield(grp_setup,'alg_id') || ~isfield(grp_setup,'alg_id') || ~isfield(grp_setup,'chn_id') || ~isfield(grp_setup,'res_id') || ~isfield(grp_setup,'cfg') || ~isfield(grp_setup,'var_name') || ~isfield(grp_setup,'plot_cfg') || ~isfield(grp_setup,'fig_href')
             grp_setup = struct();
